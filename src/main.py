@@ -12,6 +12,7 @@ GUI-приложения импортируются лениво, внутри �
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from typing import Optional, Sequence
@@ -100,19 +101,243 @@ def _check_db() -> int:
 
 
 # ------------------------------------------------------------------ parse
-def _cmd_parse(args) -> int:
-    from npazs.ui.parser_app import main as parser_main
+def _parse_batch(args) -> int:
+    import logging
+    from npazs.core.html_parser import NpaToJsonGenerator
 
+    input_file = getattr(args, 'input')
+    if not input_file or not os.path.exists(input_file):
+        _print_err(f'Файл не найден: {input_file}')
+        return EXIT_ERROR
+
+    output_file = getattr(args, 'output')
+    if not output_file:
+        base, _ = os.path.splitext(input_file)
+        output_file = base + '.json'
+
+    doc_type = getattr(args, 'doc_type', 'law') or 'law'
+
+    print(f'Пакетный разбор: {input_file} -> {output_file}')
+
+    try:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+    except Exception as e:
+        _print_err(f'Не удалось прочитать файл: {e}')
+        return EXIT_ERROR
+
+    try:
+        generator = NpaToJsonGenerator(html_content, doc_type=doc_type, batch_mode=True)
+        generator.logger.setLevel(logging.DEBUG)
+        toc_structure, ambiguous_elements = generator.generate_toc()
+    except Exception as e:
+        _print_err(f'Ошибка парсинга: {e}')
+        return EXIT_ERROR
+
+    if generator.errors:
+        for err in generator.errors:
+            _print_err(f'Ошибка парсера: {err}')
+        return EXIT_ERROR
+
+    if ambiguous_elements:
+        print(f'Предупреждение: {len(ambiguous_elements)} неоднозначных элементов (используются эвристики)')
+
+    head_revision = [{"npa_head": generator.doc_title or "Без названия"}]
+    root_object = {
+        "npa_id": getattr(generator, 'document_id', '') or "",
+        "npa_type": doc_type,
+        "npa_number": generator.npa_number or "",
+        "npa_author": "",
+        "npa_npa_committee": "",
+        "pub_info": "",
+        "pub_filepath": "",
+        "npa_url": "",
+        "date_reg": generator.date_signed or generator.date_passed or "",
+        "date_cons": "",
+        "date_1st_reading": "",
+        "date_passed": generator.date_passed or "",
+        "date_signed": generator.date_signed or "",
+        "date_pub": generator.date_signed or generator.date_passed or "",
+        "valid_from": generator.date_signed or generator.date_passed or "",
+        "npa_signer_post": generator.governor_post_html or "",
+        "npa_signer": generator.governor_name or "",
+        "term_number": generator.term_number or "",
+        "session_number": generator.session_number or "",
+        "date_format": generator.date_format or 1,
+        "head_revision": head_revision,
+        "npa_items_revision": toc_structure,
+    }
+
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(root_object, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        _print_err(f'Не удалось записать файл: {e}')
+        return EXIT_ERROR
+
+    print(f'Готово. Файл сохранён: {output_file}')
+    if hasattr(generator, 'no_name_parents') and generator.no_name_parents:
+        print(f'Элементы без названия: {", ".join(generator.no_name_parents)}')
+    return EXIT_OK
+
+
+def _cmd_parse(args) -> int:
     if getattr(args, 'input', None):
-        print(
-            'Пакетный разбор из командной строки пока не реализован: '
-            'парсер требует интерактивных решений по приложениям и таблицам. '
-            'Открываю GUI.'
-        )
+        return _parse_batch(args)
+
+    from npazs.ui.parser_app import main as parser_main
     return parser_main()
 
 
 # ------------------------------------------------------------------ revise
+def _revise_headless(args) -> int:
+    import threading
+    from npazs.pipeline.orchestrator import AiPipelineMixin
+    from npazs.revision.file_ops import FileOpsMixin
+    from npazs.revision.engine import rebuild_element_with_history
+    from npazs.revision.change_pipeline import apply_change_tracked, apply_grouped_changes_tracked, run_verification_stage
+    from npazs.revision.change_tracker import ChangeTracker, ChangeStatus
+    from npazs.revision.element_finder import narrow_source_id_to_subpoint, find_item_by_revision_number
+    from npazs.revision.ui_utils import _correct_change_description, _fetch_source_html_for_change, _add_new_element, _find_existing_element_flexible, _normalize_highlights_positions, _resolve_add_parent_and_deferred, _ensure_path, extract_json_from_text, expand_range_in_new_field, split_range_changes, get_date_for_filename
+    from npazs.revision.tree_utils import _find_target_element, find_item_by_id
+    from npazs.revision.html_utils import extract_html_for_added_element, _extract_quoted_html, extract_structural_block, extract_text_from_element, get_full_element_html
+    from npazs.revision.retroactive_notes import (
+        apply_retroactive_rules_to_groups,
+        _append_item_note,
+        _add_npa_note,
+        normalize_amending_note_text,
+    )
+    from npazs.constants import (
+        settings,
+        _ollama_base_url,
+        DEFAULT_EXTRA_OPTIONS,
+        DEFAULT_OLLAMA_MODEL,
+        DEFAULT_KILO_GATEWAY_URL,
+        DEFAULT_KILO_GATEWAY_MODEL,
+        DEFAULT_BACKEND,
+        PROMPT_1,
+        PROMPT_2,
+        PROMPT_3,
+        PROMPT_4,
+        TYPE_TO_RUSSIAN,
+        save_last_run_log,
+    )
+    from npazs.revision.text_utils import strip_thinking_tags, safe_re_sub
+    from npazs.revision.ai_utils import ask_ollama
+    from json_repair import repair_json
+
+    source_file = getattr(args, 'source')
+    target_file = getattr(args, 'target')
+    output_file = getattr(args, 'output')
+    backend = getattr(args, 'backend', None) or os.environ.get('LLM_BACKEND', 'kilo_gateway')
+    model = getattr(args, 'model', None) or os.environ.get('KILO_GATEWAY_DEFAULT_MODEL', DEFAULT_KILO_GATEWAY_MODEL)
+
+    if not source_file or not target_file:
+        _print_err('Укажите --source и --target для пакетного внесения изменений.')
+        return EXIT_USAGE
+    if not os.path.exists(source_file):
+        _print_err(f'Файл изменений не найден: {source_file}')
+        return EXIT_ERROR
+    if not os.path.exists(target_file):
+        _print_err(f'Цевой файл не найден: {target_file}')
+        return EXIT_ERROR
+
+    import json
+    with open(target_file, 'r', encoding='utf-8') as f:
+        original_data = json.load(f)
+    with open(source_file, 'r', encoding='utf-8') as f:
+        change_data = json.load(f)
+
+    valid_from_str = change_data.get('valid_from', '').strip() or change_data.get('date_signed', '').strip() or change_data.get('date_pub', '').strip()
+    if not valid_from_str:
+        _print_err('В JSON изменений не найдена дата вступления в силу.')
+        return EXIT_ERROR
+    try:
+        general_valid_from = datetime.strptime(valid_from_str, '%d.%m.%Y').date()
+    except ValueError:
+        _print_err(f'Неверный формат даты: {valid_from_str}')
+        return EXIT_ERROR
+
+    pub_date_str = change_data.get('date_pub', '') or change_data.get('date_signed', '')
+
+    class _Var:
+        def __init__(self, value):
+            self._value = value
+        def get(self):
+            return self._value
+        def set(self, value):
+            self._value = value
+
+    class _HeadlessApp(AiPipelineMixin, FileOpsMixin):
+        def __init__(self):
+            self.original_path = _Var(target_file)
+            self.change_path = _Var(source_file)
+            self.law_ref = _Var(change_data.get('npa_number', ''))
+            self.original_law_ref = _Var(original_data.get('npa_number', ''))
+            self.ollama_model = _Var(model)
+            self.backend = _Var(backend)
+            self.kilo_gateway_url = _Var(settings.kilo_gateway_base_url)
+            self.kilo_gateway_api_key = _Var(settings.kilo_gateway_api_key or '')
+            self.extra_options = _Var(json.dumps(DEFAULT_EXTRA_OPTIONS))
+            self.prompt_1 = PROMPT_1
+            self.prompt_2 = PROMPT_2
+            self.prompt_3 = PROMPT_3
+            self.prompt_4 = PROMPT_4
+            self.use_stage1_answer = _Var(False)
+            self.use_stage2_answer = _Var(False)
+            self.use_stage3_answer = _Var(False)
+            self.stage1_answer_text = _Var('')
+            self.stage2_answer_text = _Var('')
+            self.stage3_answer_text = _Var('')
+            self.stop_event = threading.Event()
+            self.message_queue = None
+            self.answer_queue = None
+            self.manual_mapping_cache = {}
+            self.logs = []
+
+        def log(self, message, tag=None):
+            self.logs.append((tag, message))
+            print(f'[{tag or "INFO"}] {message}' if tag else message)
+
+        def resolve_revision_manually(self, revision_number, change_data, log_callback, stop_event=None, change_info=""):
+            log_callback(f"Автовыбор для revision_number={revision_number} (headless)", 'warning')
+            return None
+
+        def resolve_ambiguous_element(self, item_type, item_number, candidates, structural_path, revision_number=None, change_info=None, target_element_id=None):
+            log_callback = self.log
+            log_callback(f"Автовыбор для неоднозначного элемента {item_type} {item_number} (headless)", 'warning')
+            return None
+
+        def resolve_target_element_manually(self, change_data, stop_event=None):
+            self.log("Автовыбор целевого элемента (headless)", 'warning')
+            return None
+
+        def resolve_change_manually(self, change, original_data, stop_event=None):
+            self.log("Автовыбор изменения (headless)", 'warning')
+            return None, None, None, None
+
+        def _save_result(self, result_data, orig_file, change_data):
+            if not output_file:
+                base, _ = os.path.splitext(target_file)
+                output_file_path = f"{base}_revised.json"
+            else:
+                output_file_path = output_file
+            FileOpsMixin._save_result(self, result_data, target_file, change_data)
+            with open(output_file_path, 'w', encoding='utf-8') as f:
+                json.dump(result_data, f, ensure_ascii=False, indent=2)
+            self.log(f"Результат сохранён: {output_file_path}", 'result')
+
+    try:
+        app = _HeadlessApp()
+        app.run_all()
+        return EXIT_OK
+    except Exception as e:
+        _print_err(f'Ошибка headless revise: {e}')
+        import traceback
+        traceback.print_exc()
+        return EXIT_ERROR
+
+
 def _cmd_revise(args) -> int:
     if getattr(args, 'backend', None):
         os.environ['LLM_BACKEND'] = args.backend
@@ -120,8 +345,10 @@ def _cmd_revise(args) -> int:
         os.environ['KILO_GATEWAY_DEFAULT_MODEL'] = args.model
         os.environ['OLLAMA_DEFAULT_MODEL'] = args.model
 
-    from npazs.ui.revision_app import main as revision_main
+    if getattr(args, 'source', None) and getattr(args, 'target', None):
+        return _revise_headless(args)
 
+    from npazs.ui.revision_app import main as revision_main
     revision_main()
     return EXIT_OK
 

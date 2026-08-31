@@ -47,7 +47,7 @@ from npazs.constants import settings
 from npazs.core.queue_handler import QueueHandler
 
 class NpaToJsonGenerator:
-    def __init__(self, html_content, doc_type='law', appendix_processing_decisions=None, document_id=None, fragment_element_id=None, root_number=None, root_type=None, log_queue=None, is_table_child=False, answer_queue=None, stop_event=None):
+    def __init__(self, html_content, doc_type='law', appendix_processing_decisions=None, document_id=None, fragment_element_id=None, root_number=None, root_type=None, log_queue=None, is_table_child=False, answer_queue=None, stop_event=None, batch_mode=False):
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger('NpaToJsonGenerator')
             self.logger.setLevel(logging.DEBUG)
@@ -60,6 +60,7 @@ class NpaToJsonGenerator:
                 handler = logging.StreamHandler()
                 handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
                 self.logger.addHandler(handler)
+        self.batch_mode = batch_mode
         html_content = self.sup_digits_to_unicode(html_content)
         try:
             import lxml
@@ -1535,7 +1536,7 @@ class NpaToJsonGenerator:
             dt = datetime(year, month, day)
             fmt = 0 if len(day_str) == 2 and day_str.startswith('0') else 1
             return dt, fmt
-        except:
+        except ValueError:
             return None, 1
 
     def normalize_text(self, text):
@@ -1761,6 +1762,8 @@ class NpaToJsonGenerator:
         return None
 
     def _ask_user_ambiguity(self, candidate, adjacent, change_info=None, target_element_id=None, source_revision=None):
+        if self.batch_mode:
+            return 'skip', None, None
         if self.answer_queue is None:
             print("\n--- Неоднозначная структура ---")
             print(f"Изменение: {change_info if change_info else 'неизвестно'}")
@@ -1832,6 +1835,8 @@ class NpaToJsonGenerator:
                     continue
 
     def _ask_user_appendix_title(self, appendix_title):
+        if self.batch_mode:
+            return True
         if self.answer_queue is None:
             while True:
                 print(f"\n--- Найден заголовок приложения ---")

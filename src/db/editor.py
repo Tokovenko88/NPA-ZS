@@ -18,7 +18,27 @@ try:
 except ImportError:
     load_dotenv = None
 
+from npazs.db.schema import is_known_table, ALL_TABLES
+
+_IDENTIFIER_RE = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+
+
+def _validate_table_name(table_name: str) -> str:
+    if not _IDENTIFIER_RE.match(table_name):
+        raise ValueError(f'Недопустимое имя таблицы: {table_name!r}')
+    if table_name not in ALL_TABLES:
+        raise ValueError(f'Неизвестная таблица: {table_name!r}')
+    return table_name
+
+
+def _validate_column_name(column_name: str) -> str:
+    if not _IDENTIFIER_RE.match(column_name):
+        raise ValueError(f'Недопустимое имя колонки: {column_name!r}')
+    return column_name
+
+
 def get_display_field_for_table(table_name: str) -> str:
+    table_name = _validate_table_name(table_name)
     display_map = {
         'person': 'fio',
         'convocation': 'name',
@@ -220,7 +240,8 @@ class DatabaseManager:
 
     def get_choices_for_fk(self, referenced_table: str, referenced_column: str) -> List[Tuple[Any, str]]:
         display_field = get_display_field_for_table(referenced_table)
-        query = f"SELECT {referenced_column} as id, {display_field} as display FROM {referenced_table}"
+        referenced_column = _validate_column_name(referenced_column)
+        query = f"SELECT {referenced_column} as id, {display_field} as display FROM {_validate_table_name(referenced_table)}"
         rows = self.execute_query(query)
         return [(row['id'], row['display']) for row in rows]
 
@@ -557,17 +578,17 @@ class RecordEditor(tk.Toplevel):
 
         pk_name = 'npa_id' if self.table_name == 'npa_base' else 'id'
         if self.record_id is None:
-            columns = ', '.join(data.keys())
+            columns = ', '.join(_validate_column_name(k) for k in data.keys())
             placeholders = ', '.join(['%s'] * len(data))
-            query = f"INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})"
+            query = f"INSERT INTO {_validate_table_name(self.table_name)} ({columns}) VALUES ({placeholders})"
             success = self.db.execute_update(query, tuple(data.values()))
             if success:
                 messagebox.showinfo("Успех", "Запись добавлена")
                 self.result = True
                 self.destroy()
         else:
-            set_clause = ', '.join([f"{k}=%s" for k in data.keys()])
-            query = f"UPDATE {self.table_name} SET {set_clause} WHERE {pk_name}=%s"
+            set_clause = ', '.join([f"{_validate_column_name(k)}=%s" for k in data.keys()])
+            query = f"UPDATE {_validate_table_name(self.table_name)} SET {set_clause} WHERE {_validate_column_name(pk_name)}=%s"
             params = tuple(list(data.values()) + [self.record_id])
             success = self.db.execute_update(query, params)
             if success:
@@ -1180,7 +1201,7 @@ class TableTab(ttk.Frame):
         for col, entry in self.filter_entries.items():
             val = entry.get().strip()
             if val:
-                conditions.append(f"{col} LIKE %s")
+                conditions.append(f"{_validate_column_name(col)} LIKE %s")
                 params.append(f"%{val}%")
         where = " AND ".join(conditions) if conditions else "1"
         query = f"SELECT * FROM {self.table_name} WHERE {where}"
@@ -1225,7 +1246,7 @@ class TableTab(ttk.Frame):
         for item in selected:
             values = self.tree.item(item)['values']
             record_id = values[pk_index]
-            self.db.execute_update(f"DELETE FROM {self.table_name} WHERE {pk_name}=%s", (record_id,))
+            self.db.execute_update(f"DELETE FROM {_validate_table_name(self.table_name)} WHERE {_validate_column_name(pk_name)}=%s", (record_id,))
         self.load_data()
 
     def show_context_menu(self, event):
@@ -1284,7 +1305,7 @@ class StructureTab(ttk.Frame):
                 self.app.log("Виджет дерева уничтожен, пересоздаём UI")
                 self.create_ui()
                 return
-        except:
+        except (AttributeError, RuntimeError):
             self.app.log("Ошибка доступа к виджету дерева, пересоздаём UI")
             self.create_ui()
             return
@@ -1364,7 +1385,7 @@ class StructureTab(ttk.Frame):
                     if f in ('item_level', 'sort_order'):
                         try:
                             val = int(val) if val else 0
-                        except:
+                        except ValueError:
                             val = 0
                     data[f] = val if val != '' else None
             if not data.get('item_id'):
@@ -1420,7 +1441,7 @@ class StructureTab(ttk.Frame):
             return
         try:
             item_id = int(selected[0].split('_')[1])
-        except:
+        except (IndexError, ValueError):
             return
         editor = FullItemEditor(self, self.db, item_id, self.current_npa_id, self.app.log)
         self.wait_window(editor)
@@ -1430,7 +1451,7 @@ class StructureTab(ttk.Frame):
             else:
                 self.app.log("Дерево уничтожено, пересоздаём")
                 self.create_ui()
-        except:
+        except (AttributeError, RuntimeError):
             self.app.log("Ошибка при обновлении структуры, пересоздаём UI")
             self.create_ui()
 

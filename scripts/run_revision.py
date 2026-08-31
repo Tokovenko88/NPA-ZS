@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Запуск GUI внесения изменений (5-этапный AI-пайплайн).
+"""Запуск внесения изменений в НПА (5-этапный AI-пайплайн).
+
+Поддерживает два режима:
+1. GUI (по умолчанию): ``python scripts/run_revision.py``
+2. Пакетный режим: ``python scripts/run_revision.py --source change.json --target original.json [--output result.json] [--backend ollama|kilo_gateway] [--model model_name]``
 
 Работает и без ``pip install -e .``: загружает bootstrap, который регистрирует
 пакет ``npazs`` в ``sys.modules``.
@@ -17,10 +21,15 @@ _bootstrap = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_bootstrap)
 _bootstrap.bootstrap()
 
-from npazs.ui.revision_app import App
-import tkinter as tk
-
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
+    if len(sys.argv) > 1:
+        from npazs.main import main
+        if sys.argv[1] not in ('parse', 'revise', 'import', 'sync', 'validate', 'report', 'init'):
+            sys.argv.insert(1, 'revise')
+        sys.exit(main())
+    else:
+        from npazs.ui.revision_app import App
+        import tkinter as tk
+        root = tk.Tk()
+        app = App(root)
+        root.mainloop()

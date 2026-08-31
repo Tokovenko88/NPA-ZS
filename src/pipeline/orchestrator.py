@@ -65,10 +65,12 @@ from npazs.constants import (
     TYPE_TO_RUSSIAN,
     save_last_run_log,
 )
-from npazs.revision.revision_utils import *
+from json_repair import repair_json
+from npazs.revision.text_utils import strip_thinking_tags
+from npazs.revision.ai_utils import ask_ollama
 from npazs.revision.engine import *
-from npazs.revision.tree_utils import _find_target_element
-from npazs.revision.ui_utils import _correct_change_description, _fetch_source_html_for_change, _add_new_element, _find_existing_element_flexible, _normalize_highlights_positions, _resolve_add_parent_and_deferred, _ensure_path
+from npazs.revision.tree_utils import _find_target_element, find_item_by_id
+from npazs.revision.ui_utils import _correct_change_description, _fetch_source_html_for_change, _add_new_element, _find_existing_element_flexible, _normalize_highlights_positions, _resolve_add_parent_and_deferred, _ensure_path, extract_json_from_text, expand_range_in_new_field, split_range_changes, get_date_for_filename
 from npazs.revision.element_finder import narrow_source_id_to_subpoint, find_item_by_revision_number
 from npazs.revision.retroactive_notes import (
     apply_retroactive_rules_to_groups,
@@ -1275,7 +1277,7 @@ class AiPipelineMixin:
                 valid_from_str = changes[0].get('valid_from', general_valid_from.strftime('%d.%m.%Y'))
                 try:
                     valid_from_date = datetime.strptime(valid_from_str, '%d.%m.%Y').date()
-                except:
+                except ValueError:
                     valid_from_date = general_valid_from
                 self.log(f"Применение группы из {len(changes)} правок к {target_id} ({element.get('item_type')} {element.get('item_number', '')})", 'info')
                 to_update = [
@@ -1745,7 +1747,7 @@ class AiPipelineMixin:
                     try:
                         dt = datetime.strptime(date_signed, '%d.%m.%Y')
                         date_part = f"{dt.year:04d}_{dt.month:02d}_{dt.day:02d}"
-                    except:
+                    except ValueError:
                         date_part = datetime.now().strftime('%Y_%m_%d')
                 else:
                     date_part = datetime.now().strftime('%Y_%m_%d')
@@ -1941,7 +1943,7 @@ class AiPipelineMixin:
                                 if valid_from:
                                     try:
                                         valid_date = datetime.strptime(valid_from, '%d.%m.%Y').date()
-                                    except:
+                                    except ValueError:
                                         valid_date = general_valid_from
                                 else:
                                     valid_date = general_valid_from
@@ -2103,7 +2105,7 @@ class AiPipelineMixin:
                             if valid_from:
                                 try:
                                     valid_date = datetime.strptime(valid_from, '%d.%m.%Y').date()
-                                except:
+                                except ValueError:
                                     valid_date = general_valid_from
                             else:
                                 valid_date = general_valid_from

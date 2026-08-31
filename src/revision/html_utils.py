@@ -5,8 +5,6 @@ import sys
 import re
 import json
 import time
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
 import requests
 import threading
 import copy
@@ -372,7 +370,7 @@ def extract_paragraphs_by_indices(html: str, range_str: str, log_callback=None) 
                     s, e = map(int, part.split('-'))
                     for i in range(s, e + 1):
                         indices.add(i)
-                except:
+                except (ValueError, TypeError):
                     pass
             elif part.isdigit():
                 indices.add(int(part))
@@ -416,7 +414,7 @@ def extract_paragraphs_by_indices(html: str, range_str: str, log_callback=None) 
                         for i in range(s, e + 1):
                             if 1 <= i <= len(quotes):
                                 selected_blocks.extend(quotes[i-1])
-                    except:
+                    except (ValueError, TypeError):
                         pass
                 elif range_str.isdigit():
                     idx = int(range_str)
@@ -774,7 +772,7 @@ def build_search_pattern(original_data):
                   'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
         month_name = months[int(month) - 1]
         date_pattern = rf'от\s+{int(day)}\s+{month_name}\s+{year}\s+года'
-    except:
+    except (ValueError, IndexError):
         date_pattern = ''
     if date_pattern:
         pattern = rf'(?i)(постановление[а-я]*)\s+Законодательного\ Собрания\ города\ Севастополя\s+{date_pattern}\s+№\s*{clean_number}'

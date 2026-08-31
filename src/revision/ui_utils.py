@@ -1665,11 +1665,11 @@ def get_date_for_filename(data, doc_type):
             try:
                 dt = datetime.strptime(date_str, fmt)
                 break
-            except:
+            except ValueError:
                 continue
         if dt:
             return dt.strftime('%Y_%m_%d')
         else:
             return "unknown"
-    except:
+    except Exception:
         return "unknown"

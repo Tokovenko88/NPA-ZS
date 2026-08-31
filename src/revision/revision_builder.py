@@ -8,7 +8,7 @@ import time
 from datetime import datetime, timedelta, date
 from bs4 import BeautifulSoup
 
-from npazs.revision.revision_utils import *
+from npazs.revision.tree_utils import insert_child_ref_in_body
 
 def extract_child_refs_from_revision(rev):
     if not rev:

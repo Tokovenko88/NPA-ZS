@@ -3,6 +3,7 @@
 from npazs.revision.element_finder import *
 from npazs.revision.change_applier import *
 from npazs.revision.revision_builder import *
+from npazs.revision.ui_utils import rebuild_element_with_history
 
 # Stage 3 supplies deterministic HTML in ``content`` for add/new_redaction.
 # Install the deterministic extractor BEFORE ai_pipeline imports html_utils

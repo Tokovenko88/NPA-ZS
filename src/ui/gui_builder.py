@@ -29,7 +29,8 @@ from npazs.constants import (
     PROMPT_4,
     TYPE_TO_RUSSIAN,
 )
-from npazs.revision.revision_utils import *
+from npazs.revision.ui_utils import add_context_menu, add_hotkeys
+from npazs.revision.json_utils import load_json, save_json
 from npazs.revision.engine import *
 from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
 from npazs.ui.dialogs.source_mapping import SourceMappingDialog
@@ -210,14 +211,14 @@ class GuiBuilderMixin:
 
         def refresh_models(self):
             self.log("Обновление списка моделей...", 'info')
-            threading.Thread(target=self._fetch_models, daemon=True).start()
+            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
         def on_backend_changed(self):
             if self.backend.get() == "kilo_gateway":
                 self.log("Переключено на Kilo Gateway", 'info')
             else:
                 self.log("Переключено на Ollama", 'info')
-            threading.Thread(target=self._fetch_models, daemon=True).start()
+            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
         def browse_original(self):
             path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json"), ("All files", "*.*")])

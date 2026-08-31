@@ -19,19 +19,16 @@ import time
 from dotenv import load_dotenv
 from datetime import datetime, date, timedelta
 from pathlib import Path
-import tkinter as tk
-from tkinter import filedialog, ttk, messagebox
-from tkinter.scrolledtext import ScrolledText
 from typing import Dict, List, Tuple, Optional, Set, Union
 
 try:
     import pymysql
     import pymysql.cursors
-except ImportError:
-    import subprocess
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pymysql'])
-    import pymysql
-    import pymysql.cursors
+except ImportError as exc:
+    raise ImportError(
+        'pymysql is required for database operations. '
+        'Install it with: pip install pymysql'
+    ) from exc
 
 DB_DEFAULTS = {
     'host': 'localhost',

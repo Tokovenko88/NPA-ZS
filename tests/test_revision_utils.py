@@ -17,5 +17,5 @@ def test_text_utils():
 
 def test_tree_utils():
     from npazs.revision.tree_utils import find_item_by_id
-    sample = {"item_id": "root", "item_children": [{"item_id": "child"}]}
+    sample = {"npa_items_revision": [{"item_id": "root", "item_children": [{"item_id": "child"}]}]}
     assert find_item_by_id(sample, "child") is not None

@@ -5,8 +5,6 @@ import sys
 import re
 import json
 import time
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
 import requests
 import threading
 import copy
@@ -481,5 +479,5 @@ def clean_number(num_str):
         if cleaned.isdigit():
             return int(cleaned)
         return cleaned
-    except:
+    except Exception:
         return cleaned

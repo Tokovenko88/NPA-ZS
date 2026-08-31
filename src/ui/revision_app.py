@@ -38,7 +38,10 @@ from npazs.constants import (
     TYPE_TO_RUSSIAN,
     save_last_run_log,
 )
-from npazs.revision.revision_utils import *
+from npazs.revision.text_utils import safe_re_sub
+from npazs.revision.html_utils import get_full_element_html, get_clean_text_from_block
+from npazs.revision.json_utils import extract_html_from_json_response, load_json
+from npazs.revision.tree_utils import find_item_by_id
 from npazs.revision.engine import *
 from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
 from npazs.ui.dialogs.source_mapping import SourceMappingDialog
@@ -94,7 +97,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.answer_queue = queue.Queue()
             self.create_widgets()
             self.check_queue()
-            threading.Thread(target=self._fetch_models, daemon=True).start()
+            threading.Thread(target=lambda: self._fetch_models(try_api=False), daemon=True).start()
             _constants._user_retry_callback = self._ask_user_retry
 
         def _ask_user_retry(self, error_message):
@@ -125,9 +128,9 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             event.wait()
             return choice['value']
 
-        def _fetch_models(self):
+        def _fetch_models(self, try_api=True):
             if self.backend.get() == "kilo_gateway":
-                self._fetch_kilo_gateway_models()
+                self._fetch_kilo_gateway_models(try_api=try_api)
             else:
                 self._fetch_ollama_models()
 
@@ -155,7 +158,15 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                 self.root.after(0, self.log, f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен.", 'error')
                 self.ollama_models = []
 
-        def _fetch_kilo_gateway_models(self):
+        def _fetch_kilo_gateway_models(self, try_api=True):
+            if not try_api:
+                models = sorted(_constants.KILO_GATEWAY_FREE_MODELS)
+                self.ollama_models = models
+                current = self.ollama_model.get()
+                if current not in self.ollama_models:
+                    self.ollama_model.set(self.ollama_models[0])
+                self.root.after(0, self.log, f"Установлены модели Kilo Gateway по умолчанию: {models}", 'info')
+                return
             try:
                 url = f"{self.kilo_gateway_url.get().rstrip('/')}/models"
                 headers = {}

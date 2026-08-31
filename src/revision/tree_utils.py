@@ -384,7 +384,7 @@ def find_target_element_via_ai(change_data, original_data, log_callback, model, 
         if target_id:
             return find_item_by_id(change_data, target_id)
         return None
-    except:
+    except (ValueError, TypeError):
         return None
 
 def find_appendix_by_number(data, app_number):

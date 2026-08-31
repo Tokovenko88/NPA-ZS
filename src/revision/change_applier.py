@@ -10,7 +10,20 @@ import uuid
 from datetime import datetime, timedelta, date
 from bs4 import BeautifulSoup
 
-from npazs.revision.revision_utils import *
+from npazs.revision.text_utils import clean_head_text, safe_re_sub
+from npazs.revision.html_utils import (
+    clean_description_html,
+    extract_paragraphs_by_indices,
+    parse_ai_response_for_prompt4,
+    remove_leading_number_from_html,
+    split_html_to_paragraphs,
+)
+from npazs.revision.ui_utils import (
+    _ensure_path,
+    _fetch_source_html_for_change,
+    _find_existing_element_flexible,
+)
+from npazs.revision.tree_utils import find_child_by_type_and_number, find_item_by_id
 from npazs.revision.element_finder import _resolve_modified_by_ids, find_item_by_revision_number, _extract_paragraph_order
 from npazs.revision.ui_utils import (
     _add_new_element,
@@ -496,7 +509,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
                 if valid_from_str:
                     try:
                         valid_from_date = datetime.strptime(valid_from_str, '%d.%m.%Y').date()
-                    except:
+                    except ValueError:
                         valid_from_date = general_valid_from
                 new_id = _add_new_element(parent_element, sys_type, child_num, cleaned_html, modified_by_id_str, valid_from_date, data, log_callback, rebuild_ids, ambiguous_callback, change_id=change.get('change_id'), skip_chapter_section_heuristic=True)
                 return new_id is not None
@@ -526,7 +539,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
             if valid_from_str:
                 try:
                     valid_from = datetime.strptime(valid_from_str, '%d.%m.%Y').date()
-                except:
+                except ValueError:
                     valid_from = general_valid_from
             else:
                 valid_from = general_valid_from
@@ -550,7 +563,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
     if valid_from_str:
         try:
             valid_from = datetime.strptime(valid_from_str, '%d.%m.%Y').date()
-        except:
+        except ValueError:
             valid_from = general_valid_from
     else:
         valid_from = general_valid_from
@@ -624,7 +637,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
         if valid_from_str:
             try:
                 valid_from_date = datetime.strptime(valid_from_str, '%d.%m.%Y').date()
-            except:
+            except ValueError:
                 valid_from_date = general_valid_from
         new_id = _add_new_element(parent_element, sys_type, child_num, cleaned_html, modified_by_id_str, valid_from_date, data, log_callback, rebuild_ids, ambiguous_callback, change_id=change.get('change_id'), skip_chapter_section_heuristic=True)
         return new_id is not None

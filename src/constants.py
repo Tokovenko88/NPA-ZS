@@ -108,7 +108,7 @@ OLLAMA_MODELS_WHITELIST = {
     "nemotron-3-ultra",
 }
 DEFAULT_KILO_GATEWAY_URL = settings.kilo_gateway_base_url
-DEFAULT_KILO_GATEWAY_MODEL = "StepFun: Step 3.7 Flash (free)"
+DEFAULT_KILO_GATEWAY_MODEL = "Tencent: Hy3 (free)"
 KILO_GATEWAY_FREE_MODELS = {
     "StepFun: Step 3.7 Flash (free)",
     "Tencent: Hy3 (free)",

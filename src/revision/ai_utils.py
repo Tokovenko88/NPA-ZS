@@ -5,8 +5,6 @@ import sys
 import re
 import json
 import time
-import tkinter as tk
-from tkinter import messagebox, filedialog, ttk
 import requests
 import threading
 import copy

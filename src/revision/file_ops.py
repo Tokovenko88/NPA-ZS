@@ -34,7 +34,7 @@ from npazs.constants import (
     PROMPT_4,
     TYPE_TO_RUSSIAN,
 )
-from npazs.revision.revision_utils import *
+from npazs.revision.ui_utils import clean_number_for_filename, get_date_for_filename
 from npazs.revision.engine import *
 from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
 from npazs.ui.dialogs.source_mapping import SourceMappingDialog
@@ -62,7 +62,7 @@ class FileOpsMixin:
                 try:
                     dt = datetime.strptime(date_signed, '%d.%m.%Y')
                     date_part = f"{dt.year:04d}_{dt.month:02d}_{dt.day:02d}"
-                except:
+                except ValueError:
                     date_part = datetime.now().strftime('%Y_%m_%d')
             else:
                 date_part = datetime.now().strftime('%Y_%m_%d')

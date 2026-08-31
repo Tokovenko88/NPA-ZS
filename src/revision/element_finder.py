@@ -8,7 +8,8 @@ import time
 from datetime import datetime, timedelta, date
 from bs4 import BeautifulSoup
 
-from npazs.revision.revision_utils import *
+from npazs.revision.text_utils import clean_number, safe_re_sub
+from npazs.revision.tree_utils import parse_number_word
 
 def find_element_and_parent(data, target_id):
     def recurse(items, parent=None):
