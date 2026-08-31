@@ -83,6 +83,51 @@ from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
 from npazs.ui.dialogs.source_mapping import SourceMappingDialog
 
 class AiPipelineMixin:
+        def _init_prompt_answers(self):
+            self._prompt_answers = {
+                "run_info": {
+                    "started_at": datetime.now().isoformat(),
+                    "model": None,
+                    "backend": None,
+                },
+                "stages": []
+            }
+
+        def _collect_prompt_answer(self, stage_num, prompt_text, answer_text, change_info="", metadata=None):
+            if not hasattr(self, '_prompt_answers'):
+                self._init_prompt_answers()
+            stage_entry = {
+                "stage": stage_num,
+                "timestamp": datetime.now().isoformat(),
+                "change_info": change_info,
+                "prompt": prompt_text,
+                "answer": answer_text,
+                "metadata": metadata or {}
+            }
+            self._prompt_answers["stages"].append(stage_entry)
+
+        def _save_prompt_answers(self, out_dir, change_data, result_data=None):
+            if not hasattr(self, '_prompt_answers') or not self._prompt_answers["stages"]:
+                return
+            change_npa_number = change_data.get('npa_number', '')
+            change_doc_type = change_data.get('doc_type', change_data.get('npa_type', 'law'))
+            from npazs.revision.file_ops import clean_number_for_filename
+            change_clean_num = clean_number_for_filename(change_npa_number)
+            filename = f"{change_clean_num}_work.json"
+            out_path = os.path.join(out_dir, filename)
+            self._prompt_answers["run_info"]["model"] = getattr(self, 'ollama_model', None)
+            if hasattr(self, 'backend'):
+                self._prompt_answers["run_info"]["backend"] = self.backend.get() if hasattr(self.backend, 'get') else str(self.backend)
+            self._prompt_answers["run_info"]["change_npa_number"] = change_npa_number
+            self._prompt_answers["run_info"]["change_doc_type"] = change_doc_type
+            self._prompt_answers["run_info"]["finished_at"] = datetime.now().isoformat()
+            try:
+                with open(out_path, 'w', encoding='utf-8') as f:
+                    json.dump(self._prompt_answers, f, ensure_ascii=False, indent=2)
+                self.log(f"Ответы на промпты сохранены в:\n{out_path}", 'result')
+            except Exception as e:
+                self.log(f"Ошибка сохранения ответов на промпты: {e}", 'error')
+
         def _stage1_deletion_analysis(self, final_text, model, extra_options, pub_date_str, original_law_number):
             if self.use_stage1_answer.get():
                 self.log("Используем вставленный ответ для этапа 1", 'info')
@@ -112,6 +157,7 @@ class AiPipelineMixin:
                 .replace("{date_pub}", pub_date_str)
                 .replace("{law_number}", original_law_number))
             answer1 = ask_ollama(stage1_prompt, model, self.log, extra_options, self.stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+            self._collect_prompt_answer(1, stage1_prompt, answer1, change_info="Анализ заключительных положений на утрату силы")
             if answer1 and answer1.lower() != 'null':
                 try:
                     repaired = repair_json(answer1)
@@ -259,6 +305,7 @@ class AiPipelineMixin:
                     .replace("{change_date_effective}", change_valid_from)
                     .replace("{valid_from}", change_valid_from))
                 answer2 = ask_ollama(stage2_prompt, model, self.log, extra_options, self.stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+                self._collect_prompt_answer(2, stage2_prompt, answer2, change_info="Анализ заключительных положений на даты вступления и правоотношения")
                 parsed = _parse_stage2(answer2, "ИИ") if answer2 else None
 
             if parsed is None:
@@ -304,6 +351,7 @@ class AiPipelineMixin:
                     article_json = json.dumps(target_element, ensure_ascii=False, indent=2)
                     stage3_prompt = self.prompt_3.replace("{change_json}", article_json)
                     answer3 = ask_ollama(stage3_prompt, model, self.log, extra_options, stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+                    self._collect_prompt_answer(3, stage3_prompt, answer3, change_info="Анализ изменений из текста элемента")
                     if answer3 and answer3.lower() != 'null':
                         try:
                             cleaned = strip_thinking_tags(answer3).strip()
@@ -402,6 +450,7 @@ class AiPipelineMixin:
             element_json = json.dumps(element, ensure_ascii=False, indent=2)
             stage3_prompt = self.prompt_3.replace("{change_json}", element_json)
             answer = ask_ollama(stage3_prompt, model, log_callback, extra_options, stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+            self._collect_prompt_answer(3, stage3_prompt, answer, change_info=f"Анализ изменений из текста элемента {element.get('item_id')}")
             if answer and answer.lower() != 'null':
                 try:
                     cleaned = strip_thinking_tags(answer).strip()
@@ -1068,7 +1117,8 @@ class AiPipelineMixin:
                         stop_event=self.stop_event,
                         manual_resolver=manual_resolver,
                         source_context_root=target_element,
-                        ambiguous_callback=ambiguous_callback
+                        ambiguous_callback=ambiguous_callback,
+                        prompt_answer_callback=self._collect_prompt_answer,
                     )
                 else:
                     if tracker:
@@ -1113,7 +1163,8 @@ class AiPipelineMixin:
                             stop_event=self.stop_event,
                             manual_resolver=manual_resolver,
                             source_context_root=target_element,
-                            ambiguous_callback=ambiguous_callback
+                            ambiguous_callback=ambiguous_callback,
+                            prompt_answer_callback=self._collect_prompt_answer,
                         ) if tracker else apply_change(
                             change=ch,
                             data=result_data,
@@ -1174,7 +1225,8 @@ class AiPipelineMixin:
                             stop_event=self.stop_event,
                             manual_resolver=manual_resolver,
                             source_context_root=target_element,
-                            ambiguous_callback=ambiguous_callback
+                            ambiguous_callback=ambiguous_callback,
+                            prompt_answer_callback=self._collect_prompt_answer,
                         ) if tracker else apply_change(
                             change=ch,
                             data=result_data,
@@ -1264,7 +1316,8 @@ class AiPipelineMixin:
                         stop_event=self.stop_event,
                         manual_resolver=manual_resolver,
                         source_context_root=target_element,
-                        ambiguous_callback=ambiguous_callback
+                        ambiguous_callback=ambiguous_callback,
+                        prompt_answer_callback=self._collect_prompt_answer,
                     ) if tracker else apply_change(
                         change=h_ch,
                         data=result_data,
@@ -1334,7 +1387,8 @@ class AiPipelineMixin:
                         stop_event=self.stop_event,
                         manual_resolver=manual_resolver,
                         source_context_root=target_element,
-                        ambiguous_callback=ambiguous_callback
+                        ambiguous_callback=ambiguous_callback,
+                        prompt_answer_callback=self._collect_prompt_answer,
                     ) if tracker else apply_change(
                         change=del_ch,
                         data=result_data,
@@ -1397,6 +1451,7 @@ class AiPipelineMixin:
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
                         api_key=self.kilo_gateway_api_key.get(),
+                        prompt_answer_callback=self._collect_prompt_answer,
                     ) if tracker else apply_grouped_changes(
                         element=element,
                         changes=other_body_changes,
@@ -1757,6 +1812,7 @@ class AiPipelineMixin:
                 return self.resolve_ambiguous_element(item_type, item_number, candidates, structural_path, revision_number)
 
             self.manual_mapping_cache.clear()
+            self._init_prompt_answers()
             orig_file = self.original_path.get().strip()
             change_file = self.change_path.get().strip()
             law_ref = self.law_ref.get().strip()
@@ -1933,6 +1989,7 @@ class AiPipelineMixin:
 
                         remove_empty_children(result_data)
                         self._save_result(result_data, orig_file, change_data)
+                        self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data)
                         self.root.after(0, lambda: messagebox.showinfo("Готово", "Обработка завершена. Применена утрата силы, остальные этапы пропущены."))
                         return
 
@@ -2116,6 +2173,7 @@ class AiPipelineMixin:
                     if run_status == "FAILED":
                         self.log(f"❌ RUN STATUS: FAILED — не все изменения применены/проверены", 'error')
                         self._save_failed_run(result_data, orig_file, change_data, tracker)
+                        self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data)
                         self.root.after(0, lambda: messagebox.showerror(
                             "Ошибка обработки",
                             f"Обработка завершена с ошибками.\n"
@@ -2161,6 +2219,7 @@ class AiPipelineMixin:
                     except Exception:
                         pass
                     self._export_debug_run(orig_file, change_file)
+                    self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data if 'result_data' in dir() else None)
                     self.message_queue.put({
                         'type': 'done',
                         'success': not error_occurred

@@ -75,7 +75,8 @@ def _get_change_id(change):
 def apply_grouped_changes(element, changes, valid_from, change_data, data, model, prompt4,
                           log_callback, rebuild_ids, extra_options, source_item_id=None,
                           stop_event=None, manual_resolver=None, source_context_root=None,
-                          change_ids=None, backend="ollama", kilo_gateway_url=None, api_key=None):
+                          change_ids=None, backend="ollama", kilo_gateway_url=None, api_key=None,
+                          prompt_answer_callback=None):
     from npazs.revision.revision_builder import _merge_highlights_with_paragraph_prefix
     if stop_event and stop_event.is_set():
         if log_callback:
@@ -192,6 +193,8 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
             if log_callback:
                 log_callback(f"  Отправка запроса к ИИ для изменения: {desc[:80]}...", 'info')
             answer = ask_ollama(stage4_prompt, model, log_callback, extra_options, stop_event, change_info=desc, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+            if prompt_answer_callback:
+                prompt_answer_callback(4, stage4_prompt, answer, change_info=desc)
             if not answer:
                 if log_callback:
                     log_callback("  Не удалось получить ответ от ИИ", 'error')
@@ -315,6 +318,8 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
                 if log_callback:
                     log_callback(f"  Отправка запроса к ИИ для изменения абзаца {target_idx}...", 'info')
                 answer = ask_ollama(stage4_prompt, model, log_callback, extra_options, stop_event, change_info=original_op.get('description', ''), backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+                if prompt_answer_callback:
+                    prompt_answer_callback(4, stage4_prompt, answer, change_info=original_op.get('description', ''))
                 if answer:
                     new_html, ai_highlights = parse_ai_response_for_prompt4(answer, log_callback)
                     if new_html:
@@ -429,7 +434,7 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
 def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, log_callback,
                  source_item_id=None, model=None, prompt4=None, rebuild_ids=None,
                  doc_type='law', extra_options=None, stop_event=None, manual_resolver=None,
-                 source_context_root=None, ambiguous_callback=None):
+                 source_context_root=None, ambiguous_callback=None, prompt_answer_callback=None):
     if rebuild_ids is None:
         rebuild_ids = []
     if '_resolved_item_id' in change:
@@ -437,11 +442,11 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
         if resolved_target_id == '__наименование__':
             return _apply_change_to_head(change, data, change_data, general_valid_from, change.get('revision_number'),
                                          None, source_item_id, log_callback, model, prompt4, extra_options, stop_event,
-                                         manual_resolver, source_context_root)
+                                         manual_resolver, source_context_root, prompt_answer_callback=prompt_answer_callback)
         elif resolved_target_id == '__преамбула__':
             return _apply_change_to_preamble(change, data, change_data, general_valid_from, change.get('revision_number'),
                                               None, source_item_id, log_callback, model, prompt4, extra_options, stop_event,
-                                              manual_resolver, source_context_root, rebuild_ids)
+                                              manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
         elif resolved_target_id is None:
             structural = change.get('structural_element', '').strip()
             ch_type = change.get('type', '').strip()
@@ -534,9 +539,9 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
                 return _apply_change_to_element_head(change, data, change_data, valid_from, rev_number,
                                                     source_element_local, source_item_id, log_callback, model,
                                                     prompt4, extra_options, stop_event, manual_resolver,
-                                                    source_context_root, rebuild_ids)
+                                                    source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
             
-            return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, None, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'))
+            return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, None, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'), prompt_answer_callback=prompt_answer_callback)
     structural = change.get('structural_element', '').strip()
     ch_type = change.get('type', '').strip()
     description = change.get('description', '')
@@ -561,18 +566,18 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
         return _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_number,
                                                  source_element, source_item_id, log_callback, model,
                                                  prompt4, extra_options, stop_event, manual_resolver,
-                                                 source_context_root, rebuild_ids)
+                                                 source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
     if structural_lower == "наименование":
-        return _apply_change_to_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root)
+        return _apply_change_to_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, prompt_answer_callback=prompt_answer_callback)
     if structural_lower.endswith(' наименование') and not structural_lower == 'наименование':
         element_part = structural[:-len(' наименование')].strip()
         change_copy = change.copy()
         change_copy['structural_element'] = f"наименование {element_part}"
-        return _apply_change_to_element_head(change_copy, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids)
+        return _apply_change_to_element_head(change_copy, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
     if structural_lower.startswith('наименование '):
-        return _apply_change_to_element_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids)
+        return _apply_change_to_element_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
     if structural_lower == "преамбула":
-        return _apply_change_to_preamble(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids)
+        return _apply_change_to_preamble(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
     if ch_type == 'add':
         new_spec = change.get('new', '')
         if not new_spec:
@@ -630,13 +635,13 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
     modified_by_id_str = _resolve_modified_by_ids(rev_number, change_data, source_element, source_item_id, log_callback, structural_element=structural, manual_resolver=manual_resolver, stop_event=stop_event, context_root=source_context_root)
     if not modified_by_id_str:
         modified_by_id_str = str(change_data.get('npa_id', 'unknown'))
-    return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, source_element, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'))
+    return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, source_element, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'), prompt_answer_callback=prompt_answer_callback)
 
 
 def apply_change(change, data, change_data, law_ref, general_valid_from, log_callback,
                  source_item_id=None, model=None, prompt4=None, rebuild_ids=None,
                  doc_type='law', extra_options=None, stop_event=None, manual_resolver=None,
-                 source_context_root=None, ambiguous_callback=None):
+                 source_context_root=None, ambiguous_callback=None, prompt_answer_callback=None):
     change_id = _get_change_id(change)
     if rebuild_ids is None:
         rebuild_ids = []
@@ -644,7 +649,8 @@ def apply_change(change, data, change_data, law_ref, general_valid_from, log_cal
     result = _apply_change_impl(
         change, data, change_data, law_ref, general_valid_from, log_callback,
         source_item_id, model, prompt4, rebuild_ids, doc_type, extra_options,
-        stop_event, manual_resolver, source_context_root, ambiguous_callback
+        stop_event, manual_resolver, source_context_root, ambiguous_callback,
+        prompt_answer_callback=prompt_answer_callback
     )
 
     if isinstance(result, dict):
@@ -752,7 +758,7 @@ def _find_new_revision(data, change):
 def _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_number,
                                       source_element, source_item_id, log_callback, model,
                                       prompt4, extra_options, stop_event, manual_resolver,
-                                      source_context_root, rebuild_ids):
+                                      source_context_root, rebuild_ids, prompt_answer_callback=None):
     structural = change.get('structural_element', '')
     ch_type = change.get('type', '')
     description = change.get('description', '')
@@ -803,6 +809,8 @@ def _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_
         wrapped = f"<p>{current_prefix}</p>"
         stage4_prompt = prompt4.replace("{element_html}", wrapped).replace("{description}", description)
         answer = ask_ollama(stage4_prompt, model, log_callback, extra_options, stop_event, change_info=description, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+        if prompt_answer_callback:
+            prompt_answer_callback(4, stage4_prompt, answer, change_info=description)
         if answer:
             answer_html, _ = parse_ai_response_for_prompt4(answer, log_callback)
             match = re.search(r'<p>(.*?)</p>', answer_html, re.DOTALL)
@@ -848,7 +856,7 @@ def _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_
 def _apply_change_to_head(change, data, change_data, valid_from, rev_number,
                           source_element, source_item_id, log_callback, model,
                           prompt4, extra_options, stop_event, manual_resolver,
-                          source_context_root):
+                          source_context_root, prompt_answer_callback=None):
     ch_type = change.get('type')
     highlights = change.get('highlights', None)
     head_rev = data.get('head_revision', [])
@@ -877,6 +885,8 @@ def _apply_change_to_head(change, data, change_data, valid_from, rev_number,
         if log_callback:
             log_callback("  Запрос к ИИ для нового заголовка...", 'info')
         answer = ask_ollama(stage4_prompt, model, log_callback, extra_options, stop_event, change_info=change.get('description', ''), backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+        if prompt_answer_callback:
+            prompt_answer_callback(4, stage4_prompt, answer, change_info=change.get('description', ''))
         if answer is None:
             if log_callback:
                 log_callback("  Не удалось получить ответ от ИИ для заголовка", 'error')
@@ -948,7 +958,7 @@ def _apply_change_to_head(change, data, change_data, valid_from, rev_number,
 def _apply_change_to_element_head(change, data, change_data, valid_from, rev_number,
                                    source_element, source_item_id, log_callback, model,
                                    prompt4, extra_options, stop_event, manual_resolver,
-                                   source_context_root, rebuild_ids):
+                                   source_context_root, rebuild_ids, prompt_answer_callback=None):
     structural = change.get('structural_element', '').strip()
     ch_type = change.get('type', '').strip()
     highlights = change.get('highlights', None)
@@ -1014,6 +1024,8 @@ def _apply_change_to_element_head(change, data, change_data, valid_from, rev_num
         stage4_prompt = prompt4.replace("{element_html}", wrapped_head).replace("{description}", change.get('description', ''))
         log_callback("  Запрос к ИИ для изменения наименования...", 'info')
         answer_head = ask_ollama(stage4_prompt, model, log_callback, extra_options, stop_event, change_info=change.get('description', ''), backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+        if prompt_answer_callback:
+            prompt_answer_callback(4, stage4_prompt, answer_head, change_info=change.get('description', ''))
         if answer_head is None:
             log_callback("  Не удалось получить ответ от ИИ для наименования", 'error')
             return False
@@ -1050,7 +1062,7 @@ def _apply_change_to_element_head(change, data, change_data, valid_from, rev_num
 def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
                                source_element, source_item_id, log_callback, model,
                                prompt4, extra_options, stop_event, manual_resolver,
-                               source_context_root, rebuild_ids):
+                               source_context_root, rebuild_ids, prompt_answer_callback=None):
     from npazs.revision.revision_builder import extract_child_refs_from_revision
     ch_type = change.get('type', '').strip()
     description = change.get('description', '')
@@ -1113,6 +1125,8 @@ def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
         if log_callback:
             log_callback("  Запрос к ИИ для изменения преамбулы...", 'info')
         answer = ask_ollama(stage4_prompt, model, log_callback, extra_options, stop_event, change_info=description, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+        if prompt_answer_callback:
+            prompt_answer_callback(4, stage4_prompt, answer, change_info=description)
         if answer is None:
             if log_callback:
                 log_callback("  Не удалось получить ответ от ИИ", 'error')
@@ -1181,7 +1195,7 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
                                       stop_event, log_callback, rebuild_ids,
                                       structural, source_context_root, change_data, data,
                                       source_element, source_item_id, rev_number,
-                                      manual_resolver=None, change_id=None):
+                                      manual_resolver=None, change_id=None, prompt_answer_callback=None):
     from npazs.revision.revision_builder import extract_child_refs_from_revision
     if 'revisions' not in element:
         element['revisions'] = [{'body': []}]
@@ -1252,6 +1266,8 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
             if log_callback:
                 log_callback("  Запрос к ИИ для изменения элемента (с дочерними)...", 'info')
             answer = ask_ollama(stage4_prompt, model, log_callback, extra_options, stop_event, change_info=description, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+            if prompt_answer_callback:
+                prompt_answer_callback(4, stage4_prompt, answer, change_info=description)
             if answer is None:
                 if log_callback:
                     log_callback("  Не удалось получить ответ от ИИ", 'error')

@@ -57,6 +57,7 @@ def apply_change_tracked(
     manual_resolver: Callable = None,
     source_context_root: Dict[str, Any] = None,
     ambiguous_callback: Callable = None,
+    prompt_answer_callback: Callable = None,
 ) -> Dict[str, Any]:
     """Применяет одно изменение с отслеживанием статуса."""
     if rebuild_ids is None:
@@ -90,6 +91,7 @@ def apply_change_tracked(
             manual_resolver=manual_resolver,
             source_context_root=source_context_root,
             ambiguous_callback=ambiguous_callback,
+            prompt_answer_callback=prompt_answer_callback,
         )
 
         if not isinstance(result, dict):
@@ -142,6 +144,7 @@ def apply_grouped_changes_tracked(
     backend: str = "ollama",
     kilo_gateway_url: str = None,
     api_key: str = None,
+    prompt_answer_callback: Callable = None,
 ) -> List[Dict[str, Any]]:
     """Применяет группу изменений с отслеживанием статуса."""
     if not changes:
@@ -185,6 +188,7 @@ def apply_grouped_changes_tracked(
             backend=backend,
             kilo_gateway_url=kilo_gateway_url,
             api_key=api_key,
+            prompt_answer_callback=prompt_answer_callback,
         )
 
         if not isinstance(results, list):
