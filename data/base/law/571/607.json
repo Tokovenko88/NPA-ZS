@@ -1,0 +1,682 @@
+{
+  "npa_id": "79445",
+  "npa_type": "law",
+  "npa_number": "607-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "npa_npa_committee": "Постоянная комиссия Законодательного Собрания города Севастополя II созыва по бюджету",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2020/607-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2020/zakon_n_607_zs_ot_17_11_2020/tekst_zakona/",
+  "date_reg": "13.10.2020",
+  "date_1st_reading": "10.11.2020",
+  "date_passed": "10.11.2020",
+  "date_signed": "17.11.2020",
+  "date_pub": "17.11.2020",
+  "valid_from": "01.01.2021",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в некоторые законы города Севастополя о налогах"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "79445_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 14 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_transportnom_naloge/\">№ 75-ЗС</a> «О транспортном налоге» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_1_point_4",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "79445_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 1 слова «и сроки» и «дополнительные» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "79445_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 3:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "79445_article_1_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">абзац первый после слов «одну регистровую тонну» дополнить словами «, одну единицу валовой вместимости»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_1_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в пункте 10 таблицы слова «(с каждой регистровой тонны валовой вместимости)» заменить словами «(с каждой регистровой тонны или единицы валовой вместимости в случае, если валовая вместимость определена без указания размерности)»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "79445_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 4:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_3_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_3_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_3_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "79445_article_1_point_3_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в наименовании слова «и сроки» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_1_point_3_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">части 1 и 2 изложить в следующей редакции:  </p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«1. Налог и авансовые платежи по налогу подлежат уплате в бюджет по месту нахождения транспортного средства.</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">2. В течение налогового периода налогоплательщики-организации уплачивают авансовые платежи по налогу.»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_1_point_3_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 3 признать утратившей силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "79445_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 5:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_4_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_4_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_1_point_4_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "79445_article_1_point_4_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">наименование изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«Статья 5. Налоговые льготы»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_1_point_4_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 3:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце первом слова «, и применяются при условии предоставления налоговым органам документов, подтверждающих право на льготы» исключить;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">абзац второй признать утратившим силу;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_1_point_4_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">части 4, 5 и 7 признать утратившими силу.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "79445_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в статью 2 Закона города Севастополя от 26 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_naloge_na_imushhestvo_organizacij/\">№ 80-ЗС</a> «О налоге на имущество организаций» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_2_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_2_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "79445_article_2_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 1 слова «, за исключением случаев, предусмотренных частями 2 и 3 настоящей статьи,» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "79445_article_2_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">части 2 и 3 признать утратившими силу.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "79445_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 26 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_zemelnom_naloge/\">№ 81-ЗС</a> «О земельном налоге» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_3_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_3_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_3_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "79445_article_3_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 1 слова «и сроки уплаты налога, налоговые льготы, а также порядок и сроки представления налогоплательщиками документов, подтверждающих право на уменьшение налоговой базы» заменить словами «уплаты налога и авансовых платежей по налогу, налоговые льготы»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "79445_article_3_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">пункты 1 и 2 части 1 статьи 2 изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">«1) 0,025 процента – в отношении земельных участков, не используемых в предпринимательской деятельности, приобретенных (предоставленных) для ведения личного подсобного хозяйства, садоводства или огородничества, а также земельных участков общего назначения, предусмотренных Федеральным законом от 29 июля 2017 года <a href=\"http://base.garant.ru/71732780/\" target=\"_blank\">№ 217-ФЗ</a> «О ведении гражданами садоводства и огородничества для собственных нужд и о внесении изменений в отдельные законодательные акты Российской Федерации»;</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">2) 0,01 процента – в отношении земельных участков, занятых жилищным фондом и объектами инженерной инфраструктуры жилищно-коммунального комплекса (за исключением доли в праве на земельный участок, приходящейся на объект, не относящийся к жилищному фонду и объектам инженерной инфраструктуры жилищно-коммунального комплекса) или приобретенных (предоставленных) для жилищного строительства (за исключением земельных участков, приобретенных (предоставленных) для индивидуального жилищного строительства, используемых в предпринимательской деятельности);»;</p>",
+                  "order": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "79445_article_3_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 4:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_3_point_3_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_3_point_3_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_3_point_3_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "79445_article_3_point_3_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "79445_article_3_point_3_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">наименование изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">«Статья 4. Порядок уплаты налога и авансовых платежей по налогу»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_3_point_3_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">части 1 и 2 признать утратившими силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_3_point_3_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">дополнить частью 2.1 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«2.1. Налог подлежит уплате налогоплательщиками в порядке, установленном статьей 397 Налогового кодекса Российской Федерации.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "79445_article_3_point_3_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">часть 3 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«3. В течение налогового периода налогоплательщики-организации уплачивают авансовые платежи по налогу.».</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "79445_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Признать утратившими силу:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_4_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "79445_article_4_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "79445_article_4_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">подпункт «б» пункта 2, подпункты «а» и «б» пункта 3 статьи 1, пункт 1 статьи 2 Закона города Севастополя от 21 июня 2016 года <a href=\"view/laws/bank/14402/zakon_n_250_zs_ot_21_06_2016/\">№ 250-ЗС</a> «О внесении изменений в некоторые законы города Севастополя о налогах»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "79445_article_4_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">пункт 2 статьи 2 Закона города Севастополя от 30 апреля 2020 года <a href=\"view/laws/bank/2020/zakon_n_571_zs_ot_30_04_2020\">№ 571-ЗС</a><span> </span>«О внесении изменений в отдельные законы города Севастополя о налогах».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "79445_article_5",
+      "item_type": "article",
+      "item_number": "5",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Настоящий Закон вступает в силу с 1 января 2021 года, но не ранее чем по истечении одного месяца со дня его официального опубликования и не ранее 1-го числа очередного налогового периода по транспортному, земельному налогам и налогу на имущество организаций.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

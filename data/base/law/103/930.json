@@ -1,0 +1,106 @@
+{
+  "npa_id": "143873",
+  "npa_type": "law",
+  "npa_number": "930-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по здравоохранению",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/930-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_930_zs_ot_10_07_2026/tekst-zakona65/",
+  "date_reg": "06.07.2026",
+  "date_cons": "06.07.2026",
+  "date_1st_reading": "07.07.2026",
+  "date_passed": "07.07.2026",
+  "date_signed": "10.07.2026",
+  "date_pub": "10.07.2026",
+  "valid_from": "21.07.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в статьи 4 и 8 Закона города Севастополя от 30 декабря 2014 года № 103-ЗС «О социальном обслуживании граждан в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "143873_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 30 декабря 2014 года <a href=\"view/laws/bank/dekabr_20141/o_socialnom_obsluzhivanii_grazhdan_v_gorode_sevastopole1/\">№ 103-ЗС</a> «О социальном обслуживании граждан в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143873_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143873_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143873_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 14.1 части 3 статьи 4 признать утратившим силу;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143873_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в абзаце первом части 4 статьи 8 слова «в возрасте до 35 лет включительно» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143873_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

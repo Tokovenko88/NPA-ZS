@@ -1,0 +1,60 @@
+{
+  "npa_id": "143863",
+  "npa_type": "law",
+  "npa_number": "928-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по здравоохранению",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/928-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_928_zs_ot_10_07_2026/tekst-zakona63/",
+  "date_reg": "06.07.2026",
+  "date_cons": "06.07.2026",
+  "date_1st_reading": "07.07.2026",
+  "date_passed": "07.07.2026",
+  "date_signed": "10.07.2026",
+  "date_pub": "10.07.2026",
+  "valid_from": "21.07.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменения в статью 22.1 Закона города Севастополя от 23 января 2015 года № 106-ЗС «О мерах социальной поддержки отдельных категорий граждан, проживающих на территории города Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "143863_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в часть 1 статьи 22.1 Закона города Севастополя от 23 января 2015 года <a href=\"view/laws/bank/yanvar_2015/o_merah_socialnoj_podderzhki_otdelnyh_kategorij_grazhdan-_prozhivayushhih_na_territorii_goroda_sevastopo/\">№ 106-ЗС</a> «О мерах социальной поддержки отдельных категорий граждан, проживающих на территории города Севастополя» изменение, дополнив ее после слов «транспортных средств,» словами «в том числе».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143863_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

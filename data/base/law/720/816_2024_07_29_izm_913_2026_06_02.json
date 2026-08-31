@@ -1,0 +1,739 @@
+{
+  "npa_id": "126206",
+  "npa_type": "law",
+  "npa_number": "816-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев, Немцев Владимир Владимирович, Аксёнов Вячеслав Викторович, Горелов Вячеслав Николаевич, Журавлёв Илья Григорьевич, Щербакова Татьяна Михайловна, Пархоменко Василий Михайлович, Куринов Андрей Владимирович, Кияшко Роман Владимирович, Камзолов Вячеслав Юрьевич, Зубенко Василий Викторович, Дубовик Евгений Георгиевич, Гордиенко Артём Александрович, Глотова Елена Николаевна",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя II созыва по здравоохранению и социальной политике",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2024/816-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2024/zakon_n_816_zs_ot_29_07_2024/tekst-zakona/",
+  "date_reg": "17.06.2024",
+  "date_1st_reading": "23.07.2024",
+  "date_passed": "23.07.2024",
+  "date_signed": "29.07.2024",
+  "date_pub": "29.07.2024",
+  "valid_from": "29.07.2024",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 27 июля 2016 года № 269-ЗС «О предоставлении земельных участков, находящихся в собственности города Севастополя, отдельным категориям граждан в собственность бесплатно» и статью 3 Закона города Севастополя от 1 декабря 2022 года № 720-ЗС «О социальной поддержке участников специальной военной операции, членов их семей и членов семей погибших (умерших) участников специальной военной операции в городе Севастополе и о внесении изменений в некоторые законодательные акты города Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "126206_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 27 июля 2016 года <a href=\"view/laws/bank/2016_244-314/zakon_n_269_zs_ot_27_07_2016/\">№ 269-ЗС</a> «О предоставлении земельных участков, находящихся в собственности города Севастополя, отдельным категориям граждан в собственность бесплатно» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_1_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_1_point_5",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_1_point_6",
+              "order": 7
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "126206_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_1_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "126206_article_1_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «а также» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить словами «, а также основания выплаты единовременной денежной компенсации взамен предоставления земельного участка в собственность бесплатно»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "126206_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 3:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_2_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_2_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "126206_article_1_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в наименовании слова «земельных участков» заменить словами «земельного участка»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце первом части 1 слова «земельных участков» заменить словами «земельного участка»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_2_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в пункте 2 части 3 слова «, достигший возраста 18 лет,» заменить словами «вне зависимости от возраста и места проживания»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "126206_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 5:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_3_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_3_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "126206_article_1_point_3_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 2 после слова «гражданин» дополнить словами «или его представитель, действующий на основании доверенности, а также от имени ребенка родитель, усыновитель, опекун или попечитель (далее – законный представитель ребенка)»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_3_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 5.1 слова «, достигший возраста 18 лет,» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "126206_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 5.2:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_4_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_4_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_4_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_4_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "126206_article_1_point_4_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце первом слово «Основанием» заменить словами «1. Основанием»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_4_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 4 после слова «бесплатно» дополнить словами «либо единовременной денежной компенсации взамен предоставления земельного участка в собственность бесплатно»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_4_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 5 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«5) выезд гражданина на постоянное место жительства за пределы территории города Севастополя или Российской Федерации.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_4_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частью 2 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«2. Положение пункта 5 части 1 настоящей статьи в части выезда гражданина на постоянное место жительства за пределы территории города Севастополя не распространяется на граждан, относящихся к категориям, установленным пунктами 4 и 5 части 1 статьи 3 настоящего Закона.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "126206_article_1_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 7:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_5_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_5_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_5_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_1_point_5_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "126206_article_1_point_5_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 3 после слов «на основании доверенности,» дополнить словами «законному представителю ребенка»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_5_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 3.1 после слов «на основании доверенности,» дополнить словами «законным представителям детей»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_5_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 4 после слов «на основании доверенности,» дополнить словами «законный представитель ребенка»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_1_point_5_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 4.1 слова «достигший возраста 18 лет,» заменить словами «законный представитель его ребенка»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "126206_article_1_point_6",
+          "item_type": "point",
+          "item_number": "6)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">дополнить статьей 8.1 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p align=\"left\" class=\"justifyfull\">«Статья 8.1. Основания выплаты единовременной денежной компенсации взамен предоставления земельного участка в собственность бесплатно</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">1. Отдельным категориям граждан, имеющих право на приобретение земельного участка в собственность бесплатно, включенных в Книгу учета, на основании их заявления взамен предоставления земельного участка в собственность бесплатно выплачивается единовременная денежная компенсация в размере одного миллиона рублей.</p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">2. В случае если отдельным категориям граждан в соответствии с настоящим Законом предусмотрено предоставление земельного участка в собственность бесплатно на праве общей долевой собственности, единовременная денежная компенсация взамен предоставления земельного участка в собственность бесплатно выплачивается им в равных долях на основании их совместного заявления.</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">3. Отдельные категории граждан, имеющих право на приобретение земельного участка в собственность бесплатно, которым произведена выплата единовременной денежной компенсации взамен предоставления земельного участка в собственность бесплатно, подлежат исключению из Книги учета и утрачивают право на получение земельного участка либо его доли в собственность бесплатно.</p>",
+                  "order": 5
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">4. Выплата единовременной денежной компенсации взамен предоставления земельного участка в собственность бесплатно осуществляется в объеме финансирования, предусмотренном на указанные цели законом города Севастополя о бюджете города Севастополя на соответствующий финансовый год и плановый период.</p>",
+                  "order": 6
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">5. Порядок выплаты единовременной денежной компенсации взамен предоставления земельного участка в собственность бесплатно устанавливается Правительством Севастополя.».</p>",
+                  "order": 7
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "126206_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в статью 3 Закона города Севастополя от 1 декабря 2022 года <a href=\"view/laws/bank/2022/zakon_n_720_zs_ot_01_12_2022/\">№ 720-ЗС</a><span> </span> «О социальной поддержке участников специальной военной операции, членов их семей и членов семей погибших (умерших) участников специальной военной операции в городе Севастополе и о внесении изменений в некоторые законодательные акты города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_2_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "126206_article_2_point_2",
+              "order": 3
+            }
+          ],
+          "valid_to": "12.06.2026",
+          "not_valid": "143090_article_2_point_3"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "126206_article_2_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 7 части 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_2_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_2_point_1_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "126206_article_2_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слово «государственной» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_2_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">после слов «в собственность бесплатно» дополнить словами «либо выплата единовременной денежной компенсации взамен предоставления земельного участка, находящегося в собственности города Севастополя, в собственность бесплатно»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "126206_article_2_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 7 части 3:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_2_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "126206_article_2_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "126206_article_2_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слово «государственной» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "126206_article_2_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">после слов «в собственность бесплатно» дополнить словами «либо выплата единовременной денежной компенсации взамен предоставления земельного участка, находящегося в собственности города Севастополя, в собственность бесплатно».</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "126206_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "revision_info": [
+    {
+      "revision_id": "143090",
+      "revision_number": "913-ЗС",
+      "revision_date_reg": "02.06.2026",
+      "revision_date_valid": "13.06.2026",
+      "revision_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_913_zs_ot_02_06_2026/tekst-zakona50/"
+    }
+  ]
+}

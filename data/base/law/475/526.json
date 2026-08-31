@@ -1,0 +1,110 @@
+{
+  "npa_id": "62938",
+  "npa_type": "law",
+  "npa_number": "526-ЗС",
+  "npa_author": "Посметный Виктор Александрович",
+  "npa_npa_committee": "Постоянная комиссия по законодательству и государственному строительству",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2019/526-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2019/zakon_n_526_zs_ot_13_08_2019/tekst_zakona/",
+  "date_reg": "30.04.2019",
+  "date_1st_reading": "25.06.2019",
+  "date_passed": "30.07.2019",
+  "date_signed": "13.08.2019",
+  "date_pub": "13.08.2019",
+  "valid_from": "24.08.2019",
+  "npa_signer_post": "Временно исполняющий обязанности Губернатора города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 29 января 2019 года № 475-ЗС «О мировых судьях города Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "62938_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 29 января 2019 года <a href=\"http://sevzakon.ru/view/laws/bank/2019/zakon_n_475_zs_ot_29_01_2019/\">№ 475-ЗС</a> «О мировых судьях города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "62938_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "62938_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "62938_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 4 статьи 4 слова «и с учетом количества рассматриваемых в административно-территориальных образованиях административных, гражданских, уголовных дел и дел об административных правонарушениях» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "62938_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">статью 4 дополнить частью 4.1 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«4.1. При решении вопроса об определении границ судебных участков, создаваемых либо изменяемых в соответствии с критериями, указанными в части 4 настоящей статьи, должно быть учтено количество рассматриваемых в соответствующих административно-территориальных образованиях административных, гражданских, уголовных дел и дел об административных правонарушениях.».</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "62938_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

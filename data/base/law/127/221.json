@@ -1,0 +1,147 @@
+{
+  "npa_id": "9982",
+  "npa_type": "law",
+  "npa_number": "221-ЗС",
+  "npa_author": "Щербакова Татьяна Михайловна",
+  "npa_npa_committee": "Постоянный комитет по социально-гуманитарным вопросам",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2015/221-zs-1.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/12_2015/o_vnesenii_izmenenij_v_zakon_goroda_sevastopolya_ot_17_aprelya_2015_goda_n_127-zs_n_221-zs/tekst-zakona/",
+  "date_reg": "12.11.2015",
+  "date_1st_reading": "08.12.2015",
+  "date_passed": "08.12.2015",
+  "date_signed": "25.12.2015",
+  "date_pub": "25.12.2015",
+  "valid_from": "05.01.2016",
+  "npa_signer_post": "Губернатор<br/>города Севастополя",
+  "npa_signer": "С.И. Меняйло",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 17 апреля 2015 года № 127-ЗС «Об Уполномоченном по правам ребёнка в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "9982_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 17 апреля 2015 года <a href=\"view/laws/bank/04_2015/ob_upolnomochennom_po_pravam_rebenka_v_gorode_sevastopole/\">№ 127-ЗС</a> «Об Уполномоченном по правам ребёнка в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "9982_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "9982_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "9982_article_1_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "9982_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">статью 5 изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«Статья 5. Требования, предъявляемые к кандидату на должность Уполномоченного</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">На должность Уполномоченного назначается лицо, являющееся гражданином Российской Федерации, достигшее 35-летнего возраста, имеющее высшее образование, обладающее опытом защиты прав, свобод и законных интересов ребенка, общественным авторитетом и знанием проблем детства.»;</p>",
+                  "order": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "9982_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">часть 3 статьи 6 изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«3. Предложения о кандидатах на должность Уполномоченного вносятся в Законодательное Собрание города Севастополя субъектами права законодательной инициативы, указанными в статье 3 Закона города Севастополя от 29 сентября 2015 года <a href=\"view/laws/bank/09_2015/o_pravovyh_aktah_goroda_sevastopolya/\">№ 185-ЗС</a> «О правовых актах города Севастополя».»;</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "9982_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">часть 1 статьи 18 изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«1. Предложения о кандидатах на должность первого Уполномоченного вносятся в Законодательное Собрание города Севастополя в срок, установленный постановлением Законодательного Собрания города Севастополя.».</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "9982_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

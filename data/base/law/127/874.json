@@ -1,0 +1,105 @@
+{
+  "npa_id": "136713",
+  "npa_type": "law",
+  "npa_number": "874-ЗС",
+  "npa_author": "Немцев Владимир Владимирович",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по здравоохранению",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2025/874-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2025/zakon_n_874_zs_ot_06_10_2025/tekst-zakona/",
+  "date_reg": "01.09.2025",
+  "date_1st_reading": "30.09.2025",
+  "date_passed": "30.09.2025",
+  "date_signed": "06.10.2025",
+  "date_pub": "06.10.2025",
+  "valid_from": "17.10.2025",
+  "npa_signer_post": "Губернатор<br/>города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в статью 9 Закона города Севастополя от 17 апреля 2015 года № 127-ЗС «Об Уполномоченном по правам ребенка в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "136713_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в статью 9 Закона города Севастополя от 17 апреля 2015 года <a href=\"view/laws/bank/04_2015/ob_upolnomochennom_po_pravam_rebenka_v_gorode_sevastopole/\">№ 127-ЗС</a> «Об Уполномоченном по правам ребенка в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "136713_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "136713_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "136713_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в части 5 слова «от числа избранных» заменить словами<br/>«от установленного числа»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "136713_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в части 6 слова «от числа избранных» заменить словами<br/>«от установленного числа».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "136713_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,219 @@
+{
+  "npa_id": "140746",
+  "npa_type": "law",
+  "npa_number": "902-ЗС",
+  "npa_author": "Кулаков Роман Сергеевич",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по законодательству и поддержке участников специальной военной операции",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/902-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_902_zs_ot_26_03_2026/tekst-zakona/",
+  "date_reg": "17.03.2026",
+  "date_1st_reading": "24.03.2026",
+  "date_passed": "24.03.2026",
+  "date_signed": "26.03.2026",
+  "date_pub": "26.03.2026",
+  "valid_from": "26.03.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 17 апреля 2015 года № 128-ЗС «Об участии граждан в охране общественного порядка в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "140746_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal\">Внести в Закон города Севастополя от 17 апреля 2015 года <a href=\"view/laws/bank/04_2015/ob_uchastii_grazhdan_v_ohrane_obshhestvennogo_poryadka_v_gorode_sevastopole/\">№ 128-ЗС</a> «Об участии граждан в охране общественного порядка в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "140746_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "140746_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "140746_article_1_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "140746_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в статье 2:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "140746_article_1_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "140746_article_1_point_1_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "140746_article_1_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в пункте 3 части 2 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "140746_article_1_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в абзаце первом части 2.1 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "140746_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в приложении 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "140746_article_1_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "140746_article_1_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "140746_article_1_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в пункте 1 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "140746_article_1_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в пункте 3 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "140746_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в абзаце пятом раздела «Описание удостоверения народного дружинника» приложения 2 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "140746_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу со дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

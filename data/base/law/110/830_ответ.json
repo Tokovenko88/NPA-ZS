@@ -1,0 +1,77 @@
+[
+  {
+    "applies_to": "amending_law",
+    "action_type": "special_valid_from",
+    "structural_element": "статья 1 -> пункт 1 -> подпункт б",
+    "date": "01.01.2025"
+  },
+  {
+    "applies_to": "amending_law",
+    "action_type": "special_valid_from",
+    "structural_element": "статья 1 -> пункт 1 -> подпункт в",
+    "date": "01.01.2025"
+  },
+  {
+    "applies_to": "amending_law",
+    "action_type": "special_valid_from",
+    "structural_element": "статья 1 -> пункт 1 -> подпункт г",
+    "date": "01.01.2025"
+  },
+  {
+    "applies_to": "amending_law",
+    "action_type": "special_valid_from",
+    "structural_element": "статья 1 -> пункт 1 -> подпункт д",
+    "date": "01.01.2025"
+  },
+  {
+    "applies_to": "amending_law",
+    "action_type": "special_valid_from",
+    "structural_element": "статья 1 -> пункт 2",
+    "date": "01.01.2025"
+  }
+]
+########################################
+[
+  {
+    "revision_number": "1)->а)",
+    "structural_element": "Статья 2 часть 1.4 абзац 1",
+    "type": "change",
+    "description": "слова «2023 и 2024» заменить цифрами «2023–2025»"
+  },
+  {
+    "revision_number": "1)->б)",
+    "structural_element": "Статья 2 часть 1.4 пункт 1",
+    "type": "change",
+    "description": "слова «в пунктах 2 и 2.1» заменить словами «в пункте 2»"
+  },
+  {
+    "revision_number": "1)->в)",
+    "structural_element": "Статья 2 часть 1.4 пункт 2.1",
+    "type": "delete",
+    "description": "пункт 2.1 признать утратившим силу"
+  },
+  {
+    "revision_number": "1)->г)",
+    "structural_element": "Статья 2 часть 1.4 пункт 3",
+    "type": "change",
+    "description": "слова «в пункте 4 настоящей части и» исключить"
+  },
+  {
+    "revision_number": "1)->д)",
+    "structural_element": "Статья 2 часть 1.4 пункт 4",
+    "type": "delete",
+    "description": "пункт 4 признать утратившим силу"
+  },
+  {
+    "revision_number": "2)",
+    "structural_element": "Статья 2 часть 1.5",
+    "type": "delete",
+    "description": "части 1.5 и 1.6 признать утратившими силу"
+  },
+  {
+    "revision_number": "2)",
+    "structural_element": "Статья 2 часть 1.6",
+    "type": "delete",
+    "description": "части 1.5 и 1.6 признать утратившими силу"
+  }
+]

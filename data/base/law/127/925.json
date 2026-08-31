@@ -1,0 +1,484 @@
+{
+  "npa_id": "143532",
+  "npa_type": "law",
+  "npa_number": "925-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по законодательству и поддержке участников специальной военной операции",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/925-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_925_zs_ot_10_07_2026/tekst-zakona60/",
+  "date_reg": "17.06.2026",
+  "date_1st_reading": "07.07.2026",
+  "date_passed": "07.07.2026",
+  "date_signed": "10.07.2026",
+  "date_pub": "10.07.2026",
+  "valid_from": "21.07.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в отдельные законодательные акты города Севастополя, действие которых распространяется на лиц, замещающих государственные должности города Севастополя"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "143532_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 3 июня 2014 года <a href=\"view/laws/bank/maj_2014/o_gosudarstvennyh_dolzhnostyah_goroda_sevastopolya/\">№ 15-ЗС</a> «О государственных должностях города Севастополя, замещаемых на профессиональной основе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143532_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в статье 5:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "143532_article_1_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "143532_article_1_point_1_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "143532_article_1_point_1_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "143532_article_1_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>пункты 6 и 7 признать утратившими силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "143532_article_1_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>пункт 8 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«8) соблюдать ограничения, запреты и требования, исполнять обязанности, налагаемые на лиц, замещающих государственные должности субъектов Российской Федерации, Федеральным законом от 25 декабря 2008 года № 273-ФЗ «О противодействии коррупции»;»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "143532_article_1_point_1_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>пункт 9 признать утратившим силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143532_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>статью 6 признать утратившей силу.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143532_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 17 апреля 2015 года <a href=\"view/laws/bank/04_2015/ob_upolnomochennom_po_pravam_rebenka_v_gorode_sevastopole/\">№ 127-ЗС</a> «Об Уполномоченном по правам ребенка в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_2_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_2_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143532_article_2_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 7 части 5 статьи 6 признать утратившим силу;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143532_article_2_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в статье 8:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "143532_article_2_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "143532_article_2_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "143532_article_2_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>часть 1 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«1. На Уполномоченного распространяются ограничения, запреты, требования и обязанности, установленные федеральным законодательством в сфере противодействия коррупции в отношении лиц, замещающих государственные должности субъектов Российской Федерации на постоянной основе.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "143532_article_2_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>части 4 и 5 признать утратившими силу.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143532_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Пункт 8 части 3 статьи 10 Закона города Севастополя от 26 июня 2015 года <a href=\"view/laws/bank/06_2015/ob_upolnomochennom_po_pravam_cheloveka_v_gorode_sevastopole/\">№ 159-ЗС</a> «Об Уполномоченном по правам человека в городе Севастополе» признать утратившим силу.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143532_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 29 декабря 2016 года <a href=\"view/laws/bank/2016_244-314/zakon_n_313_zs_ot_29_12_2016/\">№ 313-ЗС</a> «Об Уполномоченном по защите прав предпринимателей в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_4_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_4_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143532_article_4_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 7 части 4 статьи 3 признать утратившим силу;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143532_article_4_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>статью 4 дополнить частью 4 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«4. На Уполномоченного распространяются ограничения, запреты, требования и обязанности, установленные федеральным законодательством в сфере противодействия коррупции в отношении лиц, замещающих государственные должности субъектов Российской Федерации на постоянной основе.».</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143532_article_5",
+      "item_type": "article",
+      "item_number": "5",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Признать утратившими силу:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_5_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_5_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_5_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143532_article_5_point_4",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143532_article_5_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 7 статьи 1 Закона города Севастополя от 30 декабря 2022 года <a href=\"view/laws/bank/2022/zakon_n_738_zs_ot_30_12_2022/\">№ 738-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя в связи с принятием Федерального закона от 21 декабря 2021 года № 414-ФЗ «Об общих принципах организации публичной власти в субъектах Российской Федерации»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143532_article_5_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 2 статьи 1 Закона города Севастополя от 9 июня 2023 года <a href=\"view/laws/bank/2023/zakon_n_760_zs_ot_1_06_2023/\">№ 760-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя, регулирующие правоотношения, связанные с лицами, замещающими государственные должности города Севастополя на профессиональной основе, государственными гражданскими служащими города Севастополя и лицами, замещающими должности, не являющиеся должностями государственной гражданской службы города Севастополя, в государственных органах города Севастополя»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143532_article_5_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 2 статьи 2 Закона города Севастополя от 27 сентября 2023 года <a href=\"view/laws/bank/2023/zakon_n_775_zs_ot_27_09_2023/\">№ 775-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя в сфере противодействия коррупции»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143532_article_5_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 2 статьи 1 Закона города Севастополя от 17 апреля 2026 года <a href=\"view/laws/bank/2026/zakon_n_909_zs_ot_17_04_2026/\">№ 909-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя, регулирующие правоотношения, связанные с лицами, замещающими государственные должности города Севастополя в Законодательном Собрании города Севастополя».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143532_article_6",
+      "item_type": "article",
+      "item_number": "6",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[
+  {
+    "revision_number": "1)",
+    "structural_element": "Статья 2 часть 1 пункт 1 подпункт «а»",
+    "type": "change",
+    "description": "<p class=\"justifyfull\">подпункт «а» после слов «по контракту,» дополнить словами «в войсках национальной гвардии Российской Федерации,»;</p>"
+  },
+  {
+    "revision_number": "2)",
+    "structural_element": "Статья 2 часть 1 пункт 1 подпункт «в»",
+    "type": "new_redaction",
+    "description": "2"
+  },
+  {
+    "revision_number": "3)",
+    "structural_element": "Статья 2 часть 1 пункт 1",
+    "type": "add",
+    "description": "2",
+    "new": "подпункт «г»"
+  }
+]

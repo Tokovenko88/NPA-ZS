@@ -1,0 +1,826 @@
+{
+  "npa_id": "51528",
+  "npa_type": "law",
+  "npa_number": "110-ЗС",
+  "npa_author": "Губернатор города Севастополя",
+  "npa_npa_committee": "Постоянная комиссия по бюджету",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/02_2015/o_nalogovyh_stavkah_v_svyazi_s_prinyatiem_federalnogo_zakona_ot_29_noyabrya_2014_goda_n379-fz_o_vnesen/tekst-zakona/",
+  "date_reg": "10.12.2014",
+  "date_1st_reading": "03.02.2015",
+  "date_passed": "03.02.2015",
+  "date_signed": "03.02.2015",
+  "date_pub": "07.02.2015",
+  "valid_from": "07.02.2015",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "С.И. Меняйло",
+  "date_format": 0,
+  "head_revision": [
+    {
+      "npa_head": "О налоговых ставках в связи с принятием Федерального закона от 29 ноября 2014 года №379-ФЗ «О внесении изменений в части первую и вторую Налогового кодекса Российской Федерации в связи с принятием Федерального закона «О развитии Крымского федерального округа и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "51528_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящим Законом с соответствии со статьёй 2 Федерального закона от 29 ноября 2014 года № 379-ФЗ  «О внесении изменений в части первую и вторую Налогового кодекса Российской Федерации  в связи с принятием Федерального закона «О развитии Крымского федерального округа и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя» на территории города федерального значения Севастополя устанавливаются уменьшенные ставки налогов.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "51528_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_1_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_2_1",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_2_2",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_3",
+              "order": 6
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "51528_article_2_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В отношении периодов 2015 – 2016 годов по налогу, взимаемому в связи с применением упрощенной системы налогообложения:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_1_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_1_point_2",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "51528_article_2_part_1_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">налоговая ставка устанавливается в размере 3 процентов в случае, если объектом налогообложения являются доходы;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_1_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в случае, если объектом налогообложения являются доходы, уменьшенные на величину расходов, налоговая ставка устанавливается в размере 7 процентов, за исключением отдельных категорий плательщиков, определённых в части 1 статьи 2  Закона города Севастополя от 14 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_stavkah_po_nalogu-_vzimaemomu_v_svyazi_s_primeneniem_uproshhennoj_sistemy_nalogooblozheniya-_dlya_otdelnyh_kategorij_nalogoplatelshhikov-_vybravshih_v_kachestve_obekta_nalogooblozheniya_dohody-_umenshennye_na_velichinu_rashodov/\">№ 77-ЗС</a> «О ставках по налогу, взимаемому в связи с применением упрощенной системы налогообложения, для отдельных категорий налогоплательщиков, выбравших в качестве объекта налогообложения доходы, уменьшенные на величину расходов».</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "51528_article_2_part_1_1",
+          "item_type": "part",
+          "item_number": "1.1",
+          "item_level": 2,
+          "item_children": [
+            {
+              "item_id": "51528_article_2_part_1_1_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в случае если объектом налогообложения являются доходы, налоговая ставка устанавливается в размере 4 процентов, за исключением отдельных категорий налогоплательщиков, осуществляющих виды экономической деятельности, указанные в пункте 2 настоящей части;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_1_1_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">налоговая ставка устанавливается в размере 3 процентов для отдельных категорий налогоплательщиков, осуществляющих следующие виды экономической деятельности в соответствии с Общероссийским классификатором видов экономической деятельности ОК 029-2014 (КДЕС Ред.2), утвержденным приказом Федерального агентства по техническому регулированию и метрологии от 31 января 2014 года <span>№ 14-ст</span>, включенные в:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_1_1_point_2_subpoint_а",
+                      "order": 2
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_1_1_point_2_subpoint_б",
+                      "order": 3
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_1_1_point_2_subpoint_в",
+                      "order": 4
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_1_1_point_2_subpoint_г",
+                      "order": 5
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_1_1_point_2_subpoint_д",
+                      "order": 6
+                    }
+                  ]
+                }
+              ],
+              "item_children": [
+                {
+                  "item_id": "51528_article_2_part_1_1_point_2_subpoint_а",
+                  "item_type": "subpoint",
+                  "item_number": "а)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"ConsPlusNormal justifyfull\">класс 01 «Растениеводство и животноводство, охота и предоставление соответствующих услуг в этих областях» раздела A «Сельское, лесное хозяйство, охота, рыболовство и рыбоводство» (за исключением видов деятельности, включенных в подкласс 01.7 «Охота, отлов и отстрел диких животных, включая предоставление услуг в этих областях»);</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_1_1_point_2_subpoint_б",
+                  "item_type": "subpoint",
+                  "item_number": "б)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"ConsPlusNormal justifyfull\">подкласс 03.2 «Рыбоводство» раздела A «Сельское, лесное хозяйство, охота, рыболовство и рыбоводство»;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_1_1_point_2_subpoint_в",
+                  "item_type": "subpoint",
+                  "item_number": "в)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"ConsPlusNormal justifyfull\">раздел Р «Образование» (за исключением видов деятельности, включенных в подклассы 85.22 «Образование высшее», 85.3 «Обучение профессиональное», 85.42 «Образование профессиональное дополнительное»);</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_1_1_point_2_subpoint_г",
+                  "item_type": "subpoint",
+                  "item_number": "г)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"ConsPlusNormal justifyfull\">раздел Q «Деятельность в области здравоохранения и социальных услуг» (за исключением видов деятельности, включенных в подкласс 86.23 «Стоматологическая практика»);</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_1_1_point_2_subpoint_д",
+                  "item_type": "subpoint",
+                  "item_number": "д)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"ConsPlusNormal justifyfull\">раздел R «Деятельность в области культуры, спорта, организации досуга и развлечений» (за исключением видов деятельности, включенных в подкласс 92.1 «Деятельность по организации и проведению азартных игр и заключения пари»);</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_1_1_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в случае если объектом налогообложения являются доходы, уменьшенные на величину расходов, налоговая ставка устанавливается в размере 10 процентов, за исключением отдельных категорий плательщиков, определенных частью 1 статьи 2 Закона города Севастополя от 14 ноября 2014 года <span><a href=\"view/laws/bank/noyabr_2014/o_stavkah_po_nalogu-_vzimaemomu_v_svyazi_s_primeneniem_uproshhennoj_sistemy_nalogooblozheniya-_dlya_otdelnyh_kategorij_nalogoplatelshhikov-_vybravshih_v_kachestve_obekta_nalogooblozheniya_dohody-_umenshennye_na_velichinu_rashodov/\">№ 77-ЗС</a></span> «О ставках по налогу, взимаемому в связи с применением упрощенной системы налогообложения, для отдельных категорий налогоплательщиков, выбравших в качестве объекта налогообложения доходы, уменьшенные на величину расходов».</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">В отношении периодов 2017–2021 годов по налогу, взимаемому в связи с применением упрощенной системы налогообложения:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_1_1_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_1_1_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_1_1_point_3",
+                  "order": 4
+                }
+              ],
+              "mod_type": "add",
+              "modified_by_id": "18670_article_1_point_1",
+              "valid_from": "01.01.2017"
+            }
+          ]
+        },
+        {
+          "item_id": "51528_article_2_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В отношении периодов 2015 – 2016 годов налоговая ставка при применении системы налогообложения для сельскохозяйственных товаропроизводителей (единый сельскохозяйственный налог) устанавливается в размере 0,5 процента.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "51528_article_2_part_2_1",
+          "item_type": "part",
+          "item_number": "2.1",
+          "item_level": 2,
+          "item_children": [],
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">В отношении периодов 2017–2021 годов налоговая ставка при применении системы налогообложения для сельскохозяйственных товаропроизводителей (единый сельскохозяйственный налог) устанавливается в размере 4 процентов.</p>",
+                  "order": 1
+                }
+              ],
+              "mod_type": "add",
+              "modified_by_id": "18670_article_1_point_2",
+              "valid_from": "01.01.2017",
+              "valid_to": "31.12.2018"
+            },
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">В отношении периодов 2017–2021 годов налоговая ставка при применении системы налогообложения для сельскохозяйственных товаропроизводителей (единый сельскохозяйственный налог) устанавливается в размере 4 процентов за исключением случаев, предусмотренных частью 2.2 настоящей статьи.</p>",
+                  "order": 1
+                }
+              ],
+              "mod_type": "change",
+              "modified_by_id": "49868_article_1_point_1",
+              "highlights": {
+                "previous_edition": {
+                  "deletion": [],
+                  "addition": [],
+                  "difference": []
+                },
+                "current_edition": {
+                  "deletion": [],
+                  "addition": [
+                    [
+                      "за исключением случаев, предусмотренных частью 2.2 настоящей статьи",
+                      "1-1"
+                    ]
+                  ],
+                  "difference": []
+                }
+              }
+            }
+          ]
+        },
+        {
+          "item_id": "51528_article_2_part_2_2",
+          "item_type": "part",
+          "item_number": "2.2",
+          "item_level": 2,
+          "item_children": [
+            {
+              "item_id": "51528_article_2_part_2_2_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">сельскохозяйственные товаропроизводители производят:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_а",
+                      "order": 2
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_б",
+                      "order": 3
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_в",
+                      "order": 4
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_г",
+                      "order": 5
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_д",
+                      "order": 6
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_е",
+                      "order": 7
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_ж",
+                      "order": 8
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_з",
+                      "order": 9
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_и",
+                      "order": 10
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "51528_article_2_part_2_2_point_1_subpoint_к",
+                      "order": 11
+                    }
+                  ]
+                }
+              ],
+              "item_children": [
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_а",
+                  "item_type": "subpoint",
+                  "item_number": "а)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">клубнеплодные, овощные, бахчевые культуры и продукцию закрытого грунта;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_б",
+                  "item_type": "subpoint",
+                  "item_number": "б)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">кормовые культуры полевого возделывания, продукцию кормопроизводства прочую;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_в",
+                  "item_type": "subpoint",
+                  "item_number": "в)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию скотоводства;  </p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_г",
+                  "item_type": "subpoint",
+                  "item_number": "г)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию свиноводства;  </p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_д",
+                  "item_type": "subpoint",
+                  "item_number": "д)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию овцеводства и козоводства;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_е",
+                  "item_type": "subpoint",
+                  "item_number": "е)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию птицеводства;  </p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_ж",
+                  "item_type": "subpoint",
+                  "item_number": "ж)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию коневодства, ослов и мулов (включая лошаков);  </p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_з",
+                  "item_type": "subpoint",
+                  "item_number": "з)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию кролиководства;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_и",
+                  "item_type": "subpoint",
+                  "item_number": "и)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию рыбоводства, пчеловодства, шелководства, искусственного осеменения;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "51528_article_2_part_2_2_point_1_subpoint_к",
+                  "item_type": "subpoint",
+                  "item_number": "к)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p class=\"justifyfull\">продукцию рыбную пищевую товарную;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_2_2_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">доля доходов сельскохозяйственных товаропроизводителей от реализации сельскохозяйственной продукции, указанной в пункте 1 настоящей части, включая продукцию ее первичной переработки, произведенную из сельскохозяйственного сырья собственного производства, составляет за налоговый период не менее 70 процентов.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В отношении периодов 2019–2021 годов налоговая ставка при применении системы налогообложения для сельскохозяйственных товаропроизводителей (единый сельскохозяйственный налог) устанавливается в размере 1 процента при соблюдении следующих условий:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_2_2_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_2_2_point_2",
+                  "order": 3
+                }
+              ],
+              "mod_type": "add",
+              "modified_by_id": "49868_article_1_point_2",
+              "valid_from": "01.01.2019"
+            }
+          ]
+        },
+        {
+          "item_id": "51528_article_2_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Налоговая ставка по налогу на прибыль организации, подлежащего к зачислению в бюджет города Севастополя от деятельности, осуществляемой в соответствии с договором об осуществлении деятельности в свободной экономической зоне, устанавливается с момента внесения  в единый реест участников свободной экономической зоны участника свободной экономической зоны в следующих размерах;</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_3_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_3_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_3_point_3",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "51528_article_2_part_3_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">2 процента - в течение трех лет;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_3_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">6 процентов - с четвертого по восьмой годы;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_3_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">13,5 процентов – с девятого года.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "51528_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Действие положений статьи 2 настоящего Закона распостраняется на правоотношения с 1 января 2015 года.</p>",
+              "order": 1
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования и применяется с 1 января 2015 года.</p>",
+              "order": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "revision_info": [
+    {
+      "revision_id": "18670",
+      "revision_number": "287-ЗС",
+      "revision_date_reg": "03.11.2016",
+      "revision_date_valid": "01.01.2017",
+      "revision_url": "https://sevzakon.ru/view/laws/bank/2016_244-314/zakon_n_287_zs_ot_03_11_2016/tekst_zakona/"
+    },
+    {
+      "revision_id": "49868",
+      "revision_number": "459-ЗС",
+      "revision_date_reg": "27.11.2018",
+      "revision_date_valid": "01.01.2019",
+      "revision_url": "https://sevzakon.ru/view/laws/bank/2018/zakon_n_459_zs_ot_27_11_2018/tekst_zakona/"
+    }
+  ]
+}

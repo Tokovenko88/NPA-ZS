@@ -1,0 +1,244 @@
+{
+  "npa_id": "491",
+  "npa_type": "law",
+  "npa_number": "68-ЗС",
+  "npa_author": "Губернатор города Севастополя",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/sentyabr_2014/o_vnesenii_izmenenij_v_nekotorye_zakony_goroda_sevastopolya-_reguliruyushhie_voprosy_organizacii_gosudarstvennoj_grazhdanskoj_sluzhby_goroda_sevastopolya1/tekst-zakona/",
+  "date_reg": "06.08.2014",
+  "date_1st_reading": "10.09.2014",
+  "date_passed": "10.09.2014",
+  "date_signed": "10.09.2014",
+  "date_pub": "13.09.2014",
+  "valid_from": "24.09.2014",
+  "npa_signer_post": "И.о. Губернатора города Севастополя",
+  "npa_signer": "С.И. Меняйло",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в некоторые законы города Севастополя, регулирующие вопросы организации государственной гражданской службы города Севастополя"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "491_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О реестре должностей государственной гражданской службы города Севастополя» от 03.06.2014 <a href=\"view/laws/bank/iyun_2014/o_reestre_dolzhnostej_gosudarstvennoj_grazhdanskoj_sluzhby_goroda_sevastopolya/\">№ 18-ЗC</a> следующие дополнения:</p>",
+              "order": 1
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>Подраздел «Должности категории «специалисты» Раздела VII приложения к Закону дополнить строками:</p>",
+              "order": 2
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>после строки</p>",
+              "order": 3
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 4
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"638\">\n<p align=\"center\">Ведущая группа должностей</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 5
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>»</p>",
+              "order": 6
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>дополнить строкой</p>",
+              "order": 7
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 8
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"638\">\n<p>Главный государственный инспектор</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 9
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>»</p>",
+              "order": 10
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>после строки</p>",
+              "order": 11
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 12
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"638\">\n<p align=\"center\">Старшая группа должностей</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 13
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>»</p>",
+              "order": 14
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>дополнить строками</p>",
+              "order": 15
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 16
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"638\">\n<p>Старший государственный инспектор</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"638\">\n<p>Государственный инспектор</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 17
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>».</p>",
+              "order": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "491_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О денежном содержании государственных гражданских служащих города Севастополя» от 03.06.2014 <a href=\"view/laws/bank/iyun_2014/o_denezhnom_soderzhanii_gosudarstvennyh_grazhdanskih_sluzhashhih_goroda_sevastopolya/\">№ 22-ЗC</a> следующие дополнения:</p>",
+              "order": 1
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>- Раздел VI таблицы приложения 2 к Закону дополнить следующими строками:</p>",
+              "order": 2
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>после строки</p>",
+              "order": 3
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 4
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"414\">\n<p>Заместитель начальника инспекции, отдела</p>\n</td>\n<td valign=\"top\" width=\"123\">\n<p>3,2</p>\n</td>\n<td valign=\"top\" width=\"102\">\n<p>1,0</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 5
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>»</p>",
+              "order": 6
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>дополнить строкой</p>",
+              "order": 7
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 8
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"414\">\n<p>Главный государственный инспектор</p>\n</td>\n<td valign=\"top\" width=\"123\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"102\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 9
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>»</p>",
+              "order": 10
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>после строки</p>",
+              "order": 11
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 12
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"414\">\n<p>Специалист-эксперт</p>\n</td>\n<td valign=\"top\" width=\"123\">\n<p>2,8</p>\n</td>\n<td valign=\"top\" width=\"102\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 13
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>»</p>",
+              "order": 14
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>дополнить строкой</p>",
+              "order": 15
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 16
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"414\">\n<p>Старший государственный инспектор</p>\n</td>\n<td valign=\"top\" width=\"123\">\n<p>2,8</p>\n</td>\n<td valign=\"top\" width=\"102\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"414\">\n<p>Государственный инспектор</p>\n</td>\n<td valign=\"top\" width=\"123\">\n<p>2,4</p>\n</td>\n<td valign=\"top\" width=\"102\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+              "order": 17
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>».</p>",
+              "order": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "491_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу через десять дней после его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1228 @@
+{
+  "npa_id": "54360",
+  "npa_type": "law",
+  "npa_number": "487",
+  "npa_author": "Посметный Виктор Александрович",
+  "npa_npa_committee": "Постоянная комиссия по законодательству и государственному строительству",
+  "pub_filepath": "https://sevzakon.ru/assets/files/zakony/487-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2019/zakon_n_487_zs_ot_12_03_2019/tekst-zakona-1/",
+  "date_reg": "20.11.2018",
+  "date_1st_reading": "22.01.2019",
+  "date_passed": "26.02.2019",
+  "date_signed": "12.03.2019",
+  "date_pub": "12.03.2019",
+  "valid_from": "23.03.2019",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "Д.В. Овсянников",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 17 апреля 2015 года № 128-ЗС «Об участии граждан в охране общественного порядка в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "54360_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 17 апреля 2015 года <a href=\"view/laws/bank/04_2015/ob_uchastii_grazhdan_v_ohrane_obshhestvennogo_poryadka_v_gorode_sevastopole/\">№ 128-ЗС</a> «Об участии граждан в охране общественного порядка в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_5",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_6",
+              "order": 7
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_7",
+              "order": 8
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_8",
+              "order": 9
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_9",
+              "order": 10
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_10",
+              "order": 11
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_11",
+              "order": 12
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_12",
+              "order": 13
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_13",
+              "order": 14
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_1_point_14",
+              "order": 15
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "54360_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в преамбуле:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_1_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слово «Закон» заменить словом «Закон,»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «(далее – Федеральный закон № 154-ФЗ)» заменить словами «(далее – Федеральный закон № 154-ФЗ),»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">наименование дополнить словами «на территории города Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 1:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «нормативные правовые акты Российской Федерации» заменить словами «федеральные нормативные правовые акты»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «, другие законы города Севастополя» исключить;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 2:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_3_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_3_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_3_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_3_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_3_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 1:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">абзац первый изложить в следующей редакции:</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«1. К основным полномочиям Законодательного Собрания города Севастополя по обеспечению участия граждан в охране общественного порядка относятся законодательное регулирование отношений в сфере участия граждан в охране общественного порядка в городе Севастополе в соответствии с федеральным законодательством и осуществление контроля за соблюдением и исполнением законов города Севастополя, регулирующих указанные в настоящей части отношения.»;</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункты 1–3 признать утратившими силу;</p>",
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_3_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 2:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 2 признать утратившим силу;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить пунктами 2.1–2.2 следующего содержания:</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«2.1) принятие решений о выделении средств бюджета города Севастополя на материально-техническое обеспечение деятельности народных дружин, материальное стимулирование деятельности народных дружинников;</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">2.2) принятие решения об установлении в соответствии с настоящим Законом дополнительных льгот и компенсаций для народных дружинников;»;</p>",
+                      "order": 5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_3_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 3:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце первом слова «внутригородских муниципальных образований» исключить;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в пункте 1 слова «, в пределах предоставленных полномочий,» заменить словами «в пределах предоставленных полномочий»;</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 2 изложить в следующей редакции:</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«2) установление представительным органом соответствующего внутригородского муниципального образования города Севастополя границ территории, на которой может быть создана народная дружина;»;</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 6 изложить в следующей редакции:</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«6) принятие решения об установлении в соответствии с настоящим Законом дополнительных льгот и компенсаций для народных дружинников;»;</p>",
+                      "order": 7
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_3_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частью 4 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«4. Органы государственной власти города Севастополя и органы местного самоуправления в городе Севастополе в целях содействия гражданам, участвующим в поиске лиц, пропавших без вести, размещают на своих официальных сайтах в информационно-телекоммуникационной сети «Интернет», а также в средствах массовой информации, в том числе на общероссийских обязательных общедоступных телеканалах и радиоканалах, общедоступную информацию о лицах, пропавших без вести, месте их предполагаемого поиска, контактную информацию координаторов мероприятий по поиску лиц, пропавших без вести, иную общедоступную информацию, необходимую для эффективного поиска лиц, пропавших без вести.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 4:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_4_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_4_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_4_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_4_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_4_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частями 1.1 и 1.2 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«1.1. Народные дружины создаются по инициативе граждан Российской Федерации, изъявивших желание участвовать в охране общественного порядка на территории города Севастополя, в форме общественной организации с уведомлением органа местного самоуправления соответствующего внутригородского муниципального образования города Севастополя, территориального органа федерального органа исполнительной власти в сфере внутренних дел в городе Севастополе.</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">1.2. Границы территории, на которой может быть создана народная дружина, устанавливаются представительным органом соответствующего внутригородского муниципального образования города Севастополя. При этом на одной территории, как правило, может быть создана только одна народная дружина.»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_4_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 2:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «образования в городе Севастополе» заменить словами «образования города Севастополя»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">второе предложение дополнить словами «в городе Севастополе»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_4_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 4 слова «территориальным районным отделом внутренних дел в городе Севастополе» заменить словами «территориальным органом федерального органа исполнительной власти в сфере внутренних дел в городе Севастополе»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_4_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частью 4.1 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«4.1. Порядок взаимодействия народных дружин с органами внутренних дел (полицией) и иными правоохранительными органами определяется совместным решением народных дружин, органа местного самоуправления соответствующего внутригородского муниципального образования города Севастополя, территориального органа федерального органа исполнительной власти в сфере внутренних дел в городе Севастополе, иных правоохранительных органов.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 5:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_5_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_5_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_5_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_5_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_5_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 1:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слово «далее» заменить словом «далее –»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «федеральных управлений и отделов правоохранительных органов Российской Федерации в городе Севастополе по охране общественного порядка» заменить словами «территориального органа федерального органа исполнительной власти в сфере внутренних дел в городе Севастополе, иных правоохранительных органов»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_5_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">второе предложение части 2 дополнить словами «, положение, предусматривающее порядок создания и деятельности штаба, полномочия и структуру»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_5_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 3 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«3. В состав штаба входят представители народных дружин, общественных объединений правоохранительной направленности в городе Севастополе, Правительства Севастополя, органов местного самоуправления в городе Севастополе, Управления Министерства внутренних дел Российской Федерации по городу Севастополю (по согласованию).»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_5_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 4 слова «внутригородских муниципальных образований» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_6",
+          "item_type": "point",
+          "item_number": "6)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">дополнить статьей 5.1 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«Статья 5.1. Участие граждан в деятельности общественных объединений правоохранительной направленности в городе Севастополе</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">1. Создание и деятельность общественных объединений правоохранительной направленности в городе Севастополе, участие граждан в деятельности таких объединений осуществляются в соответствии со статьей 11 Федерального закона № 44-ФЗ, Федеральным законом от 19 мая 1995 года № 82-ФЗ «Об общественных объединениях», иными федеральными законами и с учетом положений настоящего Закона.</p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">2. Решения о создании общественных объединений правоохранительной направленности в городе Севастополе принимаются гражданами на общем собрании по месту жительства, нахождения собственности, работы или учебы с уведомлением органа местного самоуправления соответствующего внутригородского муниципального образования города Севастополя, территориального органа федерального органа исполнительной власти в сфере внутренних дел в городе Севастополе.»;</p>",
+                  "order": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_7",
+          "item_type": "point",
+          "item_number": "7)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">часть 6 статьи 7 признать утратившей силу;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_8",
+          "item_type": "point",
+          "item_number": "8)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 7.1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_8_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_8_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_8_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_8_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">наименование после слова «стимулирование» дополнить словами «и дополнительные льготы»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_8_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">части 1 и 2 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«1. Органы исполнительной власти города Севастополя и органы местного самоуправления в городе Севастополе за счет средств соответствующих бюджетов могут осуществлять материальное стимулирование деятельности народных дружинников, устанавливать дополнительные льготы для народных дружинников, а также использовать иные формы их материальной заинтересованности и социальной защиты.</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">2. Порядок осуществления указанного в части 1 настоящей статьи материального стимулирования народных дружинников устанавливается соответственно Правительством Севастополя и органами местного самоуправления в городе Севастополе.»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_8_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частью 3 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«3. Порядок определения видов и размеров указанных в части 1 настоящей статьи дополнительных льгот народным дружинникам, а также перечня необходимых документов и сроков их предоставления для получения таких льгот устанавливается соответственно Правительством Севастополя и органами местного самоуправления в городе Севастополе.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_9",
+          "item_type": "point",
+          "item_number": "9)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>дополнить статьей 7.2 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«Статья 7.2. Личное страхование народных дружинников</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>1. Народные дружинники подлежат личному страхованию на период их участия в мероприятиях по охране общественного порядка в городе Севастополе.</p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>2. Порядок осуществления личного страхования народных дружинников устанавливается Правительством Севастополя.»;</p>",
+                  "order": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_10",
+          "item_type": "point",
+          "item_number": "10)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 2 статьи 8 слово «героизм,» заменить словом «героизм»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_11",
+          "item_type": "point",
+          "item_number": "11)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 9:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_11_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_11_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_11_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">части 1 и 2 признать утратившими силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_11_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частью 2.1 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«2.1. Материально-техническое обеспечение деятельности народных дружин осуществляется в соответствии со статьей 21 Федерального закона № 44-ФЗ и в рамках реализации мероприятий государственных программ города Севастополя и муниципальных программ, направленных на обеспечение законности, и (или) правопорядка, и (или) общественной безопасности на территории города Севастополя.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_12",
+          "item_type": "point",
+          "item_number": "12)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 10 слова «уполномоченными органами» заменить словами «органами государственной власти, установленными статьей 24 Федерального закона № 44-ФЗ,»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_13",
+          "item_type": "point",
+          "item_number": "13)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в приложении 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_13_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_13_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_13_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "54360_article_1_point_13_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "54360_article_1_point_13_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 1 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«1. Удостоверение народного дружинника в городе Севастополе (далее – удостоверение) выдается должностным лицом исполнительного органа государственной власти города Севастополя, определенного Правительством Севастополя.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_13_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 3 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«3. Удостоверение подписывается Председателем Правительства Севастополя либо уполномоченным им должностным лицом исполнительного органа государственной власти города Севастополя и заверяется печатью Правительства Севастополя. Фотография народного дружинника также заверяется печатью Правительства Севастополя. Графы заполняются в полном соответствии с личными данными народного дружинника. Исправления и подчистки на бланке удостоверения не допускаются.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_13_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в пункте 5 слова «под роспись» заменить словами «под подпись»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "54360_article_1_point_13_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в пункте 7 слово «дружинника,» заменить словом «дружинника»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_1_point_14",
+          "item_type": "point",
+          "item_number": "14)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">приложение 2 изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«Приложение 2<br/>к Закону города Севастополя<br/>«Об участии граждан в охране общественного порядка в городе Севастополе»</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p style=\"text-align: center;\"><strong>Образец удостоверения народного дружинника в городе Севастополе</strong></p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Лицевая сторона удостоверения</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<div class=\"double-scroll\"><table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 100%;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"48%\">\n<p align=\"center\"></p>\n</td>\n<td valign=\"top\" width=\"51%\">\n<p align=\"center\"></p>\n<p align=\"center\">Герб</p>\n<p align=\"center\">города Севастополя</p>\n<p></p>\n<p align=\"center\">УДОСТОВЕРЕНИЕ</p>\n<p align=\"center\">НАРОДНОГО ДРУЖИННИКА</p>\n<p align=\"center\"></p>\n</td>\n</tr>\n</tbody>\n</table></div>",
+                  "order": 5
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"0\" style=\"width: 100%;\">\n<tbody>\n<tr>\n<td style=\"text-align: center;\">\n<p>Левая часть<br/> внутренней стороны удостоверения</p>\n</td>\n<td style=\"text-align: center;\">\n<p>Правая часть<br/> внутренней стороны удостоверения</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 6
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table style=\"border-collapse: collapse; border: 2px solid black; width: 100%;\"><colgroup> <col style=\"width: 15%;\"/> <col style=\"width: 35%;\"/> <col style=\"width: 25%;\"/> <col style=\"width: 25%;\"/> </colgroup>\n<tbody>\n<tr style=\"height: 35.2px;\">\n<td colspan=\"2\" rowspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"><strong>Народная дружина</strong><br/>г. Севастополь (<em>название дружины</em>)</td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"><strong>Удостоверение №</strong></td>\n</tr>\n<tr style=\"height: 35px;\">\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\">_____________________________________</td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border: none; padding: 8px;\"></td>\n<td style=\"border: none; padding: 8px;\"><strong>Действительно</strong></td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\">_____________________________________</td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border: none; padding: 8px;\"></td>\n<td style=\"border: none; padding: 8px;\">до «___» __________201_ г.</td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"><strong>(Ф.И.О.)</strong></td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border: none; padding: 8px;\"></td>\n<td style=\"border: none; padding: 8px;\"><strong>Продлено</strong></td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\">Является членом Народной дружины</td>\n</tr>\n<tr style=\"height: 35px;\">\n<td rowspan=\"5\" style=\"border: 2px solid black; padding: 8px; text-align: center;\"><br/><br/><strong>Фото</strong><br/><br/></td>\n<td style=\"border: none; padding: 8px;\">до «___» __________201_ г.</td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\">по охране общественного порядка</td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border: none; padding: 8px;\"><strong>Продлено</strong></td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\">в г. Севастополе</td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border: none; padding: 8px;\">до «___» __________201_ г.</td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"></td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border: none; padding: 8px;\"></td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"><i>(название должности должностного лица, </i></td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border: none; padding: 8px;\"><strong>Подпись дружинника</strong></td>\n<td colspan=\"2\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"><i>подписывающего удостоверение)</i></td>\n</tr>\n<tr style=\"height: 35px;\">\n<td style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"></td>\n<td style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px; text-align: center;\"><em>(подпись)</em></td>\n<td class=\"justifyleft\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px;\"></td>\n<td class=\"justifyleft\" style=\"border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 8px;\"><em>(фамилия и инициалы)</em></td>\n</tr>\n</tbody>\n</table>",
+                  "order": 7
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p style=\"text-align: center;\"><strong>Описание удостоверения народного дружинника в городе Севастополе</strong></p>",
+                  "order": 8
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Удостоверение народного дружинника в городе Севастополе (далее – удостоверение) представляет собой книжку размером 6,5 см x 20 см (в развернутом виде), обложка которой изготовлена из материала красного (бордового) цвета. Внутренние вклейки удостоверения выполнены из бумаги белого цвета.</p>",
+                  "order": 9
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В правой части лицевой стороны удостоверения в верхней части расположено изображение герба города Севастополя, выполненное тиснением фольгой золотистого цвета, под ним – надпись золотистого цвета в две строки «УДОСТОВЕРЕНИЕ / НАРОДНОГО ДРУЖИННИКА» (высота букв не менее 5 мм).</p>",
+                  "order": 10
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В левой части внутренней стороны удостоверения, в левом нижнем углу, вклеивается фотография народного дружинника. Оттиск печати Правительства Севастополя ставится на подпись народного дружинника, частично захватывая фотографию народного дружинника. В указанной части удостоверения располагаются слова: «Народная дружина/г. Севастополь «Название дружины», под ней с правой стороны надпись: «Действительно/до «__» _______ 20__ г./Продлено/до «__» _______ 20__ г./Подпись дружинника/____________ подпись/».</p>",
+                  "order": 11
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В правой части внутренней стороны удостоверения расположена надпись: «Удостоверение № ____/ Фамилия, Имя, Отчество/». Ниже надпись: «Является членом Народной дружины по охране общественного порядка в г. Севастополе». Ниже указывается название должности должностного лица, подписывающего удостоверение, и надпись: «_______________ (фамилия и инициалы)».».</p>",
+                  "order": 12
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "54360_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Ранее выданные удостоверения народного дружинника в городе Севастополе действуют до окончания их срока.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "54360_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_3_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "54360_article_3_part_2",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "54360_article_3_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования, за исключением пунктов 8 и 9 статьи 1 настоящего Закона.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "54360_article_3_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Пункты 8 и 9 статьи 1 настоящего Закона вступают в силу с 1 января 2020 года.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

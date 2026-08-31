@@ -1,0 +1,60 @@
+[
+  {
+    "revision_number": "1)->а)",
+    "structural_element": "Статья 2",
+    "type": "add",
+    "description": "2",
+    "new": "часть 1.1"
+  },
+  {
+    "revision_number": "1)->б)",
+    "structural_element": "Статья 2 часть 2 пункт 2",
+    "type": "new_redaction",
+    "description": "2"
+  },
+  {
+    "revision_number": "2)->а)",
+    "structural_element": "Статья 3 часть 4",
+    "type": "change",
+    "description": "слово «выпадающих» заменить словом «недополученных»;"
+  },
+  {
+    "revision_number": "2)->а)",
+    "structural_element": "Статья 3 часть 4",
+    "type": "change",
+    "description": "дополнить словами с учетом положений части 5 настоящей статьи"
+  },
+  {
+    "revision_number": "2)->б)",
+    "structural_element": "Статья 3",
+    "type": "add",
+    "description": "2",
+    "new": "часть 5"
+  },
+  {
+    "revision_number": "3)->а)",
+    "structural_element": "Статья 4 часть 1",
+    "type": "new_redaction",
+    "description": "2-10"
+  },
+  {
+    "revision_number": "3)->б)",
+    "structural_element": "Статья 4",
+    "type": "add",
+    "description": "2",
+    "new": "часть 2"
+  },
+  {
+    "revision_number": "4)->а)",
+    "structural_element": "Статья 10 часть 1",
+    "type": "new_redaction",
+    "description": "2"
+  },
+  {
+    "revision_number": "4)->б)",
+    "structural_element": "Статья 10",
+    "type": "add",
+    "description": "2",
+    "new": "часть 2"
+  }
+]

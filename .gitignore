@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+.env
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Lint/typecheck
+.ruff_cache/
+.mypy_cache/
+
+# Data (local overrides)
+data/input/*.json
+data/output/*.json
+data/logs/*.log
+data/debug_runs/*
+data/stage_answers/*.json
+data/work_tools/*
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Kilo
+.kilo/node_modules/
+.kilo/package-lock.json

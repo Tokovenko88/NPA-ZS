@@ -1,0 +1,134 @@
+{
+  "npa_id": "119342",
+  "npa_type": "law",
+  "npa_number": "787-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев, Немцев Владимир Владимирович, Камзолов Вячеслав Юрьевич, Дубовик Евгений Георгиевич",
+  "npa_npa_committee": "Постоянная комиссия Законодательного Собрания города Севастополя II созыва по бюджету",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2023/787-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2023/zakon_n_787_zs_ot_30_11_2023/tekst-zakona/",
+  "date_reg": "28.11.2023",
+  "date_1st_reading": "30.11.2023",
+  "date_passed": "30.11.2023",
+  "date_signed": "30.11.2023",
+  "date_pub": "30.11.2023",
+  "valid_from": "30.11.2023",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в отдельные законы города Севастополя о налогах"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "119342_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">В пункте 2 части 1 статьи 2 Закона города Севастополя от 26 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_zemelnom_naloge/\">№ 81-ЗС</a> «О земельном налоге» слова «объектами инженерной инфраструктуры жилищно-коммунального комплекса (за исключением доли в праве на земельный участок, приходящейся на объект, не относящийся к жилищному фонду и» заменить словами «(или) объектами инженерной инфраструктуры жилищно-коммунального комплекса (за исключением части земельного участка, приходящейся на объект недвижимого имущества, не относящийся к жилищному фонду и (или)».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "119342_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В абзаце первом части 1.4 статьи 2 Закона города Севастополя от 3 февраля 2015 года <a href=\"view/laws/bank/02_2015/o_nalogovyh_stavkah_v_svyazi_s_prinyatiem_federalnogo_zakona_ot_29_noyabrya_2014_goda_n379-fz_o_vnesen/\">№ 110-ЗС</a> «О налоговых ставках по отдельным налогам» слова «2023 году» заменить словами «2023 и 2024 годах».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "119342_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В статье 4 Закона города Севастополя от 25 октября 2017 года <a href=\"view/laws/bank/2017/zakon_n_370_zs_ot_25_10_2017/\">№ 370-ЗС</a> «Об установлении налоговой ставки 0 процентов для налогоплательщиков – индивидуальных предпринимателей при применении упрощенной и (или) патентной системы налогообложения на территории города Севастополя» цифры «2024» заменить цифрами «2025».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "119342_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "119342_article_4_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "119342_article_4_part_2",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "119342_article_4_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования, за исключением статьи 1 настоящего Закона.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "119342_article_4_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">Статья 1 настоящего Закона вступает в силу с 1 января 2024 года, но не ранее, чем по истечении одного месяца со дня его официального опубликования, и не ранее 1-го числа очередного налогового периода по земельному налогу.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

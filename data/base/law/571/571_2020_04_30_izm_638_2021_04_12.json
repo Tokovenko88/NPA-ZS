@@ -1,0 +1,318 @@
+{
+  "npa_id": "72469",
+  "npa_type": "law",
+  "npa_number": "571-ЗС",
+  "npa_author": "Временно исполняющий обязанности Губернатора города Севастополя",
+  "npa_npa_committee": "Постоянная комиссия Законодательного Собрания города Севастополя II созыва по бюджету",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2020/571-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2020/zakon_n_571_zs_ot_30_04_2020/tekst-zakona/",
+  "date_reg": "22.04.2020",
+  "date_1st_reading": "23.04.2020",
+  "date_passed": "23.04.2020",
+  "date_signed": "30.04.2020",
+  "date_pub": "30.04.2020",
+  "valid_from": "30.04.2020",
+  "npa_signer_post": "Временно исполняющий обязанности Губернатора города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в отдельные законы города Севастополя о налогах"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "72469_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 14 августа 2014 года <a href=\"view/laws/bank/avgust_2014/o_patentnoj_sisteme_nalogooblozheniya_na_territorii_goroda_federalnogo_znacheniya_sevastopolya/\">№ 57-ЗС</a> «О патентной системе налогообложения на территории города федерального значения Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "72469_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "72469_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "72469_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 2:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "72469_article_1_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "72469_article_1_point_1_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "72469_article_1_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 4 изложить в следующей редакции:  </p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«4. Установить в 2020 году размеры потенциально возможного к получению индивидуальным предпринимателем годового дохода по видам предпринимательской деятельности, в отношении которых применяется патентная система налогообложения, согласно приложению 4 к настоящему Закону с учетом территориальных коэффициентов, за исключением видов предпринимательской деятельности, указанных в части 5 настоящей статьи.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "72469_article_1_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частью 5 следующего содержания:  </p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«5. Установить в 2020 году по видам предпринимательской деятельности, в отношении которых применяется патентная система налогообложения, указанным в пунктах 10, 11, 19, 20, 24.2 приложения 4 к настоящему Закону, размеры потенциально возможного к получению индивидуальным предпринимателем годового дохода согласно приложению 4 к настоящему Закону без применения территориальных коэффициентов.»; </p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "72469_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">дополнить приложением 4 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">«Приложение 4 <br/> к Закону города Севастополя <br/> «О патентной системе налогообложения на территории города федерального значения Севастополя» </p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p align=\"center\" style=\"text-align: center;\">Размер потенциально возможного к получению индивидуальным предпринимателем годового дохода в 2020 году по видам предпринимательской деятельности, в отношении которых <br/> применяется патентная система налогообложения </p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<div class=\"double-scroll\"><table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 100%;\">\n<tbody>\n<tr>\n<td rowspan=\"2\" width=\"5%\">\n<p align=\"center\">№ п/п</p>\n</td>\n<td rowspan=\"2\" width=\"40%\">\n<p align=\"center\">Наименование видов деятельности</p>\n</td>\n<td colspan=\"2\" width=\"37%\">\n<p align=\"center\">Физический показатель</p>\n</td>\n<td rowspan=\"2\" width=\"17%\">\n<p align=\"center\">Размер потенциально возможного к получению индивидуальным предпринимателем годового дохода (тыс. рублей)</p>\n</td>\n</tr>\n<tr>\n<td width=\"20%\">\n<p align=\"center\">Наименование</p>\n</td>\n<td width=\"16%\">\n<p align=\"center\">Величина</p>\n</td>\n</tr>\n<tr>\n<td style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"40%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"20%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">4 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">5 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">1</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Ремонт и пошив швейных, меховых и кожаных изделий, головных уборов и изделий из текстильной галантереи, ремонт, пошив и вязание трикотажных изделий</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">82,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">2</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Ремонт, чистка, окраска и пошив обуви</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">82,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">3 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Парикмахерские и косметические услуги </p>\n<p> </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">165 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">215 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">280 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">280 и 50 за каждого последующего работника свыше 2 человек </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">4</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Химическая чистка, крашение и услуги прачечных</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">150</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">190</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">255</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">255 и 50 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">5</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Изготовление и ремонт металлической галантереи, ключей, номерных знаков, указателей улиц</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">82,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">6</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Ремонт и техническое обслуживание бытовой радиоэлектронной аппаратуры, бытовых машин и бытовых приборов, часов, ремонт и изготовление металлоизделий</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">150</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">195</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">255</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">255 и 50 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">7</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Ремонт мебели</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">130</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">170</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">220</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">220 и 45 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">8</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Услуги фотоателье, фото- и кинолабораторий</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">165</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">215</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">280</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">280 и 55 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">9</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Техническое обслуживание и ремонт автотранспортных и мототранспортных средств, машин и оборудования, за исключением уборочно-моечных работ</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">280</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">365</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">440</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">440 и 75 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">10</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Оказание автотранспортных услуг по перевозке грузов автомобильным транспортом</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">135</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">175</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">230</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">230 и 52,5 <br/> за каждое последующее транспортное средство <br/> свыше 3</p>\n</td>\n</tr>\n<tr>\n<td style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">11 </p>\n</td>\n<td colspan=\"4\" valign=\"top\" width=\"95%\">\n<p align=\"center\">Оказание автотранспортных услуг по перевозке пассажиров автомобильным транспортом: </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">11.1 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Оказание автотранспортных услуг по перевозке пассажиров автомобильным транспортом, за исключением внутригородских, пригородных, междугородных, международных автомобильных (автобусных) пассажирских перевозок по регулярным маршрутам, услуг по перевозке легковыми таксомоторами </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">502,5  </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">652,5  </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">847,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">847,5 и 190 <br/> за каждое последующее транспортное средство <br/> свыше 3 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">11.2 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Внутригородские и пригородные автомобильные (автобусные) пассажирские перевозки по регулярным маршрутам </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">670 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">870 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">1130 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">1130 и 250 <br/> за каждое последующее транспортное средство <br/> свыше 3 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">11.3 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Междугородние и международные автомобильные (автобусные) пассажирские перевозки по регулярным маршрутам </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">837,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">1090 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">1415 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">1415 и 297,5 <br/> за каждое последующее транспортное средство <br/> свыше 3 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">11.4 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Перевозка пассажиров легковыми таксомоторами </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">135 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">175 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">230 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">230 и 55 <br/> за каждое последующее транспортное средство <br/> свыше 3 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">12</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Услуги по обучению населения <br/> на курсах и по репетиторству</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">85,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">13 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Услуги по присмотру и уходу <br/> за детьми и больными </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">82,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">115 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">115 и 20 <br/> за каждого последующего работника свыше 2 человек </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">14 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Изготовление изделий народных художественных промыслов </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">110 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">142,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">187,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">187,5 и 30 <br/> за каждого последующего работника свыше 2 человек </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">15</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Ремонт ювелирных изделий, бижутерии</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">167,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">217,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">282,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">282,5 и 55 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">16</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Чеканка и гравировка ювелирных изделий</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">167,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">217,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">282,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">282,5 и 55 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">17 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Проведение занятий по физической культуре и спорту </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">150 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">215 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">280 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">280 и 50 <br/> за каждого последующего работника свыше 2 человек </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">18 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Услуги поваров по изготовлению блюд на дому </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">85 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">110 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">142,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">142,5 и 32,5 <br/> за каждого последующего работника свыше 2 человек </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">19 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Оказание услуг по перевозке пассажиров водным транспортом </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">250 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">325 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">422,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">422,5 и 90 <br/> за каждое последующее транспортное средство <br/> свыше 3 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p>20</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Оказание услуг по перевозке грузов водным транспортом</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">150</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">195</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">255</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">255 и 50 <br/> за каждое последующее транспортное средство <br/> свыше 3</p>\n</td>\n</tr>\n<tr>\n<td style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">21 </p>\n</td>\n<td colspan=\"4\" valign=\"top\" width=\"95%\">\n<p align=\"center\">Услуги по прокату: </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">21.1 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Услуги по прокату, за исключением проката велосипедов водных, водных лыж, лодок, катеров, водных скутеров, мотоциклов, мотороллеров, мопедов, велосипедов, легковых и грузовых автомобилей </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">120 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">155 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">200 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">200 и 25 <br/> за каждого последующего работника свыше 2 человек </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">21.2 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Прокат велосипедов водных, водных лыж, лодок, катеров, водных скутеров </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">167,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">227,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">295 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">295 и 67,5 <br/> за каждое последующее транспортное средство <br/> свыше 3 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">21.3 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Прокат транспортных средств (мотоциклов, мотороллеров, мопедов, велосипедов, легковых и грузовых автомобилей) </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество транспортных средств (единиц) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">225 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">292,5 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">380 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">380 и 87,5 <br/> за каждое последующее транспортное средство <br/> свыше 3 </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">22 </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Экскурсионные услуги </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">135 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">205 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">270 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">270 и 60 <br/> за каждого последующего работника свыше 2 человек </p>\n</td>\n</tr>\n<tr>\n<td style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">23</p>\n</td>\n<td colspan=\"4\" valign=\"top\" width=\"95%\">\n<p align=\"center\">Розничная торговля, осуществляемая через объекты стационарной торговой сети <br/> с площадью торгового зала не более 50 кв. м по каждому объекту организации торговли:</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"2\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">23.1</p>\n</td>\n<td rowspan=\"2\" valign=\"top\" width=\"40%\">\n<p>Розничная торговля, <br/> за исключением розничной торговли ювелирными изделиями</p>\n</td>\n<td valign=\"top\" width=\"20%\">\n<p align=\"center\">площадь обособленных объектов (кв. м)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">до 10 включительно</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">225</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"20%\">\n<p> </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 10</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">225 и 25 <br/> за каждый последующий            кв. м площади свыше 10 кв. м</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"2\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">23.2</p>\n</td>\n<td rowspan=\"2\" valign=\"top\" width=\"40%\">\n<p>Розничная торговля ювелирными изделиями</p>\n</td>\n<td rowspan=\"2\" valign=\"top\" width=\"20%\">\n<p align=\"center\">площадь обособленных объектов (кв. м)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">до 10 включительно</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">400</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 10</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">400 и 40 <br/> за каждый последующий             кв. м площади свыше 10 кв. м</p>\n</td>\n</tr>\n<tr>\n<td style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">24</p>\n</td>\n<td colspan=\"4\" valign=\"top\" width=\"95%\">\n<p align=\"center\" class=\"ConsPlusNormal\">Розничная торговля, осуществляемая через объекты стационарной торговой сети, не имеющие торговых залов, а также через объекты нестационарной торговой сети:</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">24.1</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p class=\"ConsPlusNormal\">Розничная торговля, осуществляемая через объекты стационарной торговой сети, <br/> не имеющие торговых залов, <br/> а также через объекты нестационарной торговой сети, <br/> за исключением розничной торговли любыми видами товаров, осуществляемой передвижными средствами, <br/> и разносной торговли, торговли через автоматы</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\" class=\"ConsPlusNormal\">количество обособленных объектов</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">200</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">230</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">270</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">270 и 25 <br/> за каждый последующий объект свыше <br/> 3 объектов</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">24.2</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p class=\"ConsPlusNormal\">Прочая розничная торговля вне магазинов (включает розничную торговлю любыми видами товаров, осуществляемую передвижными средствами, развозную и разносную торговлю, торговлю через автоматы)</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\" class=\"ConsPlusNormal\">количество обособленных объектов</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">100</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">130</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">170</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 3</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">170 и 25 <br/> за каждый последующий объект свыше <br/> 3 объектов</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"2\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">25 </p>\n</td>\n<td rowspan=\"2\" valign=\"top\" width=\"40%\">\n<p>Услуги общественного питания, оказываемые через объекты организации общественного питания с площадью зала обслуживания посетителей <br/> не более 50 кв. м по каждому объекту организации общественного питания </p>\n</td>\n<td rowspan=\"2\" valign=\"top\" width=\"20%\">\n<p align=\"center\">площадь обособленных объектов (кв. м) </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">до 10 включительно </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">225 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 10 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">225 и 10 <br/> за каждый последующий кв. м площади свыше 10 кв. м </p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">26</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Услуги общественного питания, оказываемые через объекты организации общественного питания, не имеющие зала обслуживания посетителей </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">количество обособленных объектов </p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">1 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">210 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">2 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">273 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">357 </p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">свыше 3 </p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">357 и 63 <br/> за каждый последующий объект свыше <br/> 3 объектов </p>\n</td>\n</tr>\n<tr>\n<td style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p align=\"center\">27</p>\n</td>\n<td colspan=\"4\" width=\"95%\">\n<p align=\"center\">Бытовые услуги из дополнительного перечня видов предпринимательской деятельности, относящихся к бытовым услугам в соответствии с Общероссийским классификатором видов экономической деятельности (ОКВЭД 2) ОК 029-2014 <br/> (КДЕС Ред. 2) и Общероссийским классификатором продукции по видам экономической деятельности (ОКПД 2) ОК 034-2014 (КПЕС 2008), в отношении которых применяется патентная система налогообложения на территории города Севастополя:</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p>27.1</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Изготовление изделий из дерева, пробки, соломки и материалов <br/> для плетения, корзиночных и плетеных изделий <br/> по индивидуальному заказу населения</p>\n<p>(код по ОКВЭД 2 16.29.3)</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">82,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p>27.2</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Изготовление кухонной мебели <br/> по индивидуальному заказу населения</p>\n<p>(код по ОКВЭД 2 31.02.2)</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">127,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">165</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">215</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">215 и 20 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p>27.3</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Изготовление прочей мебели и отдельных мебельных деталей, <br/> не включенных в другие группировки, по индивидуальному заказу населения</p>\n<p>(код по ОКВЭД 2 31.09.2)</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">127,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">165</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">215</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">215 и 20 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p>27.4</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Изготовление бижутерии и подобных товаров <br/> по индивидуальному заказу населения</p>\n<p>(код по ОКВЭД 2 32.13.2)</p>\n<p> </p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">82,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p>27.5</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Ремонт и настройка музыкальных инструментов (кроме органов и исторических музыкальных инструментов)</p>\n<p>(код по ОКВЭД 2 95.29.7)</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">82,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n<tr>\n<td rowspan=\"4\" style=\"text-align: center;\" valign=\"top\" width=\"5%\">\n<p>27.6</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"40%\">\n<p>Услуги копировально-множительные <br/> по индивидуальному заказу населения</p>\n<p>(код по ОКПД 2 96.09.19.113)</p>\n</td>\n<td rowspan=\"4\" valign=\"top\" width=\"20%\">\n<p align=\"center\">средняя численность наемных работников (человек)</p>\n</td>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\">без наемных работников</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\">55</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">1</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">82,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"16%\">\n<p align=\"center\" class=\"ConsPlusNormal\">свыше 2</p>\n</td>\n<td valign=\"top\" width=\"17%\">\n<p align=\"center\" class=\"ConsPlusNormal\">115 и 25 <br/> за каждого последующего работника свыше 2 человек</p>\n</td>\n</tr>\n</tbody>\n</table></div>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>».</p>",
+                  "order": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "72469_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в статью 5 Закона города Севастополя от 14 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_transportnom_naloge/\">№ 75-ЗС </a>«О транспортном налоге» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "72469_article_2_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "72469_article_2_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "72469_article_2_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">дополнить частью 2.1 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«2.1. В 2020 году освобождаются от уплаты налога организации, индивидуальные предприниматели, включенные по состоянию на 1 марта 2020 года в соответствии с Федеральным законом от 24 июля 2007 года № 209-ФЗ «О развитии малого и среднего предпринимательства в Российской Федерации» в единый реестр субъектов малого и среднего предпринимательства,  осуществляющие следующие виды экономической деятельности в соответствии с Общероссийским классификатором видов экономической деятельности ОК 029-2014 (КДЕС Ред. 2), утвержденным приказом Федерального агентства по техническому регулированию и метрологии от 31 января 2014 года № 14-ст: 49.31, 49.39.».</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "72469_article_2_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">часть 7 дополнить пунктом 9 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«9) для организаций и индивидуальных предпринимателей, указанных в части 2.1 настоящей статьи, – заявление о предоставлении налоговой льготы.».</p>",
+                  "order": 2
+                }
+              ],
+              "valid_to": "31.12.2020",
+              "not_valid": "79445_article_4_point_2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "72469_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в статью 1.1 Закона города Севастополя от 26 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_vvedenii_na_territorii_goroda_federalnogo_znacheniya_sevastopolya_sistemy_nalogooblozheniya_v_vide_edinogo_naloga_na_vmenennyj_dohod_dlya_otdelnyh_vidov_deyatelnosti/\">№ 85-ЗС</a> «О введении на территории города федерального значения Севастополя системы налогообложения в виде единого налога на вмененный доход для отдельных видов деятельности» изменение, заменив цифры «5, 8, 9, 12» цифрами «1, 3, 5, 6, 7, 8, 9, 12».</p>",
+              "order": 1
+            }
+          ],
+          "valid_to": "11.04.2021",
+          "not_valid": "84484_article_1_point_4"
+        }
+      ]
+    },
+    {
+      "item_id": "72469_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в часть 1.2 статьи 2 Закона города Севастополя от 3 февраля 2015 года <a href=\"view/laws/bank/02_2015/o_nalogovyh_stavkah_v_svyazi_s_prinyatiem_federalnogo_zakona_ot_29_noyabrya_2014_goda_n379-fz_o_vnesen/\">№ 110-ЗС</a> «О налоговых ставках в связи с принятием Федерального закона от 29 ноября 2014 года № 379-ФЗ «О внесении изменений в части первую и вторую Налогового кодекса Российской Федерации в связи с принятием Федерального закона «О развитии Крымского федерального округа и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя» изменение, изложив пункты 1 и 2 в следующей редакции:</p>",
+              "order": 1
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">«1) в случае если объектом налогообложения являются доходы, налоговая ставка устанавливается в размере 1 процента для отдельных категорий налогоплательщиков, осуществляющих следующие виды экономической деятельности в соответствии с Общероссийским классификатором видов экономической деятельности ОК 029-2014 (КДЕС Ред. 2), утвержденным приказом Федерального агентства по техническому регулированию и метрологии от 31 января 2014 года № 14-ст: 32.99.8, 45.11, 45.20, 45.3, 46.4 (за исключением 46.44.2, 46.46), 46.5, 46.65, 46.66, 47.4 (за исключением 47.42), 47.5, 47.6, 47.7 (за исключением 47.73, 47.74, 47.75, 47.76.2, 47.78.6, 47.78.7, 47.78.8, 47.78.9), 47.82, 47.89, 49.3, 49.4, 50.1, 50.3, 51.10, 51.21, 52.21.21, 52.23.1, 55, 56, 59.13, 59.14, 77.11, 77.21, 79, 82.30, 85.41, 86.23, 86.90.4,  88.91, 90, 91.01, 91.02, 93, 95, 96.01, 96.02, 96.04, 96.09;</p>",
+              "order": 2
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">2) в случае если объектом налогообложения являются доходы, уменьшенные на величину расходов, налоговая ставка устанавливается в размере 5 процентов для отдельных категорий налогоплательщиков, осуществляющих следующие виды экономической деятельности в соответствии с Общероссийским классификатором видов экономической деятельности ОК 029-2014 (КДЕС Ред. 2), утвержденным приказом Федерального агентства по техническому регулированию и метрологии от 31 января 2014 года № 14-ст: 32.99.8, 45.11, 45.20, 45.3, 46.4 (за исключением 46.44.2, 46.46), 46.5, 46.65, 46.66, 47.4 (за исключением 47.42), 47.5, 47.6, 47.7 (за исключением 47.73, 47.74, 47.75, 47.76.2, 47.78.6, 47.78.7, 47.78.8, 47.78.9), 47.82, 47.89, 49.3, 49.4, 50.1, 50.3, 51.10, 51.21, 52.21.21, 52.23.1, 55, 56, 59.13, 59.14, 77.11, 77.21, 79, 82.30, 95, 96.01, 96.02, 96.04, 96.09.».</p>",
+              "order": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "72469_article_5",
+      "item_type": "article",
+      "item_number": "5",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования и распространяется на правоотношения, возникшие с 1 января 2020 года.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "revision_info": [
+    {
+      "revision_id": "79445",
+      "revision_number": "607-ЗС",
+      "revision_date_reg": "17.11.2020",
+      "revision_date_valid": "01.01.2021",
+      "revision_url": "https://sevzakon.ru/view/laws/bank/2020/zakon_n_607_zs_ot_17_11_2020/tekst_zakona/"
+    },
+    {
+      "revision_id": "84484",
+      "revision_number": "638-ЗС",
+      "revision_date_reg": "12.04.2021",
+      "revision_date_valid": "12.04.2021",
+      "revision_url": "https://sevzakon.ru/view/laws/bank/2021/zakon_n_638_zs_ot_12_04_2021/tekst_zakona/"
+    }
+  ]
+}

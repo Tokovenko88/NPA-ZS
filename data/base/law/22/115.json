@@ -1,0 +1,571 @@
+{
+  "npa_id": "1675",
+  "npa_type": "law",
+  "npa_number": "115-ЗС",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/02_2015/o_vnesenii_izmenenij_v_zakony_goroda_sevastopolya_ot_03_iyunya_2014_goda_n22-zs_o_denezhnom_soderzhanii/tekst-zakona/",
+  "date_reg": "26.01.2015",
+  "date_1st_reading": "10.02.2015",
+  "date_passed": "10.02.2015",
+  "date_signed": "18.02.2015",
+  "date_pub": "21.02.2014",
+  "valid_from": "04.03.2015",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "С.И. Меняйло",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Законы города Севастополя от 03 июня 2014 года № 22-ЗС «О денежном содержании государственных гражданских служащих города Севастополя» и № 23-ЗС «О государственной гражданской службе города Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "1675_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyleft\">Внести в Закон города Севастополя от 03 июня 2014 года <a href=\"view/laws/bank/iyun_2014/o_denezhnom_soderzhanii_gosudarstvennyh_grazhdanskih_sluzhashhih_goroda_sevastopolya/\">№ 22-ЗС</a> «О денежном содержании государственных гражданских служащих города Севастополя» («Севастопольские известия», №49-50(1671) от 07.06.2014) следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "1675_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "1675_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "1675_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "1675_article_1_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "1675_article_1_point_5",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "1675_article_1_point_6",
+              "order": 7
+            },
+            {
+              "type": "child_ref",
+              "item_id": "1675_article_1_point_7",
+              "order": 8
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "1675_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">в статье 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_1_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_1_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "1675_article_1_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в наименовании слова «Месячное денежное» заменить словом «Денежное»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в части 1 слова «Месячное денежное» заменить словом «Денежное»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_1_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">пункт 8 части 2 признать утратившим силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "1675_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">в статье 2:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">абзац первый части 4 изложить в следующей редакции:</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">«Размеры окладов денежного содержания по должностям государственной гражданской службы города Севастополя (далее - должности гражданской службы) ежегодно увеличиваются (индексируются) в соответствии с законом города Севастополя о бюджете города Севастополя с учетом уровня инфляции (потребительских цен). Увеличение (индексация) размеров окладов денежного содержания гражданских служащих производится в соответствии с законодательством города Севастополя.»;</p>",
+                  "order": 3
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "1675_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">в статье 8:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_3_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_3_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_3_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "1675_article_1_point_3_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в абзаце первом части 1 слова «двойном размере денежного содержания» заменить словами «размере двух окладов денежного содержания»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_3_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">часть 2 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">«Порядок и основания выплаты материальной помощи за счет средств фонда оплаты труда гражданских служащих определяются соответствующим положением, утверждаемым представителем нанимателя.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_3_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">части 3 и 4 признать утратившими силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "1675_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">статью 9 признать утратившей силу;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "1675_article_1_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">в статье 11:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_5_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_5_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_5_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "1675_article_1_point_5_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в части 2:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в пункте 5 слово «трех» заменить словом «двух»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">пункт 6 изложить в следующей редакции:</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">«6) ежемесячного денежного поощрения – в размере, который устанавливается дифференцированно гражданским служащим в органах исполнительной власти города Севастополя Губернатором города Севастополя, в Законодательном Собрании города Севастополя – Председателем Законодательного Собрания города Севастополя, в иных государственных органах города Севастополя – решением руководителя соответствующего государственного органа города Севастополя;»;</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">пункт 7 изложить в следующей редакции:</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">«7) единовременной выплаты при предоставлении ежегодного оплачиваемого отпуска и материальной помощи - в размере трех окладов денежного содержания;»;<br/>пункты 8 и 9 признать утратившими силу;</p>",
+                      "order": 6
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_5_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">дополнить частью 2.1. следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">«2.1. Фонд оплаты труда гражданских служащих государственных органов города Севастополя формируется за счет средств, предусмотренных частью 2 настоящей статьи, а также за счет средств на выплату:</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">1) ежемесячной надбавки за ученую степень;</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">2) иных выплат, предусмотренных федеральными законами и иными нормативными правовыми актами Российской Федерации, нормативными правовыми актами города Севастополя.»;</p>",
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_5_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в части 4 цифру «9» заменить цифрой «10»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "1675_article_1_point_6",
+          "item_type": "point",
+          "item_number": "6)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">в приложении 1 «Правила исчисления денежного содержания государственного гражданского служащего города Севастополя»:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_6_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_6_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "1675_article_1_point_6_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "1675_article_1_point_6_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в абзаце втором  пункта 2 слова «и 8» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_6_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в пункте 3 цифру «29,4» заменить цифрой «29,3»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "1675_article_1_point_6_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyleft\">в абзаце третьем пункта 5 слова «и 8» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "1675_article_1_point_7",
+          "item_type": "point",
+          "item_number": "7)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyleft\">В пункте 2 приложения 4 «Примерное положение о порядке выплаты государственным гражданским служащим города Севастополя премий за выполнение особо важных и сложных заданий» слова «пунктами 11 - 15 части 1 статьи 33, статьей 37 (за исключением подпункта «а» пункта 1, пунктов 8.2 и 8.3 части 1), пунктами 1 и 3 части 2 статьи 39» заменить словами «пунктами 11-14 части 1 статьи 33, статьей 37 (за исключением подпункта «а» пункта 1, пунктов 8.2 и 8.3 части 1), пунктами 1 и 5 части 2 статьи 39».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "1675_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyleft\">Статью 42 Закона города Севастополя от 03 июня 2014 года <a href=\"view/laws/bank/iyun_2014/o_gosudarstvennoj_grazhdanskoj_sluzhbe_goroda_sevastopolya/\">№ 23-ЗС</a> «О государственной гражданской службе города Севастополя» («Севастопольские известия», №51-52(1673) от 11.06.2014) дополнить частью 3 следующего содержания:</p>",
+              "order": 1
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyleft\">«3. Гражданским служащим выплачивается ежемесячная надбавка:</p>",
+              "order": 2
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyleft\">а) за ученую степень кандидата наук - в размере 5 процентов должностного оклада;</p>",
+              "order": 3
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyleft\">б) за ученую степень доктора наук - в размере 10 процентов должностного оклада.».</p>",
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "1675_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyleft\">Настоящий Закон вступает в силу через десять дней после его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

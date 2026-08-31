@@ -1,0 +1,257 @@
+{
+  "npa_id": "51528",
+  "npa_type": "law",
+  "npa_number": "110-ЗС",
+  "npa_author": "Губернатор города Севастополя",
+  "npa_npa_committee": "Постоянная комиссия по бюджету",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/02_2015/o_nalogovyh_stavkah_v_svyazi_s_prinyatiem_federalnogo_zakona_ot_29_noyabrya_2014_goda_n379-fz_o_vnesen/tekst-zakona/",
+  "date_reg": "10.12.2014",
+  "date_1st_reading": "03.02.2015",
+  "date_passed": "03.02.2015",
+  "date_signed": "03.02.2015",
+  "date_pub": "07.02.2015",
+  "valid_from": "07.02.2015",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "С.И. Меняйло",
+  "date_format": 0,
+  "head_revision": [
+    {
+      "npa_head": "О налоговых ставках в связи с принятием Федерального закона от 29 ноября 2014 года №379-ФЗ «О внесении изменений в части первую и вторую Налогового кодекса Российской Федерации в связи с принятием Федерального закона «О развитии Крымского федерального округа и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "51528_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящим Законом с соответствии со статьёй 2 Федерального закона от 29 ноября 2014 года № 379-ФЗ  «О внесении изменений в части первую и вторую Налогового кодекса Российской Федерации  в связи с принятием Федерального закона «О развитии Крымского федерального округа и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя» на территории города федерального значения Севастополя устанавливаются уменьшенные ставки налогов.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "51528_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "51528_article_2_part_3",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "51528_article_2_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В отношении периодов 2015 – 2016 годов по налогу, взимаемому в связи с применением упрощенной системы налогообложения:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_1_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_1_point_2",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "51528_article_2_part_1_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">налоговая ставка устанавливается в размере 3 процентов в случае, если объектом налогообложения являются доходы;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_1_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в случае, если объектом налогообложения являются доходы, уменьшенные на величину расходов, налоговая ставка устанавливается в размере 7 процентов, за исключением отдельных категорий плательщиков, определённых в части 1 статьи 2  Закона города Севастополя от 14 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_stavkah_po_nalogu-_vzimaemomu_v_svyazi_s_primeneniem_uproshhennoj_sistemy_nalogooblozheniya-_dlya_otdelnyh_kategorij_nalogoplatelshhikov-_vybravshih_v_kachestve_obekta_nalogooblozheniya_dohody-_umenshennye_na_velichinu_rashodov/\">№ 77-ЗС</a> «О ставках по налогу, взимаемому в связи с применением упрощенной системы налогообложения, для отдельных категорий налогоплательщиков, выбравших в качестве объекта налогообложения доходы, уменьшенные на величину расходов».</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "51528_article_2_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В отношении периодов 2015 – 2016 годов налоговая ставка при применении системы налогообложения для сельскохозяйственных товаропроизводителей (единый сельскохозяйственный налог) устанавливается в размере 0,5 процента.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "51528_article_2_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Налоговая ставка по налогу на прибыль организации, подлежащего к зачислению в бюджет города Севастополя от деятельности, осуществляемой в соответствии с договором об осуществлении деятельности в свободной экономической зоне, устанавливается с момента внесения  в единый реест участников свободной экономической зоны участника свободной экономической зоны в следующих размерах;</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_3_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_3_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "51528_article_2_part_3_point_3",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "51528_article_2_part_3_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">2 процента - в течение трех лет;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_3_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">6 процентов - с четвертого по восьмой годы;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "51528_article_2_part_3_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">13,5 процентов – с девятого года.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "51528_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Действие положений статьи 2 настоящего Закона распостраняется на правоотношения с 1 января 2015 года.</p>",
+              "order": 1
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования и применяется с 1 января 2015 года.</p>",
+              "order": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

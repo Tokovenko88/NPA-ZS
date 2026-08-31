@@ -1,0 +1,19 @@
+
+[
+  {
+    "applies_to": "amending_law",
+    "action_type": "special_valid_from",
+    "structural_element": "статья 1",
+    "date": "01.01.2024"
+  }
+]
+
+##########################################################
+[
+  {
+    "revision_number": null,
+    "structural_element": "Статья 2 часть 1.4 абзац 1",
+    "type": "change",
+    "description": "слова «2023 году» заменить словами «2023 и 2024 годах»"
+  }
+]

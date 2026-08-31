@@ -1,0 +1,3881 @@
+{
+  "npa_id": "60050",
+  "npa_type": "law",
+  "npa_number": "127-ЗС",
+  "npa_npa_committee": "Постоянный комитет по социально-гуманитарным вопросам",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/04_2015/ob_upolnomochennom_po_pravam_rebenka_v_gorode_sevastopole/tekst-zakona/",
+  "date_reg": "26.11.2014",
+  "date_1st_reading": "12.03.2015",
+  "date_passed": "14.04.2015",
+  "date_signed": "17.04.2015",
+  "date_pub": "18.04.2015",
+  "valid_from": "29.04.2015",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "С.И. Меняйло",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "Об Уполномоченном по правам ребенка в городе Севастополе"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "60050_preamble",
+      "item_type": "preamble",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон определяет порядок назначения на должность и освобождения от должности Уполномоченного по правам ребенка в городе Севастополе, его статус, компетенцию, организационные формы, условия и иные вопросы его деятельности.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_1_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_1_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_1_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_1_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_1_part_5",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Уполномоченный по правам ребенка в городе Севастополе"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_1_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Должность Уполномоченного по правам ребенка в городе Севастополе (далее - Уполномоченный) учреждается в соответствии с Конвенцией ООН о правах ребенка, Конституцией Российской Федерации, Федеральным законом от 24 июля 1998 года № 124-ФЗ \"Об основных гарантиях прав ребенка в Российской Федерации\", Указом Президента Российской Федерации от 1 сентября 2009 года № 986 \"Об Уполномоченном при Президенте Российской Федерации по правам ребенка\" в целях обеспечения гарантий государственной защиты прав и законных интересов ребенка  в городе Севастополе, признания и соблюдения этих прав и законных интересов органами государственной власти города Севастополя, органами местного самоуправления в городе Севастополе, организациями, находящимися на территории города Севастополя, независимо от их организационно-правовых форм и форм собственности и их должностными лицами.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_1_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Должность Уполномоченного является государственной должностью города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_1_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный при осуществлении своих полномочий независим и неподотчетен каким-либо органам государственной власти города Севастополя, органам местного самоуправления в городе Севастополе и их должностным лицам.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_1_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Деятельность Уполномоченного дополняет существующие средства государственной защиты прав и законных интересов ребенка, не отменяет и не влечет пересмотра компетенции органов государственной власти города Севастополя, органов местного самоуправления в городе Севастополе, их должностных лиц, обеспечивающих защиту и восстановление нарушенных прав и законных интересов ребенка.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_1_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный защищает права и законные интересы ребенка, определенные Конвенцией ООН о правах ребенка, Всеобщей декларацией прав человека, Европейской конвенцией о защите прав человека и основных свобод, Конституцией Российской Федерации, Семейным кодексом Российской Федерации, Федеральным законом от 24 июля 1998 года №124-ФЗ \"Об основных гарантиях прав ребенка в Российской Федерации\", иные права, установленные Федеральным законом от 21 декабря 1996 года № 159-ФЗ \"О дополнительных гарантиях по социальной поддержке детей-сирот и детей, оставшихся без попечения родителей\", другими федеральными законами и законами города Севастополя, в случае их нарушения в городе Севастополе.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В своей деятельности Уполномоченный руководствуется общепризнанными принципами и нормами международного права, международными договорами Российской Федерации, Конвенцией ООН о правах ребенка, Конституцией Российской Федерации, федеральным законодательством, Уставом города Севастополя, настоящим Законом и иными нормативными правовыми актами города Севастополя.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Правовые основы деятельности Уполномоченного"
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_3_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_3_part_2",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Задачи Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_3_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Основными задачами Уполномоченного являются:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_3_part_1_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_3_part_1_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_3_part_1_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_3_part_1_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_3_part_1_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_3_part_1_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_3_part_1_point_7",
+                  "order": 8
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_3_part_1_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">обеспечение основных гарантий государственной защиты прав и законных интересов ребенка, восстановление нарушенных прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_3_part_1_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">содействие беспрепятственной реализации и восстановлению нарушенных прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_3_part_1_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">подготовка предложений по совершенствованию федерального законодательства, законодательства города Севастополя и муниципальных правовых актов об обеспечении основных гарантий государственной защиты прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_3_part_1_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">взаимодействие с органами государственной власти города Севастополя, органами местного самоуправления в городе Севастополе, организациями города Севастополя в области обеспечения и защиты прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_3_part_1_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">информирование общественности о состоянии соблюдения и защиты прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_3_part_1_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">правовое просвещение граждан в сфере реализации, соблюдения и защиты прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_3_part_1_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">развитие регионального и международного сотрудничества в области обеспечения прав и законных интересов ребенка.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_3_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Приоритетной задачей Уполномоченного является защита прав и законных интересов детей-сирот, детей, оставшихся без попечения родителей, и иных категорий детей, находящихся в трудной жизненной ситуации, а также лиц из числа детей-сирот и детей, оставшихся без попечения родителей.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_4_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_4_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_4_part_3",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Принципы деятельности Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_4_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Деятельность Уполномоченного строится на основе принципов независимости, гласности, справедливости, инициативности, ответственности, гуманности, открытости, объективности и доступности.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_4_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный осуществляет взаимодействие и сотрудничество с Уполномоченным по правам человека в городе Севастополе, Уполномоченным при Президенте Российской Федерации по правам ребенка, уполномоченными по правам ребенка в субъектах Российской Федерации, органами государственной власти Российской Федерации и города Севастополя, органами местного самоуправления в городе Севастополе, организациями, независимо от их организационно-правовых форм и форм собственности, их должностными лицами, общественными объединениями.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_4_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный не вправе разглашать сведения о частной жизни заявителей и других лиц, ставшие ему известными в связи с защитой прав, свобод и законных интересов ребенка, а также иную охраняемую законодательством информацию.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_5",
+      "item_type": "article",
+      "item_number": "5",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">На должность Уполномоченного назначается гражданин Российской Федерации не моложе 35 лет, проживающий на территории города Севастополя, имеющий высшее профессиональное (юридическое или педагогическое) образование, стаж работы по специальности, в том числе в органах социальной защиты населения, опеки и попечительства, образования и других органах, деятельность которых связана с осуществлением защиты прав, свобод и законных интересов ребенка.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Требования, предъявляемые к кандидату на должность Уполномоченного"
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_6",
+      "item_type": "article",
+      "item_number": "6",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_5",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_6",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_7",
+              "order": 7
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_8",
+              "order": 8
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_6_part_9",
+              "order": 9
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Назначение на должность Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_6_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный назначается на должность Законодательным Собранием города Севастополя большинством голосов от числа избранных депутатов Законодательного Собрания города Севастополя сроком на пять лет, который исчисляется со дня принятия присяги.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Одно и то же лицо не может быть назначено на должность Уполномоченного более чем на два срока подряд.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Предложения о кандидатах на должность Уполномоченного могут вноситься в Законодательное Собрание города Севастополя Губернатором города Севастополя, Председателем Законодательного Собрания города Севастополя, постоянными комитетами и постоянными комиссиями Законодательного Собрания города Севастополя, депутатскими фракциями и другими депутатскими объединениями Законодательного Собрания города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Предложения о кандидатах на должность Уполномоченного вносятся в Законодательное Собрание города Севастополя в течение 30 дней до окончания срока полномочий Уполномоченного или со дня досрочного прекращения полномочий Уполномоченного.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">К предложению о внесении кандидатуры на должность Уполномоченного должны быть приложены следующие документы:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_7",
+                  "order": 8
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_8",
+                  "order": 9
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_6_part_5_point_9",
+                  "order": 10
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_6_part_5_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">письменное заявление кандидата о согласии на внесение его кандидатуры для назначения на должность Уполномоченного, в котором указываются: фамилия, имя, отчество, дата рождения, образование, основное место работы или службы и занимаемая должность (в случае отсутствия основного места работы или службы - род занятий), адрес постоянного места жительства, номер контактного телефона;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">копия паспорта гражданина Российской Федерации или копия основного документа, содержащего указание на гражданство кандидата;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">анкета, содержащая биографические сведения о кандидате, по форме, установленной для кандидатов на должности государственной гражданской службы города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">автобиография кандидата;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">копия трудовой книжки кандидата или документа, подтверждающего прохождение им военной или иной службы;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">копия документа о высшем профессиональном образовании кандидата;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">сведения о доходах кандидата, супруги (супруга) кандидата и его несовершеннолетних детей, полученных из всех источников за календарный год, предшествующий году подачи документов для замещения государственной должности города Севастополя, а также сведения об имуществе, принадлежащем кандидату, супруге (супругу) кандидата и его несовершеннолетним детям на праве собственности, и об обязательствах имущественного характера кандидата, супруги (супруга) кандидата и его несовершеннолетних детей по состоянию на первое число месяца, предшествующего месяцу подачи документов для замещения государственной должности города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_8",
+              "item_type": "point",
+              "item_number": "8)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">справка о наличии (отсутствии) судимости и (или) факта уголовного преследования либо о прекращении уголовного преследования гражданина;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_6_part_5_point_9",
+              "item_type": "point",
+              "item_number": "9)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">справка об отсутствии заболевания, препятствующего поступлению на государственную должность города Севастополя и ее прохождению, подтвержденная заключением медицинской организации.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_6",
+          "item_type": "part",
+          "item_number": "6",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Рассмотрение Законодательным Собранием города Севастополя кандидатур на должность Уполномоченного и его избрание осуществляются в порядке, установленном Регламентом Законодательного Собрания города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_7",
+          "item_type": "part",
+          "item_number": "7",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Законодательное Собрание города Севастополя принимает постановление о назначении на должность Уполномоченного не позднее 30 дней со дня истечения срока полномочий Уполномоченного или не позднее 60 дней со дня досрочного прекращения полномочий Уполномоченного.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_8",
+          "item_type": "part",
+          "item_number": "8",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный считается вступившим в должность с момента принесения на заседании Законодательного Собрания города Севастополя присяги, следующего содержания: \"Клянусь защищать права и законные интересы ребенка, добросовестно исполнять свои обязанности, руководствуясь Конвенцией ООН о правах ребенка, Конституцией Российской Федерации, федеральным законодательством и законодательством города Севастополя, справедливостью и голосом совести\".</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_6_part_9",
+          "item_type": "part",
+          "item_number": "9",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Присяга приносится непосредственно после принятия постановления Законодательным Собранием города Севастополя о назначении Уполномоченного на должность.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_7",
+      "item_type": "article",
+      "item_number": "7",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_7_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_7_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_7_part_3",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Удостоверение Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_7_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный имеет удостоверение, являющееся документом, подтверждающим его полномочия.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_7_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Удостоверение Уполномоченного подписывается Председателем Законодательного Собрания города Севастополя и вручается Уполномоченному после вступления его в должность.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_7_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Описание и образец удостоверения, порядок его изготовления, оформления, вручения и использования утверждаются постановлением Законодательного Собрания города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_8",
+      "item_type": "article",
+      "item_number": "8",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_8_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_8_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_8_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_8_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_8_part_5",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_8_part_6",
+              "order": 6
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Ограничения, связанные с выполнением Уполномоченным своих обязанностей"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_8_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный обязан соблюдать ограничения и запреты, установленные действующим законодательством для лиц, замещающих государственные должности города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_8_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный не вправе:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_7",
+                  "order": 8
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_8",
+                  "order": 9
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_9",
+                  "order": 10
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_10",
+                  "order": 11
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_11",
+                  "order": 12
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_12",
+                  "order": 13
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_8_part_2_point_13",
+                  "order": 14
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_8_part_2_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">замещать государственные должности Российской Федерации, иные государственные должности субъектов Российской Федерации, если иное не установлено федеральными конституционными законами или федеральными законами, а также муниципальные должности, должности государственной или муниципальной службы;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">замещать другие должности в органах государственной власти и органах местного самоуправления;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">заниматься предпринимательской деятельностью лично или через доверенных лиц, участвовать в управлении хозяйствующими субъектами независимо от их организационно-правовых форм;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">заниматься другой оплачиваемой деятельностью, кроме преподавательской, научной и иной творческой деятельности. При этом преподавательская, научная и иная творческая деятельность не может финансироваться исключительно за счет средств иностранных государств, международных и иностранных организаций, иностранных граждан и лиц без гражданства, если иное не предусмотрено международными договорами Российской Федерации, законодательством Российской Федерации или договоренностями на взаимной основе федеральных органов государственной власти с государственными органами иностранных государств, международными или иностранными организациями;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">быть поверенным или иным представителем по делам третьих лиц в органах государственной власти и органах местного самоуправления, если иное не предусмотрено федеральными законами;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">быть депутатом Законодательного Собрания города Севастополя, заниматься политической деятельностью, быть членом политической партии и иного общественного объединения, преследующего политические цели;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">использовать в неслужебных целях информацию, средства материально-технического, финансового и информационного обеспечения, предназначенные только для служебной деятельности;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_8",
+              "item_type": "point",
+              "item_number": "8)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">получать гонорары за публикации и выступления в качестве лица, замещающего государственную должность в городе Севастополе;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_9",
+              "item_type": "point",
+              "item_number": "9)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">получать в связи с выполнением служебных (должностных) обязанностей не предусмотренные законодательством Российской Федерации вознаграждения (ссуды, денежное и иное вознаграждение, услуги, оплату развлечений, отдыха, транспортных расходов) и подарки от физических и юридических лиц;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_10",
+              "item_type": "point",
+              "item_number": "10)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">принимать вопреки установленному порядку почетные и специальные звания, награды и иные знаки отличия (за исключением научных и спортивных) иностранных государств, международных организаций, политических партий, иных общественных объединений и других организаций;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_11",
+              "item_type": "point",
+              "item_number": "11)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">выезжать в служебные командировки за пределы Российской Федерации за счет средств физических и юридических лиц, за исключением служебных командировок, осуществляемых в соответствии с законодательством Российской Федерации, по договоренностям государственных органов Российской Федерации, государственных органов города Севастополя с государственными или муниципальными органами иностранных государств, международными или иностранными организациями;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_12",
+              "item_type": "point",
+              "item_number": "12)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">входить в состав органов управления, попечительских или наблюдательных советов, иных органов иностранных некоммерческих неправительственных организаций и действующих на территории Российской Федерации их структурных подразделений, если иное не предусмотрено международными договорами Российской Федерации, законодательством Российской Федерации или договоренностями на взаимной основе федеральных органов государственной власти с государственными органами иностранных государств, международными или иностранными организациями;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_8_part_2_point_13",
+              "item_type": "point",
+              "item_number": "13)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">разглашать или использовать в целях, не связанных с выполнением служебных обязанностей, сведения, отнесенные в соответствии с федеральным законом к информации ограниченного доступа, ставшие известными в связи с выполнением служебных обязанностей.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_8_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченному, его супруге (супругу) и несовершеннолетним детям запрещается открывать и иметь счета (вклады), хранить наличные денежные средства и ценности в иностранных банках, расположенных за пределами территории Российской Федерации, владеть и (или) пользоваться иностранными финансовыми инструментами.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_8_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В соответствии с законодательством Российской Федерации Уполномоченный обязан при избрании на должность, а впоследствии ежегодно не позднее 1 апреля года, следующего за отчетным финансовым годом, представлять сведения о полученных им доходах, об имуществе, принадлежащем ему на праве собственности, и о его обязательствах имущественного характера, а также сведения о доходах супруги (супруга) и несовершеннолетних детей, об имуществе, принадлежащем им на праве собственности, и об их обязательствах имущественного характера в порядке, установленном Законом города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_8_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный обязан представлять сведения о своих расходах, а также о расходах своих супруги (супруга) и несовершеннолетних детей в случаях, которые установлены Федеральным законом от 3 декабря 2012 года № 230-ФЗ \"О контроле за соответствием расходов лиц, замещающих государственные должности, и иных лиц их доходам\".</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_8_part_6",
+          "item_type": "part",
+          "item_number": "6",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный обязан прекратить деятельность, несовместимую с его статусом, не позднее 14 дней со дня вступления в должность. В случае невыполнения в течение указанного срока Уполномоченным требований, установленных настоящей статьей, его полномочия досрочно прекращаются, а Законодательным Собранием города Севастополя назначается новый Уполномоченный.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_9",
+      "item_type": "article",
+      "item_number": "9",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_5",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_6",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_7",
+              "order": 7
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_9_part_8",
+              "order": 8
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Прекращение полномочий Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_9_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Полномочия Уполномоченного прекращаются с момента вступления в должность нового Уполномоченного.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_9_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Полномочия Уполномоченного прекращаются досрочно в случаях:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_7",
+                  "order": 8
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_8",
+                  "order": 9
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_9_part_2_point_9",
+                  "order": 10
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_9_part_2_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">несоблюдения Уполномоченным ограничений и запретов, установленных федеральными законами и настоящим Законом;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">вступления в законную силу обвинительного приговора суда в отношении Уполномоченного либо судебного решения о применении к нему принудительных мер медицинского характера;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">вступления в законную силу решения суда об ограничении дееспособности Уполномоченного либо о признании его недееспособным;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">утраты Уполномоченным гражданства Российской Федерации, приобретения гражданства иностранного государства или вида на жительство, или иного документа, подтверждающего право на постоянное проживание гражданина Российской Федерации на территории иностранного государства, выезда его за территорию Российской Федерации на постоянное место жительства;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">неспособности Уполномоченного по состоянию здоровья или по иным причинам в течение длительного времени (не менее четырех месяцев подряд) исполнять свои обязанности;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">признания Уполномоченного безвестно отсутствующим либо объявления его умершим на основании решения суда, вступившего в законную силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">смерти Уполномоченного;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_8",
+              "item_type": "point",
+              "item_number": "8)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">отставки Уполномоченного по собственному желанию;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_9_part_2_point_9",
+              "item_type": "point",
+              "item_number": "9)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">выражения Уполномоченному недоверия Законодательным Собранием города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_9_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Отставка Уполномоченного принимается Законодательным Собранием города Севастополя, на основании письменного заявления Уполномоченного о сложении своих полномочий. При непринятии отставки Уполномоченный исполняет свои обязанности в течение двух месяцев со дня подачи заявления, после чего вправе прекратить осуществление своих полномочий.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_9_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Недоверие Уполномоченному может быть выражено Законодательным Собранием города Севастополя на основании заключения специальной комиссии, формируемой Законодательным Собранием города Севастополя по инициативе не менее чем пятнадцати депутатов Законодательного Собрания города Севастополя и действующей в порядке, установленном Законодательным Собранием города Севастополя. Основанием для выражения недоверия Уполномоченному может быть систематическое неисполнение или ненадлежащее исполнение им своих обязанностей, установленное заключением специальной комиссии Законодательного Собрания города Севастополя. Процедура выражения недоверия должна обеспечивать Уполномоченному возможность дать объяснения по поводу обстоятельств, выдвигаемых в качестве оснований для выражения недоверия.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_9_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Досрочное прекращение полномочий Уполномоченного производится постановлением Законодательного Собрания города Севастополя, принимаемым большинством голосов от числа избранных депутатов Законодательного Собрания города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_9_part_6",
+          "item_type": "part",
+          "item_number": "6",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Принятие Законодательным Собранием города Севастополя постановления о досрочном прекращении полномочий Уполномоченного влечет немедленное освобождение Уполномоченного от должности. В случае непринятия отставки Законодательным Собранием города Севастополя выносится постановление о непринятии отставки Уполномоченного, принимаемое большинством голосов от числа избранных депутатов Законодательного Собрания города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_9_part_7",
+          "item_type": "part",
+          "item_number": "7",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Полномочия представителя нанимателя (работодателя) в отношении сотрудников аппарата Уполномоченного до избрания нового Уполномоченного осуществляется руководителем аппарата Уполномоченного, назначаемого в соответствии с Положением об аппарате Уполномоченного по правам ребенка в городе Севастополе.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_9_part_8",
+          "item_type": "part",
+          "item_number": "8",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В случае досрочного прекращения полномочий Уполномоченного новый Уполномоченный должен быть назначен Законодательным Собранием города Севастополя в течение 60 дней со дня досрочного прекращения полномочий предыдущего Уполномоченного.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_10",
+      "item_type": "article",
+      "item_number": "10",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_10_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_10_part_2",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Полномочия Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_10_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный действует в пределах компетенции, установленной настоящим Законом, и не вправе принимать решения, отнесенные к компетенции других органов государственной власти города Севастополя, органов местного самоуправления в городе Севастополе, их должностных лиц, организаций города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_10_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В целях выполнения своих функций и задач Уполномоченный:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_7",
+                  "order": 8
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_8",
+                  "order": 9
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_9",
+                  "order": 10
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_10",
+                  "order": 11
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_11",
+                  "order": 12
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_12",
+                  "order": 13
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_13",
+                  "order": 14
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_10_part_2_point_14",
+                  "order": 15
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_10_part_2_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">осуществляет прием граждан, рассматривает обращения, касающиеся нарушения прав и законных интересов ребенка, и жалобы на решения или действия (бездействие) органов государственной власти города Севастополя, органов местного самоуправления в городе Севастополе, их должностных лиц, организаций города Севастополя, нарушающие права и законные интересы ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">проверяет самостоятельно или совместно с органами государственной власти города Севастополя, органами местного самоуправления в городе Севастополе и их должностными лицами сообщения о фактах нарушения прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в соответствии с действующим законодательством оказывает детям, их законным представителям, несовершеннолетним, содержащимся в учреждениях системы профилактики безнадзорности и правонарушений несовершеннолетних, гражданам, являющимся выпускниками детских домов, домов-интернатов (детям-сиротам, детям, оставшимся без попечения родителей), в возрасте до 23 лет бесплатную юридическую помощь по вопросам защиты прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">осуществляет в установленном действующим законодательством порядке судебную защиту прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">направляет органам города Севастополя, органам местного самоуправления в городе Севастополе, их должностным лицам, руководителям организаций города Севастополя, в решениях или действиях (бездействии) которых он усматривает нарушения прав и законных интересов ребенка, свое заключение, содержащее рекомендации о необходимых мерах по восстановлению нарушенных прав и законных интересов ребенка и предотвращению подобных нарушений в дальнейшем;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">информирует правоохранительные органы города Севастополя о фактах нарушения прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">вносит в органы государственной власти города Севастополя, органы местного самоуправления в городе Севастополе предложения о совершенствовании деятельности по осуществлению защиты прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_8",
+              "item_type": "point",
+              "item_number": "8)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">осуществляет сбор, изучение и анализ информации, содержащейся в материалах, получаемых от органов государственной власти города Севастополя, органов местного самоуправления в городе Севастополе, по вопросам обеспечения и защиты прав и законных интересов ребенка, а также в обращениях</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_9",
+              "item_type": "point",
+              "item_number": "9)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">граждан, организаций города Севастополя, в сообщениях средств массовой информации по указанным вопросам;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_10",
+              "item_type": "point",
+              "item_number": "10)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">направляет в федеральные органы государственной власти, расположенные на территории города Севастополя, в органы государственной власти города Севастополя, в органы местного самоуправления в городе Севастополе, в организации города Севастополя ходатайства о возбуждении дисциплинарного или административного производства либо уголовного дела в отношении должностных лиц, в решениях или действиях (бездействии) которых он усматривает нарушения прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_11",
+              "item_type": "point",
+              "item_number": "11)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">обращается в Законодательное Собрание города Севастополя с предложениями о создании специальной комиссии по проверке фактов нарушения прав и законных интересов детей, а также непосредственно либо через своего представителя участвует в работе указанной комиссии и заслушивании на заседании Законодательного Собрания города Севастополя заключения по результатам проверки;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_12",
+              "item_type": "point",
+              "item_number": "12)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в случае нарушения прав и интересов детей федеральными органами государственной власти, расположенными на территории города Севастополя, направляет данным органам рекомендации относительно возможных и необходимых мер восстановления указанных прав и интересов, а также обращается к Уполномоченному при Президенте Российской Федерации по правам ребенка, в правоохранительные и иные компетентные органы в порядке, определенном федеральным законодательством;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_13",
+              "item_type": "point",
+              "item_number": "13)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">принимает участие в разработке нормативных правовых актов, затрагивающих права и законные интересы ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_10_part_2_point_14",
+              "item_type": "point",
+              "item_number": "14)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">вносит на рассмотрение Губернатора города Севастополя предложения по вопросам соблюдения и защиты прав и законных интересов ребенка.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_11",
+      "item_type": "article",
+      "item_number": "11",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_11_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_11_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_11_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_11_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_11_part_5",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_11_part_6",
+              "order": 6
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Доклады Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_11_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Не позднее чем через три месяца по окончании календарного года Уполномоченный готовит и направляет Губернатору города Севастополя, Законодательному Собранию города Севастополя, Правительству Севастополя, прокурору города Севастополя ежегодный доклад о своей деятельности и соблюдении прав и законных интересов ребенка в городе Севастополе.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_11_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">По отдельным вопросам нарушений прав и законных интересов ребенка Уполномоченный может направлять специальные доклады Губернатору города Севастополя, Законодательному Собранию города Севастополя, Правительству Севастополя, прокурору города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_11_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В докладе о деятельности Уполномоченного указываются государственные органы города Севастополя и органы местного самоуправления в городе Севастополе, должностные лица, решения или действия (бездеятельность) которых обжаловались в связи с нарушением прав ребенка.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_11_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Доклад о деятельности Уполномоченного подлежит обязательному опубликованию в газете \"Севастопольские известия\", а также на официальном сайте Уполномоченного в информационно - коммуникационной сети «Интернет».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_11_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">По ежегодному и специальному докладу Уполномоченный вправе выступить с информацией на очередном заседании Законодательного Собрания города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_11_part_6",
+          "item_type": "part",
+          "item_number": "6",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">По результатам рассмотрения ежегодного и специальных докладов Уполномоченного руководители органов государственной власти, указанных в абзацах 1 и 2 настоящей статьи, в пределах своей компетенции принимают меры по устранению выявленных нарушений, обеспечению и усилению защиты прав и законных интересов детей в порядке, установленном федеральным законодательством.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_12",
+      "item_type": "article",
+      "item_number": "12",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_12_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_12_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_12_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_12_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_12_part_5",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Гарантии деятельности Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_12_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В целях реализации своих задач и полномочий Уполномоченный вправе:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_7",
+                  "order": 8
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_8",
+                  "order": 9
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_9",
+                  "order": 10
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_1_point_10",
+                  "order": 11
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_12_part_1_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">безотлагательно быть принятым по вопросам своей деятельности руководителями и другими должностными лицами органов государственной власти города Севастополя, органов местного самоуправления в городе Севастополе, организаций, независимо от их организационно-правовых форм и форм собственности;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">запрашивать и получать в установленном порядке необходимые сведения, документы, материалы, разъяснения, объяснения и иную информацию от органов государственной власти, органов местного самоуправления в городе Севастополе, организаций независимо от организационно-правовых форм и форм собственности, их должностных лиц по вопросам, связанным с соблюдением и защитой прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">по предъявлении удостоверения беспрепятственно посещать по вопросам своей деятельности органы государственной власти города Севастополя, органы местного самоуправления в городе Севастополе, организации независимо от организационно-правовых форм и форм собственности;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">по предъявлении удостоверения посещать по вопросам своей деятельности правоохранительные органы и места принудительного содержания на территории города Севастополя, а также быть принятым их руководителями и другими должностными лицами в соответствии с федеральным законодательством;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">привлекать экспертов и специалистов для осуществления отдельных видов работ, требующих специальных знаний;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">самостоятельно или совместно с соответствующими органами, в ведении которых находятся вопросы, связанные с защитой и восстановлением прав и законных интересов ребенка, проводить проверку деятельности органов государственной власти города Севастополя, органов местного самоуправления в городе Севастополе, их должностных лиц, организаций города Севастополя, нарушающих права и законные интересы ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">обращаться к компетентным государственным органам или должностным лицам за содействием в проведении проверки обстоятельств, подлежащих выяснению;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_8",
+              "item_type": "point",
+              "item_number": "8)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">поручать компетентным государственным учреждениям города Севастополя и научным учреждениям проведение экспертных исследований и подготовку заключений по вопросам, подлежащим выяснению в ходе рассмотрения обращений (жалоб);</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_9",
+              "item_type": "point",
+              "item_number": "9)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">присутствовать на заседаниях и совещаниях Законодательного Собрания города Севастополя, Правительства Севастополя, других органов государственной власти города Севастополя, органов местного самоуправления города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_1_point_10",
+              "item_type": "point",
+              "item_number": "10)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">принимать непосредственное участие в рассмотрении и обсуждении поставленных им вопросов. Уполномоченный должен быть извещен о времени и месте рассмотрения поставленных им вопросов не позднее, чем за три дня до даты рассмотрения вопроса.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_12_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Органы государственной власти города Севастополя, органы местного самоуправления в городе Севастополе, организации города Севастополя и их должностные лица обязаны:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_2_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_2_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_2_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_12_part_2_point_4",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_12_part_2_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">оказывать Уполномоченному содействие в осуществлении его полномочий;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_2_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">бесплатно предоставлять по запросам Уполномоченного сведения, документы, материалы, иную информацию, необходимые для осуществления его полномочий, не позднее 15 дней со дня получения запроса, если в самом запросе не установлен иной срок;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_2_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">предоставлять по запросам Уполномоченного разъяснения, объяснения по вопросам, связанным с соблюдением и защитой прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_12_part_2_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">получив заключение Уполномоченного, содержащее рекомендации относительно возможных и необходимых мер по защите прав и законных интересов ребенка, в 15-дневный срок рассмотреть его и в письменной форме сообщить о принятых мерах Уполномоченному. В случае если рекомендации Уполномоченного не выполнены, в ответе должно содержаться обоснование причин их невыполнения.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_12_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Вмешательство в деятельность Уполномоченного с целью повлиять на его решение, неисполнение должностными лицами обязанностей, установленных настоящим Законом, а равно воспрепятствование деятельности Уполномоченного в иной форме влечет ответственность, установленную законодательством.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_12_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный обеспечивается в установленном порядке нормативными правовыми актами органов государственной власти города Севастополя, а также документами и другими информационными и справочными материалами, официально распространяемыми органами государственной власти города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_12_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Материальные и социальные гарантии независимости Уполномоченного, связанные с оплатой труда, медицинским, социальным и иным обеспечением и обслуживанием, устанавливаются в соответствии с законодательством города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_13",
+      "item_type": "article",
+      "item_number": "13",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_5",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_6",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_7",
+              "order": 7
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_8",
+              "order": 8
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_9",
+              "order": 9
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_10",
+              "order": 10
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_11",
+              "order": 11
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_12",
+              "order": 12
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_13",
+              "order": 13
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_13_part_14",
+              "order": 14
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Порядок рассмотрения Уполномоченным обращений (жалоб) граждан"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_13_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">При рассмотрении обращений (жалоб) граждан Уполномоченный руководствуется требованиями федерального законодательства и законодательства города Севастополя в части рассмотрения обращений граждан.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">К компетенции Уполномоченного относится рассмотрение жалоб граждан Российской Федерации, иностранных граждан и лиц без гражданства, касающихся нарушения прав, свобод и законных интересов ребенка на территории города Севастополя, и жалоб на решения или действия (бездеятельность) государственных органов города Севастополя, органов местного самоуправления города Севастополя и их должностных лиц, нарушающих права, свободы и законные интересы ребенка.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">С жалобой в адрес Уполномоченного вправе обратиться дети, их законные представители, а также третьи лица.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Жалоба должна содержать фамилию, имя, отчество, почтовый адрес, если ответ должен быть направлен в письменной форме, и адрес электронной почты, если ответ должен быть направлен в форме электронного документа, наименование органа или должностного лица, решения или действия (бездействие) которого обжалуются, изложение существа решений или действий (бездействия), нарушивших или нарушающих, по мнению заявителя, права и законные интересы ребенка.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">К жалобе прилагаются копии документов и иных материалов, необходимых для рассмотрения жалобы.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_6",
+          "item_type": "part",
+          "item_number": "6",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Вышеуказанные требования не распространяются на жалобы, подаваемые непосредственно детьми.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_7",
+          "item_type": "part",
+          "item_number": "7",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный не рассматривает жалобы по спорам, связанным с правоотношениями между гражданами.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_8",
+          "item_type": "part",
+          "item_number": "8",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Получив жалобу (обращение) к рассмотрению, Уполномоченный обязан:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_13_part_8_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_13_part_8_point_2",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_13_part_8_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">принять жалобу (обращение) к рассмотрению и направить заявителю письменный ответ по существу поставленных в обращении вопросов о принятых мерах по защите нарушенных прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_13_part_8_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">уведомить заявителя о направлении его обращения (жалобы) на рассмотрение в орган государственной власти города Севастополя, орган местного самоуправления в городе Севастополе, в организацию, к компетенции которой относится разрешение обращения (жалобы) по существу.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_9",
+          "item_type": "part",
+          "item_number": "9",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">При рассмотрении жалобы Уполномоченный обязан предоставить возможность органам государственной власти города Севастополя, органам местного самоуправления в городе Севастополе, их должностным лицам, организациям, чьи решения или действия (бездействие) обжалуются, дать свои объяснения по любым вопросам, подлежащим выяснению в процессе проверки, а также мотивировать свою позицию в целом. С представленными объяснениями может быть ознакомлен заявитель.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_10",
+          "item_type": "part",
+          "item_number": "10",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">При рассмотрении жалобы не допускается разглашение сведений, содержащихся в жалобе, а также сведений, касающихся частной жизни заявителя, без его письменного согласия. Не является разглашением сведений, содержащихся в жалобе, направление письменного запроса в соответствующий государственный орган города Севастополя, орган местного самоуправления в городе Севастополе или должностному лицу, в компетенцию которых входит решение поставленных в жалобе вопросов.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_11",
+          "item_type": "part",
+          "item_number": "11",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный не может передавать жалобу или поручать проверку жалобы органам государственной власти города Севастополя, органам местного самоуправления в городе Севастополе, их должностным лицам, организациям, решения или действия (бездействие) которых обжалуются.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_12",
+          "item_type": "part",
+          "item_number": "12",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">До вынесения окончательного решения материалы, полученные при рассмотрении жалобы, разглашению не подлежат.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_13",
+          "item_type": "part",
+          "item_number": "13",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">О результатах рассмотрения жалобы Уполномоченный уведомляет заявителя в установленные законодательством сроки.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_13_part_14",
+          "item_type": "part",
+          "item_number": "14",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">В случае установления факта нарушения прав, свобод и законных интересов ребенка Уполномоченный обязан принять меры в пределах своей компетенции, определенной настоящим Законом, направленные на восстановление нарушенных прав, свобод и законных интересов ребенка, а именно:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_13_part_14_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_13_part_14_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_13_part_14_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "60050_article_13_part_14_point_4",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "60050_article_13_part_14_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">направить органу государственной власти города Севастополя, органу местного самоуправления в городе Севастополе, их должностным лицам, в решениях или действиях (бездействии) которых он усматривает нарушение прав и законных интересов ребенка, свое заключение, содержащее рекомендации относительно возможных и необходимых мер по восстановлению нарушенных прав и законных интересов. В случае необходимости заключение Уполномоченного может быть направлено в вышестоящие по отношению к органам и должностным лицам, допустившим нарушение прав и интересов ребенка, органы государственной власти и должностным лицам, а также в соответствующие федеральные органы;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_13_part_14_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">обратиться в компетентные государственные органы с ходатайством о возбуждении дисциплинарного или административного производства либо уголовного дела в отношении должностного лица, в решениях или действиях (бездействии) которого усматриваются нарушения прав и законных интересов ребенка;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_13_part_14_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">обратиться в органы прокуратуры с ходатайством о проверке законности и обоснованности решений и действий соответствующих органов и должностных лиц, о проверке вступившего в законную силу решения, приговора суда, определения или постановления суда или постановления судьи;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "60050_article_13_part_14_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в случае если в процессе рассмотрения жалобы обнаруживаются признаки уголовно наказуемого деяния, передать имеющиеся в его распоряжении материалы органам, к ведению которых отнесено возбуждение уголовного дела, и прекратить дальнейшее рассмотрение жалобы, известив об этом заявителя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_14",
+      "item_type": "article",
+      "item_number": "14",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_14_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_14_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_14_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_14_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_14_part_5",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_14_part_6",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_14_part_7",
+              "order": 7
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Аппарат Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_14_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Для реализации стоящих перед Уполномоченным задач и обеспечения его деятельности создается аппарат Уполномоченного (далее – аппарат).</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_14_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Аппарат является государственным органом города Севастополя, который обладает правами юридического лица, имеет расчетный и иные счета, печать и бланки с изображением герба города Севастополя и своим наименованием.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_14_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Аппарат осуществляет юридическое, организационное, научно­аналитическое, информационно-справочное и иное обеспечение деятельности Уполномоченного.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_14_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный утверждает структуру аппарата, положения о нем и его структурных подразделениях и непосредственно руководит его работой.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_14_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Предельная численность аппарата утверждается Законодательным Собранием города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_14_part_6",
+          "item_type": "part",
+          "item_number": "6",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный в пределах сметы расходов и предельной численности утверждает штатное расписание аппарата.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_14_part_7",
+          "item_type": "part",
+          "item_number": "7",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Лица, замещающие в аппарате должности, отнесенные законодательством города Севастополя к должностям государственной гражданской службы города Севастополя, являются государственными гражданскими служащими города Севастополя. В целях технического обеспечения деятельности Уполномоченного в штатное расписание аппарата могут включаться должности, не отнесенные к должностям государственной гражданской службы города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_15",
+      "item_type": "article",
+      "item_number": "15",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_15_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_15_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_15_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_15_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_15_part_5",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Финансовое и материально-техническое обеспечение деятельности Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_15_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Финансирование деятельности Уполномоченного и его аппарата осуществляется из средств бюджета города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_15_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Средства на финансирование деятельности Уполномоченного и его аппарата ежегодно предусматриваются отдельной строкой в бюджете города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_15_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Финансовая отчетность представляется Уполномоченным в порядке, установленном федеральным  законодательством.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_15_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Финансирование текущей деятельности Уполномоченного и его Аппарата обеспечивает возможность независимого осуществления ими своих полномочий в полном объеме.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_15_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Имущество, необходимое Уполномоченному и его аппарату для осуществления деятельности, является государственной собственностью города Севастополя и находится в оперативном управлении аппарата Уполномоченного.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_16",
+      "item_type": "article",
+      "item_number": "16",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_16_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_16_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_16_part_3",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Общественные помощники Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_16_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Уполномоченный вправе иметь помощников, работающих на общественных началах.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_16_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Положение о помощниках, работающих на общественных началах, утверждается Уполномоченным.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_16_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Помощникам Уполномоченного, работающим на общественных началах, выдается соответствующее удостоверение.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_17",
+      "item_type": "article",
+      "item_number": "17",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_17_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_17_part_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_17_part_3",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_17_part_4",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_17_part_5",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Общественный экспертный совет и Детский совет при Уполномоченном"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_17_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Для оказания консультативной помощи при Уполномоченном может создаваться Общественный экспертный совет по вопросам, касающимся прав и законных интересов ребенка, состоящий из специалистов, имеющих необходимые знания в этой области.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_17_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Для выяснения мнения детей по вопросам, касающимся прав и законных интересов ребенка, при Уполномоченном может создаваться Детский совет из детей, достигших возраста 10 лет и проживающих в городе Севастополе.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_17_part_3",
+          "item_type": "part",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Дети входят в состав Детского совета с согласия родителей (лиц, их заменяющих).</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_17_part_4",
+          "item_type": "part",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">На заседаниях Детского совета присутствуют педагоги или психологи.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_17_part_5",
+          "item_type": "part",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Положения об Общественном экспертном совете и Детском совете, их составы утверждаются Уполномоченным.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_18",
+      "item_type": "article",
+      "item_number": "18",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_18_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "60050_article_18_part_2",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Назначение на должность первого Уполномоченного"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "60050_article_18_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Предложения о кандидатах на должность первого Уполномоченного вносятся в Законодательное Собрание города Севастополя не позднее 30 дней со дня вступления в силу настоящего Закона.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "60050_article_18_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Законодательное Собрание города Севастополя принимает постановление о назначении на должность первого Уполномоченного не позднее 30 дней, со дня истечения срока для внесения предложений о кандидатах на эту должность в порядке, установленном статьей 6 настоящего Закона.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "60050_article_19",
+      "item_type": "article",
+      "item_number": "19",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Вступление в силу настоящего Закона"
+        }
+      ]
+    }
+  ]
+}

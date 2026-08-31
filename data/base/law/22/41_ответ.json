@@ -1,0 +1,38 @@
+[
+  {
+    "revision_number": "1)",
+    "structural_element": "Приложение 2 таблица",
+    "type": "change",
+    "description": "строку: «<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr><td valign=\"top\" width=\"653\"><p style=\"text-align: center;\">Раздел VI</p><p style=\"text-align: center;\">Коэффициенты, применяемые при исчислении должностных окладов, и размеры ежемесячного денежного поощрения государственных гражданских служащих города Севастополя в территориальных исполнительных органах государственной власти города Севастополя городского, районного уровня</p></td></tr></tbody></table>» изложить в следующей редакции: <table border=\"1\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr><td valign=\"top\" width=\"653\"><p style=\"text-align: center;\">Раздел VI<sup>1</sup></p><p style=\"text-align: center;\">Коэффициенты, применяемые при исчислении должностных окладов, и размеры ежемесячного денежного поощрения государственных гражданских служащих города Севастополя в территориальных исполнительных органах государственной власти города Севастополя городского, районного уровня</p></td></tr></tbody></table>"
+  },
+  {
+    "revision_number": "2)->а)",
+    "structural_element": "Приложение 2 таблица Раздел I",
+    "type": "change",
+    "description": "после строки «<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Начальник самостоятельного отдела</p></td><td valign=\"top\" width=\"135\"><p>3,8</p></td><td valign=\"top\" width=\"143\"><p>0,5</p></td></tr></tbody></table>» дополнить строкой: <table border=\"1\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Заместитель начальника самостоятельного отдела</p></td><td valign=\"top\" width=\"135\"><p>3,7</p></td><td valign=\"top\" width=\"150\"><p>0,3</p></td></tr></tbody></table>"
+  },
+  {
+    "revision_number": "2)->б)",
+    "structural_element": "Приложение 2 таблица Раздел I",
+    "type": "change",
+    "description": "после строки «<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Заместитель начальника отдела в управлении</p></td><td valign=\"top\" width=\"135\"><p>3,7</p></td><td valign=\"top\" width=\"139\"><p>0,3</p></td></tr></tbody></table>» дополнить строкой: <table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Заведующий сектором управления</p></td><td valign=\"top\" width=\"135\"><p>3,5</p></td><td valign=\"top\" width=\"139\"><p>0,3</p></td></tr></tbody></table>"
+  },
+  {
+    "revision_number": "2)->в)",
+    "structural_element": "Приложение 2 таблица Раздел I",
+    "type": "change",
+    "description": "после строки «<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Ведущий специалист</p></td><td valign=\"top\" width=\"135\"><p>2,4</p></td><td valign=\"top\" width=\"139\"><p>0,3</p></td></tr></tbody></table>» дополнить строками: <table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 650px;\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Специалист 1 разряда</p></td><td valign=\"top\" width=\"135\"><p>2,3</p></td><td valign=\"top\" width=\"140\"><p>0,3</p></td></tr><tr><td valign=\"top\" width=\"375\"><p>Специалист 2 разряда</p></td><td valign=\"top\" width=\"135\"><p>2,2</p></td><td valign=\"top\" width=\"140\"><p>0,3</p></td></tr></tbody></table>"
+  },
+  {
+    "revision_number": "3)",
+    "structural_element": "Приложение 2 таблица Раздел VI",
+    "type": "new_redaction",
+    "description": "2-4"
+  },
+  {
+    "revision_number": "4)",
+    "structural_element": "Приложение 2 таблица Раздел VI¹",
+    "type": "change",
+    "description": "после строки «<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Заместитель начальника отдела</p></td><td valign=\"top\" width=\"135\"><p>3,2</p></td><td valign=\"top\" width=\"139\"><p>1,0</p></td></tr></tbody></table>» дополнить строкой: <table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\"><tbody><tr><td valign=\"top\" width=\"375\"><p>Ответственный секретарь административной комиссии</p></td><td valign=\"top\" width=\"135\"><p> 3,5</p></td><td valign=\"top\" width=\"139\"><p> 1,2</p></td></tr></tbody></table>"
+  }
+]

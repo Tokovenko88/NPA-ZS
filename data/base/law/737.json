@@ -1,0 +1,3530 @@
+{
+  "npa_id": "106699",
+  "npa_type": "law",
+  "npa_number": "737-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2022/737-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2022/zakon_n_737_zs_ot_30_12_2022/tekst_zakona/",
+  "date_reg": "26.12.2022",
+  "date_1st_reading": "30.12.2022",
+  "date_passed": "30.12.2022",
+  "date_signed": "30.12.2022",
+  "date_pub": "30.12.2022",
+  "valid_from": "30.12.2022",
+  "npa_signer_post": "Губернатор<br/> города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О Правительстве Севастополя"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "106699_chapter_1",
+      "item_type": "chapter",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_1_article_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_1_article_2",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_1_article_3",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Общие положения"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "106699_chapter_1_article_1",
+          "item_type": "article",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_1_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_1_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_1_part_3",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_1_part_4",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_1_part_5",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_1_part_6",
+                  "order": 6
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Статус Правительства Севастополя"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_1_article_1_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство Севастополя (далее также – Правительство) является постоянно действующим высшим исполнительным органом города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_1_article_1_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство обеспечивает согласованную деятельность иных исполнительных органов города Севастополя (далее – исполнительные органы).</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_1_article_1_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство обеспечивает исполнение Конституции Российской Федерации, федеральных конституционных законов, федеральных законов и иных федеральных нормативных правовых актов, Устава города Севастополя (далее – Устав), законов города Севастополя и иных нормативных правовых актов города Севастополя на территории города Севастополя, принимает меры по устранению нарушений федерального законодательства и законодательства города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_1_article_1_part_4",
+              "item_type": "part",
+              "item_number": "4",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство правомочно решать все вопросы, отнесенные к ведению иных исполнительных органов и их должностных лиц, за исключением вопросов, относящихся к полномочиям Губернатора города Севастополя (далее также – Губернатор).</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_1_article_1_part_5",
+              "item_type": "part",
+              "item_number": "5",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство обладает правами юридического лица, имеет гербовую печать с изображением Государственного герба Российской Федерации и официальные бланки с изображением герба города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_1_article_1_part_6",
+              "item_type": "part",
+              "item_number": "6",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>На здании Правительства вывешиваются Государственный флаг Российской Федерации и флаг города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_1_article_2",
+          "item_type": "article",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Правительство в своей деятельности руководствуется принципами, предусмотренными федеральным законодательством.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Принципы деятельности Правительства"
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_1_article_3",
+          "item_type": "article",
+          "item_number": "3",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_3_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_1_article_3_part_2",
+                  "order": 2
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Правовая основа деятельности Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_1_article_3_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство действует на основании и во исполнение Конституции Российской Федерации, федеральных конституционных законов, федеральных законов и иных федеральных нормативных правовых актов, Устава, настоящего Закона и иных законов города Севастополя, правовых актов Губернатора и Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_1_article_3_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Порядок деятельности Правительства определяется Регламентом Правительства Севастополя (далее – Регламент Правительства), утверждаемым постановлением Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "106699_chapter_2",
+      "item_type": "chapter",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_4",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_5",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_6",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_7",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_8",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_9",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_10",
+              "order": 7
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_11",
+              "order": 8
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_12",
+              "order": 9
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_13",
+              "order": 10
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_14",
+              "order": 11
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_15",
+              "order": 12
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_16",
+              "order": 13
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_17",
+              "order": 14
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_18",
+              "order": 15
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_19",
+              "order": 16
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_2_article_20",
+              "order": 17
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Организационные основы деятельности Правительства"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "106699_chapter_2_article_4",
+          "item_type": "article",
+          "item_number": "4",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_4_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_4_part_2",
+                  "order": 2
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Состав Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_4_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>В состав Правительства входят Губернатор и члены Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_4_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Членами Правительства являются:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_4_part_2_point_1",
+                      "order": 2
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_4_part_2_point_2",
+                      "order": 3
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_4_part_2_point_3",
+                      "order": 4
+                    }
+                  ]
+                }
+              ],
+              "item_children": [
+                {
+                  "item_id": "106699_chapter_2_article_4_part_2_point_1",
+                  "item_type": "point",
+                  "item_number": "1)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>первый заместитель Губернатора города Севастополя (далее – первый заместитель Губернатора);</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_4_part_2_point_2",
+                  "item_type": "point",
+                  "item_number": "2)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>заместители Губернатора города Севастополя (далее – заместители Губернатора);</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_4_part_2_point_3",
+                  "item_type": "point",
+                  "item_number": "3)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>директора департаментов – члены Правительства Севастополя (далее – директора департаментов).</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_5",
+          "item_type": "article",
+          "item_number": "5",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_5_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_5_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_5_part_3",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_5_part_4",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Формирование Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_5_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Губернатор формирует Правительство.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_5_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Члены Правительства назначаются на должность из числа граждан Российской Федерации, не имеющих гражданства (подданства) иностранного государства либо вида на жительство или иного документа, подтверждающего право на постоянное проживание гражданина Российской Федерации на территории иностранного государства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_5_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Первый заместитель Губернатора и заместители Губернатора назначаются на должность Губернатором по согласованию с Законодательным Собранием города Севастополя на срок, соответствующий сроку полномочий Губернатора. Губернатор имеет право отозвать предложенные им кандидатуры на должности первого заместителя Губернатора и заместителей Губернатора, а также повторно внести кандидатуры на такие должности, решение об отказе в согласовании назначения которых было принято Законодательным Собранием города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_5_part_4",
+              "item_type": "part",
+              "item_number": "4",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Члены Правительства назначаются на должность указом Губернатора.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_6",
+          "item_type": "article",
+          "item_number": "6",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_6_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_6_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_6_part_3",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_6_part_4",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Правовые акты Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_6_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правовые акты Правительства, имеющие нормативный характер, принимаются в форме постановления. Правовые акты Правительства по вопросам организационно-распорядительного характера, не имеющие нормативный характер, принимаются в форме распоряжения.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_6_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правовые акты Правительства, принятые в пределах его полномочий, обязательны к исполнению в городе Севастополе.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_6_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Порядок принятия правовых актов Правительства определяется Регламентом Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_6_part_4",
+              "item_type": "part",
+              "item_number": "4",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Нормативные правовые акты Правительства подлежат официальному опубликованию и размещению на официальном сайте Правительства в информационно-телекоммуникационной сети «Интернет» в соответствии с законом города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_7",
+          "item_type": "article",
+          "item_number": "7",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Губернатор:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_7",
+                  "order": 8
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_8",
+                  "order": 9
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_9",
+                  "order": 10
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_10",
+                  "order": 11
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_7_point_11",
+                  "order": 12
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Полномочия Губернатора"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_7_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>возглавляет Правительство, определяет основные направления деятельности Правительства и организует его работу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>ведет заседания Правительства, обладая правом решающего голоса;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>назначает на должность и освобождает от должности членов Правительства и руководителей иных исполнительных органов;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>представляет на рассмотрение Законодательного Собрания города Севастополя кандидатуры на должности первого заместителя Губернатора и заместителей Губернатора для согласования их назначения на указанные должности;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>представляет в Законодательное Собрание города Севастополя ежегодные отчеты о результатах деятельности Правительства, в том числе по вопросам, поставленным Законодательным Собранием города Севастополя, в соответствии с федеральным законодательством и законодательством города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>организует подготовку и исполнение правовых актов Правительства;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>осуществляет разрешение разногласий по проектам правовых актов Правительства в процессе их разработки и согласования;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_8",
+              "item_type": "point",
+              "item_number": "8)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>подписывает правовые акты Правительства;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_9",
+              "item_type": "point",
+              "item_number": "9)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>определяет полномочия членов Правительства и распределяет обязанности между первым заместителем Губернатора и заместителями Губернатора;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_10",
+              "item_type": "point",
+              "item_number": "10)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>координирует и контролирует деятельность членов Правительства, иных исполнительных органов и дает им поручения;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_7_point_11",
+              "item_type": "point",
+              "item_number": "11)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>осуществляет иные полномочия, предусмотренные федеральным законодательством и законодательством города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_8",
+          "item_type": "article",
+          "item_number": "8",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_8_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_8_part_2",
+                  "order": 2
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Полномочия первого заместителя Губернатора"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_8_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Первый заместитель Губернатора:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_1",
+                      "order": 2
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_2",
+                      "order": 3
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_3",
+                      "order": 4
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_4",
+                      "order": 5
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_5",
+                      "order": 6
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_6",
+                      "order": 7
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_7",
+                      "order": 8
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_8",
+                      "order": 9
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_8_part_1_point_9",
+                      "order": 10
+                    }
+                  ]
+                }
+              ],
+              "item_children": [
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_1",
+                  "item_type": "point",
+                  "item_number": "1)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>исполняет обязанности Губернатора в случае его отсутствия;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_2",
+                  "item_type": "point",
+                  "item_number": "2)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>участвует в заседаниях Правительства, обладая правом решающего голоса;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_3",
+                  "item_type": "point",
+                  "item_number": "3)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>участвует в подготовке правовых актов Правительства, обеспечивает их исполнение;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_4",
+                  "item_type": "point",
+                  "item_number": "4)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>координирует и контролирует в соответствии с распределением обязанностей деятельность директоров департаментов, иных руководителей исполнительных органов и дает им поручения;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_5",
+                  "item_type": "point",
+                  "item_number": "5)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>обеспечивает исполнение поручений Губернатора;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_6",
+                  "item_type": "point",
+                  "item_number": "6)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>вносит предложения Губернатору о назначении на должность и об освобождении от должности директоров департаментов, иных руководителей исполнительных органов, координацию деятельности которых он осуществляет в соответствии с распределением обязанностей;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_7",
+                  "item_type": "point",
+                  "item_number": "7)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>принимает решение о разработке проектов правовых актов Правительства, направляет их на согласование, согласовывает и вносит их на рассмотрение Правительства, а также осуществляет разрешение разногласий и принятие иных решений по указанным проектам в процессе их разработки и согласования;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_8",
+                  "item_type": "point",
+                  "item_number": "8)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>контролирует исполнение правовых актов Губернатора и Правительства;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_8_part_1_point_9",
+                  "item_type": "point",
+                  "item_number": "9)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет иные полномочия, предусмотренные федеральным законодательством и законодательством города Севастополя.</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_8_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>При осуществлении своих полномочий первый заместитель Губернатора подотчетен Губернатору.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_9",
+          "item_type": "article",
+          "item_number": "9",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_9_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_9_part_2",
+                  "order": 2
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Полномочия заместителей Губернатора"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_9_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Заместители Губернатора:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_1",
+                      "order": 2
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_2",
+                      "order": 3
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_3",
+                      "order": 4
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_4",
+                      "order": 5
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_5",
+                      "order": 6
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_6",
+                      "order": 7
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_7",
+                      "order": 8
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_8",
+                      "order": 9
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_9_part_1_point_9",
+                      "order": 10
+                    }
+                  ]
+                }
+              ],
+              "item_children": [
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_1",
+                  "item_type": "point",
+                  "item_number": "1)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>исполняют обязанности Губернатора в случае отсутствия первого заместителя Губернатора в соответствии с установленным Губернатором распределением обязанностей;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_2",
+                  "item_type": "point",
+                  "item_number": "2)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>участвуют в заседаниях Правительства, обладая правом решающего голоса;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_3",
+                  "item_type": "point",
+                  "item_number": "3)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>участвуют в подготовке правовых актов Правительства, обеспечивают их исполнение;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_4",
+                  "item_type": "point",
+                  "item_number": "4)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>координируют и контролируют в соответствии с распределением обязанностей деятельность директоров департаментов, иных руководителей исполнительных органов и дают им поручения;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_5",
+                  "item_type": "point",
+                  "item_number": "5)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>обеспечивают исполнение поручений Губернатора;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_6",
+                  "item_type": "point",
+                  "item_number": "6)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>вносят предложения Губернатору о назначении на должность и об освобождении от должности директоров департаментов, иных руководителей исполнительных органов, координацию деятельности которых они осуществляют в соответствии с распределением обязанностей;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_7",
+                  "item_type": "point",
+                  "item_number": "7)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>принимают решения о разработке проектов правовых актов Правительства, направляют их на согласование, согласовывают и вносят их на рассмотрение Правительства, а также осуществляют разрешение разногласий и принятие иных решений по указанным проектам в процессе их разработки и согласования;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_8",
+                  "item_type": "point",
+                  "item_number": "8)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>контролируют исполнение правовых актов Губернатора и Правительства;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_9_part_1_point_9",
+                  "item_type": "point",
+                  "item_number": "9)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляют иные полномочия, предусмотренные федеральным законодательством и законодательством города Севастополя.</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_9_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>При осуществлении своих полномочий заместители Губернатора подотчетны Губернатору.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_10",
+          "item_type": "article",
+          "item_number": "10",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_10_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_10_part_2",
+                  "order": 2
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Полномочия директоров департаментов"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_10_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Директора департаментов:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_10_part_1_point_1",
+                      "order": 2
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_10_part_1_point_2",
+                      "order": 3
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_10_part_1_point_3",
+                      "order": 4
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_10_part_1_point_4",
+                      "order": 5
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_10_part_1_point_5",
+                      "order": 6
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_2_article_10_part_1_point_6",
+                      "order": 7
+                    }
+                  ]
+                }
+              ],
+              "item_children": [
+                {
+                  "item_id": "106699_chapter_2_article_10_part_1_point_1",
+                  "item_type": "point",
+                  "item_number": "1)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>участвуют в заседаниях Правительства, обладая правом решающего голоса;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_10_part_1_point_2",
+                  "item_type": "point",
+                  "item_number": "2)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>участвуют в подготовке правовых актов Правительства и обеспечивают их исполнение;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_10_part_1_point_3",
+                  "item_type": "point",
+                  "item_number": "3)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>обеспечивают исполнение поручений Губернатора, первого заместителя Губернатора и заместителей Губернатора;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_10_part_1_point_4",
+                  "item_type": "point",
+                  "item_number": "4)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляют руководство исполнительными органами, которые они возглавляют, координацию и контроль их деятельности;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_10_part_1_point_5",
+                  "item_type": "point",
+                  "item_number": "5)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>принимают решения о разработке проектов правовых актов Правительства, направляют их на согласование, согласовывают и вносят их на рассмотрение Правительства;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_2_article_10_part_1_point_6",
+                  "item_type": "point",
+                  "item_number": "6)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляют иные полномочия, предусмотренные федеральным законодательством и законодательством города Севастополя.</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_10_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>При осуществлении своих полномочий директора департаментов подотчетны Губернатору, а также первому заместителю Губернатора и заместителям Губернатора, координирующим их деятельность в соответствии с распределением обязанностей.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_11",
+          "item_type": "article",
+          "item_number": "11",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>На членов Правительства распространяются ограничения и запреты, установленные федеральным законодательством, а также обязанности, установленные федеральным законодательством и законодательством города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Ограничения, запреты и обязанности членов Правительства"
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_12",
+          "item_type": "article",
+          "item_number": "12",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_12_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_12_part_2",
+                  "order": 2
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Совещательные органы Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_12_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство может создавать постоянные и временные совещательные органы, в том числе коллегии, комиссии и группы.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_12_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Деятельностью совещательного органа, созданного Правительством, руководит член Правительства либо иное уполномоченное Правительством лицо. Положение о совещательном органе, созданном Правительством, утверждается Правительством.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_13",
+          "item_type": "article",
+          "item_number": "13",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_13_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_13_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_13_part_3",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_13_part_4",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Заседания Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_13_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Заседания Правительства проводятся по мере необходимости, но не реже одного раза в месяц в порядке, предусмотренном Регламентом Правительства. Заседание Правительства считается правомочным, если на нем присутствует большинство от общего числа лиц, входящих в состав Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_13_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Заседания Правительства проходят под председательством Губернатора. В случае его отсутствия на заседаниях Правительства председательствует лицо, исполняющее обязанности Губернатора.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_13_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>На заседаниях Правительства решения принимаются большинством голосов от присутствующих на них лиц, входящих в состав Правительства. При равенстве голосов голос председательствующего является решающим. Участие в голосовании является обязательным.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_13_part_4",
+              "item_type": "part",
+              "item_number": "4",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>При необходимости могут проводиться совместные заседания с высшими исполнительными органами других субъектов Российской Федерации, коллегиями федеральных органов исполнительной власти. Правительство вправе принимать совместные решения с высшими исполнительными органами других субъектов Российской Федерации, коллегиями федеральных органов исполнительной власти. При необходимости указанные решения оформляются договорами, соглашениями или правовыми актами города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_14",
+          "item_type": "article",
+          "item_number": "14",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>На заседаниях Правительства рассматриваются:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_6",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_7",
+                  "order": 8
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_8",
+                  "order": 9
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_9",
+                  "order": 10
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_10",
+                  "order": 11
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_11",
+                  "order": 12
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_14_point_12",
+                  "order": 13
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Вопросы, решения по которым принимаются исключительно на заседаниях Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_14_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>проект бюджета города Севастополя, проекты бюджетов государственных внебюджетных фондов города Севастополя, а также отчеты об их исполнении;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>проект Генерального плана города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>правила землепользования и застройки города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>государственные программы города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>правила благоустройства территории города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>проект Стратегии социально-экономического развития города Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_7",
+              "item_type": "point",
+              "item_number": "7)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>проект прогнозного плана (программы) приватизации государственного имущества города Севастополя на плановый период;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_8",
+              "item_type": "point",
+              "item_number": "8)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>проекты законов города Севастополя, субъектом законодательной инициативы по которым выступает Правительство;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_9",
+              "item_type": "point",
+              "item_number": "9)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Регламент Правительства и Регламент законопроектной деятельности в Правительстве Севастополя;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_10",
+              "item_type": "point",
+              "item_number": "10)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Положение об Аппарате Губернатора и Правительства Севастополя (далее также – Аппарат);</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_11",
+              "item_type": "point",
+              "item_number": "11)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>положения об исполнительных органах;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_14_point_12",
+              "item_type": "point",
+              "item_number": "12)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>иные вопросы, обязательное рассмотрение которых на заседаниях Правительства предусмотрено Регламентом Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_15",
+          "item_type": "article",
+          "item_number": "15",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Финансовое обеспечение Правительства осуществляется за счет средств бюджета города Севастополя, предусмотренных отдельной строкой.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Финансовое обеспечение Правительства"
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_16",
+          "item_type": "article",
+          "item_number": "16",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_3",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_4",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_5",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_6",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_7",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_16_part_8",
+                  "order": 8
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Аппарат Губернатора и Правительства Севастополя"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_16_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Для обеспечения деятельности Губернатора и Правительства, а также организации контроля за выполнением исполнительными органами решений, принятых Губернатором и Правительством, Губернатором формируется Аппарат.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_16_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Аппарат является государственным органом города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_16_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Аппарат возглавляет руководитель Аппарата.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_16_part_4",
+              "item_type": "part",
+              "item_number": "4",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Положение об Аппарате утверждается Правительством.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_16_part_5",
+              "item_type": "part",
+              "item_number": "5",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Численность, структура и штатное расписание Аппарата утверждаются Губернатором.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_16_part_6",
+              "item_type": "part",
+              "item_number": "6",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Положения о структурных подразделениях Аппарата утверждаются руководителем Аппарата.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_16_part_7",
+              "item_type": "part",
+              "item_number": "7",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Финансовое обеспечение Аппарата осуществляется за счет средств бюджета города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_16_part_8",
+              "item_type": "part",
+              "item_number": "8",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Аппарат обладает правами юридического лица, имеет гербовую печать, а также собственные бланки и штампы.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_17",
+          "item_type": "article",
+          "item_number": "17",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Государственные гарантии членам Правительства устанавливаются законами города Севастополя.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Государственные гарантии членам Правительства"
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_18",
+          "item_type": "article",
+          "item_number": "18",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_18_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_18_part_2",
+                  "order": 2
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Ответственность членов Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_18_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Члены Правительства несут персональную ответственность за исполнение своих должностных обязанностей.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_18_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>За неисполнение или ненадлежащее исполнение членом Правительства возложенных на него обязанностей, несоблюдение им ограничений и запретов, установленных федеральными законами, иными федеральными нормативными правовыми актами и нормативными правовыми актами города Севастополя, член Правительства может привлекаться Губернатором к ответственности в соответствии с федеральным законодательством и законодательством города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_19",
+          "item_type": "article",
+          "item_number": "19",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_19_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_19_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_19_part_3",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_19_part_4",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_19_part_5",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Сложение Правительством своих полномочий.Отставка Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_19_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство слагает свои полномочия перед вновь избранным Губернатором.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_19_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Решение о сложении Правительством своих полномочий принимается вновь избранным Губернатором в форме указа в день вступления его в должность.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_19_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Губернатор вправе принять решение об отставке Правительства, которое принимается в форме указа.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_19_part_4",
+              "item_type": "part",
+              "item_number": "4",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Решение Президента Российской Федерации об отрешении Губернатора от должности влечет за собой прекращение его полномочий как лица, возглавляющего Правительство.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_19_part_5",
+              "item_type": "part",
+              "item_number": "5",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>В случае сложения полномочий или отставки Правительство продолжает действовать до сформирования нового Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_2_article_20",
+          "item_type": "article",
+          "item_number": "20",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_20_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_20_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_20_part_3",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_2_article_20_part_4",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Освобождение от должности членов Правительства.Отставка членов Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_2_article_20_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Губернатор вправе освободить от должности члена Правительства.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_20_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Член Правительства вправе подать в отставку, которая принимается или отклоняется Губернатором.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_20_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Решение об освобождении от должности или отставке члена Правительства принимается Губернатором в форме указа.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_2_article_20_part_4",
+              "item_type": "part",
+              "item_number": "4",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>В случае освобождения от должности или отставки члена Правительства его полномочия прекращаются в день, следующий за днем подписания соответствующего указа Губернатора, если в таком указе не установлена другая дата.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "106699_chapter_3",
+      "item_type": "chapter",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_3_article_21",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Полномочия Правительства"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "106699_chapter_3_article_21",
+          "item_type": "article",
+          "item_number": "21",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_3_article_21_part_1",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_3_article_21_part_2",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_3_article_21_part_3",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Основные полномочия Правительства"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_3_article_21_part_1",
+              "item_type": "part",
+              "item_number": "1",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство в пределах своих полномочий:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_1",
+                      "order": 2
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_2",
+                      "order": 3
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_3",
+                      "order": 4
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_4",
+                      "order": 5
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_5",
+                      "order": 6
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_6",
+                      "order": 7
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_7",
+                      "order": 8
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_8",
+                      "order": 9
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_9",
+                      "order": 10
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_10",
+                      "order": 11
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_11",
+                      "order": 12
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_12",
+                      "order": 13
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_13",
+                      "order": 14
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_14",
+                      "order": 15
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_15",
+                      "order": 16
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_16",
+                      "order": 17
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_17",
+                      "order": 18
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_18",
+                      "order": 19
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_19",
+                      "order": 20
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_20",
+                      "order": 21
+                    },
+                    {
+                      "type": "child_ref",
+                      "item_id": "106699_chapter_3_article_21_part_1_point_21",
+                      "order": 22
+                    }
+                  ]
+                }
+              ],
+              "item_children": [
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_1",
+                  "item_type": "point",
+                  "item_number": "1)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет меры по реализации, обеспечению и защите прав и свобод человека и гражданина;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_2",
+                  "item_type": "point",
+                  "item_number": "2)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет меры по обеспечению защиты семьи, материнства, отцовства и детства, защиты института брака как союза мужчины и женщины, по созданию условий для достойного воспитания детей в семье, а также для осуществления совершеннолетними детьми обязанности заботиться о родителях;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_3",
+                  "item_type": "point",
+                  "item_number": "3)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>обеспечивает разработку и осуществление мер, направленных на социально-экономическое развитие города Севастополя;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_4",
+                  "item_type": "point",
+                  "item_number": "4)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>участвует в проведении единой государственной политики в сферах социального обеспечения, образования, здравоохранения, финансов, науки, культуры, физической культуры и спорта, безопасности дорожного движения и экологии;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_5",
+                  "item_type": "point",
+                  "item_number": "5)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>обеспечивает государственные гарантии реализации прав на получение общедоступного и бесплатного дошкольного образования в дошкольных образовательных организациях города Севастополя, общедоступного и бесплатного дошкольного, начального общего, основного общего, среднего общего образования в общеобразовательных организациях города Севастополя;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_6",
+                  "item_type": "point",
+                  "item_number": "6)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет меры по координации вопросов здравоохранения, в том числе обеспечению оказания доступной и качественной медицинской помощи, сохранению и укреплению общественного здоровья, созданию условий для ведения здорового образа жизни, формированию культуры ответственного отношения граждан к своему здоровью;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_7",
+                  "item_type": "point",
+                  "item_number": "7)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет меры по обеспечению государственных гарантий социальной защиты населения, включая социальное обеспечение, адресной социальной поддержки граждан;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_8",
+                  "item_type": "point",
+                  "item_number": "8)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет меры по охране собственности и общественного порядка, противодействию терроризму и экстремизму, борьбе с преступностью;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_9",
+                  "item_type": "point",
+                  "item_number": "9)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет меры по сохранению и развитию этнокультурного многообразия народов Российской Федерации, проживающих на территории города Севастополя, их языков и культуры; защите прав коренных малочисленных народов и других национальных меньшинств; социальной и культурной адаптации мигрантов; профилактике межнациональных (межэтнических) конфликтов и обеспечению межнационального и межконфессионального согласия;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_10",
+                  "item_type": "point",
+                  "item_number": "10)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>разрабатывает проект бюджета города Севастополя;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_11",
+                  "item_type": "point",
+                  "item_number": "11)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>обеспечивает исполнение бюджета города Севастополя и готовит отчет об исполнении указанного бюджета, ежегодный отчет о результатах деятельности Правительства Севастополя, сводный годовой доклад о ходе реализации и об оценке эффективности государственных программ города Севастополя для представления их Губернатором в Законодательное Собрание города Севастополя;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_12",
+                  "item_type": "point",
+                  "item_number": "12)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>управляет и распоряжается собственностью города Севастополя в соответствии с законами города Севастополя, а также управляет федеральной собственностью, переданной в управление городу Севастополю в соответствии с федеральными законами и иными федеральными нормативными правовыми актами;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_13",
+                  "item_type": "point",
+                  "item_number": "13)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>определяет порядок разработки и корректировки документов стратегического планирования, находящихся в ведении Правительства, и утверждает (одобряет) такие документы;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_14",
+                  "item_type": "point",
+                  "item_number": "14)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>определяет полномочия подведомственных ему исполнительных органов, утверждает положения об исполнительных органах, их штатную численность и размер ассигнований на их содержание в пределах средств, предусмотренных на эти цели в бюджете города Севастополя;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_15",
+                  "item_type": "point",
+                  "item_number": "15)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет контроль за деятельностью подведомственных ему исполнительных органов;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_16",
+                  "item_type": "point",
+                  "item_number": "16)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>вправе отменить правовые акты подведомственных ему исполнительных органов или приостановить действие таких актов;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_17",
+                  "item_type": "point",
+                  "item_number": "17)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>предлагает органу местного самоуправления внутригородского муниципального образования города Севастополя, должностному лицу такого органа привести в соответствие с федеральным законодательством, законодательством города Севастополя изданные ими правовые акты в случае, если указанные акты противоречат Конституции Российской Федерации, федеральным конституционным законам, федеральным законам и иным федеральным нормативным правовым актам, Уставу, законам города Севастополя и иным нормативным правовым актам города Севастополя, а также вправе обратиться в суд;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_18",
+                  "item_type": "point",
+                  "item_number": "18)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>определяет структуру и штатную численность аппарата мировых судей города Севастополя, осуществляет организационное и материально-техническое обеспечение деятельности мировых судей города Севастополя и оплату труда работников аппарата мировых судей города Севастополя;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_19",
+                  "item_type": "point",
+                  "item_number": "19)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>учреждает печатное средство массовой информации, сетевое издание для обнародования (официального опубликования) правовых актов, иной официальной информации, создает официальные сайты исполнительных органов и обеспечивает их функционирование;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_20",
+                  "item_type": "point",
+                  "item_number": "20)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>утверждает порядок государственной регистрации нормативных правовых актов исполнительных органов;</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "item_id": "106699_chapter_3_article_21_part_1_point_21",
+                  "item_type": "point",
+                  "item_number": "21)",
+                  "item_level": 4,
+                  "revisions": [
+                    {
+                      "body": [
+                        {
+                          "type": "paragraph",
+                          "html_text": "<p>осуществляет иные полномочия, установленные федеральными законами, Уставом, законами города Севастополя, соглашениями с федеральными органами исполнительной власти, а также установленные нормативными правовыми актами Президента Российской Федерации и нормативными правовыми актами Правительства Российской Федерации, предусматривающими передачу осуществления исполнительным органам отдельных полномочий федеральных органов исполнительной власти.</p>",
+                          "order": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_3_article_21_part_2",
+              "item_type": "part",
+              "item_number": "2",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Правительство в пределах своих полномочий в порядке и формах, определенных федеральным законодательством и законодательством города Севастополя, содействует развитию местного самоуправления на территории города Севастополя.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_3_article_21_part_3",
+              "item_type": "part",
+              "item_number": "3",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Полномочия, отнесенные к ведению Правительства в соответствии с федеральным законодательством и законодательством города Севастополя, осуществляются Правительством непосредственно или через подведомственные ему исполнительные органы.</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "106699_chapter_4",
+      "item_type": "chapter",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_4_article_22",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106699_chapter_4_article_23",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "head_revisions": [
+        {
+          "head_text": "Заключительные положения"
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "106699_chapter_4_article_22",
+          "item_type": "article",
+          "item_number": "22",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Признать утратившими силу:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_4_article_22_point_1",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_4_article_22_point_2",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_4_article_22_point_3",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_4_article_22_point_4",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_4_article_22_point_5",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "106699_chapter_4_article_22_point_6",
+                  "order": 7
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Признание утратившими силу отдельных законодательных актов (положений законодательных актов) города Севастополя"
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "106699_chapter_4_article_22_point_1",
+              "item_type": "point",
+              "item_number": "1)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Закон города Севастополя от 30 апреля 2014 года <a href=\"view/laws/bank/aprel_2014/o_pravitelstve_sevastopolya/\">№ 5-ЗС</a> «О Правительстве Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_4_article_22_point_2",
+              "item_type": "point",
+              "item_number": "2)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Закон города Севастополя от 24 июля 2014 года <a href=\"view/laws/bank/iyul_2014/o_vnesenii_izmenenij_v_zakon_goroda_sevastopolya_n5-zs_ot_30042014_o_pravitelstve_sevastopolya/\">№ 38-ЗС</a> «О внесении изменений в Закон города Севастополя № 5-ЗС от 30.04.2014 «О Правительстве Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_4_article_22_point_3",
+              "item_type": "point",
+              "item_number": "3)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Закон города Севастополя от 7 сентября 2016 года <a href=\"view/laws/bank/2016_244-314/zakon_n_273_zs_ot_07_09_2016/\">№ 273-ЗС</a> «О внесении изменений в Закон города Севастополя от 30 апреля 2014 года № 5-ЗС «О Правительстве Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_4_article_22_point_4",
+              "item_type": "point",
+              "item_number": "4)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Закон города Севастополя от 27 сентября 2017 года <a href=\"view/laws/bank/2017/zakon_n_363_zs_ot_27_09_2017/\">№ 363-ЗС</a> «О внесении изменения в статью 25 Закона города Севастополя от 30 апреля 2014 года № 5-ЗС «О Правительстве Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_4_article_22_point_5",
+              "item_type": "point",
+              "item_number": "5)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>Закон города Севастополя от 2 июля 2019 года <a href=\"view/laws/bank/2019/zakon_n_515_zs_ot_02_07_2019/\">№ 515-ЗС</a> «О внесении изменения в часть 6 статьи 10 Закона города Севастополя от 30 апреля 2014 года № 5-ЗС «О Правительстве Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "106699_chapter_4_article_22_point_6",
+              "item_type": "point",
+              "item_number": "6)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>статью 2 Закона города Севастополя от 6 июня 2022 года <a href=\"view/laws/bank/2022/zakon_n_696_zs_ot_06_05_2022/\">№ 696-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя».</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106699_chapter_4_article_23",
+          "item_type": "article",
+          "item_number": "23",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Настоящий Закон вступает в силу со дня его официального опубликования.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ],
+          "head_revisions": [
+            {
+              "head_text": "Вступление в силу настоящего Закона"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

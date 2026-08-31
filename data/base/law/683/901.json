@@ -1,0 +1,196 @@
+{
+  "npa_id": "140075",
+  "npa_type": "law",
+  "npa_number": "901-ЗС",
+  "npa_author": "Немцев Владимир Владимирович, Аксёнов Вячеслав Викторович, Брыжак Александр Анатольевич, Колбин Сергей Николаевич, Кондратьев Денис Игоревич, Кулагин Александр Андреевич, Пирогов Константин Вадимович, Харламов Павел Викторович, Ярусов Алексей Юрьевич",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по градостроительству",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/901-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_901_zs_ot_04_03_2026/tekst-zakona/",
+  "date_reg": "12.02.2026",
+  "date_1st_reading": "26.02.2026",
+  "date_passed": "26.02.2026",
+  "date_signed": "04.03.2026",
+  "date_pub": "04.03.2026",
+  "valid_from": "15.03.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в статьи 1 и 6 Закона города Севастополя от 23 декабря 2021 года № 683-ЗС «Об охране зеленых насаждений в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "140075_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 23 декабря 2021 года <a href=\"view/laws/bank/2021/zakon_n_683_zs_ot_23_12_2021/\">№ 683-ЗС</a> «Об охране зеленых насаждений в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "140075_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "140075_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "140075_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>пункт 1 части 2 статьи 1 дополнить подпунктом «е» следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«е) находящихся на территориях кладбищ города Севастополя;»;</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "140075_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в статье 6:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "140075_article_1_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "140075_article_1_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "140075_article_1_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в части 1:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>пункт 6 дополнить словами «, за исключением случаев, предусмотренных частью 1.1 настоящей статьи»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в пункте 9</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>слово «регулирования» заменить словом «организации»,</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить словами «, за исключением случаев, предусмотренных частью 1.1 настоящей статьи»;</p>",
+                      "order": 5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "140075_article_1_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить частью 1.1 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«1.1. Выдача порубочного билета не требуется на выполнение работ по обрезке зеленых насаждений в целях:</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>1) обеспечения видимости технических средств организации дорожного движения на улично-дорожной сети в соответствии с требованиями нормативной документации в области обеспечения безопасности дорожного движения;</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>2) обеспечения безаварийного функционирования и эксплуатации объектов электросетевого хозяйства в их охранных зонах, установленных в соответствии с федеральным законодательством;</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"Textbody\">3) технического обслуживания газораспределительных сетей в их охранных зонах, установленных в соответствии с федеральным законодательством.».</p>",
+                      "order": 5
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "140075_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

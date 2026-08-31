@@ -1,0 +1,149 @@
+{
+  "npa_id": "106654",
+  "npa_type": "law",
+  "npa_number": "735-ЗС",
+  "npa_author": "Немцев Владимир Владимирович",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя II созыва по законодательству и государственному строительству",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2022/735-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2022/zakon_n_735_zs_ot_30_12_2022/tekst_zakona/",
+  "date_reg": "15.12.2022",
+  "date_1st_reading": "30.12.2022",
+  "date_passed": "30.12.2022",
+  "date_signed": "30.12.2022",
+  "date_pub": "30.12.2022",
+  "valid_from": "30.12.2022",
+  "npa_signer_post": "Губернатор<br/>города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О признании утратившими силу Закона города Севастополя от 23 июля 2019 года № 517-ЗС «О порядке отзыва Губернатора города Севастополя» и отдельных положений законодательных актов города Севастополя"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "106654_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Признать утратившими силу:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106654_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106654_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106654_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "106654_article_1_point_4",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "106654_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">Закон города Севастополя от 23 июля 2019 года <a href=\"view/laws/bank/2019/zakon_n_517_zs_ot_23_07_2019/\">№ 517-ЗС</a> «О порядке отзыва Губернатора города Севастополя»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106654_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">статью 5 Закона города Севастополя от 28 мая 2021 года <a href=\"view/laws/bank/2021/zakon_n_642_zs_ot_28_05_2021/\">№ 642-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106654_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">статью 5 Закона города Севастополя от 14 декабря 2021 года <a href=\"view/laws/bank/2021/zakon_n_679_zs_ot_14_12_2021/\">№ 679-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя о выборах и референдуме»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "106654_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">статью 13 Закона города Севастополя от 6 июня 2022 года <a href=\"view/laws/bank/2022/zakon_n_696_zs_ot_06_05_2022/\">№ 696-ЗС</a> «О внесении изменений в отдельные законодательные акты города Севастополя».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "106654_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

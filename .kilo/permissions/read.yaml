@@ -1,0 +1,27 @@
+read:
+  - src/**/*
+  - data/**/*
+  - docs/**/*
+  - scripts/**/*
+  - tests/**/*
+  - .kilo/**/*
+
+write:
+  - src/**/*
+  - data/input/**/*
+  - data/output/**/*
+  - data/work_tools/**/*
+  - data/logs/**/*
+  - data/stage_answers/**/*
+  - data/debug_runs/**/*
+  - docs/**/*
+  - scripts/**/*
+  - tests/**/*
+
+deploy:
+  - src/site/**/*
+  - dist/**/*
+
+db-admin:
+  - src/db/**/*
+  - data/base/**/*

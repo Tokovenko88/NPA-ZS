@@ -1,0 +1,2182 @@
+{
+  "npa_id": "102795",
+  "npa_type": "law",
+  "npa_number": "713-ЗС",
+  "npa_author": "Зубенко Василий Викторович, Немцев Владимир Владимирович",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2022/713-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2022/zakon_n_713_zs_ot_05_10_2022/tekst-zakona52/",
+  "date_reg": "14.07.2022",
+  "date_1st_reading": "27.09.2022",
+  "date_passed": "27.09.2022",
+  "date_signed": "05.10.2022",
+  "date_pub": "05.10.2022",
+  "valid_from": "16.10.2022",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в отдельные законодательные акты города Севастополя в связи с принятием Федерального закона от 21 декабря 2021 года № 414-ФЗ «Об общих принципах организации публичной власти в субъектах Российской Федерации»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "102795_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 3 июня 2014 года <a href=\"view/laws/bank/iyun_2014/ob_administrativno-territorialnom_ustrojstve_goroda_sevastopolya/\">№ 19-ЗС</a> «Об административно-территориальном устройстве города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_1_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_1_point_5",
+              "order": 6
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 2 статьи 1 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 2 слова «от 6 октября 1999 года № 184-ФЗ «Об общих принципах организации законодательных (представительных) и исполнительных органов государственной власти субъектов Российской Федерации» заменить словами «от 21 декабря 2021 года № 414-ФЗ «Об общих принципах организации публичной власти в субъектах Российской Федерации»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 2 статьи 5 слова «государственной власти города» заменить словами «города Севастополя»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в абзаце четвертом части 1 статьи 7 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_1_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 3 статьи 9:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_1_point_5_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_1_point_5_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "102795_article_1_point_5_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">слова «органы государственной власти Российской Федерации» заменить словами «федеральные органы государственной власти»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_1_point_5_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">после слова «самоуправления» дополнить словом «внутригородских».</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">В части 2 статьи 4 Закона города Севастополя от 3 июня 2014 года <a href=\"view/laws/bank/iyun_2014/o_denezhnom_soderzhanii_lic-_zameshhayushhih_gosudarstvennye_dolzhnosti_goroda_sevastopolya/\">№ 21-ЗС</a> «О денежном содержании лиц, замещающих государственные должности города Севастополя» слова «органах исполнительной власти» заменить словами «исполнительных органах».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 3 июня 2014 года <a href=\"view/laws/bank/iyun_2014/o_gosudarstvennoj_grazhdanskoj_sluzhbe_goroda_sevastopolya/\">№ 23-ЗС</a> «О государственной гражданской службе города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_3_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_3_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_3_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_3_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_3_point_5",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_3_point_6",
+              "order": 7
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_3_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 3 статьи 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_3_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_3_point_1_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "102795_article_3_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце втором слова «законодательного (представительного) органа государственной власти города Севастополя» заменить словами «законодательного органа города Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_3_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце третьем слова «орган исполнительной власти» в соответствующих числе и падеже заменить словами «исполнительный орган» в соответствующих числе и падеже;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_3_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 10 статьи 8 слова «органах исполнительной власти» заменить словами «исполнительных органах»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_3_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 9 статьи 15 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_3_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 9 статьи 18 слова «органе исполнительной власти» заменить словами «исполнительном органе»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_3_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в подпункте «а» пункта 1 части 3 статьи 21 слова «органов исполнительной власти» заменить словами «исполнительных органов»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_3_point_6",
+          "item_type": "point",
+          "item_number": "6)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 11 статьи 37 слова «органе исполнительной власти» заменить словами «исполнительном органе».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 11 июня 2014 года <a href=\"view/laws/bank/iyun_2014/o_protivodejstvii_korrupcii_v_gorode_sevastopole/\">№ 30-ЗС</a> «О противодействии коррупции в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_4_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_4_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_4_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_4_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_4_point_5",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_4_point_6",
+              "order": 7
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_4_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 6.1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_4_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_4_point_1_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_4_point_1_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_4_point_1_subpoint_г",
+                  "order": 5
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "102795_article_4_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">в пункте 3 части 2 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_4_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">в пункте 2 части 3 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_4_point_1_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 4 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_4_point_1_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 5 после слов «исполнительных органов» слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_4_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 3 статьи 7 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_4_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 4 статьи 12 слова «государственной власти города и государственными органами города» заменить словами «города Севастополя и иными государственными органами города Севастополя»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_4_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 2 статьи 13:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_4_point_4_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_4_point_4_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "102795_article_4_point_4_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «Органы исполнительной власти» заменить словами «Исполнительные органы»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_4_point_4_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">слова «органах исполнительной власти города» заменить словами «исполнительных органах города Севастополя»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_4_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 7 статьи 15 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_4_point_6",
+          "item_type": "point",
+          "item_number": "6)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 3 статьи 18 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_5",
+      "item_type": "article",
+      "item_number": "5",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 10 июля 2014 года <a href=\"view/laws/bank/iyul_2014/o_kontrolno-schetnoj_palate_goroda_sevastopolya/\">№ 36-ЗС</a> «О Контрольно-счетной палате города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_5_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_5_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_5_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_5_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">часть 1 статьи 1 после слова «действующим» дополнить словом «государственным»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_5_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 3 статьи 18 слова «органами законодательной и исполнительной власти города Севастополя» заменить словами «Законодательным Собранием города Севастополя и исполнительными органами города Севастополя»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_5_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 6 статьи 23 слова «органов исполнительной власти» заменить словами «исполнительных органов».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_6",
+      "item_type": "article",
+      "item_number": "6",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 5 августа 2014 года <a href=\"view/laws/bank/avgust_2014/o_municipalnoj_sluzhbe_v_gorode_sevastopole/\">№ 53-ЗС</a> «О муниципальной службе в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_6_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_6_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_6_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 3 статьи 7 слова «органах исполнительной власти» заменить словами «исполнительных органах»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_6_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в подпунктах 1 и 3 пункта 4.1 приложения 4 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_7",
+      "item_type": "article",
+      "item_number": "7",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 14 августа 2014 года <a href=\"view/laws/bank/avgust_2014/o_zashhite_naseleniya_i_territorij_goroda_sevastopolya_ot_chrezvychajnyh_situacij_prirodnogo_i_tehnogennogo_haraktera/\">№ 62-ЗС</a> «О защите населения и территории города Севастополя от чрезвычайных ситуаций природного и техногенного характера» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_5",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_6",
+              "order": 7
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_7",
+              "order": 8
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_7_point_8",
+              "order": 9
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_7_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 3 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_7_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 3.1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_7_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_7_point_2_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_7_point_2_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "102795_article_7_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">в пункте 4 части 3 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_7_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">в пункте 3 части 4 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_7_point_2_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">в части 5 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_7_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 4 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_7_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в абзаце втором, третьем и пятом статьи 6 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_7_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в пункте 5 части 2 статьи 9 слова «функциональный орган исполнительной власти» заменить словами «исполнительный орган»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_7_point_6",
+          "item_type": "point",
+          "item_number": "6)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 16 слова «органами исполнительной власти Российской Федерации и города Севастополя» заменить словами «федеральными органами исполнительной власти и исполнительными органами города Севастополя»;<b><i><span style=\"text-decoration: underline;\"></span></i></b></p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_7_point_7",
+          "item_type": "point",
+          "item_number": "7)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в абзаце третьем статьи 25 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_7_point_8",
+          "item_type": "point",
+          "item_number": "8)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в абзаце первом статьи 27 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_8",
+      "item_type": "article",
+      "item_number": "8",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 14 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_chisle_deputatov_zakonodatelnogo_sobraniya_goroda_sevastopolya-_rabotayushhih_na_postoyannoj_professionalnoj_osnove/\">№ 76-ЗС</a> «О числе депутатов Законодательного Собрания города Севастополя, работающих на постоянной профессиональной основе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_8_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_8_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_8_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_8_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в наименовании слово «постоянной» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_8_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">в статье 1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_8_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_8_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "102795_article_8_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">слова «частью 6 статьи 4 Федерального закона от 6 октября 1999 г. № 184-ФЗ «Об общих принципах организации законодательных (представительных) и исполнительных органов государственной власти субъектов Российской Федерации» заменить словами «частью 2 статьи 17 Федерального закона от 21 декабря 2021 года № 414-ФЗ «Об общих принципах организации публичной власти в субъектах Российской Федерации»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_8_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"ConsPlusNormal justifyfull\">слово «постоянной» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_8_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">статью 2 изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">«<b>Статья 2</b></p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal justifyfull\">На профессиональной основе в Законодательном Собрании города Севастополя работают депутаты, замещающие должности Председателя Законодательного Собрания города Севастополя, заместителей Председателя Законодательного Собрания города Севастополя, председателей постоянных комитетов, постоянных комиссий Законодательного Собрания города Севастополя.».</p>",
+                  "order": 3
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_9",
+      "item_type": "article",
+      "item_number": "9",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">В пункте «а» части 1 статьи 3 Закона города Севастополя от 16 декабря 2014 года <a href=\"view/laws/bank/dekabr_20141/o_sluzhebnyh_komandirovkah_lic-_zameshhayushhih_gosudarstvennye_dolzhnosti_goroda_sevastopolya_i_dolzhnosti_gosudarstvennoj_grazhdanskoj_sluzhby_goroda_sevastopolya1/\">№ 88-ЗС</a> «О служебных командировках лиц, замещающих государственные должности города Севастополя или должности государственной гражданской службы города Севастополя» слова «государственной власти» исключить.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_10",
+      "item_type": "article",
+      "item_number": "10",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 26 июня 2015 года <a href=\"view/laws/bank/06_2015/o_registre_municipalnyh_normativnyh_pravovyh_aktov_goroda_sevastopolya/\">№ 162-ЗС</a> «О регистре муниципальных нормативных правовых актов города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_10_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_10_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_10_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 2 статьи 1 слова «Федеральным законом от 6 октября 1999 года № 184-ФЗ «Об общих принципах организации законодательных (представительных) и исполнительных органов государственной власти субъектов Российской Федерации» заменить словами «Федеральным законом от 21 декабря 2021 года № 414-ФЗ «Об общих принципах организации публичной власти в субъектах Российской Федерации»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_10_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">часть 2 статьи 4 изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«2. Ведение Регистра осуществляется уполномоченным на это исполнительным органом города Севастополя (далее – Уполномоченный орган).».</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_11",
+      "item_type": "article",
+      "item_number": "11",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 28 декабря 2015 года <a href=\"view/laws/bank/12_2015/o_kontrolnoj_deyatelnosti_zakonodatelnogo_sobraniya_goroda_sevastopolya/\">№ 222-ЗС</a> «О контрольной деятельности Законодательного Собрания города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_11_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_11_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_11_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_11_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_11_point_5",
+              "order": 6
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_11_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в преамбуле слова «Федеральным законом от 6 октября 1999 года № 184-ФЗ «Об общих принципах организации законодательных (представительных) и исполнительных органов государственной власти субъектов Российской Федерации» заменить словами «Федеральным законом от 21 декабря 2021 года № 414-ФЗ «Об общих принципах организации публичной власти в субъектах Российской Федерации»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_11_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 1 статьи 2 слова «органов исполнительной власти» заменить словами «исполнительных органов»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_11_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 2 части 1 статьи 6 слова «органов исполнительной власти» заменить словами «исполнительных органов»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_11_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 11:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_11_point_4_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "102795_article_11_point_4_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "102795_article_11_point_4_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 1 слова «государственной власти» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "102795_article_11_point_4_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 8 слова «органа исполнительной власти» заменить словами «исполнительного органа»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_11_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 1 статьи 14 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_12",
+      "item_type": "article",
+      "item_number": "12",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В части 1 статьи 1 Закона города Севастополя от 8 июня 2016 года <a href=\"view/laws/bank/2016_244-314/zakon_n_246_zs_ot_08_06_2016/\">№ 246-ЗС</a> «О публичных слушаниях по проектам законов города Севастополя о бюджете города Севастополя и о годовом отчете об исполнении бюджета города Севастополя» слова «Федеральным законом от 6 октября 1999 года № 184-ФЗ «Об общих принципах организации законодательных (представительных) и исполнительных органов государственной власти субъектов Российской Федерации» заменить словами «Федеральным законом от 21 декабря 2021 года № 414-ФЗ «Об общих принципах организации публичной власти в субъектах Российской Федерации».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_13",
+      "item_type": "article",
+      "item_number": "13",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\"><b> </b>Внести в Закон города Севастополя от 22 февраля 2018 года <a href=\"view/laws/bank/2018/zakon_n_401_zs_ot_22_02_2018/\">№ 401-ЗС</a> «О государственной поддержке социально ориентированных некоммерческих организаций в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_13_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_13_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_13_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_13_point_4",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_13_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 1 статьи 4 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_13_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 1 статьи 5 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_13_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 3 статьи 7 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_13_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 1 статьи 9 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_14",
+      "item_type": "article",
+      "item_number": "14",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В части 2 статьи 1 Закона города Севастополя от 3 апреля 2018 года <a href=\"view/laws/bank/2018/zakon_n_412_zs_ot_03_04_2018/\">№ 412-ЗС</a> «О порядке представления гражданами, претендующими на замещение муниципальной должности, должности главы местной администрации по контракту, и лицами, замещающими указанные должности, сведений о доходах, расходах, об имуществе и обязательствах имущественного характера и порядке проведения в отношении указанных лиц проверок в целях противодействия коррупции» слова «государственной власти» исключить.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_15",
+      "item_type": "article",
+      "item_number": "15",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 6 августа 2018 года <a href=\"view/laws/bank/2018/zakon_n_437_zs_ot_06_08_2018/\">№ 437-ЗС</a> «О бесплатной юридической помощи в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_15_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_15_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_15_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_15_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 4 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_15_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 1 статьи 5 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_15_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 2 статьи 8 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_16",
+      "item_type": "article",
+      "item_number": "16",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 29 ноября 2018 года <a href=\"view/laws/bank/2018/zakon_n_462_zs_ot_29_11_2018/\">№ 462-ЗС</a> «О патриотическом воспитании в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_16_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_16_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_16_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 2 статьи 6 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_16_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 7 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_17",
+      "item_type": "article",
+      "item_number": "17",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В части 1 статьи 11 Закона города Севастополя от 29 января 2019 года <a href=\"view/laws/bank/2019/zakon_n_475_zs_ot_29_01_2019/\">№ 475-ЗС</a> «О мировых судьях города Севастополя» слова «государственной власти» исключить.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_18",
+      "item_type": "article",
+      "item_number": "18",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 5 июня 2019 года <a href=\"view/laws/bank/2019/zakon_n_507_zs_ot_05_06_2019/\">№ 507-ЗС</a> «О порядке предоставления жилых помещений специализированного жилищного фонда города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_18_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_18_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_18_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 1 части 1 статьи 1 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_18_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 3 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_19",
+      "item_type": "article",
+      "item_number": "19",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 3 сентября 2019 года <a href=\"view/laws/bank/2019/zakon_n_539_zs_ot_03_09_2019/\">№ 539-ЗС</a> «О некоторых вопросах в области обращения с животными в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_19_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_19_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_19_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_19_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 5 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_19_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 6 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_19_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 8 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_20",
+      "item_type": "article",
+      "item_number": "20",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\"><b> </b>Внести в Закон города Севастополя от 17 ноября 2020 года <a href=\"view/laws/bank/2020/zakon_n_611_zs_ot_17_11_2020/\">№ 611-ЗС</a> «О гражданской обороне в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_20_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_20_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_20_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_20_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 4 статьи 3 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_20_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 10 статьи 5 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_20_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 6 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_21",
+      "item_type": "article",
+      "item_number": "21",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В пункте 2 части 2 статьи 1 Закона города Севастополя от 26 июля 2021 года <a href=\"view/laws/bank/2021/zakon_n_654_zs_ot_26_07_2021/\">№ 654-ЗС</a> «Об обеспечении тишины и покоя граждан на территории города Севастополя» слова «государственной власти» исключить.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_22",
+      "item_type": "article",
+      "item_number": "22",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В статье 14 Закона города Севастополя от 26 июля 2021 года <a href=\"view/laws/bank/2021/zakon_n_655_zs_ot_26_07_2021/\">№ 655-ЗС</a> «О молодежной политике города Севастополя» слова «государственной власти» исключить.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_23",
+      "item_type": "article",
+      "item_number": "23",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 25 ноября 2021 года <a href=\"view/laws/bank/2021/zakon_n_669_zs_ot_25_11_2021/\">№ 669-ЗС</a> «Об отходах производства и потребления в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_23_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "102795_article_23_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "102795_article_23_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 4 слова «государственной власти» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "102795_article_23_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 6 слова «государственной власти» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_24",
+      "item_type": "article",
+      "item_number": "24",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">В части 1 статьи 6 Закона города Севастополя от 25 марта 2022 года <a href=\"view/laws/bank/2022/zakon_n_691_zs_ot_25_03_2022/\">№ 691-ЗС</a> «О социальной выплате на приобретение квартиры или жилого дома лицам, которые относились к категории детей-сирот и детей, оставшихся без попечения родителей, лиц из числа детей-сирот и детей, оставшихся без попечения родителей» слова «государственной власти» исключить.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "102795_article_25",
+      "item_type": "article",
+      "item_number": "25",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Севастополь<br/> 5 октября 2022 года <br/> № 713-ЗС</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,387 @@
+{
+  "npa_id": "93188",
+  "npa_type": "law",
+  "npa_number": "677-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "npa_npa_committee": "Постоянная комиссия Законодательного Собрания города Севастополя II созыва по бюджету",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2021/677-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2021/zakon_n_677_zs_ot_14_12_2021/tekst_zakona/",
+  "date_reg": "17.11.2021",
+  "date_1st_reading": "09.12.2021",
+  "date_passed": "09.12.2021",
+  "date_signed": "14.12.2021",
+  "date_pub": "14.12.2021",
+  "valid_from": "14.12.2021",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 3 февраля 2015 года № 110-ЗС «О налоговых ставках в связи с принятием Федерального закона от 29 ноября 2014 года № 379-ФЗ «О внесении изменений в части первую и вторую Налогового кодекса Российской Федерации в связи с принятием Федерального закона «О развитии Крымского федерального округа и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "93188_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в Закон города Севастополя от 3 февраля 2015 года <a href=\"view/laws/bank/02_2015/o_nalogovyh_stavkah_v_svyazi_s_prinyatiem_federalnogo_zakona_ot_29_noyabrya_2014_goda_n379-fz_o_vnesen/\">№ 110-ЗС</a> «О налоговых ставках в связи с принятием Федерального закона от 29 ноября 2014 года № 379-ФЗ «О внесении изменений в части первую и вторую Налогового кодекса Российской Федерации в связи с принятием Федерального закона «О развитии Крымского федерального округа и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "93188_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "93188_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "93188_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">наименование изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">«О налоговых ставках по отдельным налогам»;</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "93188_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в статье 2:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "93188_article_1_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "93188_article_1_point_2_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "93188_article_1_point_2_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "93188_article_1_point_2_subpoint_г",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "93188_article_1_point_2_subpoint_д",
+                  "order": 6
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "93188_article_1_point_2_subpoint_е",
+                  "order": 7
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "93188_article_1_point_2_subpoint_ж",
+                  "order": 8
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "93188_article_1_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 1 признать утратившей силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "93188_article_1_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце первом части 1.1:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">после слов «В отношении» дополнить словом «налоговых»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">цифры «2021» заменить цифрами «2022»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "93188_article_1_point_2_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 2 признать утратившей силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "93188_article_1_point_2_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в части 2.1:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">после слов «В отношении» дополнить словом «налоговых»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">цифры «2021» заменить цифрами «2022»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "93188_article_1_point_2_subpoint_д",
+              "item_type": "subpoint",
+              "item_number": "д)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце первом части 2.2:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">после слов «В отношении» дополнить словом «налоговых»;</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">цифры «2021» заменить цифрами «2022»;</p>",
+                      "order": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "93188_article_1_point_2_subpoint_е",
+              "item_type": "subpoint",
+              "item_number": "е)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">дополнить частью 2.3 следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«2.3. В отношении налоговых периодов 2023–2025 годов налоговая ставка при применении системы налогообложения для сельскохозяйственных товаропроизводителей (единый сельскохозяйственный налог) устанавливается в размере 2 процентов.»;</p>",
+                      "order": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "93188_article_1_point_2_subpoint_ж",
+              "item_type": "subpoint",
+              "item_number": "ж)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">часть 3 изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">«3. Налоговые ставки по налогу на прибыль организаций, подлежащему зачислению в бюджет города Севастополя, в отношении прибыли, полученной от реализации инвестиционного проекта в свободной экономической зоне, информация о котором содержится в инвестиционной декларации, соответствующей требованиям, установленным Федеральным законом от 29 ноября 2014 года № 377-ФЗ «О развитии Республики Крым и города федерального значения Севастополя и свободной экономической зоне на территориях Республики Крым и города федерального значения Севастополя», устанавливаются в следующих размерах:</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"consplusnormal\">1) для организаций, являющихся участниками свободной экономической зоны, включенных в единый реестр участников свободной экономической зоны до 1 января 2023 года:</p>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"consplusnormal\">а) 2 процента – в течение первых трех лет;</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">б) 6 процентов – с четвертого по восьмой годы;</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в) 13,5 процента – с девятого года, за исключением отдельных категорий налогоплательщиков налога на прибыль организаций, указанных в подпункте «г» настоящего пункта;</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">г) 6 процентов – с девятого года для отдельных категорий налогоплательщиков налога на прибыль организаций, осуществляющих в свободной экономической зоне следующие виды экономической деятельности в соответствии с Общероссийским классификатором видов экономической деятельности ОК 029-2014 (КДЕС Ред.2), утвержденным приказом Федерального агентства по техническому регулированию и метрологии от 31 января 2014 года № 14-ст: 01 (за исключением 01.7), 03, 10, 11, 13, 14, 16, 21, 22, 23.1, 25–31, 33, 36–38, 50, 52, 55, 61–63, 72, 85–88, 93;</p>",
+                      "order": 7
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">2) для организаций, являющихся участниками свободной экономической зоны, включенных в единый реестр участников свободной экономической зоны с 1 января 2023 года:</p>",
+                      "order": 8
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"consplusnormal\">а) 13,5 процента, – за исключением отдельных категорий налогоплательщиков налога на прибыль организаций, указанных в подпункте «б» настоящего пункта;</p>",
+                      "order": 9
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"consplusnormal\">б) 6 процентов – для отдельных категорий налогоплательщиков налога на прибыль организаций, осуществляющих в свободной экономической зоне следующие виды экономической деятельности в соответствии с Общероссийским классификатором видов экономической деятельности ОК 029-2014 (КДЕС Ред.2), утвержденным приказом Федерального агентства по техническому регулированию и метрологии от 31 января 2014 года № 14-ст: 01 (за исключением 01.7), 03, 10, 11, 13, 14, 16, 21, 22, 23.1, 25–31, 33, 36–38, 50, 52, 55, 61–63, 72, 85–88, 93.».</p>",
+                      "order": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "93188_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "93188_article_2_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "93188_article_2_part_2",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "93188_article_2_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"consplusnormal\">Настоящий Закон вступает в силу со дня его официального опубликования, за исключением подпунктов «е» и «ж» пункта 2 статьи 1 настоящего Закона.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "93188_article_2_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"consplusnormal\">Подпункты «е» и «ж» пункта 2 статьи 1 настоящего Закона вступают в силу с 1 января 2023 года.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

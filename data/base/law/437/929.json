@@ -1,0 +1,158 @@
+{
+  "npa_id": "143868",
+  "npa_type": "law",
+  "npa_number": "929-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по здравоохранению",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/929-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_929_zs_ot_10_07_2026/tekst-zakona64/",
+  "date_reg": "06.07.2026",
+  "date_cons": "06.07.2026",
+  "date_1st_reading": "07.07.2026",
+  "date_passed": "07.07.2026",
+  "date_signed": "10.07.2026",
+  "date_pub": "10.07.2026",
+  "valid_from": "21.07.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 6 августа 2018 года № 437-ЗС «О бесплатной юридической помощи в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "143868_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 6 августа 2018 года <a href=\"view/laws/bank/2018/zakon_n_437_zs_ot_06_08_2018/\">№ 437-ЗС</a> «О бесплатной юридической помощи в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143868_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143868_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143868_article_1_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143868_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>статью 5 дополнить пунктом 2.2 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal\">«2.2) Государственное юридическое бюро города Севастополя;»;</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143868_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>дополнить статьей 6.2 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"ConsPlusNormal\"><b>«Статья 6.2. Полномочия Государственного юридического бюро города Севастополя</b></p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Государственное юридическое бюро города Севастополя в области обеспечения граждан бесплатной юридической помощью в соответствии с Федеральным законом осуществляет следующие полномочия:</p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>1) оказывает все предусмотренные Федеральным законом виды бесплатной юридической помощи;</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>2) участвует в организации правового информирования и правового просвещения населения на территории города Севастополя.»;</p>",
+                  "order": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143868_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>статью 8 дополнить частью 1.2 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«1.2. Бесплатная юридическая помощь оказывается Государственным юридическим бюро города Севастополя в рамках государственной системы бесплатной юридической помощи в случаях и по вопросам, установленным Федеральным законом.».</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143868_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

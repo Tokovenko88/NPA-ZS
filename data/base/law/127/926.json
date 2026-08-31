@@ -1,0 +1,185 @@
+{
+  "npa_id": "143624",
+  "npa_type": "law",
+  "npa_number": "926-ЗС",
+  "npa_author": "Немцев Владимир Владимирович",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по законодательству и поддержке участников специальной военной операции",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/926-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_926_zs_ot_10_07_2026/tekst-zakona61/",
+  "date_reg": "19.06.2026",
+  "date_1st_reading": "07.07.2026",
+  "date_passed": "07.07.2026",
+  "date_signed": "10.07.2026",
+  "date_pub": "10.07.2026",
+  "valid_from": "21.07.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в отдельные законодательные акты города Севастополя"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "143624_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>В части 4 статьи 11 Закона города Севастополя от 17 апреля 2015 года <a href=\"view/laws/bank/04_2015/ob_upolnomochennom_po_pravam_rebenka_v_gorode_sevastopole/\">№ 127-ЗС</a> «Об Уполномоченном по правам ребенка в городе Севастополе» слова «в газете «Севастопольские известия», а также» исключить.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143624_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 26 июня 2015 года <a href=\"view/laws/bank/06_2015/ob_upolnomochennom_po_pravam_cheloveka_v_gorode_sevastopole/\">№ 159-ЗС</a> «Об Уполномоченном по правам человека в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143624_article_2_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143624_article_2_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143624_article_2_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>часть 9 статьи 8 признать утратившей силу;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143624_article_2_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>часть 9 статьи 11 признать утратившей силу.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143624_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в статью 8 Закона города Севастополя от 29 декабря 2016 года <a href=\"view/laws/bank/2016_244-314/zakon_n_313_zs_ot_29_12_2016/\">№ 313-ЗС</a> «Об Уполномоченном по защите прав предпринимателей в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143624_article_3_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "143624_article_3_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "143624_article_3_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в части 3 слова «публикуется в средствах массовой информации и» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "143624_article_3_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в части 5 слова «публикуются в средствах массовой информации и» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "143624_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

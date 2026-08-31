@@ -1,0 +1,59 @@
+{
+  "npa_id": "136723",
+  "npa_type": "law",
+  "npa_number": "876-ЗС",
+  "npa_author": "Немцев Владимир Владимирович",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по законодательству и поддержке участников специальной военной операции",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2025/876-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2025/zakon_n_876_zs_ot_06_10_2025/tekst-zakona/",
+  "date_reg": "01.09.2025",
+  "date_1st_reading": "30.09.2025",
+  "date_passed": "30.09.2025",
+  "date_signed": "06.10.2025",
+  "date_pub": "06.10.2025",
+  "valid_from": "17.10.2025",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменения в статью 6 Закона города Севастополя от 29 января 2019 года № 475-ЗС «О мировых судьях города Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "136723_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в часть 2 статьи 6 Закона города Севастополя от 29 января 2019 года <a href=\"view/laws/bank/2019/zakon_n_475_zs_ot_29_01_2019/\">№ 475-ЗС</a> «О мировых судьях города Севастополя» изменение, заменив слова «от числа избранных» словами «от установленного числа».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "136723_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

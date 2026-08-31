@@ -1,0 +1,339 @@
+{
+  "npa_id": "141431",
+  "npa_type": "law",
+  "npa_number": "909-ЗС",
+  "npa_author": "Зубенко Василий Викторович, Кулаков Роман Сергеевич, Харламов Павел Викторович, Ярусов Алексей Юрьевич",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя III созыва по законодательству и поддержке участников специальной военной операции",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/909-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_909_zs_ot_17_04_2026/tekst-zakona47/",
+  "date_reg": "15.04.2026",
+  "date_1st_reading": "16.04.2026",
+  "date_passed": "16.04.2026",
+  "date_signed": "17.04.2026",
+  "date_pub": "17.04.2026",
+  "valid_from": "28.04.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в отдельные законодательные акты города Севастополя, регулирующие правоотношения, связанные с лицами, замещающими государственные должности города Севастополя в Законодательном Собрании города Севастополя"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "141431_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 3 июня 2014 года <a href=\"view/laws/bank/maj_2014/o_gosudarstvennyh_dolzhnostyah_goroda_sevastopolya/\">№ 15-ЗС</a> «О государственных должностях города Севастополя, замещаемых на профессиональной основе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "141431_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "141431_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "141431_article_1_point_3",
+              "order": 4
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "141431_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>часть 2 статьи 2 дополнить пунктом 8.1 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«8.1) заместитель председателя постоянного комитета Законодательного Собрания города Севастополя;»;</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "141431_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в статье 6:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "141431_article_1_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "141431_article_1_point_2_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "141431_article_1_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в абзаце втором части 2 цифры «5–8» заменить цифрами «5–8.1»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "141431_article_1_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в абзаце первом части 3 цифры «5–8» заменить цифрами «5–8.1»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "141431_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в статье 7.1:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "141431_article_1_point_3_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "141431_article_1_point_3_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "141431_article_1_point_3_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в части 1 цифры «5–8» заменить цифрами «5–8.1»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "141431_article_1_point_3_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>в абзаце первом части 7 цифры «5–8» заменить цифрами «5–8.1».</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "141431_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Приложение 2 к Закону города Севастополя от 3 июня 2014 года <a href=\"view/laws/bank/iyun_2014/o_denezhnom_soderzhanii_lic-_zameshhayushhih_gosudarstvennye_dolzhnosti_goroda_sevastopolya/\">№ 21-ЗС</a> «О денежном содержании лиц, замещающих государственные должности города Севастополя» после строки</p>",
+              "order": 1
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 2
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<div class=\"double-scroll\"><table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 100%;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"310\">\n<p>Председатель постоянной комиссии Законодательного Собрания города Севастополя</p>\n</td>\n<td valign=\"top\" width=\"155\">\n<p align=\"center\">4,40</p>\n</td>\n<td valign=\"top\" width=\"159\">\n<p align=\"center\">3,60</p>\n</td>\n</tr>\n</tbody>\n</table></div>",
+              "order": 3
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p align=\"right\">»</p>",
+              "order": 4
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>дополнить строкой следующего содержания:</p>",
+              "order": 5
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p>«</p>",
+              "order": 6
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<div class=\"double-scroll\"><table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 100%;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"310\">\n<p>Заместитель председателя постоянного комитета Законодательного Собрания города Севастополя</p>\n</td>\n<td valign=\"top\" width=\"155\">\n<p align=\"center\">2,20</p>\n</td>\n<td valign=\"top\" width=\"159\">\n<p align=\"center\">1,80</p>\n</td>\n</tr>\n</tbody>\n</table></div>",
+              "order": 7
+            },
+            {
+              "type": "paragraph",
+              "html_text": "<p align=\"right\">».</p>",
+              "order": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "141431_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 14 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_chisle_deputatov_zakonodatelnogo_sobraniya_goroda_sevastopolya-_rabotayushhih_na_postoyannoj_professionalnoj_osnove/\">№ 76-ЗС</a> «О числе депутатов Законодательного Собрания города Севастополя, работающих на профессиональной основе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "141431_article_3_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "141431_article_3_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "141431_article_3_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>в статье 1 цифры «11» заменить цифрами «14»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "141431_article_3_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>статью 2 дополнить словами «, заместителя председателя постоянного комитета Законодательного Собрания города Севастополя по городской инфраструктуре, заместителя председателя постоянного комитета Законодательного Собрания города Севастополя по образованию, науке, культуре, спорту и молодежной политике, заместителя председателя постоянного комитета Законодательного Собрания города Севастополя по законодательству и поддержке участников специальной военной операции».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "141431_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

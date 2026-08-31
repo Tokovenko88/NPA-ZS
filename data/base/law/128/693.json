@@ -1,0 +1,105 @@
+{
+  "npa_id": "95573",
+  "npa_type": "law",
+  "npa_number": "693-ЗС",
+  "npa_author": "Зубенко Василий Викторович",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя II созыва по законодательству и государственному строительству",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2022/693-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2022/zakon_n_693_zs_ot_25_03_2022/tekst_zakona/",
+  "date_reg": "07.02.2022",
+  "date_1st_reading": "22.03.2022",
+  "date_passed": "22.03.2022",
+  "date_signed": "25.03.2022",
+  "date_pub": "25.03.2022",
+  "valid_from": "05.04.2022",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 17 апреля 2015 года № 128-ЗС «Об участии граждан в охране общественного порядка в городе Севастополе»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "95573_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"ConsPlusNormal justifyfull\">Внести в Закон города Севастополя от 17 апреля 2015 года <a href=\"view/laws/bank/04_2015/ob_uchastii_grazhdan_v_ohrane_obshhestvennogo_poryadka_v_gorode_sevastopole/\" target=\"_blank\">№ 128-ЗС</a> «Об участии граждан в охране общественного порядка в городе Севастополе» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "95573_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "95573_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "95573_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в пункте 1 части 2.1 статьи 2 слова «, и кандидатуры на должность заместителя командира народной дружины» исключить;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "95573_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 2 статьи 4 слова «и заместители командиров народных дружин» исключить.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "95573_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

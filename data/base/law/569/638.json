@@ -1,0 +1,149 @@
+{
+  "npa_id": "84484",
+  "npa_type": "law",
+  "npa_number": "638-ЗС",
+  "npa_author": "Лобач Татьяна Георгиевна",
+  "npa_npa_committee": "Постоянный комитет Законодательного Собрания города Севастополя II созыва по экономике",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2021/638-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2021/zakon_n_638_zs_ot_12_04_2021/tekst_zakona/",
+  "date_reg": "17.02.2021",
+  "date_1st_reading": "30.03.2021",
+  "date_passed": "30.03.2021",
+  "date_signed": "12.04.2021",
+  "date_pub": "12.04.2021",
+  "valid_from": "12.04.2021",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О признании утратившими силу отдельных законодательных актов (положений законодательных актов) города Севастополя в связи с прекращением действия на территории Российской Федерации системы налогообложения в виде единого налога на вмененный доход для отдельных видов деятельности"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "84484_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Признать утратившими силу:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "84484_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "84484_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "84484_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "84484_article_1_point_4",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "84484_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Закон города Севастополя от 26 ноября 2014 года <a href=\"view/laws/bank/noyabr_2014/o_vvedenii_na_territorii_goroda_federalnogo_znacheniya_sevastopolya_sistemy_nalogooblozheniya_v_vide_edinogo_naloga_na_vmenennyj_dohod_dlya_otdelnyh_vidov_deyatelnosti/\">№ 85-ЗС</a> «О введении на территории города федерального значения Севастополя системы налогообложения в виде единого налога на вмененный доход для отдельных видов деятельности»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "84484_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Закон города Севастополя от 3 ноября 2016 года <a href=\"view/laws/bank/14402/zakon_n_290_zs_ot_03_11_2016/\">№ 290-ЗС</a> «О внесении изменений в Закон города Севастополя от 26 ноября 2014 года № 85-ЗС «О введении на территории города федерального значения Севастополя системы налогообложения в виде единого налога на вмененный доход для отдельных видов деятельности»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "84484_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">статью 2 Закона города Севастополя от 2 апреля 2020 года <a href=\"view/laws/bank/2020/zakon_n_569_zs_ot_02_04_2020/\">№ 569-ЗС</a> «О внесении изменений в отдельные законы города Севастополя о специальных налоговых режимах»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "84484_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">статью 3 Закона города Севастополя от 30 апреля 2020 года <a href=\"view/laws/bank/2020/zakon_n_571_zs_ot_30_04_2020/\">№ 571-ЗС</a> «О внесении изменений в отдельные законы города Севастополя о налогах».</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "84484_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "npa_id": "139834",
+  "npa_type": "law",
+  "npa_number": "898-ЗС",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2026/898-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2026/zakon_n_898_zs_ot_17_02_2026/tekst-zakona41/",
+  "date_reg": "05.02.2026",
+  "date_1st_reading": "10.02.2026",
+  "date_passed": "10.02.2026",
+  "date_signed": "17.02.2026",
+  "date_pub": "17.02.2026",
+  "valid_from": "28.02.2026",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в Закон города Севастополя от 19 апреля 2017 года № 336-ЗС «О наградах города Севастополя»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "139834_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя от 19 апреля 2017 года <a href=\"view/laws/bank/2017/zakon_n_336_zs_ot_19_04_2017/\">№ 336-ЗС</a> «О наградах города Севастополя» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "139834_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "139834_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "139834_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"1CxSpFirst\">часть 1 статьи 4 дополнить пунктом 4.1 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"1CxSpMiddle\">«4.1) почетный знак Законодательного Собрания города Севастополя <br/> «За вклад в развитие парламентаризма»;»;</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "139834_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"1CxSpMiddle\">дополнить статьей 9.1 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"1CxSpLast\">«<b>Статья 9.1. П</b><b>очетный знак Законодательного Собрания города Севастополя «За вклад в развитие парламентаризма»</b></p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"1CxSpFirst\">1. Основания и порядок награждения почетным знаком Законодательного Собрания города Севастополя «За вклад в развитие парламентаризма», его описание утверждаются постановлением Законодательного Собрания города Севастополя.</p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"1CxSpMiddle\">2. Решение о награждении почетным знаком Законодательного Собрания города Севастополя «За вклад в развитие парламентаризма» принимается постановлением Законодательного Собрания города Севастополя.</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"1CxSpMiddle\">3. Повторное награждение почетным знаком Законодательного Собрания города Севастополя «За вклад в развитие парламентаризма» не производится.».</p>",
+                  "order": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "139834_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу по истечении десяти дней после дня его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,258 @@
+{
+  "npa_id": "130223",
+  "npa_type": "law",
+  "npa_number": "830-ЗС",
+  "npa_author": "Губернатор города Севастополя М.В.Развожаев",
+  "npa_npa_committee": "Постоянная комиссия Законодательного Собрания города Севастополя III созыва по бюджету",
+  "pub_filepath": "https://sevzakon.ru/assets/files/01_zakony/2024/830-zs.pdf",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/2024/zakon_n_830_zs_ot_28_11_2024/tekst-zakona14/",
+  "date_reg": "19.11.2024",
+  "date_1st_reading": "26.11.2024",
+  "date_passed": "26.11.2024",
+  "date_signed": "28.11.2024",
+  "date_pub": "28.11.2024",
+  "valid_from": "28.11.2024",
+  "npa_signer_post": "Губернатор города Севастополя",
+  "npa_signer": "М.В. Развожаев",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в статью 2 Закона города Севастополя от 3 февраля 2015 года № 110-ЗС «О налоговых ставках по отдельным налогам»"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "130223_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p class=\"justifyfull\">Внести в статью 2 Закона города Севастополя от 3 февраля 2015 года № 110-ЗС «О налоговых ставках по отдельным налогам» следующие изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "130223_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "130223_article_1_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "130223_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">в части 1.4:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "130223_article_1_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "130223_article_1_point_1_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "130223_article_1_point_1_subpoint_в",
+                  "order": 4
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "130223_article_1_point_1_subpoint_г",
+                  "order": 5
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "130223_article_1_point_1_subpoint_д",
+                  "order": 6
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "130223_article_1_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в абзаце первом слова «2023 и 2024» заменить цифрами «2023–2025»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "130223_article_1_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в пункте 1 слова «в пунктах 2 и 2.1» заменить словами «в пункте 2»;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "130223_article_1_point_1_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 2.1 признать утратившим силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "130223_article_1_point_1_subpoint_г",
+              "item_type": "subpoint",
+              "item_number": "г)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">в пункте 3 слова «в пункте 4 настоящей части и» исключить;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "130223_article_1_point_1_subpoint_д",
+              "item_type": "subpoint",
+              "item_number": "д)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p class=\"justifyfull\">пункт 4 признать утратившим силу;</p>",
+                      "order": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "130223_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">части 1.5 и 1.6 признать утратившими силу.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "130223_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "child_ref",
+              "item_id": "130223_article_2_part_1",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "130223_article_2_part_2",
+              "order": 2
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "130223_article_2_part_1",
+          "item_type": "part",
+          "item_number": "1",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Настоящий Закон вступает в силу со дня его официального опубликования, за исключением подпунктов «б»–«д» пункта 1 и пункта 2 статьи 1 настоящего Закона.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "130223_article_2_part_2",
+          "item_type": "part",
+          "item_number": "2",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p class=\"justifyfull\">Подпункты «б»–«д» пункта 1 и пункт 2 статьи 1 настоящего Закона вступают в силу по истечении одного месяца со дня его официального опубликования, но не ранее 1-го числа очередного налогового периода по налогу, взимаемому в связи с применением упрощенной системы налогообложения.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

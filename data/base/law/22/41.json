@@ -1,0 +1,1282 @@
+{
+  "npa_id": "464",
+  "npa_type": "law",
+  "npa_number": "41-ЗС",
+  "npa_author": "Губернатор города Севастополя",
+  "npa_url": "https://sevzakon.ru/view/laws/bank/iyul_2014/o_vnesenii_izmenenij_v_nekotorye_zakony_goroda_sevastopolya-_reguliruyushhie_voprosy_organizacii_gosudarstvennoj_grazhdanskoj_sluzhby_goroda_sevastopolya/tekst-zakona/",
+  "date_reg": "07.07.2014",
+  "date_1st_reading": "22.07.2014",
+  "date_passed": "22.07.2014",
+  "date_signed": "24.07.2014",
+  "date_pub": "26.07.2014",
+  "valid_from": "06.08.2014",
+  "npa_signer_post": "И.о. Губернатора города Севастополя",
+  "npa_signer": "С.И. Меняйло",
+  "date_format": 1,
+  "head_revision": [
+    {
+      "npa_head": "О внесении изменений в некоторые законы города Севастополя, регулирующие вопросы организации государственной гражданской службы города Севастополя"
+    }
+  ],
+  "npa_items_revision": [
+    {
+      "item_id": "464_article_1",
+      "item_type": "article",
+      "item_number": "1",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О  государственной гражданской службе города Севастополя» № 23-ЗС от 03.06.2014 года следующие изменения и дополнения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_1_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_1_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_1_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_1_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_1_point_5",
+              "order": 6
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_1_point_6",
+              "order": 7
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "464_article_1_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Статью 64 дополнить частями 3,4 и 5 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«3. До 1 января 2015 года прием на государственную гражданскую службу в соответствии с Реестром должностей государственной гражданской службы города Севастополя лиц, занимавших должности государственных гражданских служащих либо должностных лиц органов местного самоуправления на день вступления в силу настоящего Закона, осуществляется без проведения конкурса после прекращения ими трудовых отношений с органами государственной власти либо органами местного самоуправления.</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>4. Установить, что до 01 января 2015 года на граждан Российской Федерации, назначенных (назначаемых) на должности государственной гражданской службы в органы государственной власти, создаваемые на территории города Севастополя, не распространяются следующие предусмотренные законодательством Российской Федерации о государственной гражданской службе запреты и обязанности:</p>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>4.1. запрет на наличие счетов в банках Украины и других иностранных государств, открытых в Украине до принятия в Российскую Федерацию Республики Крым и образования в составе Российской Федерации новых субъектов;</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>4.2. обязанность передать в доверительное управление в соответствии с гражданским законодательством Российской Федерации принадлежащие государственным гражданским служащим ценные бумаги, акции (доли участия, паи в уставных (складочных) капиталах организаций), если владение ценными бумагами, акциями (долями участия, паями в уставных (складочных) капиталах организаций) приводит или может привести к конфликту интересов;</p>",
+                  "order": 5
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>4.3. обязанность граждан Российской Федерации, претендующих на замещение отдельных должностей государственной гражданской службы, и государственных гражданских служащих, замещающих отдельные должности государственной гражданской службы, представлять сведения о своих доходах, расходах, об имуществе и обязательствах имущественного характера, а также о доходах, расходах, об имуществе и обязательствах имущественного характера своих супруг (супругов) и несовершеннолетних детей.</p>",
+                  "order": 6
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>5. Установить, что граждане Российской Федерации, замещавшие должности в государственных органах и органах местного самоуправления, расположенных на территории города Севастополя на день принятия его в Российскую Федерацию, и на момент достижения ими пенсионного возраста имели стаж государственной службы либо службы в органах местного самоуправления не менее 10 лет, исчисленного в порядке, действовавшем на территории г. Севастополя до 21 февраля 2014 года имеют право на назначение пенсии государственных служащих.»</p>",
+                  "order": 7
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_1_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Из пунктов 3 и 4 части 2 статьи 6 исключить слова «или на определенный срок полномочий в случаях, установленных федеральными законами и настоящим Законом»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_1_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Дополнить часть 1 статьи 17 настоящего Закона словами «Преимущественное право поступления на гражданскую службу имеют лица, имеющие постоянную регистрацию по месту жительства города Севастополя.»</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_1_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В статье 18 настоящего Закона цифры и слова «9. Состав конкурсной» заменить цифрами и словами «9¹. Состав конкурсной»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_1_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Исключить абзац второй части 9 статьи 39;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_1_point_6",
+          "item_type": "point",
+          "item_number": "6)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Исключить часть 5 статьи 40.    </p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "464_article_2",
+      "item_type": "article",
+      "item_number": "2",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О порядке присвоения и сохранения классных чинов государственной гражданской службы» № 16-ЗС от 03.06.2014 года следующие изменения и дополнения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_2_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_2_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_2_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_2_point_4",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "464_article_2_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Часть 6 статьи 4 настоящего Закона после слов «присваиваются» дополнить словами «гражданским служащим»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_2_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В названии статьи 7 после слова «служащими» дополнить словами «либо должностным лицами органов местного самоуправления»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_2_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В части 1 статьи 7 после слова «служащими» дополнить словами «либо должностным лицами органов местного самоуправления»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_2_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Статью 7 дополнить частью 3 следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«3. Лицам, указанным в части 1 настоящей статьи, присвоение классных чинов осуществляется после прохождения ими обучения и получения соответствующего документа о повышении квалификации на знание законодательства Российской Федерации на основании методических рекомендаций, утверждаемых Министерством труда и социальной защиты Российской Федерации».</p>",
+                  "order": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "464_article_3",
+      "item_type": "article",
+      "item_number": "3",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О Реестре должностей государственной гражданской службы города Севастополя» № 18-ЗС от 03.06.2014 года следующие измнения и дополнения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_3_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_3_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_3_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_3_point_4",
+              "order": 5
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_3_point_5",
+              "order": 6
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "464_article_3_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В раздел I Приложения к Закону в дополнить:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_3_point_1_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_3_point_1_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_3_point_1_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "464_article_3_point_1_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>после строки:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"636\">\n<p>Начальник самостоятельного отдела                </p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить строкой:</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"635\">\n<p>Заместитель начальника самостоятельного отдела                </p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 7
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 8
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "464_article_3_point_1_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>после строки:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"636\">\n<p>Ведущие специалисты              </p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить строкой:</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"635\">\n<p>Заведующий сектором управления</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 7
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 8
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "464_article_3_point_1_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить таблицей следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«Должности категории «обеспечивающие специалисты»</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 636px;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"636\">\n<p>Младшая группа должностей</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"636\">\n<p>Специалист 1 разряда</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"636\">\n<p>Специалист 2 разряда</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_3_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В Разделе II Приложения к Закону слова «Специалист 1 категории» заменить словами «Специалист 1 разряда»;</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_3_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В Разделе IV Приложения к Закону:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_3_point_3_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_3_point_3_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "464_article_3_point_3_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>из таблицы «Должности категории «специалисты» исключить следующие строки:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"640\">\n<p>Младшие должности</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"640\">\n<p>Специалист 1-ой категории</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"640\">\n<p>Специалист 2- ой категории</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"640\">\n<p>Специалист</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "464_article_3_point_3_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить таблицей следующего содержания:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«Должности категории «обеспечивающие специалисты»</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Младшая группа должностей</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Специалист 1 разряда</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Специалист 2 разряда</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_3_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Раздел VII Приложения к Закону:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_3_point_4_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_3_point_4_subpoint_б",
+                  "order": 3
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "464_article_3_point_4_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>таблицу «Должности категории «руководители» изложить в следующей редакции:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«Должности категории «руководители»</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Высшая группа должностей</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Начальник Главного управления</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Заместитель начальника Главного управления</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Начальник управления</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Заместитель начальника управления</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Главная группа должностей</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Начальник управления Главного управления</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Начальник инспекции, отдела</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Ведущая группа должностей</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Заместитель начальника управления Главного управления</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "464_article_3_point_4_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>после строки:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"636\">\n<p>Заместитель начальника отдела управления</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить строкой:</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"635\">\n<p>Заведующий сектором</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 7
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 8
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_3_point_5",
+          "item_type": "point",
+          "item_number": "5)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Дополнить  таблицу «Должности категории «специалисты» в разделе VIII Приложения к Закону строками следующего содержания:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Главная группа должностей</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"628\">\n<p>Ответственный секретарь административной комиссии</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 4
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "464_article_4",
+      "item_type": "article",
+      "item_number": "4",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О государственных должностях города Севастополя» № 15-ЗС от 03.06.2014 года изменения, заменив в пункте 2 части 2 статьи 2 слово «Руководитель» на «Директор».</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "464_article_5",
+      "item_type": "article",
+      "item_number": "5",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О денежном содержании лиц, замещающих государственные должности города Севастополя» № 21-ЗС от 03.06.2014 года следующее изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_5_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_5_point_2",
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "464_article_5_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Абзацы 2 и 3 части 1 статьи 5 Закона считать частями 2 и 3 соответстветственно.</p>",
+                  "order": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_5_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В Приложении 2 к Закону строку:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"366\">\n<p>Руководитель департаментаПравительства Севастополя</p>\n</td>\n<td valign=\"top\" width=\"142\">\n<p>5,0 </p>\n</td>\n<td valign=\"top\" width=\"142\">\n<p>4,5</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>изложить в следующей редакции:</p>",
+                  "order": 5
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 6
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"366\">\n<p>Директор департаментаПравительства Севастополя</p>\n</td>\n<td valign=\"top\" width=\"142\">\n<p>5,0 </p>\n</td>\n<td valign=\"top\" width=\"142\">\n<p>4,5</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 7
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 8
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "464_article_6",
+      "item_type": "article",
+      "item_number": "6",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Внести в Закон города Севастополя «О денежном содержании государственных гражданских служащих города Севастополя» № 22-ЗС от 03.06.2014 года следующее изменения:</p>",
+              "order": 1
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_6_point_1",
+              "order": 2
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_6_point_2",
+              "order": 3
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_6_point_3",
+              "order": 4
+            },
+            {
+              "type": "child_ref",
+              "item_id": "464_article_6_point_4",
+              "order": 5
+            }
+          ]
+        }
+      ],
+      "item_children": [
+        {
+          "item_id": "464_article_6_point_1",
+          "item_type": "point",
+          "item_number": "1)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В Приложении 2 к Закону строку:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"653\">\n<p style=\"text-align: center;\">Раздел VI</p>\n<p style=\"text-align: center;\">Коэффициенты, применяемые при исчислении должностных окладов, и размеры ежемесячного денежного поощрения государственных гражданских служащих города Севастополя в территориальных исполнительных органах государственной власти города Севастополя городского, районного уровня</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>изложить в следующей редакции:</p>",
+                  "order": 5
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 6
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"653\">\n<p style=\"text-align: center;\">Раздел VI<sup>1</sup></p>\n<p style=\"text-align: center;\">Коэффициенты, применяемые при исчислении должностных окладов, и размеры ежемесячного денежного поощрения государственных гражданских служащих города Севастополя в территориальных исполнительных органах государственной власти города Севастополя городского, районного уровня</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 7
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 8
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_6_point_2",
+          "item_type": "point",
+          "item_number": "2)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В Разделе I таблицы Приложения 2 к Закону:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_6_point_2_subpoint_а",
+                  "order": 2
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_6_point_2_subpoint_б",
+                  "order": 3
+                },
+                {
+                  "type": "child_ref",
+                  "item_id": "464_article_6_point_2_subpoint_в",
+                  "order": 4
+                }
+              ]
+            }
+          ],
+          "item_children": [
+            {
+              "item_id": "464_article_6_point_2_subpoint_а",
+              "item_type": "subpoint",
+              "item_number": "а)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>после строки:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Начальник самостоятельного отдела</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,8</p>\n</td>\n<td valign=\"top\" width=\"143\">\n<p>0,5</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить строкой:</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заместитель начальника самостоятельного отдела</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,7</p>\n</td>\n<td valign=\"top\" width=\"150\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 7
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 8
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "464_article_6_point_2_subpoint_б",
+              "item_type": "subpoint",
+              "item_number": "б)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>после строки:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заместитель начальника отдела в управлении</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,7</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить строкой:</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заведующий сектором управления</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,5</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 7
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 8
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "item_id": "464_article_6_point_2_subpoint_в",
+              "item_type": "subpoint",
+              "item_number": "в)",
+              "item_level": 3,
+              "revisions": [
+                {
+                  "body": [
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>после строки:</p>",
+                      "order": 1
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 2
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Ведущий специалист</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,4</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 3
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 4
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>дополнить строками:</p>",
+                      "order": 5
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>«</p>",
+                      "order": 6
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 650px;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Специалист 1 разряда</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,3</p>\n</td>\n<td valign=\"top\" width=\"140\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Специалист 2 разряда</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,2</p>\n</td>\n<td valign=\"top\" width=\"140\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                      "order": 7
+                    },
+                    {
+                      "type": "paragraph",
+                      "html_text": "<p>»</p>",
+                      "order": 8
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_6_point_3",
+          "item_type": "point",
+          "item_number": "3)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>Раздел VI таблицы Приложения 2 к Закону изложить в следующей редакции:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\">\n<tbody>\n<tr>\n<td colspan=\"3\" valign=\"top\" width=\"649\">\n<p style=\"text-align: center;\">Раздел VI</p>\n<p style=\"text-align: center;\">Коэффициенты, применяемые при исчислении должностных окладов, и размеры ежемесячного денежного поощрения государственных гражданских служащих города Севастополя в исполнительных органах государственной власти города Севастополя (главные управления, управления, инспекции, отделы)</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Начальник Главного управления</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>4,4</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,9</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заместитель начальника Главного управления</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>4,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Начальник управления</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>4,3</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,9</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заместитель начальника управления</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,9</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Начальник управления Главного управления</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,7</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,5</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заместитель начальника управления Главного управления</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,5</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,2</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Помощник начальника</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Начальник инспекции, отдела</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3.5</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,2</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Референт</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заместитель начальника инспекции, отдела</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,2</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,0</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Старший инспектор</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Ведущий советник</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Советник</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Ведущий консультант</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,1</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Консультант</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Инспектор</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,8</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Главный специалист-эксперт</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,0</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Главный специалист</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,8</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Специалист-эксперт</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,8</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Ведущий специалист</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,4</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Специалист 1 разряда</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,3</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Специалист 2 разряда</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>2,2</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>0,3</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "item_id": "464_article_6_point_4",
+          "item_type": "point",
+          "item_number": "4)",
+          "item_level": 2,
+          "revisions": [
+            {
+              "body": [
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>В Разделе VI¹ таблицы Приложения 2 к Закону после строки:</p>",
+                  "order": 1
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 2
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Заместитель начальника отдела</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p>3,2</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p>1,0</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 3
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 4
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>дополнить строкой:</p>",
+                  "order": 5
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>«</p>",
+                  "order": 6
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 649px;\">\n<tbody>\n<tr>\n<td valign=\"top\" width=\"375\">\n<p>Ответственный секретарь административной комиссии</p>\n</td>\n<td valign=\"top\" width=\"135\">\n<p> 3,5</p>\n</td>\n<td valign=\"top\" width=\"139\">\n<p> 1,2</p>\n</td>\n</tr>\n</tbody>\n</table>",
+                  "order": 7
+                },
+                {
+                  "type": "paragraph",
+                  "html_text": "<p>»</p>",
+                  "order": 8
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "464_article_7",
+      "item_type": "article",
+      "item_number": "7",
+      "item_level": 1,
+      "revisions": [
+        {
+          "body": [
+            {
+              "type": "paragraph",
+              "html_text": "<p>Настоящий Закон вступает в силу через десять дней после его официального опубликования.</p>",
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
