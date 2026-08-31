@@ -100,32 +100,59 @@ def run(
 
 
 def validate_result(result: Any) -> list[str]:
-    """Проверить структуру ответа этапа. Вернуть список замечаний."""
+    """Проверить структуру ответа этапа. Вернуть список замечаний.
+
+    Принимает оба формата ответа (см. ``_stage2_dates_analysis``):
+
+    * плоский список записей (legacy/ручной ввод);
+    * JSON-объект ``{special_valid_from:[...], retroactive_effects:[...]}``
+      — текущий формат ``prompt_2.md``.
+    """
     problems: list[str] = []
     if result in (None, '', [], {}):
         return problems
-    if not isinstance(result, list):
-        return [f'Ожидался список, получено {type(result).__name__}']
-    for index, item in enumerate(result):
-        if not isinstance(item, dict):
-            problems.append(f'[{index}] ожидался объект, получено {type(item).__name__}')
-            continue
+
+    records: list[tuple[str, dict]] = []
+    if isinstance(result, dict):
+        for index, item in enumerate(result.get('special_valid_from') or []):
+            if isinstance(item, dict):
+                item = dict(item)
+                item.setdefault('action_type', 'special_valid_from')
+                item.setdefault('applies_to', 'amending_law')
+                records.append((f'special_valid_from[{index}]', item))
+        for index, item in enumerate(result.get('retroactive_effects') or []):
+            if isinstance(item, dict):
+                records.append((f'retroactive_effects[{index}]', {
+                    'applies_to': 'target_law',
+                    'action_type': 'retroactive_note',
+                    'structural_element': item.get('structural_element', ''),
+                    'note_text': item.get('corrected_text', ''),
+                    'note_valid_from': item.get('date', ''),
+                }))
+    elif isinstance(result, list):
+        for index, item in enumerate(result):
+            if isinstance(item, dict):
+                records.append((f'[{index}]', item))
+    else:
+        return [f'Ожидался список или объект, получено {type(result).__name__}']
+
+    for label, item in records:
         applies_to = item.get('applies_to')
         if applies_to not in APPLIES_TO:
             problems.append(
-                f'[{index}] недопустимое applies_to={applies_to!r}; '
+                f'{label}: недопустимое applies_to={applies_to!r}; '
                 f'ожидается одно из {APPLIES_TO}'
             )
         action_type = item.get('action_type')
         if action_type not in ACTION_TYPES:
             problems.append(
-                f'[{index}] недопустимое action_type={action_type!r}; '
+                f'{label}: недопустимое action_type={action_type!r}; '
                 f'ожидается одно из {ACTION_TYPES}'
             )
         if action_type == 'special_valid_from' and not item.get('date'):
-            problems.append(f'[{index}] для special_valid_from требуется поле "date"')
+            problems.append(f'{label}: для special_valid_from требуется поле "date"')
         if action_type == 'retroactive_note' and not item.get('note_text'):
-            problems.append(f'[{index}] для retroactive_note требуется поле "note_text"')
+            problems.append(f'{label}: для retroactive_note требуется поле "note_text"')
     return problems
 
 

@@ -2114,4 +2114,59 @@ class AiPipelineMixin:
                     tracker.print_summary()
 
                     if run_status == "FAILED":
-                        self.log(f"❌ RUN STATUS: FAILED — не все изменения пр�
+                        self.log(f"❌ RUN STATUS: FAILED — не все изменения применены/проверены", 'error')
+                        self._save_failed_run(result_data, orig_file, change_data, tracker)
+                        self.root.after(0, lambda: messagebox.showerror(
+                            "Ошибка обработки",
+                            f"Обработка завершена с ошибками.\n"
+                            f"Успешно: {success_count} из {tracker.expected_count}\n"
+                            f"Ошибок: {fail_count}\n"
+                            f"Сохранён FAILED результат для анализа."
+                        ))
+                        error_occurred = True
+                        return
+
+                    self.log(f"✅ RUN STATUS: SUCCESS — все {tracker.expected_count} изменений применены и проверены", 'result')
+
+                    if change_data.get('npa_id'):
+                        rev_info = {
+                            'revision_id': change_data['npa_id'],
+                            'revision_number': change_data.get('npa_number', ''),
+                        }
+                        doc_type_change_for_rev = change_data.get('doc_type', change_data.get('npa_type', 'law'))
+                        if doc_type_change_for_rev == 'law':
+                            rev_info['revision_date_reg'] = change_data.get('date_signed', '')
+                        rev_info['revision_date_valid'] = general_valid_from.strftime('%d.%m.%Y')
+                        rev_info['revision_url'] = change_data.get('npa_url', '')
+                        if 'revision_info' not in result_data:
+                            result_data['revision_info'] = []
+                        if not any(r.get('revision_id') == rev_info['revision_id'] for r in result_data['revision_info']):
+                            result_data['revision_info'].append(rev_info)
+                            self.log(f"Добавлена информация об изменяющем законе в revision_info", 'result')
+
+                    remove_empty_children(result_data)
+                    self._save_result(result_data, orig_file, change_data)
+                    self.root.after(0, lambda: messagebox.showinfo(
+                        "Готово",
+                        f"Обработка завершена успешно.\n"
+                        f"Применено: {success_count} из {tracker.expected_count}"
+                    ))
+                except Exception as e:
+                    self.log(f"Критическая ошибка в процессе: {e}", 'error')
+                    traceback.print_exc()
+                finally:
+                    try:
+                        log_content = self.log_text.get('1.0', tk.END)
+                        save_last_run_log(log_content)
+                    except Exception:
+                        pass
+                    self._export_debug_run(orig_file, change_file)
+                    self.message_queue.put({
+                        'type': 'done',
+                        'success': not error_occurred
+                    })
+                    self.root.after(0, lambda: self.run_btn.config(state='normal'))
+                    self.root.after(0, lambda: self.cancel_btn.config(state='disabled'))
+                
+            self.thread = threading.Thread(target=process, daemon=True)
+            self.thread.start()
