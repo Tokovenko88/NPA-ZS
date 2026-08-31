@@ -115,7 +115,7 @@ class AiPipelineMixin:
             change_clean_num = clean_number_for_filename(change_npa_number)
             filename = f"{change_clean_num}_work.json"
             out_path = os.path.join(out_dir, filename)
-            self._prompt_answers["run_info"]["model"] = getattr(self, 'ollama_model', None)
+            self._prompt_answers["run_info"]["model"] = self.ollama_model.get() if hasattr(self, 'ollama_model') and hasattr(self.ollama_model, 'get') else str(getattr(self, 'ollama_model', None))
             if hasattr(self, 'backend'):
                 self._prompt_answers["run_info"]["backend"] = self.backend.get() if hasattr(self.backend, 'get') else str(self.backend)
             self._prompt_answers["run_info"]["change_npa_number"] = change_npa_number
