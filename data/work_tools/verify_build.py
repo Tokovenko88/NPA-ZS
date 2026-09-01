@@ -31,7 +31,6 @@ BACKUP = ROOT / "data" / "debug_runs" / "snippet_monolith_backup.php"
 # Легальные добавления сборки сверх строк монолита-источника:
 # секционные комментарии, которые точка входа несёт в собранный файл.
 EXTRA_BUILD_LINES = {
-    "/* ================= Модули (функции; при сборке разворачиваются в монолит) ================= */",
     "/* ================= Контекст запроса (MODX) ================= */",
     "/* ================= Дата просмотра и подключение к БД ================= */",
     "/* ================= AJAX-обработка (может завершить выполнение) ================= */",
@@ -77,11 +76,6 @@ def main():
     if against:
         old = Path(against).read_bytes().decode("utf-8")
         new_lines = Counter(l for l in text.splitlines() if l.strip())
-        for l in bs.banner_lines(bs.required_modules()):
-            if l.strip() and l in new_lines:
-                new_lines[l] -= 1
-                if new_lines[l] <= 0:
-                    del new_lines[l]
         for l in EXTRA_BUILD_LINES:
             if l in new_lines:
                 new_lines[l] -= 1

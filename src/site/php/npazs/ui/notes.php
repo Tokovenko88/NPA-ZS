@@ -181,3 +181,38 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
          . $dateBlock . implode('<br>', $parts) . '</div>';
 }
 
+/**
+ * Фильтрует примечания (npa_note_unified) по правилу отображения
+ * (docs/db_schema.md §6.1.4, §6.2, docs/site_output.md §8.4):
+ *
+ *   Примечание выводится только если его valid_to не задан (бессрочно)
+ *   ИЛИ valid_to >= даты вступления в силу выбранной редакции ($editionDate).
+ *   Примечание, у которого valid_to меньше даты вступления в силу выбранной
+ *   редакции, считается истёкшим и не выводится.
+ *
+ * $editionDate — дата вступления в силу выбранной редакции (view_date);
+ * поддерживаются форматы 'Y-m-d' и 'd.m.Y' (через parseDate()).
+ *
+ * @param array $notes       Список примечаний (строки npa_note_unified).
+ * @param mixed $editionDate Дата вступления в силу выбранной редакции.
+ * @return array Отфильтрованный список примечаний.
+ */
+function filterNotesByValidTo(array $notes, $editionDate) {
+    $edition = parseDate($editionDate);
+    if (!$edition) {
+        // Дата просмотра неизвестна — не принимаем решений, показываем как есть.
+        return array_values($notes);
+    }
+    $editionStr = $edition->format('Y-m-d');
+    $filtered = [];
+    foreach ($notes as $note) {
+        $validTo = parseDate($note['valid_to'] ?? null);
+        // Бессрочные примечания (valid_to NULL/'') показываются всегда;
+        // истёкшие (valid_to < даты вступления в силу редакции) — скрываются.
+        if ($validTo === null || $validTo->format('Y-m-d') >= $editionStr) {
+            $filtered[] = $note;
+        }
+    }
+    return $filtered;
+}
+

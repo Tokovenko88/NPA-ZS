@@ -24,8 +24,6 @@
  * Карта модулей и правила для агентов: README.md в этом каталоге.
  */
 
-
-/* ================= Модули (функции; при сборке разворачиваются в монолит) ================= */
 require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/helpers/dates.php';
 require_once __DIR__ . '/helpers/text.php';

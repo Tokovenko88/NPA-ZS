@@ -1,37 +1,4 @@
 <?php
-/* ===============================================================
- *  ВНИМАНИЕ: ЭТОТ ФАЙЛ ГЕНЕРИРУЕТСЯ АВТОМАТИЧЕСКИ — НЕ РЕДАКТИРОВАТЬ!
- *
- *  Источник: модули src/site/php/npazs/ (карта модулей и правила —
- *  в README.md этого каталога). Правки вносить только в модули,
- *  затем пересобрать файл:
- *      make build-snippet   |   python data/work_tools/build_snippet.py
- *
- *  Порядок модулей при сборке:
- *    1. bootstrap.php
- *    2. helpers/dates.php
- *    3. helpers/text.php
- *    4. cache/static.php
- *    5. revisions/edition.php
- *    6. revisions/item.php
- *    7. revisions/head.php
- *    8. revisions/number_prefix.php
- *    9. document/status.php
- *   10. document/head.php
- *   11. descriptions/npa_refs.php
- *   12. ui/buttons.php
- *   13. ui/notes.php
- *   14. ui/selector.php
- *   15. ui/signature.php
- *   16. content/item_content.php
- *   17. content/tables.php
- *   18. content/compare.php
- *   19. render/tree.php
- *   20. render/element.php
- *   21. history/lists.php
- *   22. ajax.php
- * =============================================================== */
-/* ================= Модули (функции; при сборке разворачиваются в монолит) ================= */
 // ========== ЗАГРУЗКА ПЕРЕМЕННЫХ ИЗ .env ==========
 $envFile = dirname(MODX_BASE_PATH) . '/.env';  // путь к вашему файлу
 
@@ -1617,6 +1584,41 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
          . $dateBlock . implode('<br>', $parts) . '</div>';
 }
 
+/**
+ * Фильтрует примечания (npa_note_unified) по правилу отображения
+ * (docs/db_schema.md §6.1.4, §6.2, docs/site_output.md §8.4):
+ *
+ *   Примечание выводится только если его valid_to не задан (бессрочно)
+ *   ИЛИ valid_to >= даты вступления в силу выбранной редакции ($editionDate).
+ *   Примечание, у которого valid_to меньше даты вступления в силу выбранной
+ *   редакции, считается истёкшим и не выводится.
+ *
+ * $editionDate — дата вступления в силу выбранной редакции (view_date);
+ * поддерживаются форматы 'Y-m-d' и 'd.m.Y' (через parseDate()).
+ *
+ * @param array $notes       Список примечаний (строки npa_note_unified).
+ * @param mixed $editionDate Дата вступления в силу выбранной редакции.
+ * @return array Отфильтрованный список примечаний.
+ */
+function filterNotesByValidTo(array $notes, $editionDate) {
+    $edition = parseDate($editionDate);
+    if (!$edition) {
+        // Дата просмотра неизвестна — не принимаем решений, показываем как есть.
+        return array_values($notes);
+    }
+    $editionStr = $edition->format('Y-m-d');
+    $filtered = [];
+    foreach ($notes as $note) {
+        $validTo = parseDate($note['valid_to'] ?? null);
+        // Бессрочные примечания (valid_to NULL/'') показываются всегда;
+        // истёкшие (valid_to < даты вступления в силу редакции) — скрываются.
+        if ($validTo === null || $validTo->format('Y-m-d') >= $editionStr) {
+            $filtered[] = $note;
+        }
+    }
+    return $filtered;
+}
+
 function getRevisionSelectorOptions(PDO $pdo, $npa_id, $displayDate) {
     $options = [];
     $stmt = $pdo->prepare("SELECT valid_from, not_valid FROM npa_base WHERE npa_id = ?");
@@ -2954,8 +2956,14 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
             $buttonsHtml = '<div class="npa-table-buttons-wrapper" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">' . $buttonsHtml . '</div>';
         }
     }
+    $notes = [];
     if (!$skipInteractive && isset($itemNotes[$external_item_id]) && !empty($itemNotes[$external_item_id])) {
-        $notes = $itemNotes[$external_item_id];
+        // Показываем только примечания, действующие на дату вступления в силу выбранной
+        // редакции: valid_to не задан ИЛИ valid_to >= даты вступления в силу выбранной
+        // редакции. Примечания с истёкшим valid_to не выводятся (docs/db_schema.md §6.1.4).
+        $notes = filterNotesByValidTo($itemNotes[$external_item_id], $viewDate);
+    }
+    if (!empty($notes)) {
         $noteTexts = array_map(function($n) { return htmlspecialchars($n['note_text']); }, $notes);
         $html .= '<div class="npa-item-notes">';
         $html .= '<svg class="npa-item-notes-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" aria-hidden="true">

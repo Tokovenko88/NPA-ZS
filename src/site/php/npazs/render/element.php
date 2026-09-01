@@ -343,8 +343,14 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
             $buttonsHtml = '<div class="npa-table-buttons-wrapper" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">' . $buttonsHtml . '</div>';
         }
     }
+    $notes = [];
     if (!$skipInteractive && isset($itemNotes[$external_item_id]) && !empty($itemNotes[$external_item_id])) {
-        $notes = $itemNotes[$external_item_id];
+        // Показываем только примечания, действующие на дату вступления в силу выбранной
+        // редакции: valid_to не задан ИЛИ valid_to >= даты вступления в силу выбранной
+        // редакции. Примечания с истёкшим valid_to не выводятся (docs/db_schema.md §6.1.4).
+        $notes = filterNotesByValidTo($itemNotes[$external_item_id], $viewDate);
+    }
+    if (!empty($notes)) {
         $noteTexts = array_map(function($n) { return htmlspecialchars($n['note_text']); }, $notes);
         $html .= '<div class="npa-item-notes">';
         $html .= '<svg class="npa-item-notes-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" aria-hidden="true">

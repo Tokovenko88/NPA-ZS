@@ -26,23 +26,6 @@ OUT = ROOT / "src" / "site" / "php" / "snippet.php"
 REQ = re.compile(r"^\s*require(_once)?\s+__DIR__\s*\.\s*'([^']+)'\s*;\s*$")
 
 
-def banner_lines(module_list):
-    lines = [
-        "/* ===============================================================",
-        " *  ВНИМАНИЕ: ЭТОТ ФАЙЛ ГЕНЕРИРУЕТСЯ АВТОМАТИЧЕСКИ — НЕ РЕДАКТИРОВАТЬ!",
-        " *",
-        " *  Источник: модули src/site/php/npazs/ (карта модулей и правила —",
-        " *  в README.md этого каталога). Правки вносить только в модули,",
-        " *  затем пересобрать файл:",
-        " *      make build-snippet   |   python data/work_tools/build_snippet.py",
-        " *",
-        " *  Порядок модулей при сборке:",
-    ]
-    lines += [f" *   {i:2d}. {rel}" for i, rel in enumerate(module_list, 1)]
-    lines += [" * =============================================================== */"]
-    return lines
-
-
 def read_body_lines(path: Path) -> list:
     """Содержимое модуля без <?php, докблока и пустых строк после него."""
     lines = path.read_bytes().decode("utf-8").splitlines()
@@ -88,7 +71,7 @@ def build() -> bytes:
     while i < len(entry_lines) and not entry_lines[i].strip():
         i += 1
 
-    parts = ["<?php"] + banner_lines(mods)
+    parts = ["<?php"]
     while i < len(entry_lines):
         line = entry_lines[i]
         m = REQ.match(line)
