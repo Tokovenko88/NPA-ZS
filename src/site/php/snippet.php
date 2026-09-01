@@ -2823,23 +2823,22 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
                 $parentSources[$parentData['item_id']] = true;
             }
             foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
-      if ($sourceId === 'base') continue;
+                if ($sourceId === 'base') continue;
 
-      // modified_by_id хранит внутренний npa_item.id,
-      // not_valid хранит стабильный строковый item_id.
-      $parentSources[$sourceId] = true;
-      if (ctype_digit($sourceId)) {
-          $stmtSource = $pdo->prepare(
-              'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
-          );
-          $stmtSource->execute([(int)$sourceId]);
-          $sourceItemId = $stmtSource->fetchColumn();
-
-          if ($sourceItemId) {
-              $parentSources[(string)$sourceItemId] = true;
-          }
-      }
-  }
+                // modified_by_id хранит внутренний числовой npa_item.id,
+                // not_valid хранит стабильный строковый item_id.
+                $parentSources[$sourceId] = true;
+                if (ctype_digit($sourceId)) {
+                    $stmtSource = $pdo->prepare(
+                        'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
+                    );
+                    $stmtSource->execute([(int)$sourceId]);
+                    $sourceItemId = $stmtSource->fetchColumn();
+                    if ($sourceItemId) {
+                        $parentSources[(string)$sourceItemId] = true;
+                    }
+                }
+            }
             foreach (($parentData['paragraphs'] ?? []) as $block) {
                 if (($block['block_type'] ?? '') !== 'child_ref') {
                     continue;
