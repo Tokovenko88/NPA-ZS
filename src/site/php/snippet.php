@@ -1924,7 +1924,7 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         } else {
             $selRevIds = [];
         }
-        $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, true, $selRevIds);
+        $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, false, $selRevIds);
         if (!isset($itemsById[$internal_item_id])) return null;
         $itemData = $itemsById[$internal_item_id];
         $npaData = [
