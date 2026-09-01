@@ -21,6 +21,9 @@ jobs:
       - name: Normalize comparison source identifiers
         run: python data/work_tools/normalize_comparison_source.py
 
+      - name: Repair child-only comparison detection
+        run: python data/work_tools/fix_child_comparison.py
+
       - name: Rebuild generated snippet
         run: python data/work_tools/build_snippet.py
 
@@ -37,7 +40,7 @@ jobs:
             echo "No generated changes"
             exit 0
           fi
-          git commit -m "fix: normalize comparison source ids"
+          git commit -m "fix: repair child-only comparison detection"
           git push origin HEAD:main
 
   tests:
