@@ -707,7 +707,7 @@ foreach ($itemsById as $item) {
                         }
         }
         // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
-        $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internalId, $viewDateSql, $changerIds, $selectedRevisionNpaIds));
+        $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internalId, $viewDateSql, $changerIds, $selectedRevisionNpaIds, null, $prev ? $prev['rev_id'] : null));
         $highlightsForClient = null;
         if (!empty($current['highlights'])) {
             $decoded = json_decode($current['highlights'], true);

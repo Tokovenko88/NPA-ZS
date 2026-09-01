@@ -174,8 +174,8 @@ if (isset($_GET['ajax_action'])) {
                 ];
                         }
         }
-        // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
-        $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internal_id, $viewDateSqlAjax, $changerIds, $selectedRevisionNpaIdsAjax));
+        // Сначала получаем предыдущую ревизию — её rev_id нужен collectExpiredChildChanges()
+        // для поиска удалённых дочерних элементов в body предыдущей редакции.
         $stmtPrev = $pdo->prepare("
             SELECT * FROM npa_item_revision
             WHERE item_internal_id = ?
@@ -186,6 +186,8 @@ if (isset($_GET['ajax_action'])) {
         ");
         $stmtPrev->execute($internal_id, $currentRev['valid_from'], $currentRev['valid_from']);
         $previousRev = $stmtPrev->fetch();
+        // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
+        $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internal_id, $viewDateSqlAjax, $changerIds, $selectedRevisionNpaIdsAjax, null, $previousRev ? $previousRev['rev_id'] : null));
         $prevHtmlRaw = '';
         $currHtmlRaw = '';
         $prevValidFrom = '';

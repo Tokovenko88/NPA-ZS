@@ -154,13 +154,18 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
     // НПА, но НПА всё равно удалила его дочерние элементы (их
     // npa_item_revision.not_valid ссылается на эту НПА) — добавим такую
     // НПА в список «С изменениями», чтобы пользователь видел причину.
+    // Ищем удаления в body предыдущей редакции, чтобы не пропустить
+    // дочерние элементы, чьи child_ref уже удалены из текущей редакции.
     $ownChangerIdsList = array_keys($ownChangerIds);
+    $prevRevForNotes = getPreviousItemRevision($pdo, $internal_item_id, $currentRevId);
     $childChangerNotes = collectExpiredChildChangerNotes(
         $pdo,
         $internal_item_id,
         $viewDate,
         $ownChangerIdsList,
-        $selectedRevisionNpaIds
+        $selectedRevisionNpaIds,
+        $currentRevId,
+        $prevRevForNotes ? $prevRevForNotes['rev_id'] : null
     );
     foreach ($childChangerNotes as $desc) {
         if (!in_array($desc, $changeNotes, true)) $changeNotes[] = $desc;

@@ -90,11 +90,12 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
         }
     }
     // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
-    // ВАЖНО: helper смотрит только child_ref текущего body, поэтому «висящие» старые
-    // дочерние элементы из предыдущих редакций сюда не попадают.
+    // ВАЖНО: helper смотрит child_ref предыдущей и текущей редакций родителя,
+    // поэтому удалённые в текущей редакции дети гарантированно попадают в
+    // выборку даже если собственная ревизия родителя пуста по child_ref.
     $changingElements = array_merge(
         $changingElements,
-        collectExpiredChildChanges($pdo, $internal_item_id, $asOfDate, $changerIds, $selectedRevisionNpaIds, $current['rev_id'])
+        collectExpiredChildChanges($pdo, $internal_item_id, $asOfDate, $changerIds, $selectedRevisionNpaIds, $current['rev_id'], $prev['rev_id'])
     );
     $highlightsForClient = null;
     if (!empty($current['highlights'])) {
@@ -181,13 +182,17 @@ function getItemHeadCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOf
  *
  * @return string[] Уникальные короткие описания инициаторов утраты силы.
  */
-function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate, array $changerIds, array $selectedRevisionNpaIds = [], $parentRevisionId = null) {
+function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate, array $changerIds, array $selectedRevisionNpaIds = [], $parentRevisionId = null, $prevRevisionId = null) {
     if ($parentRevisionId === null) {
         $parentRevision = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
         if (!$parentRevision) {
             return [];
         }
         $parentRevisionId = $parentRevision['rev_id'];
+        if ($prevRevisionId === null) {
+            $prevRevision = getPreviousItemRevision($pdo, $internal_item_id, $parentRevisionId);
+            $prevRevisionId = $prevRevision ? $prevRevision['rev_id'] : null;
+        }
     }
 
     $stmt = $pdo->prepare('SELECT id, item_id, item_type, item_number FROM npa_item WHERE id = ? LIMIT 1');
@@ -217,12 +222,15 @@ function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate,
         return $ids;
     };
 
-    $bodyChildIds = $loadBodyChildRefs($parentRevisionId);
-    if (empty($bodyChildIds)) {
+    $resolveBodyChildRefs = function($revisionId) use ($loadBodyChildRefs, $pdo, $internal_item_id) {
+        $ids = $loadBodyChildRefs($revisionId);
+        if (!empty($ids)) {
+            return $ids;
+        }
         $stmtParentRevision = $pdo->prepare(
             'SELECT valid_from FROM npa_item_revision WHERE rev_id = ? LIMIT 1'
         );
-        $stmtParentRevision->execute([$parentRevisionId]);
+        $stmtParentRevision->execute([$revisionId]);
         $parentRevisionValidFrom = $stmtParentRevision->fetchColumn();
         if ($parentRevisionValidFrom) {
             $contentRevision = getLastContentRevision(
@@ -231,9 +239,20 @@ function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate,
                 $parentRevisionValidFrom
             );
             if ($contentRevision) {
-                $bodyChildIds = $loadBodyChildRefs($contentRevision['rev_id']);
+                $ids = $loadBodyChildRefs($contentRevision['rev_id']);
             }
         }
+        return $ids;
+    };
+
+    $bodyChildIds = [];
+    if ($prevRevisionId) {
+        foreach (array_keys($resolveBodyChildRefs($prevRevisionId)) as $cid) {
+            $bodyChildIds[$cid] = true;
+        }
+    }
+    foreach (array_keys($resolveBodyChildRefs($parentRevisionId)) as $cid) {
+        $bodyChildIds[$cid] = true;
     }
     if (empty($bodyChildIds)) {
         return [];
@@ -335,13 +354,17 @@ function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate,
  *                                 может быть не передана и определяется автоматически.
  * @return array Массив ['note'=>string, 'html'=>string, 'date'=>string]
  */
-function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, array $changerIds, array $selectedRevisionNpaIds = [], $parentRevisionId = null) {
+function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, array $changerIds, array $selectedRevisionNpaIds = [], $parentRevisionId = null, $prevRevisionId = null) {
     if ($parentRevisionId === null) {
         $parentRevision = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
         if (!$parentRevision) {
             return [];
         }
         $parentRevisionId = $parentRevision['rev_id'];
+        if ($prevRevisionId === null) {
+            $prevRevision = getPreviousItemRevision($pdo, $internal_item_id, $parentRevisionId);
+            $prevRevisionId = $prevRevision ? $prevRevision['rev_id'] : null;
+        }
     }
 
     $stmt = $pdo->prepare('SELECT id, item_id, item_type, item_number FROM npa_item WHERE id = ? LIMIT 1');
@@ -351,9 +374,10 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
         return [];
     }
 
-    // Только child_ref актуального body. У структурной ревизии может не быть
-    // собственных paragraph-записей: в этом случае тело хранится в последней
-    // content-ревизии, как и в getItemTree()/getElementHtmlById().
+    // Ищем дочерние элементы, на которые ссылалось body предыдущей редакции
+    // родителя: именно они могли быть удалены текущей редакцией. У структурной
+    // ревизии может не быть собственных paragraph-записей: в этом случае тело
+    // хранится в последней content-ревизии, как и в getItemTree()/getElementHtmlById().
     $loadBodyChildRefs = function($revisionId) use ($pdo) {
         $stmt = $pdo->prepare('
             SELECT ref_item_internal_id
@@ -374,14 +398,15 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
         return $ids;
     };
 
-    $bodyChildIds = $loadBodyChildRefs($parentRevisionId);
-    if (empty($bodyChildIds)) {
-        // Структурная ревизия может быть без body. Берём именно последнюю
-        // content-ревизию, действовавшую на дату parentRevision.
+    $resolveBodyChildRefs = function($revisionId) use ($loadBodyChildRefs, $pdo, $internal_item_id) {
+        $ids = $loadBodyChildRefs($revisionId);
+        if (!empty($ids)) {
+            return $ids;
+        }
         $stmtParentRevision = $pdo->prepare(
             'SELECT valid_from FROM npa_item_revision WHERE rev_id = ? LIMIT 1'
         );
-        $stmtParentRevision->execute([$parentRevisionId]);
+        $stmtParentRevision->execute([$revisionId]);
         $parentRevisionValidFrom = $stmtParentRevision->fetchColumn();
         if ($parentRevisionValidFrom) {
             $contentRevision = getLastContentRevision(
@@ -390,9 +415,25 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
                 $parentRevisionValidFrom
             );
             if ($contentRevision) {
-                $bodyChildIds = $loadBodyChildRefs($contentRevision['rev_id']);
+                $ids = $loadBodyChildRefs($contentRevision['rev_id']);
             }
         }
+        return $ids;
+    };
+
+    // Берём объединение child_ref предыдущей и текущей редакций. Дочерние
+    // элементы, удалённые в текущей редакции, остались в предыдущей; их и
+    // нужно показать в «Изменения внесены». Дочерние элементы, добавленные
+    // в текущей, тоже попадают, но для них не сработает not_valid — они
+    // отсеются ниже.
+    $bodyChildIds = [];
+    if ($prevRevisionId) {
+        foreach (array_keys($resolveBodyChildRefs($prevRevisionId)) as $cid) {
+            $bodyChildIds[$cid] = true;
+        }
+    }
+    foreach (array_keys($resolveBodyChildRefs($parentRevisionId)) as $cid) {
+        $bodyChildIds[$cid] = true;
     }
     if (empty($bodyChildIds)) {
         return [];
