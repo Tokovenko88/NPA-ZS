@@ -680,6 +680,7 @@ foreach ($itemsById as $item) {
             $currHtml = $currContent ? ensureTableWrapperForComparison($currContent['html'], $internalId, $pdo, $viewDateSql) : '';
         }
         $changingElements = [];
+        $changerIds = [];
         if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
             $changerIds = array_filter(array_map('trim', explode(',', $current['modified_by_id'])));
             foreach ($changerIds as $changerStr) {
@@ -696,8 +697,10 @@ foreach ($itemsById as $item) {
                     'html' => $changerHtml,
                     'date' => formatDateToRus($changerDate)
                 ];
-            }
+                        }
         }
+        // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
+        $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internalId, $viewDateSql, $changerIds, $selectedRevisionNpaIds));
         $highlightsForClient = null;
         if (!empty($current['highlights'])) {
             $decoded = json_decode($current['highlights'], true);
