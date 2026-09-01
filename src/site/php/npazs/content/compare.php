@@ -319,7 +319,7 @@ function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate,
             $notValidIds = array_filter(array_map('trim', explode(',', (string)($candidate['not_valid'] ?? ''))));
             foreach ($notValidIds as $nvid) {
                 if (isset($changerItemIdSet[$nvid])) {
-                    $shortDesc = getShortNpaDescription($nvid, $pdo, true);
+                    $shortDesc = getRevisionSourceNote($nvid, $pdo, true);
                     if ($shortDesc && $shortDesc !== 'исходная редакция' && !in_array($shortDesc, $notes, true)) {
                         $notes[] = $shortDesc;
                     }
