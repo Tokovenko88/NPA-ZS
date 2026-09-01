@@ -2705,66 +2705,53 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
         $stmt->execute([$childInternalId]);
         $childRevisions = $stmt->fetchAll();
 
-        $matchedRevision = null;
-        $matchedChanger = null;
-        foreach ($childRevisions as $candidate) {
-            $notValidIds = array_filter(array_map('trim', explode(',', (string)($candidate['not_valid'] ?? ''))));
-            foreach ($notValidIds as $nvid) {
-                if (isset($changerItemIdSet[$nvid])) {
-                    $matchedRevision = $candidate;
-                    $matchedChanger = $nvid;
-                    break 2;
-                }
+$matchedRevision = null;
+    $matchedChanger = null;
+    foreach ($childRevisions as $candidate) {
+        $notValidIds = array_filter(array_map('trim', explode(',', (string)($candidate['not_valid'] ?? ''))));
+        foreach ($notValidIds as $nvid) {
+            if (isset($changerItemIdSet[$nvid])) {
+                $matchedRevision = $candidate;
+                $matchedChanger = $nvid;
+                break 2;
             }
         }
-        if (!$matchedRevision || !$matchedChanger) {
-            continue;
-        }
-
-        $npaInfo = getNpaInfoByItemId($matchedChanger, $pdo);
-        $childDate = $npaInfo
-            ? ($npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $matchedRevision['valid_from'])
-            : $matchedRevision['valid_from'];
-
-        // Рендерим точную ревизию, которую отменяет текущая редакция, а не
-        // произвольную активную ревизию ребёнка на $asOfDate. Затем явно
-        // оборачиваем её в тот же diff-контейнер, что используется для expired.
-        $childContent = getItemRevisionContent(
-            $pdo,
-            $matchedRevision['rev_id'],
-            $childInternalId,
-            0,
-            null,
-            false,
-            true,
-            $matchedRevision['valid_from'],
-            false,
-            false
-        );
-        $childHtmlRaw = $childContent ? ($childContent['html'] ?? '') : '';
-        if ($childHtmlRaw === '') {
-            $childHtmlRaw = getElementHtmlById(
-                $child['item_id'],
-                $asOfDate,
-                $pdo,
-                $npaInfo['npa_id'] ?? 0,
-                $npaInfo['npa_type'] ?? ''
-            );
-        }
-        $childHtml = '<div class="npa-item-block npa-expired-block" data-item-type="' . htmlspecialchars($child['item_type']) . '">'
-                   . '<div class="npa-diff-delete">' . $childHtmlRaw . '</div>'
-                   . '<div class="npa-expired-label" style="color:#999; font-style:italic;">(Утратил силу)</div>'
-                   . '</div>';
-
-        if (!isset($groups[$matchedChanger])) {
-            $groups[$matchedChanger] = [
-                'note' => getRevisionSourceNote($matchedChanger, $pdo, true),
-                'date' => formatDateToRus($childDate),
-                'children_html' => ''
-            ];
-        }
-        $groups[$matchedChanger]['children_html'] .= $childHtml;
     }
+    if (!$matchedRevision || !$matchedChanger) {
+        continue;
+    }
+    // Если сам инициатор уже попал в «Изменения внесены» как прямой changer
+    // (через parent.modified_by_id), его HTML уже есть — повторно не выводим.
+    if (in_array($matchedChanger, $changerIds, true)) {
+        continue;
+    }
+    // Если дочерний элемент сам является инициатором, его собственная ревизия
+    // уже представлена прямым changer-entry выше — не дублируем.
+    if (isset($changerItemIdSet[$child['item_id']])) {
+        continue;
+    }
+
+    $npaInfo = getNpaInfoByItemId($matchedChanger, $pdo);
+    $childDate = $npaInfo
+        ? ($npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $matchedRevision['valid_from'])
+        : $matchedRevision['valid_from'];
+
+    // В <div class="changer-content"> выводим содержимое самого changer'а
+    // (структурного элемента из not_valid), а не удалённого им ребёнка:
+    // инициатор изменений должен быть виден пользователю, иначе «Изменения
+    // внесены» показывает удалённый текст без указания причины.
+    $changerNpaId = $npaInfo['npa_id'] ?? 0;
+    $changerNpaType = $npaInfo['npa_type'] ?? '';
+    $changerHtml = getElementHtmlById($matchedChanger, $asOfDate, $pdo, $changerNpaId, $changerNpaType);
+
+    if (!isset($groups[$matchedChanger])) {
+        $groups[$matchedChanger] = [
+            'note' => getRevisionSourceNote($matchedChanger, $pdo, true),
+            'date' => formatDateToRus($childDate),
+            'children_html' => $changerHtml
+        ];
+    }
+}
 
     foreach ($groups as $group) {
         $result[] = [
