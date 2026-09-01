@@ -1,0 +1,10 @@
+# Ephemeral / machine-specific — do not commit
+cache/
+sessions/
+logs/
+scratchpad/
+audit-buffer/
+literature/
+screenshots/
+thinking/
+pids.json
