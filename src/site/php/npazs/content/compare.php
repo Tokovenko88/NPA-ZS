@@ -183,8 +183,9 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
 
     foreach ($children as $child) {
         $childInternalId = $child['id'];
-        // Активная ревизия ребёнка — чтобы получить HTML и npa_id.
-        $rev = getRevisionForSelectedEdition($pdo, $childInternalId, $asOfDate, $selectedRevisionNpaIds);
+        // Ревизия ребёнка НА ДАТУ ПРОСМОТРА — чтобы not_valid был заполнен,
+        // если ребёнок утратил силу к этой дате.
+        $rev = getRevisionForDate($pdo, $childInternalId, $asOfDate);
         if (!$rev) {
             continue;
         }
@@ -216,7 +217,7 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
             ? ($npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $rev['valid_from'])
             : $rev['valid_from'];
 
-                $childHtml = getElementHtmlById(
+                                        $childHtml = getElementHtmlById(
             $childInternalId, $asOfDate, $pdo,
             $npaInfo['npa_id'] ?? 0, $npaInfo['npa_type'] ?? ''
         );

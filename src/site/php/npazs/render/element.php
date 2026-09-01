@@ -457,7 +457,10 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
         return '';
     }
     $html = renderElement($item, $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
-    if ($item['item_type'] !== 'structured_table') {
+    // Если родитель устаревший и рендерится в режиме сравнения, его дети уже включены
+    // в expired_content_html через getItemRevisionContent — не дублируем их здесь.
+    $isExpired = !empty($item['is_expired']);
+    if ($item['item_type'] !== 'structured_table' && !($isExpired && $forComparison)) {
         $children = array_filter($itemsById, function($child) use ($item, $key) {
             if (empty($child['parent_id'])) return false;
             return (string)$child['parent_id'] === (string)$item['id'] || (string)$child['parent_id'] === (string)$key;
