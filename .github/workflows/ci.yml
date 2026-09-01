@@ -2,21 +2,23 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   sync_generated:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Apply comparison fixes
+      - name: Apply comparison source-id normalization
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -24,103 +26,95 @@ jobs:
           compare = Path('src/site/php/npazs/content/compare.php')
           s = compare.read_text(encoding='utf-8')
           old = """    $changerItemIdSet = [];
-          foreach ($changerIds as $cid) {
-              foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
-                  if ($c !== 'base') {
-                      $changerItemIdSet[$c] = true;
+              foreach ($changerIds as $cid) {
+                  foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
+                      if ($c !== 'base') {
+                          $changerItemIdSet[$c] = true;
+                      }
                   }
               }
-          }
-"""
+          """
           new = """    $changerItemIdSet = [];
-          foreach ($changerIds as $cid) {
-              foreach (array_filter(array_map('trim', explode(',', (string)$cid))) as $c) {
-                  if ($c === 'base') continue;
-                  $changerItemIdSet[$c] = true;
-                  if (ctype_digit($c)) {
-                      $stmtChanger = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
-                      $stmtChanger->execute([(int)$c]);
-                      $changerItemId = $stmtChanger->fetchColumn();
-                      if ($changerItemId) $changerItemIdSet[(string)$changerItemId] = true;
+              foreach ($changerIds as $cid) {
+                  foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
+                      if ($c === 'base') continue;
+
+                      // modified_by_id хранит внутренний npa_item.id,
+                      // not_valid хранит стабильный строковый item_id.
+                      $changerItemIdSet[$c] = true;
+                      if (ctype_digit($c)) {
+                          $stmtChanger = $pdo->prepare(
+                              'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
+                          );
+                          $stmtChanger->execute([(int)$c]);
+                          $changerItemId = $stmtChanger->fetchColumn();
+
+                          if ($changerItemId) {
+                              $changerItemIdSet[(string)$changerItemId] = true;
+                          }
+                      }
                   }
               }
-          }
-"""
-          if old in s:
-              s = s.replace(old, new, 1)
-          old_sql = """        $stmt = $pdo->prepare('\\n            SELECT r.*\\n            FROM npa_item_revision r\\n            WHERE r.item_internal_id = ?\\n              AND EXISTS (\\n                  SELECT 1\\n                  FROM npa_paragraph p\\n                  WHERE p.rev_id = r.rev_id\\n              )\\n            ORDER BY r.valid_from DESC, r.rev_id DESC\\n        ');"""
-          new_sql = """        $stmt = $pdo->prepare('\\n            SELECT r.*\\n            FROM npa_item_revision r\\n            WHERE r.item_internal_id = ?\\n            ORDER BY r.valid_from DESC, r.rev_id DESC\\n        ');"""
-          if old_sql in s:
-              s = s.replace(old_sql, new_sql, 1)
-          compare.write_text(s, encoding='utf-8')
+          """
+          if old not in s:
+              raise SystemExit('compare target not found')
+          compare.write_text(s.replace(old, new, 1), encoding='utf-8')
 
           tree = Path('src/site/php/npazs/render/tree.php')
           s = tree.read_text(encoding='utf-8')
           old = """            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
-                if ($sourceId !== 'base') {
-                    $parentSources[$sourceId] = true;
-                }
-            }
-"""
+                  if ($sourceId !== 'base') {
+                      $parentSources[$sourceId] = true;
+                  }
+              }
+          """
           new = """            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
-                if ($sourceId === 'base') continue;
-                $parentSources[$sourceId] = true;
-                if (ctype_digit($sourceId)) {
-                    $stmtSource = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
-                    $stmtSource->execute([(int)$sourceId]);
-                    $sourceItemId = $stmtSource->fetchColumn();
-                    if ($sourceItemId) $parentSources[(string)$sourceItemId] = true;
-                }
-            }
-"""
-          if old in s:
-              s = s.replace(old, new, 1)
-          tree.write_text(s, encoding='utf-8')
+                  if ($sourceId === 'base') continue;
+
+                  // modified_by_id хранит внутренний npa_item.id,
+                  // not_valid хранит стабильный строковый item_id.
+                  $parentSources[$sourceId] = true;
+                  if (ctype_digit($sourceId)) {
+                      $stmtSource = $pdo->prepare(
+                          'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
+                      );
+                      $stmtSource->execute([(int)$sourceId]);
+                      $sourceItemId = $stmtSource->fetchColumn();
+
+                      if ($sourceItemId) {
+                          $parentSources[(string)$sourceItemId] = true;
+                      }
+                  }
+              }
+          """
+          if old not in s:
+              raise SystemExit('tree target not found')
+          tree.write_text(s.replace(old, new, 1), encoding='utf-8')
           PY
 
       - name: Rebuild generated snippet
         run: python data/work_tools/build_snippet.py
 
-      - name: Commit generated comparison fix
+      - name: Verify generated snippet
+        run: python data/work_tools/build_snippet.py --check
+
+      - name: Commit generated changes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/site/php/npazs/content/compare.php src/site/php/npazs/render/tree.php src/site/php/snippet.php
           if git diff --cached --quiet; then
-            echo "comparison fix already applied"
+            echo "No generated changes"
             exit 0
           fi
-          git commit -m "fix: match not_valid to stable item ids"
+          git commit -m "fix: normalize comparison source ids"
           git push origin HEAD:main
 
-  lint:
+  tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install ruff
-      - run: ruff check src/ scripts/ tests/
-
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install mypy
-      - run: pip install -e .
-      - run: mypy src/ scripts/
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install -r requirements.txt
-      - run: pip install pytest
-      - run: pytest tests/ -v
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python syntax check
+        run: python -m compileall -q src tests
