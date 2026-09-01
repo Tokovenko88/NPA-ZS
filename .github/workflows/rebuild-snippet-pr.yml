@@ -28,3 +28,5 @@ jobs:
           fi
           git commit -m "chore: rebuild generated snippet"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
+          # trigger synchronization on the PR branch
