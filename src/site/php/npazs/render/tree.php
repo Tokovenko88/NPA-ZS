@@ -178,6 +178,26 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
                     }
                 }
             }
+
+            // НПА выбранной редакции может менять только дочерние элементы.
+            // Тогда у родителя modified_by_id остаётся от старой ревизии,
+            // но not_valid ребёнка всё равно должен ссылаться на источник
+            // текущей выбранной редакции.
+            if (!empty($selectedRevisionNpaIds)) {
+                $placeholders = implode(',', array_fill(0, count($selectedRevisionNpaIds), '?'));
+                $stmtSelectedSources = $pdo->prepare(
+                    "SELECT id, item_id FROM npa_item WHERE npa_id IN ($placeholders)"
+                );
+                $stmtSelectedSources->execute(array_values($selectedRevisionNpaIds));
+                foreach ($stmtSelectedSources->fetchAll() as $sourceRow) {
+                    if (!empty($sourceRow['id'])) {
+                        $parentSources[(string)$sourceRow['id']] = true;
+                    }
+                    if (!empty($sourceRow['item_id'])) {
+                        $parentSources[(string)$sourceRow['item_id']] = true;
+                    }
+                }
+            }
             foreach (($parentData['paragraphs'] ?? []) as $block) {
                 if (($block['block_type'] ?? '') !== 'child_ref') {
                     continue;
