@@ -3165,8 +3165,16 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
         } elseif ($blockType === 'child_ref') {
             $refInternalId = $block['ref_item_internal_id'];
             if ($refInternalId && isset($itemsById[$refInternalId])) {
-                $html .= renderElement($itemsById[$refInternalId], $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
-                $html .= '<div class="npa-para-sep"></div>';
+                $refChild = $itemsById[$refInternalId];
+                // При сравнении редакций утратившие силу дети не должны попадать
+                // в текущую колонку — их тело больше не входит в ревизию структурного
+                // элемента на выбранную дату.
+                if ($forComparison && !empty($refChild['is_expired'])) {
+                    // пропускаем
+                } else {
+                    $html .= renderElement($refChild, $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
+                    $html .= '<div class="npa-para-sep"></div>';
+                }
             }
         }
     }
@@ -3187,9 +3195,19 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
     // в expired_content_html через getItemRevisionContent — не дублируем их здесь.
     $isExpired = !empty($item['is_expired']);
     if ($item['item_type'] !== 'structured_table' && !($isExpired && $forComparison)) {
-        $children = array_filter($itemsById, function($child) use ($item, $key) {
+        $children = array_filter($itemsById, function($child) use ($item, $key, $forComparison) {
             if (empty($child['parent_id'])) return false;
-            return (string)$child['parent_id'] === (string)$item['id'] || (string)$child['parent_id'] === (string)$key;
+            if ((string)$child['parent_id'] !== (string)$item['id']
+                && (string)$child['parent_id'] !== (string)$key) {
+                return false;
+            }
+            // При сравнении редакций утратившие силу дети не должны попадать
+            // в колонку — их тело уже не входит в ревизию структурного элемента
+            // на выбранную дату.
+            if ($forComparison && !empty($child['is_expired'])) {
+                return false;
+            }
+            return true;
         });
         usort($children, function($a, $b) {
             if ($a['sort_order'] != $b['sort_order']) {
