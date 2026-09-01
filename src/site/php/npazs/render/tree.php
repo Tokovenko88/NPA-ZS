@@ -141,13 +141,25 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
     // показать дочерний элемент, утративший силу этой же редакцией. Но наличие
     // такой ревизии в npa_item ещё не означает, что элемент входил в тело
     // текущей редакции родителя: он мог быть удалён из body в более поздней
-    // редакции, а сама ревизия ребёнка осталась незакрытой. Поэтому удаляем из
-    // карты только expired-детей, которые НЕ имеют child_ref в актуальном body
-    // своего родителя. Актуальность body определяется именно той ревизией,
-    // которую getRevisionForSelectedEdition выбрал для родителя.
+    // редакции, а сама ревизия ребёнка осталась незакрытой.
+    //
+    // Одновременно getRevisionForSelectedEdition может вернуть выбранную будущую
+    // ревизию ребёнка и пометить её is_expired=false. Если её not_valid ссылается
+    // на источник текущей редакции родителя, для diff это всё равно удалённый
+    // элемент: он должен быть показан зачёркнутым.
     if ($includeExpired && !empty($itemsById)) {
         $bodyReferencedIds = [];
+        $bodyReferenceSources = [];
         foreach ($itemsById as $parentData) {
+            $parentSources = [];
+            if (!empty($parentData['item_id']) && $parentData['item_id'] !== 'base') {
+                $parentSources[$parentData['item_id']] = true;
+            }
+            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
+                if ($sourceId !== 'base') {
+                    $parentSources[$sourceId] = true;
+                }
+            }
             foreach (($parentData['paragraphs'] ?? []) as $block) {
                 if (($block['block_type'] ?? '') !== 'child_ref') {
                     continue;
@@ -155,13 +167,28 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
                 $refId = isset($block['ref_item_internal_id']) ? (int)$block['ref_item_internal_id'] : 0;
                 if ($refId > 0) {
                     $bodyReferencedIds[$refId] = true;
+                    $bodyReferenceSources[$refId] = $parentSources;
                 }
             }
         }
+
         foreach (array_keys($itemsById) as $internalId) {
-            if (!empty($itemsById[$internalId]['is_expired']) && !isset($bodyReferencedIds[(int)$internalId])) {
+            $itemData =& $itemsById[$internalId];
+            $isBodyChild = isset($bodyReferencedIds[(int)$internalId]);
+            if ($isBodyChild && !empty($bodyReferenceSources[$internalId]) && !empty($itemData['not_valid'])) {
+                $notValidIds = array_filter(array_map('trim', explode(',', (string)$itemData['not_valid'])));
+                foreach ($notValidIds as $notValidId) {
+                    if (isset($bodyReferenceSources[$internalId][$notValidId])) {
+                        $itemData['is_expired'] = true;
+                        $itemData['expired_valid_to'] = $itemData['valid_to'];
+                        break;
+                    }
+                }
+            }
+            if (!empty($itemData['is_expired']) && !$isBodyChild) {
                 unset($itemsById[$internalId]);
             }
+            unset($itemData);
         }
     }
 
