@@ -12,7 +12,7 @@
 function getNpaInfoByItemId($itemInternalId, $pdo) {
     $stmt = $pdo->prepare("
         SELECT b.npa_id, b.npa_type, b.npa_number, b.date_passed, b.date_format, b.npa_url,
-               l.date_signed AS law_date_signed
+               l.date_signed AS law_date_signed, i.item_id AS external_item_id
         FROM npa_item i
         JOIN npa_base b ON i.npa_id = b.npa_id
         LEFT JOIN npa_law l ON b.npa_id = l.npa_id
@@ -36,18 +36,20 @@ function getNpaInfoByItemId($itemInternalId, $pdo) {
         $stmt->execute([$itemInternalId]);
         $row = $stmt->fetch();
         if (!$row) return null;
+        $row['external_item_id'] = '';
     }
     $npaType = $row['npa_type'];
     $datePassed = $row['date_passed'];
     $dateSigned = ($npaType == 'law') ? $row['law_date_signed'] : $datePassed;
     return [
-        'npa_id'      => $row['npa_id'],
-        'npa_number'  => $row['npa_number'],
-        'npa_type'    => $npaType,
-        'date_passed' => $datePassed,
-        'date_signed' => $dateSigned,
-        'date_format' => (int)$row['date_format'],
-        'npa_url'     => $row['npa_url'] ?? ''
+        'npa_id'           => $row['npa_id'],
+        'npa_number'       => $row['npa_number'],
+        'npa_type'         => $npaType,
+        'date_passed'      => $datePassed,
+        'date_signed'      => $dateSigned,
+        'date_format'      => (int)$row['date_format'],
+        'npa_url'          => $row['npa_url'] ?? '',
+        'external_item_id' => $row['external_item_id'] ?? ''
     ];
 }
 
@@ -80,7 +82,11 @@ function getShortNpaDescription($modifiedById, $pdo, $asHtml = false, $case = 'g
     $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
     $text = $typeName . ' № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
-        return '<a href="' . htmlspecialchars($npaInfo['npa_url']) . '" target="_blank" class="npa-revision-link" style="color:#0066cc;text-decoration:underline;">' . htmlspecialchars($text) . '</a>';
+        $url = $npaInfo['npa_url'];
+        if (!empty($npaInfo['external_item_id'])) {
+            $url .= '#' . $npaInfo['external_item_id'];
+        }
+        return '<a href="' . htmlspecialchars($url) . '" target="_blank" class="npa-revision-link" style="color:#0066cc;text-decoration:underline;">' . htmlspecialchars($text) . '</a>';
     }
     return $text;
 }
@@ -186,7 +192,11 @@ function getRevisionDocNoteImproved($modifiedBy, $pdo, $case = 'genitive', $asHt
     $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
     $npaText = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
-        $npaText = '<a href="' . htmlspecialchars($npaInfo['npa_url']) . '" target="_blank" class="npa-revision-link" style="color:#0066cc;text-decoration:underline;">' . htmlspecialchars($npaText) . '</a>';
+        $url = $npaInfo['npa_url'];
+        if (!empty($npaInfo['external_item_id'])) {
+            $url .= '#' . $npaInfo['external_item_id'];
+        }
+        $npaText = '<a href="' . htmlspecialchars($url) . '" target="_blank" class="npa-revision-link" style="color:#0066cc;text-decoration:underline;">' . htmlspecialchars($npaText) . '</a>';
     }
     return trim($elementPath . ' ' . $npaText);
 }
@@ -211,8 +221,12 @@ function getRevisionSourceNote($modifiedById, $pdo, $asHtml = false) {
     $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
     $text = $path . ' ' . $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
+        $url = $npaInfo['npa_url'];
+        if (!empty($npaInfo['external_item_id'])) {
+            $url .= '#' . $npaInfo['external_item_id'];
+        }
         $npaPart = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
-        $text = $path . ' <a href="' . htmlspecialchars($npaInfo['npa_url']) . '" target="_blank" class="npa-revision-link" style="color:#0066cc;text-decoration:underline;">' . htmlspecialchars($npaPart) . '</a>';
+        $text = $path . ' <a href="' . htmlspecialchars($url) . '" target="_blank" class="npa-revision-link" style="color:#0066cc;text-decoration:underline;">' . htmlspecialchars($npaPart) . '</a>';
     }
     return $text;
 }
