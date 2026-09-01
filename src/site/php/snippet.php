@@ -3426,12 +3426,12 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
                 && (string)$child['parent_id'] !== (string)$key) {
                 return false;
             }
-            // При сравнении редакций утратившие силу дети не должны попадать
-            // в колонку — их тело уже не входит в ревизию структурного элемента
-            // на выбранную дату.
-            if ($forComparison && !empty($child['is_expired'])) {
-                return false;
-            }
+            // getItemTree оставляет в режиме сравнения только тех утративших
+            // силу детей, на которых ссылается body актуальной редакции
+            // родителя. Их необходимо передать в renderElement(): в режиме
+            // comparison он выводит последнюю редакцию ребёнка зачёркнутой.
+            // Иначе текущая колонка скрывает факт удаления, хотя он был
+            // внесён выбранной редакцией НПА.
             return true;
         });
         usort($children, function($a, $b) {
