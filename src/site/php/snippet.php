@@ -2314,22 +2314,47 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
         return [];
     }
 
-    // Только child_ref текущего body. Порядок body сохраняем, чтобы новые записи
-    // в «Изменения внесены» следовали тому же порядку, что и в тексте элемента.
-    $stmt = $pdo->prepare('
-        SELECT ref_item_internal_id
-        FROM npa_paragraph
-        WHERE rev_id = ?
-          AND block_type = \'child_ref\'
-          AND ref_item_internal_id IS NOT NULL
-        ORDER BY sort_order
-    ');
-    $stmt->execute([$parentRevisionId]);
-    $bodyChildIds = [];
-    foreach ($stmt->fetchAll() as $row) {
-        $childId = (int)$row['ref_item_internal_id'];
-        if ($childId > 0 && !isset($bodyChildIds[$childId])) {
-            $bodyChildIds[$childId] = true;
+    // Только child_ref актуального body. У структурной ревизии может не быть
+    // собственных paragraph-записей: в этом случае тело хранится в последней
+    // content-ревизии, как и в getItemTree()/getElementHtmlById().
+    $loadBodyChildRefs = function($revisionId) use ($pdo) {
+        $stmt = $pdo->prepare('
+            SELECT ref_item_internal_id
+            FROM npa_paragraph
+            WHERE rev_id = ?
+              AND block_type = \'child_ref\'
+              AND ref_item_internal_id IS NOT NULL
+            ORDER BY sort_order
+        ');
+        $stmt->execute([$revisionId]);
+        $ids = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $childId = (int)$row['ref_item_internal_id'];
+            if ($childId > 0 && !isset($ids[$childId])) {
+                $ids[$childId] = true;
+            }
+        }
+        return $ids;
+    };
+
+    $bodyChildIds = $loadBodyChildRefs($parentRevisionId);
+    if (empty($bodyChildIds)) {
+        // Структурная ревизия может быть без body. Берём именно последнюю
+        // content-ревизию, действовавшую на дату parentRevision.
+        $stmtParentRevision = $pdo->prepare(
+            'SELECT valid_from FROM npa_item_revision WHERE rev_id = ? LIMIT 1'
+        );
+        $stmtParentRevision->execute([$parentRevisionId]);
+        $parentRevisionValidFrom = $stmtParentRevision->fetchColumn();
+        if ($parentRevisionValidFrom) {
+            $contentRevision = getLastContentRevision(
+                $pdo,
+                $internal_item_id,
+                $parentRevisionValidFrom
+            );
+            if ($contentRevision) {
+                $bodyChildIds = $loadBodyChildRefs($contentRevision['rev_id']);
+            }
         }
     }
     if (empty($bodyChildIds)) {
@@ -2357,6 +2382,25 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
             }
         }
     }
+    // При выбранной редакции родитель мог вообще не получить собственной
+    // ревизии: НПА меняет только его child_ref. Поэтому источником удаления
+    // может быть item из выбранной revision_info, которого нет в parent.modified_by_id.
+    if (!empty($selectedRevisionNpaIds)) {
+        $placeholders = implode(',', array_fill(0, count($selectedRevisionNpaIds), '?'));
+        $stmtSelectedSources = $pdo->prepare(
+            "SELECT id, item_id FROM npa_item WHERE npa_id IN ($placeholders)"
+        );
+        $stmtSelectedSources->execute(array_values($selectedRevisionNpaIds));
+        foreach ($stmtSelectedSources->fetchAll() as $sourceRow) {
+            if (!empty($sourceRow['id'])) {
+                $changerItemIdSet[(string)$sourceRow['id']] = true;
+            }
+            if (!empty($sourceRow['item_id'])) {
+                $changerItemIdSet[(string)$sourceRow['item_id']] = true;
+            }
+        }
+    }
+
     // Если дочерний элемент утратил силу из-за самого родителя, not_valid
     // содержит item_id родителя, а не обязательно item_id элемента-источника НПА.
     if (!empty($parent['item_id']) && $parent['item_id'] !== 'base') {
@@ -2837,6 +2881,28 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
                     if ($sourceItemId) {
                         $parentSources[(string)$sourceItemId] = true;
                     }
+                }
+            }
+
+            // НПА выбранной редакции может менять только дочерние элементы.
+            // Тогда у родителя modified_by_id остаётся от старой ревизии,
+            // но not_valid ребёнка всё равно должен ссылаться на источник
+            // текущей выбранной редакции.
+            if (!empty($selectedRevisionNpaIds)) {
+                $placeholders = implode(',', array_fill(0, count($selectedRevisionNpaIds), '?'));
+                $stmtSelectedSources = $pdo->prepare(
+                    "SELECT id, item_id FROM npa_item WHERE npa_id IN ($placeholders)"
+                );
+                $stmtSelectedSources->execute(array_values($selectedRevisionNpaIds));
+                foreach ($stmtSelectedSources->fetchAll() as $sourceRow) {
+                    if (!empty($sourceRow['id'])) {
+                        $parentSources[(string)$sourceRow['id']] = true;
+                    }
+                    if (!empty($sourceRow['item_id'])) {
+                        $parentSources[(string)$sourceRow['item_id']] = true;
+                    }
+                }
+            }
                 }
             }
             foreach (($parentData['paragraphs'] ?? []) as $block) {
