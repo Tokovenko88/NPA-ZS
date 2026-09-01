@@ -1147,6 +1147,9 @@ class AiPipelineMixin:
                         source_context_root=target_element,
                         ambiguous_callback=ambiguous_callback,
                         prompt_answer_callback=self._collect_prompt_answer,
+                        backend=self.backend.get(),
+                        kilo_gateway_url=self.kilo_gateway_url.get(),
+                        api_key=self.kilo_gateway_api_key.get(),
                     )
                 else:
                     if tracker:
@@ -1193,6 +1196,9 @@ class AiPipelineMixin:
                             source_context_root=target_element,
                             ambiguous_callback=ambiguous_callback,
                             prompt_answer_callback=self._collect_prompt_answer,
+                            backend=self.backend.get(),
+                            kilo_gateway_url=self.kilo_gateway_url.get(),
+                            api_key=self.kilo_gateway_api_key.get(),
                         ) if tracker else apply_change(
                             change=ch,
                             data=result_data,
@@ -1209,7 +1215,10 @@ class AiPipelineMixin:
                             stop_event=self.stop_event,
                             manual_resolver=manual_resolver,
                             source_context_root=target_element,
-                            ambiguous_callback=ambiguous_callback
+                            ambiguous_callback=ambiguous_callback,
+                            backend=self.backend.get(),
+                            kilo_gateway_url=self.kilo_gateway_url.get(),
+                            api_key=self.kilo_gateway_api_key.get()
                         )
                         if ok and ok.get('status') == 'NEEDS_USER_ADDRESS':
                             resolved_ok = _handle_needs_user_address(ch, change_id, target_element.get('item_id') if target_element else None)
@@ -1255,6 +1264,9 @@ class AiPipelineMixin:
                             source_context_root=target_element,
                             ambiguous_callback=ambiguous_callback,
                             prompt_answer_callback=self._collect_prompt_answer,
+                            backend=self.backend.get(),
+                            kilo_gateway_url=self.kilo_gateway_url.get(),
+                            api_key=self.kilo_gateway_api_key.get(),
                         ) if tracker else apply_change(
                             change=ch,
                             data=result_data,
@@ -1271,7 +1283,10 @@ class AiPipelineMixin:
                             stop_event=self.stop_event,
                             manual_resolver=manual_resolver,
                             source_context_root=target_element,
-                            ambiguous_callback=ambiguous_callback
+                            ambiguous_callback=ambiguous_callback,
+                            backend=self.backend.get(),
+                            kilo_gateway_url=self.kilo_gateway_url.get(),
+                            api_key=self.kilo_gateway_api_key.get()
                         )
                         if ok and ok.get('status') == 'NEEDS_USER_ADDRESS':
                             resolved_ok = _handle_needs_user_address(ch, change_id, source_id)
@@ -1346,6 +1361,9 @@ class AiPipelineMixin:
                         source_context_root=target_element,
                         ambiguous_callback=ambiguous_callback,
                         prompt_answer_callback=self._collect_prompt_answer,
+                        backend=self.backend.get(),
+                        kilo_gateway_url=self.kilo_gateway_url.get(),
+                        api_key=self.kilo_gateway_api_key.get(),
                     ) if tracker else apply_change(
                         change=h_ch,
                         data=result_data,
@@ -1362,7 +1380,10 @@ class AiPipelineMixin:
                         stop_event=self.stop_event,
                         manual_resolver=manual_resolver,
                         source_context_root=target_element,
-                        ambiguous_callback=ambiguous_callback
+                        ambiguous_callback=ambiguous_callback,
+                        backend=self.backend.get(),
+                        kilo_gateway_url=self.kilo_gateway_url.get(),
+                        api_key=self.kilo_gateway_api_key.get()
                     )
                     if ok_h:
                         success_count += 1
@@ -1417,6 +1438,9 @@ class AiPipelineMixin:
                         source_context_root=target_element,
                         ambiguous_callback=ambiguous_callback,
                         prompt_answer_callback=self._collect_prompt_answer,
+                        backend=self.backend.get(),
+                        kilo_gateway_url=self.kilo_gateway_url.get(),
+                        api_key=self.kilo_gateway_api_key.get(),
                     ) if tracker else apply_change(
                         change=del_ch,
                         data=result_data,
@@ -1433,7 +1457,10 @@ class AiPipelineMixin:
                         stop_event=self.stop_event,
                         manual_resolver=manual_resolver,
                         source_context_root=target_element,
-                        ambiguous_callback=ambiguous_callback
+                        ambiguous_callback=ambiguous_callback,
+                        backend=self.backend.get(),
+                        kilo_gateway_url=self.kilo_gateway_url.get(),
+                        api_key=self.kilo_gateway_api_key.get()
                     )
                     if ok and ok.get('status') == 'NEEDS_USER_ADDRESS':
                         resolved_ok = _handle_needs_user_address(del_ch, change_id, target_element.get('item_id') if target_element else None)

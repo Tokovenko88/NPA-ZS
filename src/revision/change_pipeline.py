@@ -58,6 +58,9 @@ def apply_change_tracked(
     source_context_root: Dict[str, Any] = None,
     ambiguous_callback: Callable = None,
     prompt_answer_callback: Callable = None,
+    backend: str = None,
+    kilo_gateway_url: str = None,
+    api_key: str = None,
 ) -> Dict[str, Any]:
     """Применяет одно изменение с отслеживанием статуса."""
     if rebuild_ids is None:
@@ -92,6 +95,9 @@ def apply_change_tracked(
             source_context_root=source_context_root,
             ambiguous_callback=ambiguous_callback,
             prompt_answer_callback=prompt_answer_callback,
+            backend=backend,
+            kilo_gateway_url=kilo_gateway_url,
+            api_key=api_key,
         )
 
         if not isinstance(result, dict):

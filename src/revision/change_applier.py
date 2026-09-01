@@ -10,13 +10,22 @@ import uuid
 from datetime import datetime, timedelta, date
 from bs4 import BeautifulSoup
 
-from npazs.revision.text_utils import clean_head_text, safe_re_sub
+from npazs.revision.ai_utils import ask_ollama
+from npazs.revision.text_utils import (
+    adjust_punctuation_after_deletion,
+    clean_head_text,
+    safe_re_sub,
+)
 from npazs.revision.html_utils import (
+    clean_and_unwrap_html,
     clean_description_html,
     extract_paragraphs_by_indices,
+    get_current_head,
     parse_ai_response_for_prompt4,
+    parse_structural_tokens,
     remove_leading_number_from_html,
     split_html_to_paragraphs,
+    strip_number_from_element_html,
     get_full_element_html,
 )
 from npazs.revision.ui_utils import (
@@ -24,7 +33,12 @@ from npazs.revision.ui_utils import (
     _fetch_source_html_for_change,
     _find_existing_element_flexible,
 )
-from npazs.revision.tree_utils import find_child_by_type_and_number, find_item_by_id
+from npazs.revision.tree_utils import (
+    adjust_highlights_for_paragraph_change,
+    find_appendix_by_number,
+    find_child_by_type_and_number,
+    find_item_by_id,
+)
 from npazs.revision.element_finder import _resolve_modified_by_ids, find_item_by_revision_number, _extract_paragraph_order
 from npazs.revision.ui_utils import (
     _add_new_element,
@@ -33,9 +47,12 @@ from npazs.revision.ui_utils import (
     _fetch_source_html_for_change,
     _ensure_path,
     _find_existing_element_flexible,
+    build_new_body_preserving_child_refs,
+    is_highlights_empty,
+    parse_add_new_field,
 )
 from npazs.revision.html_utils import _correct_table_highlights
-from npazs.constants import TYPE_TO_RUSSIAN
+from npazs.constants import DEFAULT_BACKEND, TYPE_TO_RUSSIAN
 
 
 def _assign_revision_id(revision):
@@ -448,7 +465,8 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
 def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, log_callback,
                  source_item_id=None, model=None, prompt4=None, rebuild_ids=None,
                  doc_type='law', extra_options=None, stop_event=None, manual_resolver=None,
-                 source_context_root=None, ambiguous_callback=None, prompt_answer_callback=None):
+                 source_context_root=None, ambiguous_callback=None, prompt_answer_callback=None,
+                 backend=None, kilo_gateway_url=None, api_key=None):
     if rebuild_ids is None:
         rebuild_ids = []
     if '_resolved_item_id' in change:
@@ -456,11 +474,13 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
         if resolved_target_id == '__наименование__':
             return _apply_change_to_head(change, data, change_data, general_valid_from, change.get('revision_number'),
                                          None, source_item_id, log_callback, model, prompt4, extra_options, stop_event,
-                                         manual_resolver, source_context_root, prompt_answer_callback=prompt_answer_callback)
+                                         manual_resolver, source_context_root, prompt_answer_callback=prompt_answer_callback,
+                                         backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
         elif resolved_target_id == '__преамбула__':
             return _apply_change_to_preamble(change, data, change_data, general_valid_from, change.get('revision_number'),
                                               None, source_item_id, log_callback, model, prompt4, extra_options, stop_event,
-                                              manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
+                                              manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback,
+                                              backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
         elif resolved_target_id is None:
             structural = change.get('structural_element', '').strip()
             ch_type = change.get('type', '').strip()
@@ -553,9 +573,11 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
                 return _apply_change_to_element_head(change, data, change_data, valid_from, rev_number,
                                                     source_element_local, source_item_id, log_callback, model,
                                                     prompt4, extra_options, stop_event, manual_resolver,
-                                                    source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
+                                                    source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback,
+                                                    ambiguous_callback=ambiguous_callback,
+                                                    backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
             
-            return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, None, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'), prompt_answer_callback=prompt_answer_callback)
+            return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, None, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'), prompt_answer_callback=prompt_answer_callback, change=change, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     structural = change.get('structural_element', '').strip()
     ch_type = change.get('type', '').strip()
     description = change.get('description', '')
@@ -580,18 +602,20 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
         return _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_number,
                                                  source_element, source_item_id, log_callback, model,
                                                  prompt4, extra_options, stop_event, manual_resolver,
-                                                 source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
+                                                 source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback,
+                                                 ambiguous_callback=ambiguous_callback,
+                                                 backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     if structural_lower == "наименование":
-        return _apply_change_to_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, prompt_answer_callback=prompt_answer_callback)
+        return _apply_change_to_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, prompt_answer_callback=prompt_answer_callback, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     if structural_lower.endswith(' наименование') and not structural_lower == 'наименование':
         element_part = structural[:-len(' наименование')].strip()
         change_copy = change.copy()
         change_copy['structural_element'] = f"наименование {element_part}"
-        return _apply_change_to_element_head(change_copy, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
+        return _apply_change_to_element_head(change_copy, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback, ambiguous_callback=ambiguous_callback, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     if structural_lower.startswith('наименование '):
-        return _apply_change_to_element_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
+        return _apply_change_to_element_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback, ambiguous_callback=ambiguous_callback, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     if structural_lower == "преамбула":
-        return _apply_change_to_preamble(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback)
+        return _apply_change_to_preamble(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, rebuild_ids, prompt_answer_callback=prompt_answer_callback, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     if ch_type == 'add':
         new_spec = change.get('new', '')
         if not new_spec:
@@ -649,22 +673,25 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
     modified_by_id_str = _resolve_modified_by_ids(rev_number, change_data, source_element, source_item_id, log_callback, structural_element=structural, manual_resolver=manual_resolver, stop_event=stop_event, context_root=source_context_root)
     if not modified_by_id_str:
         modified_by_id_str = str(change_data.get('npa_id', 'unknown'))
-    return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, source_element, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'), prompt_answer_callback=prompt_answer_callback)
+    return _apply_change_to_element_content(target_element, ch_type, description, valid_from, modified_by_id_str, model, prompt4, extra_options, stop_event, log_callback, rebuild_ids, structural, source_context_root, change_data, data, source_element, source_item_id, rev_number, manual_resolver, change_id=change.get('change_id'), prompt_answer_callback=prompt_answer_callback, change=change, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
 
 
 def apply_change(change, data, change_data, law_ref, general_valid_from, log_callback,
                  source_item_id=None, model=None, prompt4=None, rebuild_ids=None,
                  doc_type='law', extra_options=None, stop_event=None, manual_resolver=None,
-                 source_context_root=None, ambiguous_callback=None, prompt_answer_callback=None):
+                 source_context_root=None, ambiguous_callback=None, prompt_answer_callback=None,
+                 backend=None, kilo_gateway_url=None, api_key=None):
     change_id = _get_change_id(change)
     if rebuild_ids is None:
         rebuild_ids = []
+    backend = backend or DEFAULT_BACKEND
 
     result = _apply_change_impl(
         change, data, change_data, law_ref, general_valid_from, log_callback,
         source_item_id, model, prompt4, rebuild_ids, doc_type, extra_options,
         stop_event, manual_resolver, source_context_root, ambiguous_callback,
-        prompt_answer_callback=prompt_answer_callback
+        prompt_answer_callback=prompt_answer_callback,
+        backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key
     )
 
     if isinstance(result, dict):
@@ -772,7 +799,8 @@ def _find_new_revision(data, change):
 def _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_number,
                                       source_element, source_item_id, log_callback, model,
                                       prompt4, extra_options, stop_event, manual_resolver,
-                                      source_context_root, rebuild_ids, prompt_answer_callback=None):
+                                      source_context_root, rebuild_ids, prompt_answer_callback=None,
+                                      ambiguous_callback=None, backend=None, kilo_gateway_url=None, api_key=None):
     structural = change.get('structural_element', '')
     ch_type = change.get('type', '')
     description = change.get('description', '')
@@ -870,7 +898,8 @@ def _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_
 def _apply_change_to_head(change, data, change_data, valid_from, rev_number,
                           source_element, source_item_id, log_callback, model,
                           prompt4, extra_options, stop_event, manual_resolver,
-                          source_context_root, prompt_answer_callback=None):
+                          source_context_root, prompt_answer_callback=None,
+                          backend=None, kilo_gateway_url=None, api_key=None):
     ch_type = change.get('type')
     highlights = change.get('highlights', None)
     head_rev = data.get('head_revision', [])
@@ -972,7 +1001,8 @@ def _apply_change_to_head(change, data, change_data, valid_from, rev_number,
 def _apply_change_to_element_head(change, data, change_data, valid_from, rev_number,
                                    source_element, source_item_id, log_callback, model,
                                    prompt4, extra_options, stop_event, manual_resolver,
-                                   source_context_root, rebuild_ids, prompt_answer_callback=None):
+                                   source_context_root, rebuild_ids, prompt_answer_callback=None,
+                                   ambiguous_callback=None, backend=None, kilo_gateway_url=None, api_key=None):
     structural = change.get('structural_element', '').strip()
     ch_type = change.get('type', '').strip()
     highlights = change.get('highlights', None)
@@ -1076,7 +1106,8 @@ def _apply_change_to_element_head(change, data, change_data, valid_from, rev_num
 def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
                                source_element, source_item_id, log_callback, model,
                                prompt4, extra_options, stop_event, manual_resolver,
-                               source_context_root, rebuild_ids, prompt_answer_callback=None):
+                               source_context_root, rebuild_ids, prompt_answer_callback=None,
+                               backend=None, kilo_gateway_url=None, api_key=None):
     from npazs.revision.revision_builder import extract_child_refs_from_revision
     ch_type = change.get('type', '').strip()
     description = change.get('description', '')
@@ -1209,7 +1240,8 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
                                       stop_event, log_callback, rebuild_ids,
                                       structural, source_context_root, change_data, data,
                                       source_element, source_item_id, rev_number,
-                                      manual_resolver=None, change_id=None, prompt_answer_callback=None):
+                                      manual_resolver=None, change_id=None, prompt_answer_callback=None,
+                                      change=None, backend=None, kilo_gateway_url=None, api_key=None):
     from npazs.revision.revision_builder import extract_child_refs_from_revision
     if 'revisions' not in element:
         element['revisions'] = [{'body': []}]
