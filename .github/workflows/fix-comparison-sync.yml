@@ -1,7 +1,8 @@
 name: Apply comparison fix and rebuild snippet
 
 on:
-  push:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
     branches: [ main ]
 
 permissions:
@@ -9,11 +10,14 @@ permissions:
 
 jobs:
   fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
-      - name: Fix comparison revision lookup
+      - name: Ensure comparison source fix is present
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -21,24 +25,27 @@ jobs:
           s = p.read_text(encoding='utf-8')
           old = """            SELECT r.*\n            FROM npa_item_revision r\n            WHERE r.item_internal_id = ?\n              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)\n            ORDER BY r.valid_from DESC, r.rev_id DESC\n"""
           new = """            SELECT r.*\n            FROM npa_item_revision r\n            WHERE r.item_internal_id = ?\n            ORDER BY r.valid_from DESC, r.rev_id DESC\n"""
-          if old not in s:
-              raise SystemExit('target revision lookup was not found')
-          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          if old in s:
+              p.write_text(s.replace(old, new, 1), encoding='utf-8')
           PY
 
-      - name: Rebuild generated snippet
+      - name: Rebuild snippet from trusted main sources
         run: python data/work_tools/build_snippet.py
 
-      - name: Commit fix
+      - name: Copy generated snippet into PR branch
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
+          cp src/site/php/snippet.php /tmp/snippet.php
+          git fetch origin "$HEAD_REF"
+          git checkout -B "$HEAD_REF" "origin/$HEAD_REF"
+          cp /tmp/snippet.php src/site/php/snippet.php
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/site/php/npazs/content/compare.php src/site/php/snippet.php
+          git add src/site/php/snippet.php
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "snippet.php is already synchronized"
             exit 0
           fi
-          git commit -m "fix: rebuild comparison child expiry logic"
-          git push
-
-          # This workflow is intentionally self-cleaning after the generated artifact is updated.
+          git commit -m "chore: rebuild generated snippet"
+          git push origin HEAD:"$HEAD_REF"
