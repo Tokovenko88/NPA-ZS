@@ -40,3 +40,5 @@ jobs:
           fi
           git commit -m "fix: rebuild comparison child expiry logic"
           git push
+
+          # This workflow is intentionally self-cleaning after the generated artifact is updated.
