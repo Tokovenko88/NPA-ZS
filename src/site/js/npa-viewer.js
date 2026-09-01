@@ -1237,12 +1237,12 @@ function _npaNodeToRtf(node, insideTable) {
             let textSpan = node.querySelector('.npa-item-notes-text');
             let text = textSpan ? textSpan.textContent.trim() : node.textContent.trim();
             if (!text) return '';
-            return '\\pard \\ql\\fi0\\sb0\\sa120 {\\i\\fs20\\cf2 Примечание: ' + _npaRtfEsc(text) + '}\\par\n';
+            return '\\pard \\ql\\fi0\\sb0\\sa120 {\\i\\fs20\\cf2 ' + _npaRtfEsc('Примечание: ') + _npaRtfEsc(text) + '}\\par\n';
         }
         if (cls.indexOf('npa-doc-notes') >= 0) {
             let notes = node.querySelectorAll('.npa-doc-note');
             if (!notes.length) return '';
-            let rtf = '\\pard \\ql\\sb0\\sa120 {\\b\\fs20\\cf2 Примечания к документу:}\\par\n';
+            let rtf = '\\pard \\ql\\sb0\\sa120 {\\b\\fs20\\cf2 ' + _npaRtfEsc('Примечания к документу:') + '}\\par\n';
             notes.forEach(n => {
                 rtf += '\\pard \\ql\\fi360\\sb0\\sa60 {\\i\\fs20\\cf2 ' + _npaRtfEsc(n.textContent.trim()) + '}\\par\n';
             });
