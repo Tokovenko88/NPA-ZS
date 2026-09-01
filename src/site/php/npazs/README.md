@@ -78,7 +78,7 @@ src/site/php/snippet.php  (ЕДИНЫЙ скрипт, генерируется �
 | `descriptions/npa_refs.php` | Описания НПА-источников изменений | `getNpaInfoByItemId`, `getShortNpaDescription`, `getElementHumanPath`, `getRevisionDocNoteImproved`, `getRevisionSourceNote`, `getIntroducingLawForDate` |
 | `content/item_content.php` | HTML-контент элемента на дату | `getParagraphsForRevision`, `getItemHeadRevisionContent`, `getItemRevisionContent` |
 | `content/tables.php` | Структурные таблицы | `renderStructuredTable`, `getTableBorderFromContent`, `renderTableFragment`, `renderTableRowWithButtons`, `renderElementAsTableFragment` |
-| `content/compare.php` | Сравнение редакций (diff) | `getItemCompareForSelectedEdition`, `getItemHeadCompareForSelectedEdition`, `getItemHeadCompareHtml`, `ensureTableWrapperForComparison`, `getHeadCompareHtml` |
+| `content/compare.php` | Сравнение редакций (diff) | `collectExpiredChildChanges`, `getItemCompareForSelectedEdition`, `getItemHeadCompareForSelectedEdition`, `getItemHeadCompareHtml`, `ensureTableWrapperForComparison`, `getHeadCompareHtml` |
 | `ui/buttons.php` | Кнопки редакций, дата вступления в силу | `getElementRevisionButtons`, `getHeadRevisionButtons`, `getItemHeadRevisionButtons`, `buildRevisionEffectiveDateBlock` |
 | `ui/notes.php` | Примечания к элементам/заголовкам | `getItemHeadRevisionNotes`, `getElementRevisionNotes` |
 | `ui/selector.php` | Селектор редакций документа | `getRevisionSelectorOptions` |

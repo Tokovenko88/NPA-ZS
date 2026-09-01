@@ -39,9 +39,11 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
     $prevHtml = $prevContent ? ensureTableWrapperForComparison($prevContent['html'], $internal_item_id, $pdo, $prevAsOfDate) : '';
     $currHtml = $currContent ? ensureTableWrapperForComparison($currContent['html'], $internal_item_id, $pdo, $asOfDate) : '';
     $changingElements = [];
+    $changerIds = [];
     if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
         foreach (array_filter(array_map('trim', explode(',', $current['modified_by_id']))) as $changerStr) {
             if ($changerStr === 'base') continue;
+            $changerIds[] = $changerStr;
             $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
             if (!$npaInfo) continue;
             $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
@@ -55,6 +57,8 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
             ];
         }
     }
+        // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
+    $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internal_item_id, $asOfDate, $changerIds, $selectedRevisionNpaIds));
     $highlightsForClient = null;
     if (!empty($current['highlights'])) {
         $decoded = json_decode($current['highlights'], true);
@@ -88,21 +92,25 @@ function getItemHeadCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOf
         ];
     }
     $prevContent = getItemHeadRevisionContent($pdo, $prev['id'], $internal_item_id, $asOfDate);
-    $currContent = getItemHeadRevisionContent($pdo, $current['id'], $internal_item_id, $asOfDate);
+        $currContent = getItemHeadRevisionContent($pdo, $current['id'], $internal_item_id, $asOfDate);
     $changingElements = [];
+    $changerIds = [];
     if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
         foreach (array_filter(array_map('trim', explode(',', $current['modified_by_id']))) as $changerStr) {
             if ($changerStr === 'base') continue;
+            $changerIds[] = $changerStr;
             $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
             if (!$npaInfo) continue;
             $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
             $changingElements[] = [
                 'note' => getRevisionSourceNote($changerStr, $pdo, true),
-                'html' => getElementHtmlById($changerStr, $asOfDate, $pdo, $npaInfo['npa_id'], $npaInfo['npa_type']),
+                                'html' => getElementHtmlById($changerStr, $asOfDate, $pdo, $npaInfo['npa_id'], $npaInfo['npa_type']),
                 'date' => formatDateToRus($changerDate)
             ];
         }
     }
+    // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
+    $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internal_item_id, $asOfDate, $changerIds, $selectedRevisionNpaIds));
     $highlightsForClient = null;
     if (!empty($current['highlights'])) {
         $decoded = json_decode($current['highlights'], true);
@@ -116,7 +124,111 @@ function getItemHeadCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOf
         'changing_elements' => $changingElements,
         'highlights' => normalizeHighlights($highlightsForClient),
         'mod_type' => $current['mod_type']
-    ];
+        ];
+}
+
+/**
+ * Возвращает список дочерних элементов, утративших силу той же редакцией
+ * НПА, что и указанные changer-элементы ($changerIds).
+ *
+ * В БД поле npa_item_revision.not_valid хранит item_id элемента, вызвавшего
+ * утрату силы. Если дочерний элемент погиб тем же документом, что и родитель
+ * (или один из changer-элементов), его тоже выводим в «Изменения внесены:».
+ *
+ * Дубли не добавляются (settype к key).
+ *
+ * @param PDO    $pdo
+ * @param mixed  $internal_item_id  Внутренний id родительского элемента (npa_item.id)
+ * @param string $asOfDate          Дата просмотра
+ * @param array  $changerIds        Список item_id элементов-инициаторов текущей редакции
+ * @param array  $selectedRevisionNpaIds
+ * @return array Массив записей ['note'=>string, 'html'=>string, 'date'=>string]
+ */
+function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, array $changerIds, array $selectedRevisionNpaIds = []) {
+    if (empty($changerIds)) {
+        return [];
+    }
+    $result = [];
+    $seen = [];
+
+    // item_id родительского элемента для сопоставления с not_valid детей.
+    $stmt = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
+    $stmt->execute([$internal_item_id]);
+    $parentRow = $stmt->fetch();
+    $parentItemId = $parentRow ? $parentRow['item_id'] : null;
+
+    // Все дочерние элементы родителя.
+    $stmt = $pdo->prepare('SELECT id, item_id, item_type, item_number FROM npa_item WHERE parent_id = ? ORDER BY sort_order, id');
+    $stmt->execute([$internal_item_id]);
+    $children = $stmt->fetchAll();
+
+    if (empty($children)) {
+        return $result;
+    }
+
+    // Список item_id для поиска в not_valid (rtrim на случай "id1,id2").
+    $changerItemIdSet = [];
+    foreach ($changerIds as $cid) {
+        $cids = array_filter(array_map('trim', explode(',', $cid)));
+        foreach ($cids as $c) {
+            if ($c !== 'base') {
+                $changerItemIdSet[$c] = true;
+            }
+        }
+    }
+    // Утратившие силу из-за самого родителя тоже считаем.
+    if ($parentItemId && $parentItemId !== 'base') {
+        $changerItemIdSet[$parentItemId] = true;
+    }
+
+    foreach ($children as $child) {
+        $childInternalId = $child['id'];
+        // Активная ревизия ребёнка — чтобы получить HTML и npa_id.
+        $rev = getRevisionForSelectedEdition($pdo, $childInternalId, $asOfDate, $selectedRevisionNpaIds);
+        if (!$rev) {
+            continue;
+        }
+        $childNotValid = $rev['not_valid'] ?? null;
+        if (!$childNotValid) {
+            continue;
+        }
+
+        // not_valid хранит item_id элемента, отменившего ребёнка.
+        // Проверяем, относится ли он к нашим changer-элементам.
+        $notValidIds = array_filter(array_map('trim', explode(',', $childNotValid)));
+        $matchedChanger = false;
+        foreach ($notValidIds as $nvid) {
+            if (isset($changerItemIdSet[$nvid])) {
+                $matchedChanger = $nvid;
+                break;
+            }
+        }
+        if (!$matchedChanger) {
+            continue;
+        }
+        if (isset($seen[$childInternalId])) {
+            continue;
+        }
+        $seen[$childInternalId] = true;
+
+        $npaInfo = getNpaInfoByItemId($matchedChanger, $pdo);
+        $childDate = $npaInfo
+            ? ($npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $rev['valid_from'])
+            : $rev['valid_from'];
+
+        $childHtml = getElementHtmlById(
+            $child['item_id'], $asOfDate, $pdo,
+            $npaInfo['npa_id'] ?? 0, $npaInfo['npa_type'] ?? ''
+        );
+
+        $result[] = [
+            'note' => getRevisionSourceNote($matchedChanger, $pdo, true),
+            'html' => $childHtml,
+            'date' => formatDateToRus($childDate)
+        ];
+    }
+
+    return $result;
 }
 
 function getItemHeadCompareHtml(PDO $pdo, $internal_item_id, $asOfDate) {
