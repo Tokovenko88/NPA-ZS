@@ -70,7 +70,7 @@ from npazs.revision.text_utils import strip_thinking_tags
 from npazs.revision.ai_utils import ask_ollama
 from npazs.revision.engine import *
 from npazs.revision.tree_utils import _find_target_element, find_item_by_id
-from npazs.revision.ui_utils import _correct_change_description, _fetch_source_html_for_change, _add_new_element, _find_existing_element_flexible, _normalize_highlights_positions, _resolve_add_parent_and_deferred, _ensure_path, extract_json_from_text, expand_range_in_new_field, split_range_changes, get_date_for_filename
+from npazs.revision.ui_utils import _correct_change_description, _fetch_source_html_for_change, _add_new_element, _find_existing_element_flexible, _normalize_highlights_positions, _resolve_add_parent_and_deferred, _ensure_path, extract_json_from_text, expand_range_in_new_field, split_range_changes, get_date_for_filename, parse_add_new_field
 from npazs.revision.element_finder import narrow_source_id_to_subpoint, find_item_by_revision_number
 from npazs.revision.retroactive_notes import (
     apply_retroactive_rules_to_groups,
@@ -78,7 +78,7 @@ from npazs.revision.retroactive_notes import (
     _add_npa_note,
     normalize_amending_note_text,
 )
-from npazs.revision.html_utils import extract_html_for_added_element, _extract_quoted_html, extract_structural_block, extract_text_from_element, get_full_element_html
+from npazs.revision.html_utils import extract_html_for_added_element, _extract_quoted_html, extract_structural_block, extract_text_from_element, get_full_element_html, validate_quote_extraction
 from npazs.revision.change_pipeline import apply_change_tracked, apply_grouped_changes_tracked, run_verification_stage
 from npazs.revision.change_tracker import ChangeTracker, ChangeStatus
 from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
@@ -193,6 +193,21 @@ class AiPipelineMixin:
                     continue
             return value
 
+        def _stage2_validate_amending_path(self, structural, change_data):
+            """Проверяет, что ``structural_element`` существует в изменяющем законе.
+
+            Для ``special_valid_from`` (особые даты вступления изм·еняющего закона)
+            путь обязан сопоставляться с реальным элементом ``change_data``.
+            Иначе запись бесполезна — код не сможет её применить.
+            """
+            if not structural or structural.strip().lower() == "law":
+                return True
+            try:
+                from npazs.revision.ui_utils import _find_existing_element_flexible
+                return _find_existing_element_flexible(change_data, structural, self.log) is not None
+            except Exception:
+                return False
+
         def _stage2_normalize_result(self, parsed, change_data=None):
             """Приводит ответ этапа 2 к внутреннему плоскому списку записей.
 
@@ -219,6 +234,17 @@ class AiPipelineMixin:
                     rec.setdefault('applies_to', 'amending_law')
                     if rec.get('date'):
                         rec['date'] = self._stage2_iso_to_dmy(rec['date'])
+                    if (change_data and rec.get('applies_to') == 'amending_law'
+                            and not self._stage2_validate_amending_path(
+                                rec.get('structural_element', ''), change_data)):
+                        self.log(
+                            f"[STAGE2] special_valid_from путь "
+                            f"'{rec.get('structural_element', '')}' не сопоставлен "
+                            f"с изменяющим законом — запись отброшена (needs_review); "
+                            f"даты и периоды внутри добавляемого текста не являются "
+                            f"особыми датами вступления изменяющего закона",
+                            'warning')
+                        continue
                     records.append(rec)
                 for item in (parsed.get('retroactive_effects') or []):
                     if not isinstance(item, dict):
@@ -2165,6 +2191,18 @@ class AiPipelineMixin:
                             general_valid_from, log_callback=self.log, change_data=change_data
                         )
                         self.log(f"[RETRO DEBUG] retroactive note applied to {applied_retro} target items (final JSON)", 'info')
+                        if applied_retro == 0:
+                            pending_desc = "; ".join(
+                                (str(r.get('structural_element', '')) or '?')
+                                for r in pending_retroactive_rules
+                            )
+                            self.log(
+                                f"⚠️ needs_review: ретроактивные правила не применены ни к "
+                                f"одному элементу ({pending_desc}). "
+                                f"Проверьте результат вручную — оговорка о распространении "
+                                f"действия на правоотношения, возникшие ранее общей даты "
+                                f"вступления, может быть потеряна.",
+                                'warning')
 
                     self.log("=== ЭТАП 6: Верификация изменений ===", 'info')
                     all_verified = run_verification_stage(tracker, result_data, change_data, self.log)

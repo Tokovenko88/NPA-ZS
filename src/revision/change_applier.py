@@ -17,6 +17,7 @@ from npazs.revision.html_utils import (
     parse_ai_response_for_prompt4,
     remove_leading_number_from_html,
     split_html_to_paragraphs,
+    get_full_element_html,
 )
 from npazs.revision.ui_utils import (
     _ensure_path,

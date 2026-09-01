@@ -30,4 +30,4 @@ if __name__ == "__main__":
     else:
         from npazs.core.modx_gui import MODXProcessorGUI
         app = MODXProcessorGUI()
-        app.mainloop()
+        app.run()

@@ -258,12 +258,67 @@ def _structural_path_tokens(structural):
     return parse_structural_tokens(structural) if structural else []
 
 
+# Порядок иерархии сверху вниз. Используется, чтобы приводить пути вида
+# «часть 1.4 статьи 2» к каноническому «статья 2 -> часть 1.4».
+_HIERARCHY_ORDER = {
+    'preamble': 0,
+    'chapter': 0, 'section': 0, 'appendix': 0, 'structured_table': 0,
+    'article': 1,
+    'part': 2,
+    'point': 3,
+    'subpoint': 4,
+    'paragraph': 5,
+}
+
+_RU_TYPE_NAME = {
+    'preamble': 'преамбула',
+    'chapter': 'глава',
+    'section': 'раздел',
+    'appendix': 'приложение',
+    'structured_table': 'таблица',
+    'article': 'статья',
+    'part': 'часть',
+    'point': 'пункт',
+    'subpoint': 'подпункт',
+    'paragraph': 'абзац',
+}
+
+# Обратный словарь: русская (каноническая) форма → английский тип токена,
+# чтобы сравнивать с результатом ``parse_structural_tokens``.
+_RU_TO_ENG = {v: k for k, v in _RU_TYPE_NAME.items()}
+
+
+def _canonical_structural_tokens(structural):
+    """Токены пути, отсортированные по иерархии сверху вниз.
+
+    Порядок слов в исходной строке не важен — «часть 1.4 статьи 2» и
+    «статья 2 -> часть 1.4» дают одинаковый канонический набор.
+    """
+    tokens = _structural_path_tokens(structural)
+    return sorted(tokens, key=lambda t: (_HIERARCHY_ORDER.get(t[0], 10), str(t[1] or '')))
+
+
+def _canonical_structural_path(structural):
+    """Каноническая строка пути сверху вниз, например «статья 2 -> часть 1.4»."""
+    if not structural:
+        return ""
+    parts = []
+    for etype, num in _canonical_structural_tokens(structural):
+        ru = _RU_TYPE_NAME.get(etype, etype)
+        parts.append(f"{ru} {num}".strip() if num is not None else ru)
+    return " -> ".join(parts)
+
+
 def _structural_path_key(tokens):
-    """Create a hashable comparable key from structural path tokens."""
-    return tuple(
+    """Create a hashable comparable key from structural path tokens.
+
+    Ключ сортируется, поэтому сравнение не зависит от порядка следования
+    токенов: «часть 1.4 статьи 2» эквивалентно «статья 2 -> часть 1.4».
+    """
+    return tuple(sorted(
         (t, str(n)) if n is not None else (t, '')
         for t, n in tokens
-    )
+    ))
 
 
 def _change_created_path_tokens(change):
@@ -285,7 +340,11 @@ def _change_created_path_tokens(change):
         parent_tokens = parse_structural_tokens(structural)
         ru_type, child_num = parse_add_new_field(new_str)
         if ru_type:
-            parent_tokens.append((ru_type, str(child_num) if child_num is not None else None))
+            # ``parse_add_new_field`` возвращает русскую форму («часть»),
+            # а ``parse_structural_tokens`` — английскую («part»).
+            # Приводим к английской, чтобы ключи сравнимы были.
+            eng_type = _RU_TO_ENG.get(ru_type, ru_type)
+            parent_tokens.append((eng_type, str(child_num) if child_num is not None else None))
         return parent_tokens
     return parse_structural_tokens(structural)
 
@@ -311,19 +370,27 @@ def resolve_rule_target(rule, target_data, changes=None, log_callback=None):
     if not structural or structural.lower() == "law":
         return None
 
-    # Scenario A: element already exists in the final tree
-    try:
-        elem = _find_existing_element_flexible(target_data, structural, log_callback)
-        if elem:
+    # Scenario A: element already exists in the final tree.
+    # Пробуем оба варианта пути: как есть и в каноническом порядке сверху вниз
+    # («статья 2 -> часть 1.4»), т.к. ИИ может вернуть «часть 1.4 статьи 2».
+    candidates_paths = [structural]
+    canonical = _canonical_structural_path(structural)
+    if canonical and canonical != structural:
+        candidates_paths.append(canonical)
+    for candidate in candidates_paths:
+        try:
+            elem = _find_existing_element_flexible(target_data, candidate, log_callback)
+            if elem:
+                if log_callback:
+                    log_callback(
+                        f"🔗 Resolved retroactive_note target: "
+                        f"'{structural}' -> {elem.get('item_id')} (existing)"
+                        f"{'' if candidate == structural else f' via {candidate!r}'}", 'info')
+                return elem
+        except ValueError:
             if log_callback:
                 log_callback(
-                    f"🔗 Resolved retroactive_note target: "
-                    f"'{structural}' -> {elem.get('item_id')} (existing)", 'info')
-            return elem
-    except ValueError:
-        if log_callback:
-            log_callback(
-                f"⚠️ Неоднозначность при разрешении target: '{structural}'", 'warning')
+                    f"⚠️ Неоднозначность при разрешении target: '{candidate}'", 'warning')
 
     # Scenario B/C: element created by an add change
     rule_tokens = _structural_path_tokens(structural)
@@ -339,22 +406,38 @@ def resolve_rule_target(rule, target_data, changes=None, log_callback=None):
             if not created_id:
                 continue
             change_tokens = _change_created_path_tokens(ch)
-            if _structural_path_key(change_tokens) == rule_key:
-                from npazs.revision.tree_utils import find_item_by_id
-                elem = find_item_by_id(target_data, created_id)
-                if elem:
-                    if log_callback:
-                        log_callback(
-                            f"🔗 Resolved retroactive_note target: "
-                            f"'{structural}' -> {elem.get('item_id')} "
-                            f"(created by change: {ch.get('structural_element')} / {ch.get('new')})",
-                            'info')
-                    return elem
+            change_key = _structural_path_key(change_tokens)
+            # Полное совпадение (порядок токенов не важен) или правило,
+            # покрывающее нижнюю часть пути созданного элемента
+            # (например, правило «часть 1.4» при изменении «статья 2 / new=часть 1.4»).
+            matched = change_key == rule_key
+            if not matched and len(rule_key) < len(change_key):
+                # rule — суффикс change-пути: первые (менее глубокие) токены
+                # правила должны совпадать с хвостом пути изменения.
+                change_sorted = list(change_key)
+                for split_idx in range(1, len(change_sorted) - len(rule_key) + 1):
+                    if tuple(change_sorted[split_idx:split_idx + len(rule_key)]) == rule_key:
+                        matched = True
+                        break
+            if not matched:
+                continue
+            from npazs.revision.tree_utils import find_item_by_id
+            elem = find_item_by_id(target_data, created_id)
+            if elem:
+                if log_callback:
+                    log_callback(
+                        f"🔗 Resolved retroactive_note target: "
+                        f"'{structural}' -> {elem.get('item_id')} "
+                        f"(created by change: {ch.get('structural_element')} / {ch.get('new')})",
+                        'info')
+                return elem
 
     if log_callback:
         log_callback(
             f"⚠️ Не удалось разрешить target retroactive_note: '{structural}'", 'warning')
     return None
+
+
 def apply_retroactive_rules(rules, stage3_changes, original_data, general_valid_from,
                             log_callback=None, fallback_scope=None, change_data=None):
     """Применяет retroactive rules (обычно amending_law) к фактическим изменениям.
