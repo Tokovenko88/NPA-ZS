@@ -1,0 +1,222 @@
+name: Apply child comparison fix PR
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+
+      - name: Patch child comparison logic
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          compare = Path('src/site/php/npazs/content/compare.php')
+          tree = Path('src/site/php/npazs/render/tree.php')
+
+          text = compare.read_text(encoding='utf-8')
+          old = r'''    // Только child_ref текущего body. Порядок body сохраняем, чтобы новые записи
+    // в «Изменения внесены» следовали тому же порядку, что и в тексте элемента.
+    $stmt = $pdo->prepare('\n        SELECT ref_item_internal_id\n        FROM npa_paragraph
+        WHERE rev_id = ?
+          AND block_type = \'child_ref\'
+          AND ref_item_internal_id IS NOT NULL
+        ORDER BY sort_order
+    ');
+    $stmt->execute([$parentRevisionId]);
+    $bodyChildIds = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $childId = (int)$row['ref_item_internal_id'];
+        if ($childId > 0 && !isset($bodyChildIds[$childId])) {
+            $bodyChildIds[$childId] = true;
+        }
+    }
+    if (empty($bodyChildIds)) {
+        return [];
+    }
+'''
+          new = r'''    // Только child_ref актуального body. У структурной ревизии может не быть
+    // собственных paragraph-записей: в этом случае тело хранится в последней
+    // content-ревизии, как и в getItemTree()/getElementHtmlById().
+    $loadBodyChildRefs = function($revisionId) use ($pdo) {
+        $stmt = $pdo->prepare('\n            SELECT ref_item_internal_id
+            FROM npa_paragraph
+            WHERE rev_id = ?
+              AND block_type = \'child_ref\'
+              AND ref_item_internal_id IS NOT NULL
+            ORDER BY sort_order
+        ');
+        $stmt->execute([$revisionId]);
+        $ids = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $childId = (int)$row['ref_item_internal_id'];
+            if ($childId > 0 && !isset($ids[$childId])) {
+                $ids[$childId] = true;
+            }
+        }
+        return $ids;
+    };
+
+    $bodyChildIds = $loadBodyChildRefs($parentRevisionId);
+    if (empty($bodyChildIds)) {
+        // Структурная ревизия может быть без body. Берём именно последнюю
+        // content-ревизию, действовавшую на дату parentRevision.
+        $stmtParentRevision = $pdo->prepare(
+            'SELECT valid_from FROM npa_item_revision WHERE rev_id = ? LIMIT 1'
+        );
+        $stmtParentRevision->execute([$parentRevisionId]);
+        $parentRevisionValidFrom = $stmtParentRevision->fetchColumn();
+        if ($parentRevisionValidFrom) {
+            $contentRevision = getLastContentRevision(
+                $pdo,
+                $internal_item_id,
+                $parentRevisionValidFrom
+            );
+            if ($contentRevision) {
+                $bodyChildIds = $loadBodyChildRefs($contentRevision['rev_id']);
+            }
+        }
+    }
+    if (empty($bodyChildIds)) {
+        return [];
+    }
+'''
+          if old not in text:
+              raise SystemExit('compare.php body-ref block not found')
+          text = text.replace(old, new, 1)
+
+          old = r'''    // Если дочерний элемент утратил силу из-за самого родителя, not_valid
+    // содержит item_id родителя, а не обязательно item_id элемента-источника НПА.
+    if (!empty($parent['item_id']) && $parent['item_id'] !== 'base') {
+        $changerItemIdSet[$parent['item_id']] = true;
+    }
+'''
+          new = r'''    // При выбранной редакции родитель мог вообще не получить собственной
+    // ревизии: НПА меняет только его child_ref. Поэтому источником удаления
+    // может быть item из выбранной revision_info, которого нет в parent.modified_by_id.
+    if (!empty($selectedRevisionNpaIds)) {
+        $placeholders = implode(',', array_fill(0, count($selectedRevisionNpaIds), '?'));
+        $stmtSelectedSources = $pdo->prepare(
+            "SELECT id, item_id FROM npa_item WHERE npa_id IN ($placeholders)"
+        );
+        $stmtSelectedSources->execute(array_values($selectedRevisionNpaIds));
+        foreach ($stmtSelectedSources->fetchAll() as $sourceRow) {
+            if (!empty($sourceRow['id'])) {
+                $changerItemIdSet[(string)$sourceRow['id']] = true;
+            }
+            if (!empty($sourceRow['item_id'])) {
+                $changerItemIdSet[(string)$sourceRow['item_id']] = true;
+            }
+        }
+    }
+
+    // Если дочерний элемент утратил силу из-за самого родителя, not_valid
+    // содержит item_id родителя, а не обязательно item_id элемента-источника НПА.
+    if (!empty($parent['item_id']) && $parent['item_id'] !== 'base') {
+        $changerItemIdSet[$parent['item_id']] = true;
+    }
+'''
+          if old not in text:
+              raise SystemExit('compare.php source block not found')
+          text = text.replace(old, new, 1)
+          compare.write_text(text, encoding='utf-8')
+
+          text = tree.read_text(encoding='utf-8')
+          marker = r'''            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
+                if ($sourceId === 'base') continue;
+
+                // modified_by_id хранит внутренний числовой npa_item.id,
+                // not_valid хранит стабильный строковый item_id.
+                $parentSources[$sourceId] = true;
+                if (ctype_digit($sourceId)) {
+                    $stmtSource = $pdo->prepare(
+                        'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
+                    );
+                    $stmtSource->execute([(int)$sourceId]);
+                    $sourceItemId = $stmtSource->fetchColumn();
+                    if ($sourceItemId) {
+                        $parentSources[(string)$sourceItemId] = true;
+                    }
+                }
+            }
+'''
+          replacement = r'''            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
+                if ($sourceId === 'base') continue;
+
+                // modified_by_id хранит внутренний числовой npa_item.id,
+                // not_valid хранит стабильный строковый item_id.
+                $parentSources[$sourceId] = true;
+                if (ctype_digit($sourceId)) {
+                    $stmtSource = $pdo->prepare(
+                        'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
+                    );
+                    $stmtSource->execute([(int)$sourceId]);
+                    $sourceItemId = $stmtSource->fetchColumn();
+                    if ($sourceItemId) {
+                        $parentSources[(string)$sourceItemId] = true;
+                    }
+                }
+            }
+
+            // НПА выбранной редакции может менять только дочерние элементы.
+            // Тогда у родителя modified_by_id остаётся от старой ревизии,
+            // но not_valid ребёнка всё равно должен ссылаться на источник
+            // текущей выбранной редакции.
+            if (!empty($selectedRevisionNpaIds)) {
+                $placeholders = implode(',', array_fill(0, count($selectedRevisionNpaIds), '?'));
+                $stmtSelectedSources = $pdo->prepare(
+                    "SELECT id, item_id FROM npa_item WHERE npa_id IN ($placeholders)"
+                );
+                $stmtSelectedSources->execute(array_values($selectedRevisionNpaIds));
+                foreach ($stmtSelectedSources->fetchAll() as $sourceRow) {
+                    if (!empty($sourceRow['id'])) {
+                        $parentSources[(string)$sourceRow['id']] = true;
+                    }
+                    if (!empty($sourceRow['item_id'])) {
+                        $parentSources[(string)$sourceRow['item_id']] = true;
+                    }
+                }
+            }
+'''
+          if marker not in text:
+              raise SystemExit('tree.php source block not found')
+          text = text.replace(marker, replacement, 1)
+          tree.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Rebuild generated snippet
+        run: python data/work_tools/build_snippet.py
+
+      - name: Verify generated snippet
+        run: python data/work_tools/build_snippet.py --check
+
+      - name: PHP syntax check
+        run: |
+          php -l src/site/php/npazs/content/compare.php
+          php -l src/site/php/npazs/render/tree.php
+          php -l src/site/php/snippet.php
+
+      - name: Commit patch to PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/child-compare-run.trigger
+          git add src/site/php/npazs/content/compare.php src/site/php/npazs/render/tree.php src/site/php/snippet.php .github/child-compare-run.trigger
+          if git diff --cached --quiet; then
+            echo "No patch changes"
+            exit 0
+          fi
+          git commit -m "fix: detect child-only changes in selected edition"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
