@@ -29,4 +29,4 @@ jobs:
           git commit -m "chore: rebuild generated snippet"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
 
-          # trigger synchronization after source logic fix
+          # final synchronization trigger
