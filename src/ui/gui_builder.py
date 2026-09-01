@@ -19,9 +19,12 @@ _bootstrap_project_root()
 from npazs.constants import (
     settings,
     _ollama_base_url,
+    BASE_LAW_DIR,
     DEFAULT_EXTRA_OPTIONS,
     DEFAULT_OLLAMA_MODEL,
     LAST_PATHS_FILE,
+    PRODUCTION_BASE_DIR,
+    PRODUCTION_BASE_LAW_DIR,
     STAGE_ANSWERS_FILE,
     PROMPT_1,
     PROMPT_2,
@@ -220,8 +223,32 @@ class GuiBuilderMixin:
                 self.log("Переключено на Ollama", 'info')
             threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
+        def _dialog_initial_dir(self, current_value=''):
+            """Каталог для диалога выбора JSON-файла (без привязки к диску).
+
+            Приоритет: каталог текущего значения поля → каталоги из
+            ``last_paths`` (только если файлы ещё существуют) → вычисляемая
+            рабочая база JSON (``Base`` в том же каталоге, что и папка проекта)
+            → база внутри ``data/`` проекта.
+            """
+            for candidate in (
+                current_value,
+                (self.last_paths or {}).get('original'),
+                (self.last_paths or {}).get('change'),
+            ):
+                path = str(candidate or '').strip()
+                if path and os.path.exists(path):
+                    return os.path.dirname(path)
+            for directory in (PRODUCTION_BASE_LAW_DIR, PRODUCTION_BASE_DIR, BASE_LAW_DIR):
+                if os.path.isdir(directory):
+                    return directory
+            return ''
+
         def browse_original(self):
-            path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+            path = filedialog.askopenfilename(
+                initialdir=self._dialog_initial_dir(self.original_path.get()),
+                filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+            )
             if path:
                 self.original_path.set(path)
                 self.last_paths['original'] = path
@@ -242,7 +269,10 @@ class GuiBuilderMixin:
             if not self.original_path.get().strip():
                 messagebox.showwarning("Внимание", "Сначала выберите оригинальный JSON файл закона.")
                 return
-            path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+            path = filedialog.askopenfilename(
+                initialdir=self._dialog_initial_dir(self.change_path.get()),
+                filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+            )
             if path:
                 self.change_path.set(path)
                 self.last_paths['change'] = path

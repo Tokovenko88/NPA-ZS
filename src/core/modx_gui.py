@@ -387,9 +387,24 @@ class MODXProcessorGUI:
             custom_id = None
         self.start_processing_with_ids(manual_ids, custom_id)
 
+    @staticmethod
+    def _default_local_save_dir():
+        """Стартовый каталог диалога локального сохранения.
+
+        Рабочая база JSON лежит в том же каталоге, что и папка проекта
+        (``<родитель проекта>/Base``), поэтому путь вычисляется и не привязан
+        к конкретному диску. Если база не найдена — диалог откроется без
+        начального каталога.
+        """
+        from npazs.constants import PRODUCTION_BASE_DIR
+        return PRODUCTION_BASE_DIR if os.path.isdir(PRODUCTION_BASE_DIR) else ''
+
     def start_processing_with_ids(self, resource_ids, custom_id=None):
         if self.save_locally_var.get() == 1 and not self.local_save_dir:
-            self.local_save_dir = filedialog.askdirectory(title="Выберите папку для сохранения JSON-файлов")
+            self.local_save_dir = filedialog.askdirectory(
+                title="Выберите папку для сохранения JSON-файлов",
+                initialdir=self._default_local_save_dir(),
+            )
             if not self.local_save_dir:
                 self.log_message("Локальное сохранение отменено пользователем", "WARNING")
                 return

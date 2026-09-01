@@ -36,6 +36,18 @@ BASE_DIR = os.path.join(DATA_DIR, 'base')
 BASE_LAW_DIR = os.path.join(BASE_DIR, 'law')
 BASE_RESOLUTION_DIR = os.path.join(BASE_DIR, 'resolution')
 
+# --- Внешняя (рабочая) база JSON --------------------------------------------
+# Рабочая база JSON лежит в том же каталоге, что и папка проекта
+# (<родитель проекта>/Base), поэтому путь ВЫЧИСЛЯЕТСЯ от PROJECT_ROOT и не
+# привязан к конкретному диску (D:\, E:\, ...). При необходимости путь можно
+# переопределить переменной окружения NPAZS_BASE_DIR.
+PROJECT_PARENT_DIR = os.path.dirname(PROJECT_ROOT)
+PRODUCTION_BASE_DIR = (
+    os.environ.get('NPAZS_BASE_DIR') or os.path.join(PROJECT_PARENT_DIR, 'Base')
+)
+PRODUCTION_BASE_LAW_DIR = os.path.join(PRODUCTION_BASE_DIR, 'law')
+PRODUCTION_BASE_RESOLUTION_DIR = os.path.join(PRODUCTION_BASE_DIR, 'resolution')
+
 # Историческое имя: каталог, где лежали файлы состояния.
 CONFIG_DIR = PACKAGE_DIR
 

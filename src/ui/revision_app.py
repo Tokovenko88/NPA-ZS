@@ -75,6 +75,15 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.extra_options = tk.StringVar(value=json.dumps(DEFAULT_EXTRA_OPTIONS))
             self.pub_date = tk.StringVar()
             self.last_paths = load_json(LAST_PATHS_FILE, {})
+            # Восстанавливаем последние пути, только если файлы ещё существуют:
+            # после переноса базы на другой диск устаревшая запись просто
+            # игнорируется, а диалог выбора откроется в вычисляемой рабочей базе
+            # (Base рядом с папкой проекта).
+            for _key, _var in (('original', self.original_path),
+                               ('change', self.change_path)):
+                _saved = str(self.last_paths.get(_key) or '')
+                if _saved and os.path.exists(_saved):
+                    _var.set(_saved)
             self.prompt_1 = PROMPT_1
             self.prompt_2 = PROMPT_2
             self.prompt_3 = PROMPT_3

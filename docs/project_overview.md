@@ -254,7 +254,7 @@ python -m unittest discover -s tests -v
 | `get_settings()` | Читает переменные окружения с дефолтами. |
 | `get_modx_db_config()` | Параметры подключения к MySQL. |
 
-**Переменные окружения**: `MODX_SSH_HOST/PORT/USERNAME/PASSWORD`, `MODX_BASE_PATH`, `MODX_DB_HOST/PORT/USER/PASSWORD/NAME/CHARSET`, `OLLAMA_DEFAULT_MODEL`, `OLLAMA_BASE_URL`.
+**Переменные окружения**: `MODX_SSH_HOST/PORT/USERNAME/PASSWORD`, `MODX_BASE_PATH`, `MODX_DB_HOST/PORT/USER/PASSWORD/NAME/CHARSET`, `OLLAMA_DEFAULT_MODEL`, `OLLAMA_BASE_URL`, `NPAZS_BASE_DIR` (переопределяет путь к рабочей базе JSON).
 
 #### `constants.py`
 
@@ -265,6 +265,9 @@ python -m unittest discover -s tests -v
 | `PROMPTS_DIR` | Путь к `npa_processor/prompts/`. |
 | `LAST_PATHS_FILE` | Путь к `last_paths.json`. |
 | `STAGE_ANSWERS_FILE` | Путь к `stage_answers.json`. |
+| `PRODUCTION_BASE_DIR` | Рабочая база JSON: `<родитель проекта>/Base` (тот же каталог, что и папка проекта), вычисляется — не привязана к диску. Переопределяется `NPAZS_BASE_DIR`. |
+| `PRODUCTION_BASE_LAW_DIR` | `<PRODUCTION_BASE_DIR>/law`. |
+| `PRODUCTION_BASE_RESOLUTION_DIR` | `<PRODUCTION_BASE_DIR>/resolution`. |
 | `DEFAULT_EXTRA_OPTIONS` | `temperature=0.0`, `top_p=0.1`. |
 | `TYPE_TO_RUSSIAN` | Маппинг типов (`article→Статья`, `chapter→Глава` и т.д.). |
 | `PLURAL_TO_SINGULAR` | Множественное → единственное (`части→часть`). |

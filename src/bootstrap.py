@@ -53,6 +53,13 @@ PROJECT_ROOT = find_project_root()
 SRC_DIR = PROJECT_ROOT / "src"
 DATA_DIR = PROJECT_ROOT / "data"
 
+# Рабочая база JSON лежит рядом с папкой проекта (в том же каталоге, что и
+# сама папка проекта), поэтому путь вычисляется и не привязан к диску.
+# Переопределяется переменной окружения NPAZS_BASE_DIR.
+_PRODUCTION_BASE = Path(
+    os.environ.get("NPAZS_BASE_DIR") or (PROJECT_ROOT.parent / "Base")
+)
+
 PATHS = {
     "root": PROJECT_ROOT,
     "src": SRC_DIR,
@@ -67,6 +74,9 @@ PATHS = {
     "base": DATA_DIR / "base",
     "base_law": DATA_DIR / "base" / "law",
     "base_resolution": DATA_DIR / "base" / "resolution",
+    "production_base": _PRODUCTION_BASE,
+    "production_base_law": _PRODUCTION_BASE / "law",
+    "production_base_resolution": _PRODUCTION_BASE / "resolution",
     "docs": PROJECT_ROOT / "docs",
     "site": SRC_DIR / "site",
     "dist": PROJECT_ROOT / "dist",
