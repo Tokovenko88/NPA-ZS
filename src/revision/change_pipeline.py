@@ -358,6 +358,20 @@ def _verify_modification(change: Dict[str, Any], data: Dict[str, Any], log_callb
         if log_callback:
             log_callback(f"  verify {ch_type}: элемент {target_id} не найден", 'error')
         return False
+    # Изменение наименования конкретного элемента (статьи/главы/приложения) — ревизия
+    # хранится в head_revisions, а не в revisions. structural_element в этом случае
+    # имеет форму "наименование <путь>" (см. _apply_change_to_element_head).
+    structural_lower = structural.lower() if isinstance(structural, str) else ''
+    if structural_lower.startswith('наименование '):
+        head_revisions = element.get('head_revisions', [])
+        if _verify_revision_exists(head_revisions, expected_revision_id, ch_type, structural, log_callback):
+            return True
+        if log_callback:
+            log_callback(
+                f"  verify {ch_type}: ревизия наименования {expected_revision_id} не найдена "
+                f"в head_revisions элемента {target_id}, проверяю revisions",
+                'info'
+            )
     revisions = element.get('revisions', [])
     return _verify_revision_exists(revisions, expected_revision_id, ch_type, structural, log_callback)
 

@@ -434,6 +434,27 @@ If the text of the change explicitly specifies «предложение» (first
 
 Result: `type = "change"`, and `structural_element` = parent element (without «предложение» or table part).
 
+### CATEGORICAL ABSOLUTE BAN — "предложение" → ONLY `change`, NEVER `add` / `delete` / `new_redaction`
+
+The object of type `"add"` MUST be a whole, independent structural element that can stand on its own in the document tree (статья, часть, пункт, подпункт, абзац, приложение, раздел таблицы). A «предложение» (sentence inside a part / point / paragraph) is **NOT** such an element — it is a sub-sentence fragment with no document-tree node, no `item_id`, and no own header. Therefore the following constructions MUST NEVER produce `"add"`, `"delete"` or `"new_redaction"` — they MUST ALWAYS be `type = "change"`:
+
+- «пункт N дополнить предложением следующего содержания: «…»»
+- «пункт N дополнить первым предложением следующего содержания: «…»»
+- «в пункте N предложение … изложить в следующей редакции»
+- «часть N дополнить предложением / дополнить вторым предложением»
+- «абзац N дополнить предложением следующего содержания»
+- any combination of verb «дополнить» / «изложить» / «исключить» / «признать утратившим силу» + object word «предложение» (in any grammatical case: предложение, предложения, предложением, предложению, предложениями, предложениях).
+
+It is **strictly forbidden** to use `new = "предложение"` in any `"add"` object. The `new` field is reserved for a new whole structural element (статья X, часть Y, пункт Z, абзац M, подпункт «а», приложение N, раздел таблицы R). Putting `new = "предложение"` is a critical error.
+
+The correct object structure for these constructions:
+- `type = "change"` (always).
+- `structural_element` = parent element WITHOUT the word «предложение». E.g. «пункт 9 части 2 статьи 8 дополнить предложением следующего содержания» → `structural_element` = parent of the new sentence, i.e. the point/paragraph being supplemented (e.g. «Статья 8 часть 2 пункт 9»).
+- `description` = the full instruction text (including «дополнить предложением следующего содержания: …» and the new sentence in «»).
+- The new text lives in the `description` (and `content` for `new_redaction`/`add` is NOT used here, because the type is `change`).
+
+You MUST apply this rule even when the text reads «дополнить предложением следующего содержания» — that wording is an in-place text insertion inside an existing element, NOT a structural addition. The existing AI model has previously misclassified this as `"add"` with `new = "предложение"`; that is wrong. There is no separate «предложение» node to add to the tree.
+
 ---
 
 ## STEP 1. COMPLETE DELETION OF A STRUCTURAL ELEMENT? → "delete"
