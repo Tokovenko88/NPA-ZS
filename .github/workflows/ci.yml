@@ -21,6 +21,9 @@ jobs:
       - name: Normalize comparison source identifiers
         run: python data/work_tools/normalize_comparison_source.py
 
+      - name: Add selected edition child sources
+        run: python data/work_tools/add_selected_child_sources.py
+
       - name: Rebuild generated snippet
         run: python data/work_tools/build_snippet.py
 
@@ -43,7 +46,7 @@ jobs:
             echo "No generated changes"
             exit 0
           fi
-          git commit -m "fix: normalize comparison source ids"
+          git commit -m "fix: restore selected child sources"
           git push origin HEAD:main
 
   tests:
