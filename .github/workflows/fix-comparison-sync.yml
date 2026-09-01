@@ -17,16 +17,78 @@ jobs:
         with:
           ref: main
 
-      - name: Ensure comparison source fix is present
+      - name: Fix comparison source logic
         run: |
           python - <<'PY'
           from pathlib import Path
-          p = Path('src/site/php/npazs/content/compare.php')
-          s = p.read_text(encoding='utf-8')
-          old = """            SELECT r.*\n            FROM npa_item_revision r\n            WHERE r.item_internal_id = ?\n              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)\n            ORDER BY r.valid_from DESC, r.rev_id DESC\n"""
-          new = """            SELECT r.*\n            FROM npa_item_revision r\n            WHERE r.item_internal_id = ?\n            ORDER BY r.valid_from DESC, r.rev_id DESC\n"""
-          if old in s:
-              p.write_text(s.replace(old, new, 1), encoding='utf-8')
+
+          compare = Path('src/site/php/npazs/content/compare.php')
+          s = compare.read_text(encoding='utf-8')
+
+          old = """    $changerItemIdSet = [];
+          foreach ($changerIds as $cid) {
+              foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
+                  if ($c !== 'base') {
+                      $changerItemIdSet[$c] = true;
+                  }
+              }
+          }
+          // Если дочерний элемент утратил силу из-за самого родителя, not_valid
+          // содержит item_id родителя, а не обязательно item_id элемента-источника НПА.
+"""
+          new = """    $changerItemIdSet = [];
+          foreach ($changerIds as $cid) {
+              foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
+                  if ($c === 'base') continue;
+
+                  // modified_by_id хранит внутренние числовые id npa_item,
+                  // тогда как not_valid хранит стабильный строковый item_id.
+                  // Для сопоставления обязательно нормализуем оба представления.
+                  $changerItemIdSet[$c] = true;
+                  if (ctype_digit($c)) {
+                      $stmtChanger = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
+                      $stmtChanger->execute([(int)$c]);
+                      $changerItemId = $stmtChanger->fetchColumn();
+                      if ($changerItemId) {
+                          $changerItemIdSet[(string)$changerItemId] = true;
+                      }
+                  }
+              }
+          }
+          // Если дочерний элемент утратил силу из-за самого родителя, not_valid
+          // содержит item_id родителя, а не обязательно item_id элемента-источника НПА.
+"""
+          if old not in s:
+              raise SystemExit('compare normalization target was not found')
+          compare.write_text(s.replace(old, new, 1), encoding='utf-8')
+
+          tree = Path('src/site/php/npazs/render/tree.php')
+          s = tree.read_text(encoding='utf-8')
+          old = """            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
+                if ($sourceId !== 'base') {
+                    $parentSources[$sourceId] = true;
+                }
+            }
+"""
+          new = """            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
+                if ($sourceId === 'base') continue;
+
+                // modified_by_id хранит внутренний числовой id, а not_valid
+                // — стабильный строковый item_id. Сохраняем оба варианта.
+                $parentSources[$sourceId] = true;
+                if (ctype_digit($sourceId)) {
+                    $stmtSource = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
+                    $stmtSource->execute([(int)$sourceId]);
+                    $sourceItemId = $stmtSource->fetchColumn();
+                    if ($sourceItemId) {
+                        $parentSources[(string)$sourceItemId] = true;
+                    }
+                }
+            }
+"""
+          if old not in s:
+              raise SystemExit('tree normalization target was not found')
+          tree.write_text(s.replace(old, new, 1), encoding='utf-8')
           PY
 
       - name: Rebuild snippet from trusted main sources
@@ -42,10 +104,10 @@ jobs:
           cp /tmp/snippet.php src/site/php/snippet.php
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/site/php/snippet.php
+          git add src/site/php/npazs/content/compare.php src/site/php/npazs/render/tree.php src/site/php/snippet.php
           if git diff --cached --quiet; then
-            echo "snippet.php is already synchronized"
+            echo "comparison sources and snippet are already synchronized"
             exit 0
           fi
-          git commit -m "chore: rebuild generated snippet"
+          git commit -m "fix: match not_valid to stable item ids"
           git push origin HEAD:"$HEAD_REF"
