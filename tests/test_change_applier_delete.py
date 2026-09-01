@@ -58,6 +58,8 @@ def _make_document():
                                 "revision_id": "rev-1-2",
                                 "valid_from": "01.01.2023",
                                 "valid_to": None,
+                                "mod_type": "change",
+                                "modified_by_id": "93188_article_1_point_2_subpoint_г",
                                 "body": [
                                     {
                                         "type": "paragraph",
@@ -104,9 +106,45 @@ def test_delete_change_applies_without_nameerror():
     assert deleted["revisions"][0]["valid_to"] == "26.06.2023"
     assert deleted["revisions"][0]["not_valid"] == "115751"
 
+    # Регрессия: при утрате силы информация о предыдущем изменении (mod_type,
+    # modified_by_id) НЕ затирается — она описывает происхождение редакции.
+    assert deleted["revisions"][0]["mod_type"] == "change"
+    assert deleted["revisions"][0]["modified_by_id"] == "93188_article_1_point_2_subpoint_г"
+    assert deleted["revisions"][0]["revision_id"] == "rev-1-2"
+
     # Регрессия: пунктуация нового последнего элемента скорректирована (';' -> '.')
     sibling = next(p for p in parts if p["item_number"] == "1.1")
     assert sibling["revisions"][0]["body"][0]["html_text"] == "<p>Ставка три процента.</p>"
+
+
+def test_delete_base_revision_without_mod_type_assigns_revision_id():
+    from npazs.revision.change_applier import apply_change
+
+    data = _make_document()
+    change = {
+        "change_id": "t2",
+        "type": "delete",
+        "structural_element": "Статья 2 часть 1.1",
+        "_resolved_item_id": "51528_article_2_part_1_1",
+        "description": "часть 1.1 признать утратившей силу",
+        "valid_from": "27.06.2023",
+    }
+
+    result = apply_change(
+        change=change,
+        data=data,
+        change_data={"npa_id": "115751"},
+        law_ref="",
+        general_valid_from=date(2023, 6, 27),
+        log_callback=lambda *_args, **_kwargs: None,
+    )
+
+    assert result.get("status") == "APPLIED", result
+    parts = data["npa_items_revision"][0]["item_children"]
+    deleted = next(p for p in parts if p["item_number"] == "1.1")
+    assert deleted["revisions"][0]["valid_to"] == "26.06.2023"
+    assert deleted["revisions"][0]["not_valid"] == "115751"
+    assert deleted["revisions"][0]["revision_id"] == "rev-1-1"
 
 
 def test_backend_params_threaded_through_apply_chain():

@@ -1151,8 +1151,6 @@ def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
         if active_idx >= 0:
             revisions[active_idx]['valid_to'] = valid_to_str
             revisions[active_idx]['not_valid'] = modified_by_id_str
-            revisions[active_idx].pop('mod_type', None)
-            revisions[active_idx].pop('modified_by_id', None)
             if 'revision_id' not in revisions[active_idx]:
                 revisions[active_idx]['revision_id'] = str(uuid.uuid4())
         if log_callback:
@@ -1264,8 +1262,6 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
         if active_idx >= 0:
             revisions[active_idx]['valid_to'] = valid_to_str
             revisions[active_idx]['not_valid'] = modified_by_id_str
-            revisions[active_idx].pop('mod_type', None)
-            revisions[active_idx].pop('modified_by_id', None)
             if 'revision_id' not in revisions[active_idx]:
                 revisions[active_idx]['revision_id'] = str(uuid.uuid4())
         if log_callback:
