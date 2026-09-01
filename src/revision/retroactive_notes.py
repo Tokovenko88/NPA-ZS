@@ -29,6 +29,43 @@ def normalize_note_text(text):
     return s.lower()
 
 
+_PROPAGATION_STEM_RE = re.compile(r"распростран\w*", re.IGNORECASE)
+_RELATION_WORD_RE = re.compile(r"правоотношени\w*", re.IGNORECASE)
+#: Отрицание непосредственно перед формой «распростран…»: «не распространяются»,
+#: «не были распространены». Такие формулировки НЕ являются заметкой о
+#: распространении правоотношений.
+_NEGATION_BEFORE_RE = re.compile(r"\bне\s+(?:был\w*\s+)?$", re.IGNORECASE)
+#: Максимальный разрыв (символов) между «распростран…» и «правоотношени…».
+_PROPAGATION_WINDOW = 200
+
+
+def is_propagation_note(text):
+    """Детект примечания о распространении (прав действия) на правоотношения.
+
+    Работает в любых грамматических формах и при любом порядке слов:
+    «распространяются / распространяется / распространено / распространены /
+    распространение / распространении … правоотношения», а также обратный
+    порядок («На правоотношения, возникшие …, распространяется …»).
+    Отрицательные формулировки («не распространяются …») примечанием о
+    распространении НЕ считаются.
+    """
+    s = str(text or "")
+    if not s:
+        return False
+    for stem in _PROPAGATION_STEM_RE.finditer(s):
+        prefix = s[max(0, stem.start() - 40):stem.start()]
+        if _NEGATION_BEFORE_RE.search(prefix):
+            continue
+        for rel in _RELATION_WORD_RE.finditer(s):
+            if rel.start() >= stem.end():
+                gap = rel.start() - stem.end()
+            else:
+                gap = stem.start() - rel.end()
+            if 0 <= gap <= _PROPAGATION_WINDOW:
+                return True
+    return False
+
+
 def _note_already_exists(element, text, valid_from, source_item_id=None):
     """Есть ли уже такой note (по нормализованному тексту) у item элемента."""
     norm = normalize_note_text(text)
@@ -44,8 +81,16 @@ def _note_already_exists(element, text, valid_from, source_item_id=None):
     return False
 
 
-def _append_item_note(element, text, valid_from, log_callback=None, element_label="", source_item_id=None):
-    """Добавляет note в item_notes с защитой от дубликатов. Возвращает True, если добавлено."""
+def _append_item_note(element, text, valid_from, log_callback=None, element_label="",
+                      source_item_id=None, amending_valid_from=None):
+    """Добавляет note в item_notes с защитой от дубликатов. Возвращает True, если добавлено.
+
+    ``amending_valid_from`` — дата вступления в силу изменяющего НПА (если
+    известна). Сама функция этот параметр не использует: он проксируется в хук
+    ``_append_item_note_with_validity`` (:mod:`npazs.revision`), который
+    закрывает предыдущие примечания о распространении правоотношений датой
+    ``amending_valid_from - 1 день``.
+    """
     if not text or not text.strip():
         return False
     norm = normalize_note_text(text)
@@ -498,7 +543,8 @@ def apply_retroactive_rules(rules, stage3_changes, original_data, general_valid_
                 continue
             if _append_item_note(elem, note_text, note_valid_from, log_callback=log_callback,
                                  element_label=str(ch.get("structural_element", "")),
-                                 source_item_id=source_item_id):
+                                 source_item_id=source_item_id,
+                                 amending_valid_from=general_str or None):
                 applied += 1
 
         if log_callback:
@@ -635,7 +681,8 @@ def apply_retroactive_rules_to_groups(rules, groups_by_target_id, target_data,
                             break
                 if _append_item_note(elem, note_text, note_valid_from, log_callback=log_callback,
                                     element_label=str(ch.get("structural_element", "")),
-                                    source_item_id=source_item_id):
+                                    source_item_id=source_item_id,
+                                    amending_valid_from=general_str or None):
                     applied += 1
                     per_rule_applied += 1
 
@@ -695,7 +742,8 @@ def apply_retroactive_rules_to_groups(rules, groups_by_target_id, target_data,
 
             if _append_item_note(elem, note_text, note_valid_from, log_callback=log_callback,
                                  element_label=structural,
-                                 source_item_id=source_item_id):
+                                 source_item_id=source_item_id,
+                                 amending_valid_from=general_str or None):
                 applied += 1
 
         else:
