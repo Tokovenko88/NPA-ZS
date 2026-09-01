@@ -180,9 +180,19 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
                 $expiredHtml = $content ? $content['html'] : '';
             }
         }
+        // Серая подпись «Утратил(а/о) силу» появляется только если в БД у
+        // ребёнка выставлен not_valid. Дочерние элементы, удалённые из body
+        // родителя без явного not_valid, помечаются истёкшими только ради
+        // зачёркивания и подписи не получают.
+        $notValid = trim((string)($itemData['not_valid'] ?? ''));
+        $hasNotValid = ($notValid !== '' && $notValid !== 'base');
         $html = '<div class="npa-item-block npa-expired-block" data-item-type="' . htmlspecialchars($itemType) . '">';
         $html .= '<div class="npa-diff-delete">' . $expiredHtml . '</div>';
-        $html .= '<div class="npa-expired-label" style="color:#999; font-style:italic;">(Утратил силу)</div>';
+        if ($hasNotValid) {
+            $genderSuffix = getExpiryGenderSuffix($itemType);
+            $expiryWord = 'Утратил' . $genderSuffix . ' силу';
+            $html .= '<div class="npa-expired-label" style="color:#999; font-style:italic;">(' . htmlspecialchars($expiryWord) . ')</div>';
+        }
         $html .= '</div>';
         return $html;
     }

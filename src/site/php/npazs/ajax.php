@@ -199,7 +199,12 @@ if (isset($_GET['ajax_action'])) {
             } else {
                 $prevAsOfDate = $viewDateSqlAjax;
             }
-            $prevContent = getItemRevisionContent($pdo, $previousRev['rev_id'], $internal_id, 0, null, false, true, $prevAsOfDate, false, false);
+            // Дочерние элементы, удалённые из body между редакциями, должны
+            // показываться зачёркнутыми в колонке предыдущей редакции.
+            $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $previousRev['rev_id']);
+            $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $currentRev['rev_id']);
+            $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
+            $prevContent = getItemRevisionContent($pdo, $previousRev['rev_id'], $internal_id, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
             // Текущую колонку сравнения рендерим на актуальную дату просмотра ($viewDateSqlAjax).
             $currContent = getItemRevisionContent($pdo, $currentRev['rev_id'], $internal_id, 0, null, false, true, $viewDateSqlAjax);
             $prevHtmlRaw = $prevContent ? ensureTableWrapperForComparison($prevContent['html'], $internal_id, $pdo, $prevAsOfDate) : '';

@@ -78,7 +78,7 @@ function getItemHeadRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $asOfD
     ];
 }
 
-function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0, $npa_id = null, $includeHeading = true, $forComparison = false, $asOfDateOverride = null, $paragraphOnly = false, $useEditionContext = true) {
+function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0, $npa_id = null, $includeHeading = true, $forComparison = false, $asOfDateOverride = null, $paragraphOnly = false, $useEditionContext = true, $forceExpiredChildIds = []) {
     global $NPA_NO_NAME_IDS, $structured_tree_cache;
     
     if ($depth > 20) return null;
@@ -201,6 +201,22 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         }
         $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, true, $selRevIds);
         if (!isset($itemsById[$internal_item_id])) return null;
+        // Дочерние элементы, на которые ссылалось body предыдущей редакции, но
+        // которых нет в body новой, должны отображаться в этой колонке зачёркнутыми.
+        // getItemTree сам пометил тех, у кого выставлен not_valid на инициатора;
+        // здесь дополнительно помечаем удалённых без явного not_valid, чтобы
+        // renderElement отрисовал их через ветку истёкших сроков.
+        if (!empty($forceExpiredChildIds) && is_array($forceExpiredChildIds)) {
+            foreach ($forceExpiredChildIds as $fid) {
+                $fid = (int)$fid;
+                if ($fid > 0 && isset($itemsById[$fid]) && empty($itemsById[$fid]['is_expired'])) {
+                    $itemsById[$fid]['is_expired'] = true;
+                    if (empty($itemsById[$fid]['expired_valid_to'])) {
+                        $itemsById[$fid]['expired_valid_to'] = $itemsById[$fid]['valid_to'] ?? null;
+                    }
+                }
+            }
+        }
         $itemData = $itemsById[$internal_item_id];
         $npaData = [
             'npa_id' => $npa_id,

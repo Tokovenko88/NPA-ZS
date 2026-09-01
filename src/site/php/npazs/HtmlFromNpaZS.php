@@ -671,7 +671,14 @@ foreach ($itemsById as $item) {
             } else {
                 $prevAsOfDate = $viewDateSql;
             }
-            $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internalId, 0, null, false, true, $prevAsOfDate, false, false);
+            // Дочерние элементы, на которые ссылалось body предыдущей редакции,
+            // но которых нет в body текущей, должны отображаться в колонке
+            // предыдущей редакции зачёркнутыми (с серой подписью «Утратил(а/о)
+            // силу», если в npa_item_revision.not_valid стоит пометка).
+            $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $prev['rev_id']);
+            $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $current['rev_id']);
+            $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
+            $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internalId, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
             // Текущую колонку сравнения рендерим на актуальную дату просмотра ($viewDateSql),
             // чтобы изменения, внесённые в дочерние элементы после последней редакции
             // родителя, тоже попадали в сравнение.

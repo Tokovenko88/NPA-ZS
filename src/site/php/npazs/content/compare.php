@@ -7,6 +7,30 @@
  * Источник: строки 1185-1444, 2461-2522 монолита snippet.php.
  */
 
+/**
+ * Возвращает набор child_ref внутренних id, на которые ссылается тело (body)
+ * указанной ревизии элемента. Используется для сравнения тел двух редакций:
+ * дочерние элементы, присутствовавшие в body предыдущей редакции, но
+ * отсутствующие в body новой, должны отображаться зачёркнутыми в колонке
+ * предыдущей редакции.
+ */
+function getRevisionBodyChildRefIds(PDO $pdo, $revId) {
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT ref_item_internal_id
+        FROM npa_paragraph
+        WHERE rev_id = ?
+          AND block_type = 'child_ref'
+          AND ref_item_internal_id IS NOT NULL
+    ");
+    $stmt->execute([$revId]);
+    $ids = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $cid = (int)$row['ref_item_internal_id'];
+        if ($cid > 0) $ids[$cid] = true;
+    }
+    return $ids;
+}
+
 function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = []) {
     $current = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
     if (!$current) return null;
@@ -31,7 +55,15 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
     } else {
         $prevAsOfDate = $asOfDate;
     }
-    $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internal_item_id, 0, null, false, true, $prevAsOfDate, false, false);
+    // Дочерние элементы, на которые ссылалось body предыдущей редакции, но
+    // которых нет в body текущей: их нужно показать зачёркнутыми в колонке
+    // предыдущей редакции. Признак «утратил силу» может быть не выставлен в
+    // npa_item_revision.not_valid, тогда достаточно одного <del> без серой
+    // подписи «Утратил(а/о) силу».
+    $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $prev['rev_id']);
+    $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $current['rev_id']);
+    $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
+    $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internal_item_id, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
     // Текущую колонку сравнения рендерим на актуальную дату просмотра ($asOfDate),
     // чтобы изменения, внесённые в дочерние элементы после последней редакции
     // родителя, тоже попадали в сравнение (у родителя отдельная редакция не создаётся).
@@ -271,7 +303,12 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
     }
 
     $result = [];
-    $seen = [];
+    // Группируем дочерние элементы по id инициатора утраты силы ($matchedChanger —
+    // это id структурного элемента из поля npa_item_revision.not_valid).
+    // Один и тот же инициатор мог удалить несколько дочерних элементов, и в
+    // списке «Изменения внесены» (<div class="changer-content">) такая причина
+    // должна появляться ровно один раз.
+    $groups = [];
 
     foreach (array_keys($bodyChildIds) as $childInternalId) {
         // Дополнительная защита: child_ref должен действительно ссылаться
@@ -313,10 +350,9 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
                 }
             }
         }
-        if (!$matchedRevision || !$matchedChanger || isset($seen[$childInternalId])) {
+        if (!$matchedRevision || !$matchedChanger) {
             continue;
         }
-        $seen[$childInternalId] = true;
 
         $npaInfo = getNpaInfoByItemId($matchedChanger, $pdo);
         $childDate = $npaInfo
@@ -353,10 +389,21 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
                    . '<div class="npa-expired-label" style="color:#999; font-style:italic;">(Утратил силу)</div>'
                    . '</div>';
 
+        if (!isset($groups[$matchedChanger])) {
+            $groups[$matchedChanger] = [
+                'note' => getRevisionSourceNote($matchedChanger, $pdo, true),
+                'date' => formatDateToRus($childDate),
+                'children_html' => ''
+            ];
+        }
+        $groups[$matchedChanger]['children_html'] .= $childHtml;
+    }
+
+    foreach ($groups as $group) {
         $result[] = [
-            'note' => getRevisionSourceNote($matchedChanger, $pdo, true),
-            'html' => $childHtml,
-            'date' => formatDateToRus($childDate)
+            'note' => $group['note'],
+            'html' => $group['children_html'],
+            'date' => $group['date']
         ];
     }
 

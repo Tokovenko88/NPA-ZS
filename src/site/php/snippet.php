@@ -1803,7 +1803,7 @@ function getItemHeadRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $asOfD
     ];
 }
 
-function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0, $npa_id = null, $includeHeading = true, $forComparison = false, $asOfDateOverride = null, $paragraphOnly = false, $useEditionContext = true) {
+function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0, $npa_id = null, $includeHeading = true, $forComparison = false, $asOfDateOverride = null, $paragraphOnly = false, $useEditionContext = true, $forceExpiredChildIds = []) {
     global $NPA_NO_NAME_IDS, $structured_tree_cache;
     
     if ($depth > 20) return null;
@@ -1926,6 +1926,22 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         }
         $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, true, $selRevIds);
         if (!isset($itemsById[$internal_item_id])) return null;
+        // Дочерние элементы, на которые ссылалось body предыдущей редакции, но
+        // которых нет в body новой, должны отображаться в этой колонке зачёркнутыми.
+        // getItemTree сам пометил тех, у кого выставлен not_valid на инициатора;
+        // здесь дополнительно помечаем удалённых без явного not_valid, чтобы
+        // renderElement отрисовал их через ветку истёкших сроков.
+        if (!empty($forceExpiredChildIds) && is_array($forceExpiredChildIds)) {
+            foreach ($forceExpiredChildIds as $fid) {
+                $fid = (int)$fid;
+                if ($fid > 0 && isset($itemsById[$fid]) && empty($itemsById[$fid]['is_expired'])) {
+                    $itemsById[$fid]['is_expired'] = true;
+                    if (empty($itemsById[$fid]['expired_valid_to'])) {
+                        $itemsById[$fid]['expired_valid_to'] = $itemsById[$fid]['valid_to'] ?? null;
+                    }
+                }
+            }
+        }
         $itemData = $itemsById[$internal_item_id];
         $npaData = [
             'npa_id' => $npa_id,
@@ -2147,6 +2163,30 @@ function renderElementAsTableFragment($itemData, $itemsById, $pdo, $viewDate, $s
     return $html;
 }
 
+/**
+ * Возвращает набор child_ref внутренних id, на которые ссылается тело (body)
+ * указанной ревизии элемента. Используется для сравнения тел двух редакций:
+ * дочерние элементы, присутствовавшие в body предыдущей редакции, но
+ * отсутствующие в body новой, должны отображаться зачёркнутыми в колонке
+ * предыдущей редакции.
+ */
+function getRevisionBodyChildRefIds(PDO $pdo, $revId) {
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT ref_item_internal_id
+        FROM npa_paragraph
+        WHERE rev_id = ?
+          AND block_type = 'child_ref'
+          AND ref_item_internal_id IS NOT NULL
+    ");
+    $stmt->execute([$revId]);
+    $ids = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $cid = (int)$row['ref_item_internal_id'];
+        if ($cid > 0) $ids[$cid] = true;
+    }
+    return $ids;
+}
+
 function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = []) {
     $current = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
     if (!$current) return null;
@@ -2171,7 +2211,15 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
     } else {
         $prevAsOfDate = $asOfDate;
     }
-    $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internal_item_id, 0, null, false, true, $prevAsOfDate, false, false);
+    // Дочерние элементы, на которые ссылалось body предыдущей редакции, но
+    // которых нет в body текущей: их нужно показать зачёркнутыми в колонке
+    // предыдущей редакции. Признак «утратил силу» может быть не выставлен в
+    // npa_item_revision.not_valid, тогда достаточно одного <del> без серой
+    // подписи «Утратил(а/о) силу».
+    $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $prev['rev_id']);
+    $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $current['rev_id']);
+    $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
+    $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internal_item_id, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
     // Текущую колонку сравнения рендерим на актуальную дату просмотра ($asOfDate),
     // чтобы изменения, внесённые в дочерние элементы после последней редакции
     // родителя, тоже попадали в сравнение (у родителя отдельная редакция не создаётся).
@@ -2411,7 +2459,12 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
     }
 
     $result = [];
-    $seen = [];
+    // Группируем дочерние элементы по id инициатора утраты силы ($matchedChanger —
+    // это id структурного элемента из поля npa_item_revision.not_valid).
+    // Один и тот же инициатор мог удалить несколько дочерних элементов, и в
+    // списке «Изменения внесены» (<div class="changer-content">) такая причина
+    // должна появляться ровно один раз.
+    $groups = [];
 
     foreach (array_keys($bodyChildIds) as $childInternalId) {
         // Дополнительная защита: child_ref должен действительно ссылаться
@@ -2453,10 +2506,9 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
                 }
             }
         }
-        if (!$matchedRevision || !$matchedChanger || isset($seen[$childInternalId])) {
+        if (!$matchedRevision || !$matchedChanger) {
             continue;
         }
-        $seen[$childInternalId] = true;
 
         $npaInfo = getNpaInfoByItemId($matchedChanger, $pdo);
         $childDate = $npaInfo
@@ -2493,10 +2545,21 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
                    . '<div class="npa-expired-label" style="color:#999; font-style:italic;">(Утратил силу)</div>'
                    . '</div>';
 
+        if (!isset($groups[$matchedChanger])) {
+            $groups[$matchedChanger] = [
+                'note' => getRevisionSourceNote($matchedChanger, $pdo, true),
+                'date' => formatDateToRus($childDate),
+                'children_html' => ''
+            ];
+        }
+        $groups[$matchedChanger]['children_html'] .= $childHtml;
+    }
+
+    foreach ($groups as $group) {
         $result[] = [
-            'note' => getRevisionSourceNote($matchedChanger, $pdo, true),
-            'html' => $childHtml,
-            'date' => formatDateToRus($childDate)
+            'note' => $group['note'],
+            'html' => $group['children_html'],
+            'date' => $group['date']
         ];
     }
 
@@ -3131,9 +3194,19 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
                 $expiredHtml = $content ? $content['html'] : '';
             }
         }
+        // Серая подпись «Утратил(а/о) силу» появляется только если в БД у
+        // ребёнка выставлен not_valid. Дочерние элементы, удалённые из body
+        // родителя без явного not_valid, помечаются истёкшими только ради
+        // зачёркивания и подписи не получают.
+        $notValid = trim((string)($itemData['not_valid'] ?? ''));
+        $hasNotValid = ($notValid !== '' && $notValid !== 'base');
         $html = '<div class="npa-item-block npa-expired-block" data-item-type="' . htmlspecialchars($itemType) . '">';
         $html .= '<div class="npa-diff-delete">' . $expiredHtml . '</div>';
-        $html .= '<div class="npa-expired-label" style="color:#999; font-style:italic;">(Утратил силу)</div>';
+        if ($hasNotValid) {
+            $genderSuffix = getExpiryGenderSuffix($itemType);
+            $expiryWord = 'Утратил' . $genderSuffix . ' силу';
+            $html .= '<div class="npa-expired-label" style="color:#999; font-style:italic;">(' . htmlspecialchars($expiryWord) . ')</div>';
+        }
         $html .= '</div>';
         return $html;
     }
@@ -3985,7 +4058,12 @@ if (isset($_GET['ajax_action'])) {
             } else {
                 $prevAsOfDate = $viewDateSqlAjax;
             }
-            $prevContent = getItemRevisionContent($pdo, $previousRev['rev_id'], $internal_id, 0, null, false, true, $prevAsOfDate, false, false);
+            // Дочерние элементы, удалённые из body между редакциями, должны
+            // показываться зачёркнутыми в колонке предыдущей редакции.
+            $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $previousRev['rev_id']);
+            $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $currentRev['rev_id']);
+            $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
+            $prevContent = getItemRevisionContent($pdo, $previousRev['rev_id'], $internal_id, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
             // Текущую колонку сравнения рендерим на актуальную дату просмотра ($viewDateSqlAjax).
             $currContent = getItemRevisionContent($pdo, $currentRev['rev_id'], $internal_id, 0, null, false, true, $viewDateSqlAjax);
             $prevHtmlRaw = $prevContent ? ensureTableWrapperForComparison($prevContent['html'], $internal_id, $pdo, $prevAsOfDate) : '';
@@ -4800,7 +4878,14 @@ foreach ($itemsById as $item) {
             } else {
                 $prevAsOfDate = $viewDateSql;
             }
-            $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internalId, 0, null, false, true, $prevAsOfDate, false, false);
+            // Дочерние элементы, на которые ссылалось body предыдущей редакции,
+            // но которых нет в body текущей, должны отображаться в колонке
+            // предыдущей редакции зачёркнутыми (с серой подписью «Утратил(а/о)
+            // силу», если в npa_item_revision.not_valid стоит пометка).
+            $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $prev['rev_id']);
+            $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $current['rev_id']);
+            $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
+            $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internalId, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
             // Текущую колонку сравнения рендерим на актуальную дату просмотра ($viewDateSql),
             // чтобы изменения, внесённые в дочерние элементы после последней редакции
             // родителя, тоже попадали в сравнение.
