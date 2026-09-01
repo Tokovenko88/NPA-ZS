@@ -136,6 +136,35 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
         }
         $itemsById[$internal_id] = $itemData;
     }
+
+    // В режиме сравнения includeExpired=true нужен, чтобы текущая колонка могла
+    // показать дочерний элемент, утративший силу этой же редакцией. Но наличие
+    // такой ревизии в npa_item ещё не означает, что элемент входил в тело
+    // текущей редакции родителя: он мог быть удалён из body в более поздней
+    // редакции, а сама ревизия ребёнка осталась незакрытой. Поэтому удаляем из
+    // карты только expired-детей, которые НЕ имеют child_ref в актуальном body
+    // своего родителя. Актуальность body определяется именно той ревизией,
+    // которую getRevisionForSelectedEdition выбрал для родителя.
+    if ($includeExpired && !empty($itemsById)) {
+        $bodyReferencedIds = [];
+        foreach ($itemsById as $parentData) {
+            foreach (($parentData['paragraphs'] ?? []) as $block) {
+                if (($block['block_type'] ?? '') !== 'child_ref') {
+                    continue;
+                }
+                $refId = isset($block['ref_item_internal_id']) ? (int)$block['ref_item_internal_id'] : 0;
+                if ($refId > 0) {
+                    $bodyReferencedIds[$refId] = true;
+                }
+            }
+        }
+        foreach (array_keys($itemsById) as $internalId) {
+            if (!empty($itemsById[$internalId]['is_expired']) && !isset($bodyReferencedIds[(int)$internalId])) {
+                unset($itemsById[$internalId]);
+            }
+        }
+    }
+
     $itemsByIdGlobal = $itemsById;
     $noNameIds = $npaData['no_name_ids'] ?? [];
     $isInsideNoName = function($itemId, $itemsById, $noNameIds) use (&$isInsideNoName) {
@@ -160,4 +189,3 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
     }
     return $itemsById;
 }
-
