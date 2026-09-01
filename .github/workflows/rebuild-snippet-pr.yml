@@ -1,8 +1,7 @@
 name: Apply comparison fix and rebuild snippet
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
     branches: [ main ]
 
 permissions:
@@ -10,7 +9,6 @@ permissions:
 
 jobs:
   rebuild:
-    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -86,4 +84,4 @@ jobs:
             exit 0
           fi
           git commit -m "fix: match not_valid to stable item ids"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git push origin HEAD:main
