@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   sync_generated:
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -87,7 +87,7 @@ jobs:
             exit 0
           fi
           git commit -m "fix: match not_valid to stable item ids"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git push origin HEAD:main
 
   lint:
     runs-on: ubuntu-latest
