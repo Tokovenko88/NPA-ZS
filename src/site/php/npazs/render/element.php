@@ -479,19 +479,38 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
     // в expired_content_html через getItemRevisionContent — не дублируем их здесь.
     $isExpired = !empty($item['is_expired']);
     if ($item['item_type'] !== 'structured_table' && !($isExpired && $forComparison)) {
-        $children = array_filter($itemsById, function($child) use ($item, $key, $forComparison) {
+        // Тело (body) родителя — единственный источник истины о его дочерних
+        // элементах. В режиме сравнения рекурсивно рендерим только тех детей,
+        // на которые ссылается body актуального неутратившего силу родителя,
+        // ПЛЮС утративших силу детей (они нужны для diff-колонки: показываются
+        // зачёркнутыми через ветку истёкших сроков). Дочерние элементы, не
+        // упомянутые в body и не утратившие силу, не должны попадать в колонку
+        // сравнения — иначе мы показываем структуру, которой в этой редакции
+        // уже нет.
+        $bodyChildRefIds = [];
+        if (!$isExpired) {
+            foreach (($item['paragraphs'] ?? []) as $block) {
+                if (($block['block_type'] ?? '') !== 'child_ref') continue;
+                $refId = isset($block['ref_item_internal_id']) ? (int)$block['ref_item_internal_id'] : 0;
+                if ($refId > 0) $bodyChildRefIds[$refId] = true;
+            }
+        }
+        $children = array_filter($itemsById, function($child) use ($item, $key, $bodyChildRefIds) {
             if (empty($child['parent_id'])) return false;
             if ((string)$child['parent_id'] !== (string)$item['id']
                 && (string)$child['parent_id'] !== (string)$key) {
                 return false;
             }
-            // getItemTree оставляет в режиме сравнения только тех утративших
-            // силу детей, на которых ссылается body актуальной редакции
-            // родителя. Их необходимо передать в renderElement(): в режиме
-            // comparison он выводит последнюю редакцию ребёнка зачёркнутой.
-            // Иначе текущая колонка скрывает факт удаления, хотя он был
-            // внесён выбранной редакцией НПА.
-            return true;
+            $childInternalId = (int)$child['id'];
+            if (isset($bodyChildRefIds[$childInternalId])) {
+                return true;
+            }
+            // Утратившие силу дети могут быть исключены из body текущей редакции,
+            // но нужны для diff-колонки: renderElement отобразит их зачёркнутыми.
+            if (!empty($child['is_expired'])) {
+                return true;
+            }
+            return false;
         });
         usort($children, function($a, $b) {
             if ($a['sort_order'] != $b['sort_order']) {

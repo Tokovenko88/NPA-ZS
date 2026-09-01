@@ -112,7 +112,7 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
         $params = array_merge($params, array_values($selectedRevisionNpaIds));
     }
     $sql .= ") ORDER BY r.valid_from ASC, r.rev_id ASC";
-    
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $allRevisions = $stmt->fetchAll();
@@ -134,6 +134,7 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
     $addNote = null;
     $newRedactionNote = null;
     $changeNotes = [];
+    $ownChangerIds = [];
 
     foreach ($revisionsToProcess as $rev) {
         $shortDesc = getShortNpaDescription($rev['modified_by_id'], $pdo, true);
@@ -144,6 +145,25 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
             case 'new_redaction': $newRedactionNote = $shortDesc; break;
             case 'change': if (!in_array($shortDesc, $changeNotes, true)) $changeNotes[] = $shortDesc; break;
         }
+        foreach (array_filter(array_map('trim', explode(',', (string)($rev['modified_by_id'] ?? '')))) as $mid) {
+            if ($mid !== '' && $mid !== 'base') $ownChangerIds[$mid] = true;
+        }
+    }
+
+    // Если собственная ревизия структурного элемента не была создана этой
+    // НПА, но НПА всё равно удалила его дочерние элементы (их
+    // npa_item_revision.not_valid ссылается на эту НПА) — добавим такую
+    // НПА в список «С изменениями», чтобы пользователь видел причину.
+    $ownChangerIdsList = array_keys($ownChangerIds);
+    $childChangerNotes = collectExpiredChildChangerNotes(
+        $pdo,
+        $internal_item_id,
+        $viewDate,
+        $ownChangerIdsList,
+        $selectedRevisionNpaIds
+    );
+    foreach ($childChangerNotes as $desc) {
+        if (!in_array($desc, $changeNotes, true)) $changeNotes[] = $desc;
     }
 
     $genderSuffix = '';

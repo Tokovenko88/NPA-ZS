@@ -169,6 +169,151 @@ function getItemHeadCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOf
 }
 
 /**
+ * Возвращает список changer-идентификаторов (id структурных элементов из
+ * npa_item_revision.not_valid), по которым утратили силу дочерние элементы
+ * указанного родителя, попавшие в его body актуальной редакции. Используется
+ * для дополнения <div class="element-revision-notes">, когда собственная
+ * ревизия родителя не была создана этой НПА, но НПА всё равно изменила
+ * состав его дочерних элементов.
+ *
+ * Логика отбора кандидатов идентична collectExpiredChildChanges(), но
+ * результат — уникальные short-desc описания НПА-инициаторов, без HTML.
+ *
+ * @return string[] Уникальные короткие описания инициаторов утраты силы.
+ */
+function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate, array $changerIds, array $selectedRevisionNpaIds = [], $parentRevisionId = null) {
+    if ($parentRevisionId === null) {
+        $parentRevision = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
+        if (!$parentRevision) {
+            return [];
+        }
+        $parentRevisionId = $parentRevision['rev_id'];
+    }
+
+    $stmt = $pdo->prepare('SELECT id, item_id, item_type, item_number FROM npa_item WHERE id = ? LIMIT 1');
+    $stmt->execute([$internal_item_id]);
+    $parent = $stmt->fetch();
+    if (!$parent) {
+        return [];
+    }
+
+    $loadBodyChildRefs = function($revisionId) use ($pdo) {
+        $stmt = $pdo->prepare('
+            SELECT ref_item_internal_id
+            FROM npa_paragraph
+            WHERE rev_id = ?
+              AND block_type = \'child_ref\'
+              AND ref_item_internal_id IS NOT NULL
+            ORDER BY sort_order
+        ');
+        $stmt->execute([$revisionId]);
+        $ids = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $childId = (int)$row['ref_item_internal_id'];
+            if ($childId > 0 && !isset($ids[$childId])) {
+                $ids[$childId] = true;
+            }
+        }
+        return $ids;
+    };
+
+    $bodyChildIds = $loadBodyChildRefs($parentRevisionId);
+    if (empty($bodyChildIds)) {
+        $stmtParentRevision = $pdo->prepare(
+            'SELECT valid_from FROM npa_item_revision WHERE rev_id = ? LIMIT 1'
+        );
+        $stmtParentRevision->execute([$parentRevisionId]);
+        $parentRevisionValidFrom = $stmtParentRevision->fetchColumn();
+        if ($parentRevisionValidFrom) {
+            $contentRevision = getLastContentRevision(
+                $pdo,
+                $internal_item_id,
+                $parentRevisionValidFrom
+            );
+            if ($contentRevision) {
+                $bodyChildIds = $loadBodyChildRefs($contentRevision['rev_id']);
+            }
+        }
+    }
+    if (empty($bodyChildIds)) {
+        return [];
+    }
+
+    $changerItemIdSet = [];
+    foreach ($changerIds as $cid) {
+        foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
+            if ($c === 'base') continue;
+            $changerItemIdSet[$c] = true;
+            if (ctype_digit($c)) {
+                $stmtChanger = $pdo->prepare(
+                    'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
+                );
+                $stmtChanger->execute([(int)$c]);
+                $changerItemId = $stmtChanger->fetchColumn();
+                if ($changerItemId) {
+                    $changerItemIdSet[(string)$changerItemId] = true;
+                }
+            }
+        }
+    }
+    if (!empty($selectedRevisionNpaIds)) {
+        $placeholders = implode(',', array_fill(0, count($selectedRevisionNpaIds), '?'));
+        $stmtSelectedSources = $pdo->prepare(
+            "SELECT id, item_id FROM npa_item WHERE npa_id IN ($placeholders)"
+        );
+        $stmtSelectedSources->execute(array_values($selectedRevisionNpaIds));
+        foreach ($stmtSelectedSources->fetchAll() as $sourceRow) {
+            if (!empty($sourceRow['id'])) {
+                $changerItemIdSet[(string)$sourceRow['id']] = true;
+            }
+            if (!empty($sourceRow['item_id'])) {
+                $changerItemIdSet[(string)$sourceRow['item_id']] = true;
+            }
+        }
+    }
+    if (!empty($parent['item_id']) && $parent['item_id'] !== 'base') {
+        $changerItemIdSet[$parent['item_id']] = true;
+    }
+    if (empty($changerItemIdSet)) {
+        return [];
+    }
+
+    $notes = [];
+    foreach (array_keys($bodyChildIds) as $childInternalId) {
+        $stmt = $pdo->prepare('SELECT id, item_id, parent_id FROM npa_item WHERE id = ? LIMIT 1');
+        $stmt->execute([$childInternalId]);
+        $child = $stmt->fetch();
+        if (!$child || (string)$child['parent_id'] !== (string)$internal_item_id) {
+            continue;
+        }
+        if (isset($changerItemIdSet[$child['item_id']])) {
+            continue;
+        }
+        $stmt = $pdo->prepare('
+            SELECT not_valid
+            FROM npa_item_revision r
+            WHERE r.item_internal_id = ?
+            ORDER BY r.valid_from DESC, r.rev_id DESC
+        ');
+        $stmt->execute([$childInternalId]);
+        foreach ($stmt->fetchAll() as $candidate) {
+            $notValidIds = array_filter(array_map('trim', explode(',', (string)($candidate['not_valid'] ?? ''))));
+            foreach ($notValidIds as $nvid) {
+                if (isset($changerItemIdSet[$nvid])) {
+                    $shortDesc = getRevisionSourceNote($nvid, $pdo, true);
+                    if ($shortDesc && $shortDesc !== 'исходная редакция' && !in_array($shortDesc, $notes, true)) {
+                        $notes[] = $shortDesc;
+                    }
+                    break 2;
+                }
+            }
+        }
+    }
+
+    return $notes;
+}
+
+/**
  * Возвращает дочерние элементы, которые утратили силу из-за той же редакции НПА,
  * что и текущий структурный элемент, но должны быть явно показаны в diff.
  *
