@@ -37,8 +37,6 @@ jobs:
               foreach (array_filter(array_map('trim', explode(',', (string)$cid))) as $c) {
                   if ($c === 'base') continue;
                   $changerItemIdSet[$c] = true;
-                  // modified_by_id хранит внутренний npa_item.id,
-                  // а not_valid — стабильный строковый item_id.
                   if (ctype_digit($c)) {
                       $stmtChanger = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
                       $stmtChanger->execute([(int)$c]);
@@ -67,8 +65,6 @@ jobs:
           new = """            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
                 if ($sourceId === 'base') continue;
                 $parentSources[$sourceId] = true;
-                // modified_by_id хранит внутренний npa_item.id,
-                // а not_valid — стабильный строковый item_id.
                 if (ctype_digit($sourceId)) {
                     $stmtSource = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
                     $stmtSource->execute([(int)$sourceId]);
