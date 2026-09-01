@@ -67,7 +67,7 @@ from npazs.constants import (
 )
 from json_repair import repair_json
 from npazs.revision.text_utils import strip_thinking_tags
-from npazs.revision.ai_utils import ask_ollama
+from npazs.revision.ai_utils import ask_ollama, _extract_prompt_inputs
 from npazs.revision.engine import *
 from npazs.revision.tree_utils import _find_target_element, find_item_by_id
 from npazs.revision.ui_utils import _correct_change_description, _fetch_source_html_for_change, _add_new_element, _find_existing_element_flexible, _normalize_highlights_positions, _resolve_add_parent_and_deferred, _ensure_path, extract_json_from_text, expand_range_in_new_field, split_range_changes, get_date_for_filename, parse_add_new_field
@@ -98,11 +98,12 @@ class AiPipelineMixin:
         def _collect_prompt_answer(self, stage_num, prompt_text, answer_text, change_info="", metadata=None):
             if not hasattr(self, '_prompt_answers'):
                 self._init_prompt_answers()
+            input_content = _extract_prompt_inputs(prompt_text) or ""
             stage_entry = {
                 "stage": stage_num,
                 "timestamp": datetime.now().isoformat(),
                 "change_info": change_info,
-                "prompt": prompt_text,
+                "prompt": input_content,
                 "answer": answer_text,
                 "metadata": metadata or {}
             }

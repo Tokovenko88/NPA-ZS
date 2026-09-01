@@ -47,6 +47,23 @@ def _ask_invalid_json_action(log_callback, answer, error):
     return False
 
 
+def _extract_prompt_inputs(prompt_text):
+    tags = [
+        'input_data', 'input_document', 'change_doc', 'change_json', 'input_json',
+        'date_pub', 'law_number', 'article_number', 'doc_text',
+        'change_npa_number', 'change_date_pub', 'change_date_effective', 'valid_from',
+    ]
+    input_parts = []
+    for tag in tags:
+        pattern = rf'<({tag})>(.*?)</\1>'
+        matches = re.findall(pattern, prompt_text, re.DOTALL | re.IGNORECASE)
+        for m in matches:
+            input_parts.append(f"<{m[0]}>\n{m[1]}\n</{m[0]}>")
+    if input_parts:
+        return '\n'.join(input_parts).strip()
+    return None
+
+
 def _repair_json_answer(answer, log_callback=None):
     """Repair JSON returned by the model when possible; otherwise skip the response."""
     if not answer:
@@ -60,6 +77,7 @@ def _repair_json_answer(answer, log_callback=None):
     try:
         repaired = repair_json(cleaned)
         json.loads(repaired)
+        repaired = json.dumps(json.loads(repaired), ensure_ascii=False)
         if repaired != cleaned and log_callback:
             log_callback(
                 f"  ⚠ Автоматически исправлен JSON-ответ ИИ: {len(cleaned)} → {len(repaired)} символов",
@@ -88,15 +106,8 @@ def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event
     base_url = base_url.rstrip('/')
     if log_callback:
         log_callback(f"  Запрос к Kilo Gateway (модель: {model})", 'info')
-        tags = ['input_data', 'input_document', 'change_doc', 'change_json', 'input_json', 'date_pub', 'law_number', 'article_number', 'doc_text', 'change_npa_number', 'change_date_pub', 'change_date_effective', 'valid_from']
-        input_parts = []
-        for tag in tags:
-            pattern = rf'<({tag})>(.*?)</\1>'
-            matches = re.findall(pattern, prompt, re.DOTALL | re.IGNORECASE)
-            for m in matches:
-                input_parts.append(f"<{m[0]}>\n{m[1]}\n</{m[0]}>")
-        if input_parts:
-            input_content = '\n'.join(input_parts).strip()
+        input_content = _extract_prompt_inputs(prompt)
+        if input_content:
             log_callback(f"<environment_details>\n  ВХОДНЫЕ ДАННЫЕ (полностью):\n{input_content}\n</environment_details>", 'input')
         else:
             log_callback(f"  (Входные данные не найдены в промпте)", 'warning')
