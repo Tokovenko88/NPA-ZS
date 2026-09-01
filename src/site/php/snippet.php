@@ -2903,8 +2903,6 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
                     }
                 }
             }
-                }
-            }
             foreach (($parentData['paragraphs'] ?? []) as $block) {
                 if (($block['block_type'] ?? '') !== 'child_ref') {
                     continue;
