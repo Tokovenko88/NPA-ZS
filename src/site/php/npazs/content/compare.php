@@ -199,8 +199,21 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
     $changerItemIdSet = [];
     foreach ($changerIds as $cid) {
         foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
-            if ($c !== 'base') {
-                $changerItemIdSet[$c] = true;
+            if ($c === 'base') continue;
+
+            // modified_by_id хранит внутренний npa_item.id,
+            // not_valid хранит стабильный строковый item_id.
+            $changerItemIdSet[$c] = true;
+            if (ctype_digit($c)) {
+                $stmtChanger = $pdo->prepare(
+                    'SELECT item_id FROM npa_item WHERE id = ? LIMIT 1'
+                );
+                $stmtChanger->execute([(int)$c]);
+                $changerItemId = $stmtChanger->fetchColumn();
+
+                if ($changerItemId) {
+                    $changerItemIdSet[(string)$changerItemId] = true;
+                }
             }
         }
     }
