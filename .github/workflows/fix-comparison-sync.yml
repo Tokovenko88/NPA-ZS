@@ -1,0 +1,42 @@
+name: Apply comparison fix and rebuild snippet
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix comparison revision lookup
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/site/php/npazs/content/compare.php')
+          s = p.read_text(encoding='utf-8')
+          old = """            SELECT r.*\n            FROM npa_item_revision r\n            WHERE r.item_internal_id = ?\n              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)\n            ORDER BY r.valid_from DESC, r.rev_id DESC\n"""
+          new = """            SELECT r.*\n            FROM npa_item_revision r\n            WHERE r.item_internal_id = ?\n            ORDER BY r.valid_from DESC, r.rev_id DESC\n"""
+          if old not in s:
+              raise SystemExit('target revision lookup was not found')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Rebuild generated snippet
+        run: python data/work_tools/build_snippet.py
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/site/php/npazs/content/compare.php src/site/php/snippet.php
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "fix: rebuild comparison child expiry logic"
+          git push
