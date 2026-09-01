@@ -225,6 +225,11 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
         if (!$child || (string)$child['parent_id'] !== (string)$internal_item_id) {
             continue;
         }
+        // Если сам ребёнок уже является одним из changer-элементов, он уже
+        // присутствует в «Изменения внесены» и второй раз добавляться не должен.
+        if (isset($changerItemIdSet[$child['item_id']])) {
+            continue;
+        }
 
         // Ищем именно ту ревизию ребёнка, у которой not_valid указывает на
         // текущую редакцию-инициатор. Нельзя брать просто getRevisionForDate():
