@@ -216,8 +216,8 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
             ? ($npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $rev['valid_from'])
             : $rev['valid_from'];
 
-        $childHtml = getElementHtmlById(
-            $child['item_id'], $asOfDate, $pdo,
+                $childHtml = getElementHtmlById(
+            $childInternalId, $asOfDate, $pdo,
             $npaInfo['npa_id'] ?? 0, $npaInfo['npa_type'] ?? ''
         );
 
