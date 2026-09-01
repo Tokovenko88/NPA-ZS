@@ -151,6 +151,12 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
         $bodyReferencedIds = [];
         $bodyReferenceSources = [];
         foreach ($itemsById as $parentData) {
+            // Дочерние элементы должны определяться по body актуального
+            // неутратившего силу родителя. Body старой/expired-редакции не даёт
+            // права вернуть её детей в текущую колонку.
+            if (!empty($parentData['is_expired'])) {
+                continue;
+            }
             $parentSources = [];
             if (!empty($parentData['item_id']) && $parentData['item_id'] !== 'base') {
                 $parentSources[$parentData['item_id']] = true;
