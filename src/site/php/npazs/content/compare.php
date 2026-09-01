@@ -239,7 +239,6 @@ function collectExpiredChildChanges(PDO $pdo, $internal_item_id, $asOfDate, arra
             SELECT r.*
             FROM npa_item_revision r
             WHERE r.item_internal_id = ?
-              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)
             ORDER BY r.valid_from DESC, r.rev_id DESC
         ');
         $stmt->execute([$childInternalId]);
