@@ -24,11 +24,20 @@ jobs:
       - name: Repair child-only comparison detection
         run: python data/work_tools/fix_child_comparison.py
 
+      - name: Repair tree patch syntax
+        run: python data/work_tools/fix_tree_braces.py
+
       - name: Rebuild generated snippet
         run: python data/work_tools/build_snippet.py
 
       - name: Verify generated snippet
         run: python data/work_tools/build_snippet.py --check
+
+      - name: PHP syntax check
+        run: |
+          php -l src/site/php/npazs/content/compare.php
+          php -l src/site/php/npazs/render/tree.php
+          php -l src/site/php/snippet.php
 
       - name: Commit generated changes
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
