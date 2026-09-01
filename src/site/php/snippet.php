@@ -1,4 +1,37 @@
 <?php
+/* ===============================================================
+ *  ВНИМАНИЕ: ЭТОТ ФАЙЛ ГЕНЕРИРУЕТСЯ АВТОМАТИЧЕСКИ — НЕ РЕДАКТИРОВАТЬ!
+ *
+ *  Источник: модули src/site/php/npazs/ (карта модулей и правила —
+ *  в README.md этого каталога). Правки вносить только в модули,
+ *  затем пересобрать файл:
+ *      make build-snippet   |   python data/work_tools/build_snippet.py
+ *
+ *  Порядок модулей при сборке:
+ *    1. bootstrap.php
+ *    2. helpers/dates.php
+ *    3. helpers/text.php
+ *    4. cache/static.php
+ *    5. revisions/edition.php
+ *    6. revisions/item.php
+ *    7. revisions/head.php
+ *    8. revisions/number_prefix.php
+ *    9. document/status.php
+ *   10. document/head.php
+ *   11. descriptions/npa_refs.php
+ *   12. ui/buttons.php
+ *   13. ui/notes.php
+ *   14. ui/selector.php
+ *   15. ui/signature.php
+ *   16. content/item_content.php
+ *   17. content/tables.php
+ *   18. content/compare.php
+ *   19. render/tree.php
+ *   20. render/element.php
+ *   21. history/lists.php
+ *   22. ajax.php
+ * =============================================================== */
+/* ================= Модули (функции; при сборке разворачиваются в монолит) ================= */
 // ========== ЗАГРУЗКА ПЕРЕМЕННЫХ ИЗ .env ==========
 $envFile = dirname(MODX_BASE_PATH) . '/.env';  // путь к вашему файлу
 
@@ -22,34 +55,6 @@ if (file_exists($envFile)) {
 } else {
     // Если файл не найден — остановим выполнение с понятной ошибкой
     die('Ошибка: файл .env не найден. Обратитесь к администратору.');
-}
-
- $structured_tree_cache = [];
- $npa_id = isset($npa_id) ? (int)$npa_id : 0;
-
-if (!$npa_id) {
-    $tvValue = $modx->getTemplateVar('npa_id', '*', $modx->documentObject['id']);
-    if ($tvValue && isset($tvValue['value'])) {
-        $npa_id = (int)$tvValue['value'];
-    }
-}
-
-if (!$npa_id) {
-    return -6;
-}
-
- $tvValue = $modx->getTemplateVar('z-publish','*',$modx->documentObject['id']);
- $z_publish = $tvValue['value'];
- $baseUrl = $modx->config['site_url'];
- $pdfUrl = $baseUrl . ltrim($z_publish, '/');
- $tocTitle = isset($tocTitle) ? $tocTitle : 'Оглавление документа';
- $NPA_NO_NAME_IDS = [];
-
-function normalizeHighlightText($text) {
-    if (empty($text)) return '';
-    $text = str_replace(['–', '—', '‑', '‐'], '-', $text);
-    $text = preg_replace('/\s+/', ' ', $text);
-    return trim($text);
 }
 
 function parseDate($dateStr) {
@@ -94,21 +99,190 @@ function isRevisionCurrent($isDocExpired, $validToRaw, $validFromRaw, $asOfDate)
     return (is_null($validToRaw) || $validToRaw >= $asOfDate) && $validFromRaw <= $asOfDate;
 }
 
-function getDocMaxDate(PDO $pdo, $npa_id, $asOfDate = null) {
-    $stmtMax = $pdo->prepare("
-        SELECT MAX(valid_from) as max_date FROM (
-            SELECT valid_from FROM npa_base WHERE npa_id = ?
-            UNION
-            SELECT revision_date_valid FROM npa_revision_info WHERE base_npa_id = ?
-        ) AS dates
-    ");
-    $stmtMax->execute([$npa_id, $npa_id]);
-    $maxRow = $stmtMax->fetch();
-    $maxDate = $maxRow['max_date'] ?? null;
-    if ($asOfDate && ($maxDate === null || $asOfDate > $maxDate)) {
-        $maxDate = $asOfDate;
+function formatDateToRus($dateStr) {
+    if (empty($dateStr)) return '';
+    $dt = parseDate($dateStr);
+    return $dt ? $dt->format('d.m.Y') : $dateStr;
+}
+
+function formatRusDate($dateStr, $dateFormat) {
+    if (empty($dateStr)) return '';
+    $dt = parseDate($dateStr);
+    if (!$dt) return $dateStr;
+    $day = (int)$dt->format('d');
+    $month = (int)$dt->format('m');
+    $year = $dt->format('Y');
+    $months = [1 => 'января', 2 => 'февраля', 3 => 'марта', 4 => 'апреля', 5 => 'мая', 6 => 'июня',7 => 'июля', 8 => 'августа', 9 => 'сентября', 10 => 'октября', 11 => 'ноября', 12 => 'декабря'];
+    $monthName = $months[$month] ?? '';
+    $dayFormatted = ($dateFormat == 0) ? str_pad($day, 2, '0', STR_PAD_LEFT) : $day;
+    return $dayFormatted . ' ' . $monthName . ' ' . $year . ' года';
+}
+
+function normalizeHighlightText($text) {
+    if (empty($text)) return '';
+    $text = str_replace(['–', '—', '‑', '‐'], '-', $text);
+    $text = preg_replace('/\s+/', ' ', $text);
+    return trim($text);
+}
+
+function getDisplayText($item, $isExpired = false, $noNameIds = [], $hideSectionPrefix = false) {
+    $type = $item['item_type'];
+    $number = $item['display_number'] ?? $item['item_number'] ?? '';
+    $head = $item['item_head'];
+    $itemId = $item['item_id'] ?? '';
+    switch ($type) {
+        case 'preamble':    $display = 'Преамбула'; break;
+        case 'chapter':     $display = 'Глава ' . $number . ($head ? '. ' . $head : ''); break;
+        case 'section':
+            if ($hideSectionPrefix) {
+                $display = $number . ($head ? '. ' . $head : '');
+            } else {
+                $display = 'Раздел ' . $number . ($head ? '. ' . $head : '');
+            }
+            break;
+        case 'article':     $display = 'Статья ' . $number . ($head ? '. ' . $head : ''); break;
+        case 'part':        $display = 'Часть ' . $number . ($head ? '. ' . $head : ''); break;
+        case 'point':       $display = 'Пункт ' . $number . ($head ? '. ' . $head : ''); break;
+        case 'subpoint':    $display = 'Подпункт ' . $number . ($head ? '. ' . $head : ''); break;
+        case 'appendix':
+        case 'nested_appendix': $display = 'Приложение ' . $number . ($head ? '. ' . $head : ''); break;
+        case 'structured_table':
+            if (!empty($head)) {
+                $display = 'Таблица ' . $number . ($head ? '. ' . $head : '');
+            } else {
+                $display = '';
+            }
+            break;
+        default:            $display = ''; break;
     }
-    return $maxDate;
+    if ($isExpired && !empty($display)) {
+        $suffix = '';
+        if ($type === 'article') $suffix = 'а';
+        elseif ($type === 'part') $suffix = 'а';
+        elseif ($type === 'chapter') $suffix = 'а';
+        elseif ($type === 'section') $suffix = 'а';
+        elseif ($type === 'appendix' || $type === 'nested_appendix') $suffix = 'о';
+        elseif ($type === 'structured_table') $suffix = 'ы';
+        $display .= ' (Утратил' . $suffix . ' силу)';
+    }
+    return $display;
+}
+
+function getExpiryGenderSuffix($type) {
+     switch ($type) {
+            case 'article': return 'а';
+            case 'part':    return 'а';
+            case 'chapter': return 'а';
+            case 'section': return 'а';
+            case 'preamble':return 'а';
+            case 'appendix':return 'о';
+            case 'point':   return '';
+            case 'subpoint':return '';
+            default:        return '';
+        }
+}
+
+function getLocalElementGenitive($itemType, $itemNumber) {
+        $map = [
+            'preamble'  => 'преамбулы',
+            'chapter'   => 'главы',
+            'section'   => 'раздела',
+            'article'   => 'статьи',
+            'part'      => 'части',
+            'point'     => 'пункта',
+            'subpoint'  => 'подпункта',
+            'appendix'  => 'приложения',
+            'nested_appendix' => 'приложения'
+        ];
+        $base = $map[$itemType] ?? 'элемента';
+        if (in_array($itemType, ['preamble'])) {
+            return $base;
+        }
+                return $base . ' ' . trim($itemNumber, '. ');
+}
+
+function normalizeHighlights($highlights) {
+    $default = [
+        'previous_edition' => ['deletion' => [], 'difference' => []],
+        'current_edition'  => ['addition' => [], 'difference' => []]
+    ];
+    if (empty($highlights)) {
+        return $default;
+    }
+    $toArray = function($data) use (&$toArray) {
+        if (is_object($data)) {
+            $data = (array) $data;
+        }
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = $toArray($value);
+            }
+        }
+        return $data;
+    };
+    if (is_string($highlights)) {
+        $decoded = json_decode($highlights, true);
+        if (is_array($decoded)) {
+            $highlights = $decoded;
+        } else {
+            return $default;
+        }
+    }
+    $highlights = $toArray($highlights);
+    if (!is_array($highlights) || empty($highlights)) {
+        return $default;
+    }
+    if (!isset($highlights['previous_edition']) || !is_array($highlights['previous_edition'])) {
+        $highlights['previous_edition'] = [];
+    }
+    if (!isset($highlights['current_edition']) || !is_array($highlights['current_edition'])) {
+        $highlights['current_edition'] = [];
+    }
+    foreach (['deletion', 'difference'] as $key) {
+        if (!isset($highlights['previous_edition'][$key]) || !is_array($highlights['previous_edition'][$key])) {
+            $highlights['previous_edition'][$key] = [];
+        }
+    }
+    foreach (['addition', 'difference'] as $key) {
+        if (!isset($highlights['current_edition'][$key]) || !is_array($highlights['current_edition'][$key])) {
+            $highlights['current_edition'][$key] = [];
+        }
+    }
+    return $highlights;
+}
+
+function getStaticFilePath($npaData, $viewDateSql, $npa_id) {
+    $year = ($npaData['npa_type'] === 'law')
+        ? date('Y', strtotime($npaData['date_passed']))
+        : date('Y', strtotime($npaData['date_signed'] ?? $npaData['date_passed'] ?? 'now'));
+    $typeDir = $npaData['npa_type'] === 'law' ? 'law' : 'regulation';
+    $staticBaseDir = MODX_BASE_PATH . 'assets/npa/' . $typeDir . '/' . $year . '/' . $npa_id . '/';
+    if (!is_dir($staticBaseDir)) {
+        mkdir($staticBaseDir, 0777, true);
+    }
+    return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v14.html';
+}
+
+function generateFilename($npaData, $revisions = []) {
+    $isLaw = ($npaData['npa_type'] === 'law');
+    $prefix = $isLaw ? 'zakon' : 'postanovlenie';
+    $npaNumForFile = str_replace('ЗС', 'ZS', $npaData['npa_number']);
+    $dateField = $isLaw ? 'date_passed' : 'date_passed';
+    $baseDate = $npaData[$dateField] ?? $npaData['date_passed'] ?? '';
+    $dt = parseDate($baseDate);
+    $dateStr = $dt ? $dt->format('d_m_Y') : 'unknown';
+    $filename = $prefix . '_' . $npaNumForFile . '_ot_' . $dateStr;
+    if (!empty($revisions)) {
+        $parts = [];
+        foreach ($revisions as $rev) {
+            $revNumForFile = str_replace('ЗС', 'ZS', $rev['revision_number']);
+            $revDt = parseDate($rev['revision_date_reg']);
+            $revDateStr = $revDt ? $revDt->format('d_m_Y') : 'unknown';
+            $parts[] = $revNumForFile . '_ot_' . $revDateStr;
+        }
+        $filename .= '_redakciya_' . implode('_i_', $parts);
+    }
+    return $filename . '.rtf';
 }
 
 function getSelectedRevisionNpaIds(PDO $pdo, $baseNpaId, $viewDate) {
@@ -197,45 +371,6 @@ function getRevisionForSelectedEdition(PDO $pdo, $itemInternalId, $asOfDate, arr
     return $revision;
 }
 
-function getPreviousItemRevision(PDO $pdo, $itemInternalId, $currentRevId) {
-    $stmt = $pdo->prepare("
-        SELECT r.*
-        FROM npa_item_revision r
-        WHERE r.item_internal_id = ?
-          AND (
-              r.valid_from < (SELECT c.valid_from FROM npa_item_revision c WHERE c.rev_id = ?)
-              OR (
-                  r.valid_from = (SELECT c.valid_from FROM npa_item_revision c WHERE c.rev_id = ?)
-                  AND r.rev_id < ?
-              )
-          )
-          AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)
-        ORDER BY r.valid_from DESC, r.rev_id DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$itemInternalId, $currentRevId, $currentRevId, $currentRevId]);
-    return $stmt->fetch();
-}
-
-function getPreviousItemHeadRevision(PDO $pdo, $itemInternalId, $currentRevId) {
-    $stmt = $pdo->prepare("
-        SELECT r.*
-        FROM npa_item_head_revision r
-        WHERE r.item_internal_id = ?
-          AND (
-              r.valid_from < (SELECT c.valid_from FROM npa_item_head_revision c WHERE c.id = ?)
-              OR (
-                  r.valid_from = (SELECT c.valid_from FROM npa_item_head_revision c WHERE c.id = ?)
-                  AND r.id < ?
-              )
-          )
-        ORDER BY r.valid_from DESC, r.id DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$itemInternalId, $currentRevId, $currentRevId, $currentRevId]);
-    return $stmt->fetch();
-}
-
 function getItemRevisionTimelineForSelectedEdition(PDO $pdo, $itemInternalId, $asOfDate, array $selectedRevisionNpaIds = []) {
     $current = getRevisionForSelectedEdition($pdo, $itemInternalId, $asOfDate, $selectedRevisionNpaIds);
     if (!$current) return [];
@@ -275,40 +410,6 @@ function getItemHeadRevisionTimelineForSelectedEdition(PDO $pdo, $itemInternalId
     return $stmt->fetchAll();
 }
 
-function getRevisionForDate(PDO $pdo, $itemInternalId, $asOfDate) {
-    $stmt = $pdo->prepare("
-        SELECT rev_id, valid_from, valid_to, mod_type, highlights, modified_by_id, not_valid
-        FROM npa_item_revision
-        WHERE item_internal_id = ?
-          AND (valid_from <= ? OR valid_from IS NULL)
-          AND (valid_to IS NULL OR valid_to >= ?)
-        ORDER BY valid_from DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$itemInternalId, $asOfDate, $asOfDate]);
-    $active = $stmt->fetch();
-    if ($active) {
-        $active['is_expired'] = false;
-        return $active;
-    }
-    $stmt = $pdo->prepare("
-        SELECT rev_id, valid_from, valid_to, mod_type, highlights, modified_by_id, not_valid
-        FROM npa_item_revision
-        WHERE item_internal_id = ?
-          AND valid_from <= ?
-          AND valid_to < ?
-        ORDER BY valid_from DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$itemInternalId, $asOfDate, $asOfDate]);
-    $expired = $stmt->fetch();
-    if ($expired) {
-        $expired['is_expired'] = true;
-        return $expired;
-    }
-    return null;
-}
-
 function getItemHeadRevisionForSelectedEdition(PDO $pdo, $itemInternalId, $asOfDate, array $selectedRevisionNpaIds = []) {
     $revision = getItemHeadRevisionForDate($pdo, $itemInternalId, $asOfDate);
 
@@ -343,6 +444,226 @@ function getItemHeadRevisionForSelectedEdition(PDO $pdo, $itemInternalId, $asOfD
     return $revision;
 }
 
+function getItemNumberForSelectedEdition(PDO $pdo, $itemInternalId, $asOfDate, array $selectedRevisionNpaIds = []) {
+    $number = getItemNumberForDate($pdo, $itemInternalId, $asOfDate);
+
+    if (empty($selectedRevisionNpaIds)) {
+        return $number;
+    }
+
+    $placeholders = buildRevisionNpaIdPlaceholders($selectedRevisionNpaIds);
+    $sql = "
+        SELECT r.number_text
+        FROM npa_item_number_revision r
+        WHERE r.item_internal_id = ?
+          AND EXISTS (
+              SELECT 1
+              FROM npa_item changer
+              WHERE changer.npa_id IN ($placeholders)
+                AND INSTR(BINARY CONCAT(',', REPLACE(COALESCE(r.modified_by_id, ''), ' ', ''), ','), BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')) > 0
+          )
+        ORDER BY r.valid_from DESC
+        LIMIT 1
+    ";
+    $params = array_merge([$itemInternalId], array_values($selectedRevisionNpaIds));
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $selected = $stmt->fetchColumn();
+
+    return ($selected !== false) ? $selected : $number;
+}
+
+function getItemPrefixRevisionForSelectedEdition($itemInternalId, $asOfDate, $pdo, array $selectedRevisionNpaIds = []) {
+    $prefix = getItemPrefixRevision($itemInternalId, $asOfDate, $pdo);
+
+    if (empty($selectedRevisionNpaIds)) {
+        return $prefix;
+    }
+
+    $placeholders = buildRevisionNpaIdPlaceholders($selectedRevisionNpaIds);
+    $sql = "
+        SELECT r.*
+        FROM npa_item_prefix_revision r
+        WHERE r.item_internal_id = ?
+          AND EXISTS (
+              SELECT 1
+              FROM npa_item changer
+              WHERE changer.npa_id IN ($placeholders)
+                AND INSTR(BINARY CONCAT(',', REPLACE(COALESCE(r.modified_by_id, ''), ' ', ''), ','), BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')) > 0
+          )
+        ORDER BY r.valid_from DESC
+        LIMIT 1
+    ";
+    $params = array_merge([$itemInternalId], array_values($selectedRevisionNpaIds));
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $selected = $stmt->fetch();
+
+    if ($selected) {
+        $selected['is_expired'] = 0;
+        return $selected;
+    }
+
+    return $prefix;
+}
+
+function isDeferredSelectedEditionRevision($revision, $viewDate, array $selectedRevisionNpaIds = []) {
+    if (empty($selectedRevisionNpaIds) || empty($revision['valid_from']) || empty($viewDate)) {
+        return false;
+    }
+
+    $revisionDate = parseDate($revision['valid_from']);
+    $viewDateObj = parseDate($viewDate);
+
+    if (!$revisionDate || !$viewDateObj) {
+        return false;
+    }
+
+    return $revisionDate->format('Y-m-d') > $viewDateObj->format('Y-m-d');
+}
+
+function getPreviousItemRevision(PDO $pdo, $itemInternalId, $currentRevId) {
+    $stmt = $pdo->prepare("
+        SELECT r.*
+        FROM npa_item_revision r
+        WHERE r.item_internal_id = ?
+          AND (
+              r.valid_from < (SELECT c.valid_from FROM npa_item_revision c WHERE c.rev_id = ?)
+              OR (
+                  r.valid_from = (SELECT c.valid_from FROM npa_item_revision c WHERE c.rev_id = ?)
+                  AND r.rev_id < ?
+              )
+          )
+          AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)
+        ORDER BY r.valid_from DESC, r.rev_id DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$itemInternalId, $currentRevId, $currentRevId, $currentRevId]);
+    return $stmt->fetch();
+}
+
+function getRevisionForDate(PDO $pdo, $itemInternalId, $asOfDate) {
+    $stmt = $pdo->prepare("
+        SELECT rev_id, valid_from, valid_to, mod_type, highlights, modified_by_id, not_valid
+        FROM npa_item_revision
+        WHERE item_internal_id = ?
+          AND (valid_from <= ? OR valid_from IS NULL)
+          AND (valid_to IS NULL OR valid_to >= ?)
+        ORDER BY valid_from DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$itemInternalId, $asOfDate, $asOfDate]);
+    $active = $stmt->fetch();
+    if ($active) {
+        $active['is_expired'] = false;
+        return $active;
+    }
+    $stmt = $pdo->prepare("
+        SELECT rev_id, valid_from, valid_to, mod_type, highlights, modified_by_id, not_valid
+        FROM npa_item_revision
+        WHERE item_internal_id = ?
+          AND valid_from <= ?
+          AND valid_to < ?
+        ORDER BY valid_from DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$itemInternalId, $asOfDate, $asOfDate]);
+    $expired = $stmt->fetch();
+    if ($expired) {
+        $expired['is_expired'] = true;
+        return $expired;
+    }
+    return null;
+}
+
+function getActiveRecord(PDO $pdo, $table, $idField, $idValue, $asOfDate) {
+    $sql = "SELECT * FROM `$table`
+            WHERE `$idField` = ?
+              AND (`valid_from` <= ? OR `valid_from` IS NULL)
+              AND (`valid_to` IS NULL OR `valid_to` >= ?)
+            ORDER BY `valid_from` DESC
+            LIMIT 1";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$idValue, $asOfDate, $asOfDate]);
+    $row = $stmt->fetch();
+    if ($row) {
+        $row['is_expired'] = 0;
+        return $row;
+    }
+    $sql = "SELECT * FROM `$table`
+            WHERE `$idField` = ?
+              AND `valid_from` <= ?
+              AND `valid_to` < ?
+            ORDER BY `valid_from` DESC
+            LIMIT 1";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$idValue, $asOfDate, $asOfDate]);
+    $expired = $stmt->fetch();
+    if ($expired) {
+        $expired['is_expired'] = 1;
+        return $expired;
+    }
+    return null;
+}
+
+function getLastContentRevision(PDO $pdo, $internal_item_id, $asOfDate = null) {
+    if ($asOfDate) {
+        $stmt = $pdo->prepare("
+            SELECT rev_id, valid_from, valid_to
+            FROM npa_item_revision
+            WHERE item_internal_id = ?
+              AND valid_from <= ?
+              AND (valid_to IS NULL OR valid_to >= ?)
+              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = npa_item_revision.rev_id)
+            ORDER BY valid_from DESC
+        ");
+        $stmt->execute([$internal_item_id, $asOfDate, $asOfDate]);
+        $active = $stmt->fetch();
+        if ($active) return $active;
+        
+        $stmt = $pdo->prepare("
+            SELECT rev_id, valid_from, valid_to
+            FROM npa_item_revision
+            WHERE item_internal_id = ?
+              AND valid_from <= ?
+              AND (valid_to IS NULL OR valid_to >= ?)
+              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = npa_item_revision.rev_id)
+            ORDER BY valid_from DESC
+        ");
+        $stmt->execute([$internal_item_id, $asOfDate, $asOfDate]);
+        return $stmt->fetch();
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT rev_id, valid_from, valid_to
+            FROM npa_item_revision
+            WHERE item_internal_id = ?
+              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = npa_item_revision.rev_id)
+            ORDER BY valid_from DESC
+        ");
+        $stmt->execute([$internal_item_id]);
+        return $stmt->fetch();
+    }
+}
+
+function getPreviousItemHeadRevision(PDO $pdo, $itemInternalId, $currentRevId) {
+    $stmt = $pdo->prepare("
+        SELECT r.*
+        FROM npa_item_head_revision r
+        WHERE r.item_internal_id = ?
+          AND (
+              r.valid_from < (SELECT c.valid_from FROM npa_item_head_revision c WHERE c.id = ?)
+              OR (
+                  r.valid_from = (SELECT c.valid_from FROM npa_item_head_revision c WHERE c.id = ?)
+                  AND r.id < ?
+              )
+          )
+        ORDER BY r.valid_from DESC, r.id DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$itemInternalId, $currentRevId, $currentRevId, $currentRevId]);
+    return $stmt->fetch();
+}
+
 function getItemHeadRevisionForDate(PDO $pdo, $itemInternalId, $asOfDate) {
     $stmt = $pdo->prepare("
         SELECT id, head_text, valid_from, valid_to, highlights, mod_type, modified_by_id, not_valid
@@ -375,35 +696,6 @@ function getItemHeadRevisionForDate(PDO $pdo, $itemInternalId, $asOfDate) {
         return $expired;
     }
     return null;
-}
-
-function getItemNumberForSelectedEdition(PDO $pdo, $itemInternalId, $asOfDate, array $selectedRevisionNpaIds = []) {
-    $number = getItemNumberForDate($pdo, $itemInternalId, $asOfDate);
-
-    if (empty($selectedRevisionNpaIds)) {
-        return $number;
-    }
-
-    $placeholders = buildRevisionNpaIdPlaceholders($selectedRevisionNpaIds);
-    $sql = "
-        SELECT r.number_text
-        FROM npa_item_number_revision r
-        WHERE r.item_internal_id = ?
-          AND EXISTS (
-              SELECT 1
-              FROM npa_item changer
-              WHERE changer.npa_id IN ($placeholders)
-                AND INSTR(BINARY CONCAT(',', REPLACE(COALESCE(r.modified_by_id, ''), ' ', ''), ','), BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')) > 0
-          )
-        ORDER BY r.valid_from DESC
-        LIMIT 1
-    ";
-    $params = array_merge([$itemInternalId], array_values($selectedRevisionNpaIds));
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $selected = $stmt->fetchColumn();
-
-    return ($selected !== false) ? $selected : $number;
 }
 
 function getHeadRevisionForDate(PDO $pdo, $npa_id, $asOfDate) {
@@ -460,115 +752,6 @@ function getItemNumberForDate(PDO $pdo, $itemInternalId, $asOfDate) {
     }
     return $revisions[0]['number_text'];
 }
-
- $rawDate = isset($_GET['view_date']) ? trim($_GET['view_date']) : null;
- $isCustomDate = ($rawDate !== null);
-
-if ($isCustomDate) {
-    $viewDateObj = parseDate($rawDate);
-    if (!$viewDateObj) {
-        $viewDateObj = new DateTime('today', new DateTimeZone('UTC'));
-    }
-} else {
-    $viewDateObj = null;
-}
-
-try {
-    $pdo = new PDO(
-        "mysql:host=" . NPA_DB_HOST . ";dbname=" . NPA_DB_NAME . ";charset=" . NPA_DB_CHARSET,
-        NPA_DB_USER,
-        NPA_DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
-} catch (PDOException $e) {
-    return -2;
-}
-
-if ($viewDateObj === null) {
-    $stmtMax = $pdo->prepare("
-        SELECT MAX(valid_from) as max_date FROM (
-            SELECT valid_from FROM npa_base WHERE npa_id = ?
-            UNION
-            SELECT revision_date_valid FROM npa_revision_info WHERE base_npa_id = ?
-        ) AS dates
-    ");
-    $stmtMax->execute([$npa_id, $npa_id]);
-    $maxRow = $stmtMax->fetch();
-    $lastDate = $maxRow['max_date'] ?? null;
-    if ($lastDate) {
-        $viewDateObj = parseDate($lastDate);
-    } else {
-        $viewDateObj = new DateTime('today', new DateTimeZone('UTC'));
-    }
-}
-
- $viewDateSql = $viewDateObj->format('Y-m-d');
-
-function formatDateToRus($dateStr) {
-    if (empty($dateStr)) return '';
-    $dt = parseDate($dateStr);
-    return $dt ? $dt->format('d.m.Y') : $dateStr;
-}
-
-function formatRusDate($dateStr, $dateFormat) {
-    if (empty($dateStr)) return '';
-    $dt = parseDate($dateStr);
-    if (!$dt) return $dateStr;
-    $day = (int)$dt->format('d');
-    $month = (int)$dt->format('m');
-    $year = $dt->format('Y');
-    $months = [1 => 'января', 2 => 'февраля', 3 => 'марта', 4 => 'апреля', 5 => 'мая', 6 => 'июня',7 => 'июля', 8 => 'августа', 9 => 'сентября', 10 => 'октября', 11 => 'ноября', 12 => 'декабря'];
-    $monthName = $months[$month] ?? '';
-    $dayFormatted = ($dateFormat == 0) ? str_pad($day, 2, '0', STR_PAD_LEFT) : $day;
-    return $dayFormatted . ' ' . $monthName . ' ' . $year . ' года';
-}
-
-function getStaticFilePath($npaData, $viewDateSql, $npa_id) {
-    $year = ($npaData['npa_type'] === 'law')
-        ? date('Y', strtotime($npaData['date_passed']))
-        : date('Y', strtotime($npaData['date_signed'] ?? $npaData['date_passed'] ?? 'now'));
-    $typeDir = $npaData['npa_type'] === 'law' ? 'law' : 'regulation';
-    $staticBaseDir = MODX_BASE_PATH . 'assets/npa/' . $typeDir . '/' . $year . '/' . $npa_id . '/';
-    if (!is_dir($staticBaseDir)) {
-        mkdir($staticBaseDir, 0777, true);
-    }
-    return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v14.html';
-}
-
-function getActiveRecord(PDO $pdo, $table, $idField, $idValue, $asOfDate) {
-    $sql = "SELECT * FROM `$table`
-            WHERE `$idField` = ?
-              AND (`valid_from` <= ? OR `valid_from` IS NULL)
-              AND (`valid_to` IS NULL OR `valid_to` >= ?)
-            ORDER BY `valid_from` DESC
-            LIMIT 1";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$idValue, $asOfDate, $asOfDate]);
-    $row = $stmt->fetch();
-    if ($row) {
-        $row['is_expired'] = 0;
-        return $row;
-    }
-    $sql = "SELECT * FROM `$table`
-            WHERE `$idField` = ?
-              AND `valid_from` <= ?
-              AND `valid_to` < ?
-            ORDER BY `valid_from` DESC
-            LIMIT 1";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$idValue, $asOfDate, $asOfDate]);
-    $expired = $stmt->fetch();
-    if ($expired) {
-        $expired['is_expired'] = 1;
-        return $expired;
-    }
-    return null;
-}
-
 function getItemNumberAtDate(PDO $pdo, $itemInternalId, $asOfDate) {
     $stmt = $pdo->prepare("
         SELECT number_text FROM npa_item_number_revision
@@ -602,38 +785,269 @@ function getItemPrefixRevision($item_internal_id, $asOfDate, $pdo) {
     return null;
 }
 
-function getItemPrefixRevisionForSelectedEdition($itemInternalId, $asOfDate, $pdo, array $selectedRevisionNpaIds = []) {
-    $prefix = getItemPrefixRevision($itemInternalId, $asOfDate, $pdo);
-
-    if (empty($selectedRevisionNpaIds)) {
-        return $prefix;
+function getDocMaxDate(PDO $pdo, $npa_id, $asOfDate = null) {
+    $stmtMax = $pdo->prepare("
+        SELECT MAX(valid_from) as max_date FROM (
+            SELECT valid_from FROM npa_base WHERE npa_id = ?
+            UNION
+            SELECT revision_date_valid FROM npa_revision_info WHERE base_npa_id = ?
+        ) AS dates
+    ");
+    $stmtMax->execute([$npa_id, $npa_id]);
+    $maxRow = $stmtMax->fetch();
+    $maxDate = $maxRow['max_date'] ?? null;
+    if ($asOfDate && ($maxDate === null || $asOfDate > $maxDate)) {
+        $maxDate = $asOfDate;
     }
+    return $maxDate;
+}
 
-    $placeholders = buildRevisionNpaIdPlaceholders($selectedRevisionNpaIds);
-    $sql = "
-        SELECT r.*
-        FROM npa_item_prefix_revision r
-        WHERE r.item_internal_id = ?
-          AND EXISTS (
-              SELECT 1
-              FROM npa_item changer
-              WHERE changer.npa_id IN ($placeholders)
-                AND INSTR(BINARY CONCAT(',', REPLACE(COALESCE(r.modified_by_id, ''), ' ', ''), ','), BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')) > 0
-          )
-        ORDER BY r.valid_from DESC
-        LIMIT 1
-    ";
-    $params = array_merge([$itemInternalId], array_values($selectedRevisionNpaIds));
+function getDocumentStatus(PDO $pdo, $npa_id, $viewDateSql) {
+    $stmt = $pdo->prepare("SELECT valid_from, not_valid, not_valid_note, not_valid_npa_id, date_format FROM npa_base WHERE npa_id = ?");
+    $stmt->execute([$npa_id]);
+    $base = $stmt->fetch();
+    if (!$base) {
+        return ['status' => 'unknown', 'message' => ''];
+    }
+    $validFrom = $base['valid_from'];
+    $notValid = $base['not_valid'] ?? null;
+    $notValidNote = $base['not_valid_note'] ?? '';
+    $dateFormat = (int)$base['date_format'];
+    if ($validFrom && $viewDateSql < $validFrom) {
+        $formattedDate = formatRusDate($validFrom, $dateFormat);
+        return [
+            'status' => 'future',
+            'message' => "Документ вступает в силу с {$formattedDate}"
+        ];
+    }
+    if ($notValid) {
+        $dtNotValid = parseDate($notValid);
+        if ($dtNotValid) {
+            $dtNotValid->modify('+1 day');
+            $formattedDate = formatRusDate($dtNotValid->format('Y-m-d'), $dateFormat);
+        } else {
+            $formattedDate = formatRusDate($notValid, $dateFormat);
+        }
+        $maxDate = getDocMaxDate($pdo, $npa_id, $viewDateSql);
+        $isAlreadyExpired = ($maxDate !== null && $maxDate >= $notValid);
+        $msg = $isAlreadyExpired ? "Документ утратил силу с {$formattedDate}" : "Документ утрачивает силу с {$formattedDate}";
+        $cancellingNpaId = $base['not_valid_npa_id'] ?? null;
+        if ($cancellingNpaId) {
+            $stmtCancel = $pdo->prepare("SELECT npa_type, npa_number, npa_url, date_passed FROM npa_base WHERE npa_id = ?");
+            $stmtCancel->execute([$cancellingNpaId]);
+            $cancellingNpa = $stmtCancel->fetch();
+            if ($cancellingNpa) {
+                $type = ($cancellingNpa['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                $datePassed = formatRusDate($cancellingNpa['date_passed'], $dateFormat);
+                $url = $cancellingNpa['npa_url'] ?? '';
+                $cancellingText = $type . ' города Севастополя № ' . $cancellingNpa['npa_number'] . ' от ' . $datePassed;
+                if ($url) {
+                    $cancellingText = '<a href="' . $url . '" target="_blank" class="npa-revision-link">' . $cancellingText . '</a>';
+                }
+                $msg .= ' — ' . $cancellingText;
+            }
+        }
+        if (!empty($notValidNote)) {
+            $msg .= ' (' . htmlspecialchars($notValidNote) . ')';
+        }
+        return [
+            'status' => $isAlreadyExpired ? 'expired' : 'future_expired',
+            'message' => $msg
+        ];
+    }
+    return ['status' => 'active', 'message' => ''];
+}
+
+function getActiveRevisionsForDate(PDO $pdo, $npa_id, $date) {
+    $stmt = $pdo->prepare("
+        SELECT * FROM npa_revision_info
+        WHERE base_npa_id = ?
+          AND revision_date_valid <= ?
+        ORDER BY revision_date_valid ASC, revision_number ASC
+    ");
+    $stmt->execute([$npa_id, $date]);
+    return $stmt->fetchAll();
+}
+
+function getExactRevisionsForDate(PDO $pdo, $npa_id, $date) {
+    $stmt = $pdo->prepare("
+        SELECT * FROM npa_revision_info
+        WHERE base_npa_id = ?
+          AND revision_date_valid = ?
+        ORDER BY revision_number ASC
+    ");
+    $stmt->execute([$npa_id, $date]);
+    return $stmt->fetchAll();
+}
+
+function getHeadRevisionsList(PDO $pdo, $npa_id, $asOfDate) {
+    $stmtBaseValid = $pdo->prepare("SELECT not_valid FROM npa_base WHERE npa_id = ?");
+    $stmtBaseValid->execute([$npa_id]);
+    $baseRow = $stmtBaseValid->fetch();
+    $notValidDate = $baseRow ? ($baseRow['not_valid'] ?? null) : null;
+    $maxDate = getDocMaxDate($pdo, $npa_id, $asOfDate);
+    $isDocExpired = $notValidDate && ($maxDate !== null && $maxDate >= $notValidDate);
+    $sql = "SELECT id, npa_title, valid_from, valid_to, modified_by_id, not_valid
+            FROM npa_head_revision
+            WHERE npa_id = ?";
+    $params = [$npa_id];
+    if ($isDocExpired && $notValidDate) {
+        $sql .= " AND valid_from < ?";
+        $params[] = $notValidDate;
+    }
+    $sql .= " ORDER BY valid_from ASC";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
-    $selected = $stmt->fetch();
-
-    if ($selected) {
-        $selected['is_expired'] = 0;
-        return $selected;
+    $revisions = $stmt->fetchAll();
+    $totalRevs = count($revisions);
+    $result = [];
+    foreach ($revisions as $idx => $rev) {
+        $dt = parseDate($rev['valid_from']);
+        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
+        $validToDate = '';
+        if ($rev['valid_to']) {
+            $dtTo = parseDate($rev['valid_to']);
+            $validToDate = $dtTo ? $dtTo->format('d.m.Y') : '';
+        }
+        $isLastRev = ($idx === $totalRevs - 1);
+        $revValidToDate = !empty($rev['valid_to']) ? substr($rev['valid_to'], 0, 10) : null;
+        $isExpiredRev = $isLastRev && ($isDocExpired || ($revValidToDate !== null && $revValidToDate < $asOfDate) || (!empty($rev['not_valid']) && $revValidToDate === null));
+        $expirySource = '';
+        $expiryUrl = '';
+        if ($idx === 0) {
+            $displayTitle = 'Исходное наименование';
+            $sourceDecode = 'исходная редакция';
+            $npaUrl = '';
+            $elementPath = 'наименование документа';
+        } else {
+            $changerElementId = (int)$rev['modified_by_id'];
+            $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
+            if ($npaInfo) {
+                $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
+                $sourceDecode = getElementHumanPath($changerElementId, $pdo);
+                $npaUrl = $npaInfo['npa_url'] ?? '';
+            } else {
+                $displayTitle = 'Неизвестный документ';
+                $sourceDecode = '';
+                $npaUrl = '';
+            }
+            $elementPath = 'наименование документа';
+        }
+        if ($isExpiredRev) {
+            $notValidId = $rev['not_valid'] ?? null;
+            if ($notValidId && $notValidId !== 'base') {
+                $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
+                if ($expiryNpaInfo) {
+                    $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
+                    $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
+                }
+            }
+            $displayTitle = $expirySource ?: 'последнее действующее наименование';
+            $sourceDecode = $expirySource ?: 'последнее действующее наименование';
+            $npaUrl = $expiryUrl;
+        }
+        $result[] = [
+            'rev_id'         => $rev['id'],
+            'valid_from'     => $validFromDate,
+            'valid_to'       => $validToDate,
+            'valid_to_raw'   => $rev['valid_to'],
+            'valid_from_raw' => $rev['valid_from'],
+            'source_decode'  => $sourceDecode,
+            'modified_by_id' => $rev['modified_by_id'],
+            'display_title'  => $displayTitle,
+            'is_original'    => ($idx === 0 && !$isExpiredRev),
+            'is_expired'     => $isExpiredRev,
+            'expiry_source'  => $expirySource,
+            'expiry_url'     => $expiryUrl,
+            'element_path'   => $elementPath,
+            'npa_title'      => $rev['npa_title'],
+            'npa_url'        => $npaUrl
+        ];
     }
+    $count = count($result);
+    if ($count > 0) {
+        $maxDate2 = getDocMaxDate($pdo, $npa_id, $asOfDate);
+        $isDocExpired = $notValidDate && ($maxDate2 !== null && $maxDate2 >= $notValidDate);
+        $currentIndex = -1;
+        foreach ($result as $idx => $rev) {
+            if ((is_null($rev['valid_to_raw']) || $rev['valid_to_raw'] >= $asOfDate) && $rev['valid_from_raw'] <= $asOfDate) {
+                $currentIndex = $idx;
+                break;
+            }
+        }
+        if ($currentIndex >= 0 && !$isDocExpired) {
+            $result[$currentIndex]['is_current'] = true;
+        } elseif ($currentIndex < 0 && !$isDocExpired) {
+            $result[$count - 1]['is_current'] = true;
+        }
+    }
+    return $result;
+}
 
-    return $prefix;
+function getHeadRevisionContent(PDO $pdo, $rev_id, $npa_id, $asOfDate) {
+    $stmt = $pdo->prepare("
+        SELECT * FROM npa_head_revision
+        WHERE id = ? AND npa_id = ? AND (valid_from <= ? OR valid_from IS NULL) AND (valid_to IS NULL OR valid_to >= ?)
+        LIMIT 1
+    ");
+    $stmt->execute([$rev_id, $npa_id, $asOfDate, $asOfDate]);
+    $rev = $stmt->fetch();
+    if (!$rev) {
+        return null;
+    }
+    $html = '<div class="npa-head-block">';
+    $html .= '<p class="npa-doc-title"><b>' . htmlspecialchars($rev['npa_title']) . '</b></p>';
+    $html .= '</div>';
+    $sourceInfo = '';
+    if ($rev['modified_by_id'] && $rev['modified_by_id'] !== 'base') {
+        $sourceInfo = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative');
+        if ($sourceInfo && $sourceInfo !== 'исходная редакция') {
+            $sourceInfo = 'Внесено: ' . $sourceInfo;
+        } elseif ($sourceInfo === 'исходная редакция') {
+            $sourceInfo = 'Исходная редакция';
+        }
+    } else {
+        $sourceInfo = 'Исходная редакция';
+    }
+    $npaInfo = null;
+    if ($rev['modified_by_id'] && $rev['modified_by_id'] !== 'base') {
+        $npaInfo = getNpaInfoByItemId((int)$rev['modified_by_id'], $pdo);
+    }
+    return [
+        'html' => $html,
+        'modified_by_id' => $rev['modified_by_id'],
+        'valid_from' => $rev['valid_from'],
+        'valid_to' => $rev['valid_to'],
+        'source_info' => $sourceInfo,
+        'npa_url' => $npaInfo['npa_url'] ?? '',
+        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
+    ];
+}
+
+function getDocumentRevisionNote($activeRevInfos, $npaType, $pdo, $baseNpaId) {
+    if (empty($activeRevInfos)) return '';
+    $typeName   = ($npaType === 'law') ? 'Закона'  : 'Постановления Законодательного Собрания';
+    $pluralType = ($npaType === 'law') ? 'Законов' : 'Постановлений Законодательного Собрания';
+    $items = [];
+    foreach ($activeRevInfos as $rev) {
+        $dateReg = formatDateToRus($rev['revision_date_reg']);
+        $revisionNumber = $rev['revision_number'];
+        $revisionUrl = $rev['revision_url'] ?? '';
+        if ($revisionUrl) {
+            $items[] = '<a href="' . htmlspecialchars($revisionUrl) . '" target="_blank" class="npa-revision-link">№ ' . htmlspecialchars($revisionNumber) . ' от ' . $dateReg . '</a>';
+        } else {
+            $items[] = '№ ' . htmlspecialchars($revisionNumber) . ' от ' . $dateReg;
+        }
+    }
+    if (empty($items)) return '';
+    $word = (count($items) === 1) ? $typeName : $pluralType;
+    return '<div class="document-revision-note" style="margin: 0.5em 0; text-align: center;">'
+         . 'В редакции ' . $word . ' города Севастополя ' . implode('; ', $items)
+         . '</div>';
 }
 
 function getNpaInfoByItemId($itemInternalId, $pdo) {
@@ -844,11 +1258,18 @@ function getRevisionSourceNote($modifiedById, $pdo, $asHtml = false) {
     return $text;
 }
 
-function getParagraphsForRevision(PDO $pdo, $rev_id) {
-    $sql = "SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$rev_id]);
-    return $stmt->fetchAll();
+function getIntroducingLawForDate(PDO $pdo, $baseNpaId, $validFromDate) {
+    if (empty($baseNpaId) || empty($validFromDate)) return null;
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM npa_revision_info
+        WHERE base_npa_id = ?
+          AND revision_date_valid <= ?
+        ORDER BY revision_date_valid DESC, revision_number ASC
+        LIMIT 1
+    ");
+    $stmt->execute([$baseNpaId, $validFromDate]);
+    return $stmt->fetch();
 }
 
 function getElementRevisionButtons($itemData, $pdo, $npa_id, $viewDate, $pageUrl, $isExpired = false, array $selectedRevisionNpaIds = []) {
@@ -999,21 +1420,6 @@ function getItemHeadRevisionButtons($itemInternalId, $externalItemId, $npa_id, $
     return $buttons;
 }
 
-function isDeferredSelectedEditionRevision($revision, $viewDate, array $selectedRevisionNpaIds = []) {
-    if (empty($selectedRevisionNpaIds) || empty($revision['valid_from']) || empty($viewDate)) {
-        return false;
-    }
-
-    $revisionDate = parseDate($revision['valid_from']);
-    $viewDateObj = parseDate($viewDate);
-
-    if (!$revisionDate || !$viewDateObj) {
-        return false;
-    }
-
-    return $revisionDate->format('Y-m-d') > $viewDateObj->format('Y-m-d');
-}
-
 function buildRevisionEffectiveDateBlock($validFromDate, $isDeferred, $label = 'Изменения вступают в силу с') {
     if (empty($validFromDate)) {
         return '';
@@ -1121,6 +1527,219 @@ function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType,
          . $dateBlock . implode('<br>', $parts) . '</div>';
 }
 
+function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, $viewDate, $itemType, array $selectedRevisionNpaIds = []) {
+    $currentRev = getRevisionForSelectedEdition($pdo, $internal_item_id, $viewDate, $selectedRevisionNpaIds);
+    if (!$currentRev || empty($currentRev['rev_id'])) return '';
+
+    $currentRevId = (int)$currentRev['rev_id'];
+
+    $sql = "SELECT r.* FROM npa_item_revision r
+            WHERE r.item_internal_id = ?
+              AND (r.valid_from IS NULL OR r.valid_from <= ?";
+    $params = [$internal_item_id, $currentRev['valid_from']];
+
+    if (!empty($selectedRevisionNpaIds)) {
+        $placeholders = buildRevisionNpaIdPlaceholders($selectedRevisionNpaIds);
+        $sql .= " OR EXISTS (
+            SELECT 1 FROM npa_item changer
+            WHERE changer.npa_id IN ($placeholders)
+              AND INSTR(BINARY CONCAT(',', REPLACE(COALESCE(r.modified_by_id, ''), ' ', ''), ','), BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')) > 0
+        )";
+        $params = array_merge($params, array_values($selectedRevisionNpaIds));
+    }
+    $sql .= ") ORDER BY r.valid_from ASC, r.rev_id ASC";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $allRevisions = $stmt->fetchAll();
+
+    $allowedRevisions = [];
+    foreach ($allRevisions as $rev) {
+        if ((int)$rev['rev_id'] <= $currentRevId) $allowedRevisions[] = $rev;
+    }
+    if (empty($allowedRevisions)) return '';
+
+    $lastNewRedactionIdx = -1;
+    foreach ($allowedRevisions as $idx => $rev) {
+        if ($rev['mod_type'] === 'new_redaction') $lastNewRedactionIdx = $idx;
+    }
+    $revisionsToProcess = ($lastNewRedactionIdx !== -1)
+        ? array_slice($allowedRevisions, $lastNewRedactionIdx)
+        : $allowedRevisions;
+
+    $addNote = null;
+    $newRedactionNote = null;
+    $changeNotes = [];
+
+    foreach ($revisionsToProcess as $rev) {
+        $shortDesc = getShortNpaDescription($rev['modified_by_id'], $pdo, true);
+        if ($shortDesc === 'исходная редакция') continue;
+
+        switch ($rev['mod_type']) {
+            case 'add': if ($addNote === null) $addNote = $shortDesc; break;
+            case 'new_redaction': $newRedactionNote = $shortDesc; break;
+            case 'change': if (!in_array($shortDesc, $changeNotes, true)) $changeNotes[] = $shortDesc; break;
+        }
+    }
+
+    $genderSuffix = '';
+    if ($itemType === 'article' || $itemType === 'part') $genderSuffix = 'а';
+    elseif ($itemType === 'appendix') $genderSuffix = 'о';
+
+    $parts = [];
+    if ($addNote) $parts[] = '<span class="revision-note">Введен' . $genderSuffix . ' — ' . $addNote . '</span>';
+    if ($newRedactionNote) $parts[] = '<span class="revision-note">В редакции — ' . $newRedactionNote . '</span>';
+    if (!empty($changeNotes)) $parts[] = '<span class="revision-note">С изменениями: ' . implode(', ', $changeNotes) . '</span>';
+
+    if (empty($parts) && !empty($baseNpaId) && !empty($selectedRevisionNpaIds)) {
+        $allNull = true;
+        foreach ($allowedRevisions as $rev) {
+            if (!empty($rev['mod_type']) || !empty($rev['modified_by_id'])) $allNull = false;
+        }
+        if ($allNull && !empty($currentRev['valid_from'])) {
+            $law = getIntroducingLawForDate($pdo, $baseNpaId, $currentRev['valid_from']);
+            if ($law) {
+                $lawShort = getShortNpaDescription($law['revision_id'], $pdo, true);
+                if ($lawShort !== 'исходная редакция') $addNote = $lawShort;
+            }
+        }
+        if ($addNote) $parts[] = '<span class="revision-note">Введен' . $genderSuffix . ' — ' . $addNote . '</span>';
+    }
+
+    if (empty($parts)) return '';
+
+    $dt = parseDate($currentRev['valid_from'] ?? null);
+    $validFromDate = $dt ? $dt->format('d.m.Y') : '';
+    $isDeferred = isDeferredSelectedEditionRevision($currentRev, $viewDate, $selectedRevisionNpaIds);
+    $dateBlock = buildRevisionEffectiveDateBlock($validFromDate, $isDeferred);
+
+    return '<div class="element-revision-notes" style="margin: 0.5em 0;">'
+         . $dateBlock . implode('<br>', $parts) . '</div>';
+}
+
+function getRevisionSelectorOptions(PDO $pdo, $npa_id, $displayDate) {
+    $options = [];
+    $stmt = $pdo->prepare("SELECT valid_from, not_valid FROM npa_base WHERE npa_id = ?");
+    $stmt->execute([$npa_id]);
+    $base = $stmt->fetch();
+
+    $baseValidFrom = $base['valid_from'] ?? null;
+    $notValidDate = $base['not_valid'] ?? null;
+    $isDocExpired = !empty($notValidDate);
+
+    $stmt = $pdo->prepare("
+        SELECT revision_date_valid
+        FROM npa_revision_info
+        WHERE base_npa_id = ?
+        ORDER BY revision_date_valid ASC, revision_number ASC
+    ");
+    $stmt->execute([$npa_id]);
+
+    $dates = [];
+    foreach ($stmt->fetchAll() as $row) {
+        if (!empty($row['revision_date_valid'])) $dates[$row['revision_date_valid']] = true;
+    }
+    $dates = array_keys($dates);
+    sort($dates);
+
+    $selectedDate = $baseValidFrom;
+    foreach ($dates as $dateRaw) {
+        if ($isDocExpired && $notValidDate && $dateRaw >= $notValidDate) continue;
+        if ($dateRaw <= $displayDate) $selectedDate = $dateRaw;
+    }
+
+    $currentDate = $baseValidFrom;
+    foreach ($dates as $dateRaw) {
+        if ($isDocExpired && $notValidDate && $dateRaw >= $notValidDate) continue;
+        $currentDate = $dateRaw;
+    }
+
+    if ($baseValidFrom) {
+        $baseDateFormatted = formatDateToRus($baseValidFrom);
+        $options[] = [
+            'date_raw' => $baseValidFrom,
+            'date_display' => $baseDateFormatted,
+            'label' => 'Первоначальная редакция (вступление в силу ' . $baseDateFormatted . ')',
+            'is_original' => true,
+            'is_current' => ($baseValidFrom === $currentDate),
+            'is_selected' => ($baseValidFrom === $selectedDate)
+        ];
+    }
+
+    foreach ($dates as $dateRaw) {
+        if ($isDocExpired && $notValidDate && $dateRaw >= $notValidDate) continue;
+
+        $stmtRev = $pdo->prepare("
+            SELECT revision_number, revision_date_reg
+            FROM npa_revision_info
+            WHERE base_npa_id = ? AND revision_date_valid = ?
+            ORDER BY revision_number ASC
+        ");
+        $stmtRev->execute([$npa_id, $dateRaw]);
+
+        $items = [];
+        foreach ($stmtRev->fetchAll() as $rev) {
+            $items[] = '№' . $rev['revision_number'] . ' от ' . formatDateToRus($rev['revision_date_reg']);
+        }
+
+        $options[] = [
+            'date_raw' => $dateRaw,
+            'date_display' => formatDateToRus($dateRaw),
+            'label' => 'Редакция — ' . implode('; ', $items),
+            'is_original' => false,
+            'is_current' => ($dateRaw === $currentDate),
+            'is_selected' => ($dateRaw === $selectedDate)
+        ];
+    }
+
+    return [
+        'options' => $options,
+        'selected_date' => $selectedDate,
+        'current_date' => $currentDate,
+        'active_date' => $selectedDate
+    ];
+}
+
+function renderSignature(PDO $pdo, $npa_id, $dateSigned, $npaNumber, $dateFormat, $includeRequisites = true) {
+    $stmt = $pdo->prepare("SELECT s.*, p.fio, pp.name as position_name
+                           FROM npa_signatory s
+                           JOIN person p ON s.person_id = p.id
+                           JOIN person_post pp ON s.person_post_id = pp.id
+                           WHERE s.npa_id = ? LIMIT 1");
+    $stmt->execute([$npa_id]);
+    $signer = $stmt->fetch();
+    if (!$signer) return '';
+    $signerPost = $signer['position_name'];
+    $signerName = $signer['fio'];
+    $phrases = ['Законодательного Собрания', 'города Севастополя'];
+    foreach ($phrases as $phrase) {
+        if (mb_stripos($signerPost, $phrase) !== false) {
+            if (!preg_match('/<br\s*\/?>\s*' . preg_quote($phrase, '/') . '/ui', $signerPost)) {
+                $signerPost = preg_replace('/(\s*)(' . preg_quote($phrase, '/') . ')/ui', '<br>$1$2', $signerPost, 1);
+            }
+        }
+    }
+    $signerPost = htmlspecialchars($signerPost);
+    $signerPost = str_replace(['&lt;br&gt;', '&lt;br /&gt;', '&lt;br/&gt;'], '<br>', $signerPost);
+    $signerName = htmlspecialchars($signerName);
+    $html = '<p class="justifyleft npa-signer">' . $signerPost;
+    if ($signerName) $html .= str_repeat('&nbsp;', 5) . $signerName;
+    $html .= '</p>';
+    if ($includeRequisites) {
+        $place = 'Севастополь';
+        $formattedDate = formatRusDate($dateSigned, $dateFormat);
+        $html .= '<p class="justifyleft npa-requisites">' . $place . '<br>' . $formattedDate . '<br>№&nbsp;' . htmlspecialchars($npaNumber) . '</p>';
+    }
+    return $html;
+}
+
+function getParagraphsForRevision(PDO $pdo, $rev_id) {
+    $sql = "SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$rev_id]);
+    return $stmt->fetchAll();
+}
+
 function getItemHeadRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $asOfDate) {
     $stmt = $pdo->prepare("SELECT * FROM npa_item_head_revision WHERE id = ? AND item_internal_id = ? LIMIT 1");
     $stmt->execute([$rev_id, $internal_item_id]);
@@ -1180,266 +1799,6 @@ function getItemHeadRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $asOfD
         'npa_url' => $npaInfo['npa_url'] ?? '',
         'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
     ];
-}
-
-function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = []) {
-    $current = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
-    if (!$current) return null;
-    $prev = getPreviousItemRevision($pdo, $internal_item_id, $current['rev_id']);
-    if (!$prev) {
-        return [
-            'prev_valid_from' => '',
-            'current_valid_from' => formatDateToRus($current['valid_from']),
-            'prev_html_raw' => '',
-            'current_html_raw' => '',
-            'element_human_path' => getElementHumanPath($internal_item_id, $pdo, 'genitive'),
-            'changing_elements' => [],
-            'highlights' => normalizeHighlights($current['highlights'] ?? null),
-            'mod_type' => $current['mod_type'] ?? ''
-        ];
-    }
-    $prevAsOfDate = $current['valid_from'];
-    $dtPrev = parseDate($prevAsOfDate);
-    if ($dtPrev) {
-        $dtPrev->modify('-1 day');
-        $prevAsOfDate = $dtPrev->format('Y-m-d');
-    } else {
-        $prevAsOfDate = $asOfDate;
-    }
-    $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internal_item_id, 0, null, false, true, $prevAsOfDate, false, false);
-    // Текущую колонку сравнения рендерим на актуальную дату просмотра ($asOfDate),
-    // чтобы изменения, внесённые в дочерние элементы после последней редакции
-    // родителя, тоже попадали в сравнение (у родителя отдельная редакция не создаётся).
-    $currContent = getItemRevisionContent($pdo, $current['rev_id'], $internal_item_id, 0, null, false, true, $asOfDate);
-    $prevHtml = $prevContent ? ensureTableWrapperForComparison($prevContent['html'], $internal_item_id, $pdo, $prevAsOfDate) : '';
-    $currHtml = $currContent ? ensureTableWrapperForComparison($currContent['html'], $internal_item_id, $pdo, $asOfDate) : '';
-    $changingElements = [];
-    if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
-        foreach (array_filter(array_map('trim', explode(',', $current['modified_by_id']))) as $changerStr) {
-            if ($changerStr === 'base') continue;
-            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
-            if (!$npaInfo) continue;
-            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
-            $changerNpaId = $npaInfo['npa_id'];
-            $changerNpaType = $npaInfo['npa_type'];
-            $changerHtml = getElementHtmlById($changerStr, $asOfDate, $pdo, $changerNpaId, $changerNpaType);
-            $changingElements[] = [
-                'note' => getRevisionSourceNote($changerStr, $pdo, true),
-                'html' => $changerHtml,
-                'date' => formatDateToRus($changerDate)
-            ];
-        }
-    }
-    $highlightsForClient = null;
-    if (!empty($current['highlights'])) {
-        $decoded = json_decode($current['highlights'], true);
-        if (is_array($decoded)) $highlightsForClient = $decoded;
-    }
-    return [
-        'prev_valid_from' => formatDateToRus($prev['valid_from']),
-        'current_valid_from' => formatDateToRus($current['valid_from']),
-        'prev_html_raw' => $prevHtml,
-        'current_html_raw' => $currHtml,
-        'element_human_path' => getElementHumanPath($internal_item_id, $pdo, 'genitive'),
-        'changing_elements' => $changingElements,
-        'highlights' => normalizeHighlights($highlightsForClient),
-        'mod_type' => $current['mod_type']
-    ];
-}
-
-function getItemHeadCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = []) {
-    $current = getItemHeadRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
-    if (!$current) return null;
-    $prev = getPreviousItemHeadRevision($pdo, $internal_item_id, $current['id']);
-    if (!$prev) {
-        return [
-            'prev_valid_from' => '',
-            'current_valid_from' => formatDateToRus($current['valid_from']),
-            'prev_html_raw' => '',
-            'current_html_raw' => '',
-            'changing_elements' => [],
-            'highlights' => normalizeHighlights($current['highlights'] ?? null),
-            'mod_type' => $current['mod_type'] ?? ''
-        ];
-    }
-    $prevContent = getItemHeadRevisionContent($pdo, $prev['id'], $internal_item_id, $asOfDate);
-    $currContent = getItemHeadRevisionContent($pdo, $current['id'], $internal_item_id, $asOfDate);
-    $changingElements = [];
-    if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
-        foreach (array_filter(array_map('trim', explode(',', $current['modified_by_id']))) as $changerStr) {
-            if ($changerStr === 'base') continue;
-            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
-            if (!$npaInfo) continue;
-            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
-            $changingElements[] = [
-                'note' => getRevisionSourceNote($changerStr, $pdo, true),
-                'html' => getElementHtmlById($changerStr, $asOfDate, $pdo, $npaInfo['npa_id'], $npaInfo['npa_type']),
-                'date' => formatDateToRus($changerDate)
-            ];
-        }
-    }
-    $highlightsForClient = null;
-    if (!empty($current['highlights'])) {
-        $decoded = json_decode($current['highlights'], true);
-        if (is_array($decoded)) $highlightsForClient = $decoded;
-    }
-    return [
-        'prev_valid_from' => formatDateToRus($prev['valid_from']),
-        'current_valid_from' => formatDateToRus($current['valid_from']),
-        'prev_html_raw' => $prevContent ? $prevContent['html'] : '',
-        'current_html_raw' => $currContent ? $currContent['html'] : '',
-        'changing_elements' => $changingElements,
-        'highlights' => normalizeHighlights($highlightsForClient),
-        'mod_type' => $current['mod_type']
-    ];
-}
-
-function getItemHeadCompareHtml(PDO $pdo, $internal_item_id, $asOfDate) {
-    $stmt = $pdo->prepare("
-        SELECT * FROM npa_item_head_revision
-        WHERE item_internal_id = ? AND (valid_from <= ? OR valid_from IS NULL)
-        ORDER BY valid_from ASC, id ASC
-    ");
-    $stmt->execute([$internal_item_id, $asOfDate]);
-    $revisions = $stmt->fetchAll();
-    if (count($revisions) < 2) {
-        return [
-            'prev_html_raw' => '',
-            'current_html_raw' => '',
-            'prev_valid_from' => '',
-            'current_valid_from' => '',
-            'changing_elements' => [],
-            'highlights' => ['previous_edition' => ['deletion' => [], 'difference' => []], 'current_edition' => ['addition' => [], 'difference' => []]],
-            'mod_type' => null
-        ];
-    }
-    $prevRev = $revisions[count($revisions)-2];
-    $currRev = $revisions[count($revisions)-1];
-    $stmtItem = $pdo->prepare("SELECT * FROM npa_item WHERE id = ?");
-    $stmtItem->execute([$internal_item_id]);
-    $item = $stmtItem->fetch();
-    $itemType = $item ? $item['item_type'] : '';
-    $itemNumber = $item ? ($item['item_number'] ?? '') : '';
-    $oldHead = $prevRev['head_text'];
-    $newHead = $currRev['head_text'];
-    global $NPA_NO_NAME_IDS;
-    $skipName = in_array($item['item_id'], $NPA_NO_NAME_IDS);
-    $oldDisplay = '';
-    $newDisplay = '';
-    if ($itemType === 'chapter') {
-        $oldDisplay = ($skipName ? '' : 'Глава ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
-        $newDisplay = ($skipName ? '' : 'Глава ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
-    } elseif ($itemType === 'section') {
-        $oldDisplay = ($skipName ? '' : 'Раздел ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
-        $newDisplay = ($skipName ? '' : 'Раздел ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
-    } elseif ($itemType === 'article') {
-        $oldDisplay = ($skipName ? '' : 'Статья ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
-        $newDisplay = ($skipName ? '' : 'Статья ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
-    } elseif ($itemType === 'appendix' || $itemType === 'nested_appendix') {
-        $oldDisplay = ($skipName ? '' : 'Приложение ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
-        $newDisplay = ($skipName ? '' : 'Приложение ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
-    } elseif ($itemType === 'structured_table') {
-        if (!empty($oldHead)) {
-            $oldDisplay = 'Таблица ' . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
-        } else {
-            $oldDisplay = '';
-        }
-        if (!empty($newHead)) {
-            $newDisplay = 'Таблица ' . $itemNumber . ($newHead ? '. ' . $newHead : '');
-        } else {
-            $newDisplay = '';
-        }
-    } else {
-        $oldDisplay = $oldHead;
-        $newDisplay = $newHead;
-    }
-    $oldTitle = '';
-    $newTitle = '';
-    if (!empty($oldDisplay)) {
-        $oldTitle = '<p class="npa-doc-title"><b>' . htmlspecialchars($oldDisplay) . '</b></p>';
-    }
-    if (!empty($newDisplay)) {
-        $newTitle = '<p class="npa-doc-title"><b>' . htmlspecialchars($newDisplay) . '</b></p>';
-    }
-    $oldTitle = ensureTableWrapperForComparison($oldTitle, $internal_item_id, $pdo, $asOfDate);
-    $newTitle = ensureTableWrapperForComparison($newTitle, $internal_item_id, $pdo, $asOfDate);
-    $highlights = null;
-    if (!empty($currRev['highlights'])) {
-        $highlights = json_decode($currRev['highlights'], true);
-        if (!is_array($highlights)) $highlights = null;
-    }
-    $prevValidFrom = $prevRev['valid_from'] ? formatDateToRus($prevRev['valid_from']) : '';
-    $currValidFrom = $currRev['valid_from'] ? formatDateToRus($currRev['valid_from']) : '';
-    $changingElements = [];
-    if (!empty($currRev['modified_by_id']) && $currRev['modified_by_id'] !== 'base') {
-        $changerIds = array_filter(array_map('trim', explode(',', $currRev['modified_by_id'])));
-        foreach ($changerIds as $changerStr) {
-            if ($changerStr === 'base') continue;
-            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
-            if (!$npaInfo) continue;
-            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $currRev['valid_from'];
-            $changerNpaId = $npaInfo['npa_id'];
-            $changerNpaType = $npaInfo['npa_type'];
-            $changerHtml = getElementHtmlById($changerStr, $asOfDate, $pdo, $changerNpaId, $changerNpaType);
-            $note = getRevisionSourceNote($changerStr, $pdo, true);
-            $changingElements[] = [
-                'note' => $note,
-                'html' => $changerHtml,
-                'date' => formatDateToRus($changerDate)
-            ];
-        }
-    }
-    return [
-        'prev_html_raw' => $oldTitle,
-        'current_html_raw' => $newTitle,
-        'prev_valid_from' => $prevValidFrom,
-        'current_valid_from' => $currValidFrom,
-        'changing_elements' => $changingElements,
-        'highlights' => normalizeHighlights($highlights),
-        'mod_type' => $currRev['mod_type'] ?? null
-    ];
-}
-
-function ensureTableWrapperForComparison($html, $itemId, $pdo, $asOfDate) {
-    if (stripos($html, '<table') !== false) {
-        return $html;
-    }
-    if (is_numeric($itemId)) {
-        $stmt = $pdo->prepare("SELECT item_type, npa_id FROM npa_item WHERE id = ?");
-        $stmt->execute([$itemId]);
-        $item = $stmt->fetch();
-    } else {
-        $stmt = $pdo->prepare("SELECT npa_type FROM npa_base WHERE npa_id = ?");
-        $stmt->execute([$itemId]);
-        $item = $stmt->fetch();
-        if ($item) {
-            $item['item_type'] = 'base';
-        }
-    }
-    if (!$item) return $html;
-    if (isset($item['item_type']) && $item['item_type'] === 'structured_table') {
-        $stmtRev = $pdo->prepare("
-            SELECT rev_id FROM npa_item_revision
-            WHERE item_internal_id = ? AND (valid_from <= ? OR valid_from IS NULL) AND (valid_to IS NULL OR valid_to >= ?)
-            LIMIT 1
-        ");
-        $stmtRev->execute([$itemId, $asOfDate, $asOfDate]);
-        $rev = $stmtRev->fetch();
-        if ($rev) {
-            $stmtPara = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
-            $stmtPara->execute([$rev['rev_id']]);
-            $paragraphs = $stmtPara->fetchAll();
-            $itemsTree = getItemTree($pdo, $item['npa_id'], $asOfDate, [], false);
-            $fullTableHtml = renderStructuredTable($item, $paragraphs, $pdo, $asOfDate, $itemsTree, true);
-            if ($fullTableHtml) return $fullTableHtml;
-        }
-    }
-    if (stripos($html, '<tr') !== false && stripos($html, '<table') === false) {
-        return '<table class="npa-comparison-table" cellpadding="5" cellspacing="0" style="width:100%; border-collapse:collapse;">' .
-               '<tbody>' . $html . '</tbody>' .
-               '</table>';
-    }
-    return $html;
 }
 
 function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0, $npa_id = null, $includeHeading = true, $forComparison = false, $asOfDateOverride = null, $paragraphOnly = false, $useEditionContext = true) {
@@ -1786,149 +2145,479 @@ function renderElementAsTableFragment($itemData, $itemsById, $pdo, $viewDate, $s
     return $html;
 }
 
-function getItemRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDate, $baseNpaId, $npaType) {
-    $stmtBaseValid = $pdo->prepare("SELECT not_valid FROM npa_base WHERE npa_id = ?");
-    $stmtBaseValid->execute([$npa_id]);
-    $baseRow = $stmtBaseValid->fetch();
-    $notValidDate = $baseRow ? ($baseRow['not_valid'] ?? null) : null;
-    $maxDate = getDocMaxDate($pdo, $npa_id, $asOfDate);
-    $isDocExpired = $notValidDate && ($maxDate !== null && $maxDate >= $notValidDate);
-    $sql = "SELECT r.rev_id, r.valid_from, r.valid_to, r.modified_by_id, r.mod_type, r.not_valid,
-                   i.item_id as external_item_id, i.item_type, i.item_number
-            FROM npa_item_revision r
-            INNER JOIN npa_item i ON r.item_internal_id = i.id
-            WHERE r.item_internal_id = ? AND i.npa_id = ?
-              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)";
-    $params = [$internal_item_id, $npa_id];
-    if ($isDocExpired && $notValidDate) {
-        $sql .= " AND r.valid_from < ?";
-        $params[] = $notValidDate;
-    }
-    $sql .= " ORDER BY r.valid_from ASC, r.rev_id ASC";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $revisions = $stmt->fetchAll();
-    $totalRevs = count($revisions);
-    $result = [];
-    foreach ($revisions as $idx => $rev) {
-        $dt = parseDate($rev['valid_from']);
-        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
-        $validToDate = '';
-        if ($rev['valid_to']) {
-            $dtTo = parseDate($rev['valid_to']);
-            $validToDate = $dtTo ? $dtTo->format('d.m.Y') : '';
-        }
-        $isLastRev = ($idx === $totalRevs - 1);
-        $revValidToDate = !empty($rev['valid_to']) ? substr($rev['valid_to'], 0, 10) : null;
-        $isExpiredRev = $isLastRev && ($isDocExpired || ($revValidToDate !== null && $revValidToDate < $asOfDate) || (!empty($rev['not_valid']) && $revValidToDate === null));
-        $expirySource = '';
-        $expiryUrl = '';
-        $itemType = $rev['item_type'];
-        $itemNumber = $rev['item_number'];
-        $elementHumanPath = '';
-        if ($idx === 0) {
-            $npaTitle = '';
-            $displayTitle = 'Исходная редакция';
-            $sourceDecode = 'исходная редакция';
-            $npaUrl = '';
-            if ($itemType === 'article') {
-                $elementHumanPath = 'статьи ' . $itemNumber;
-            } elseif ($itemType === 'section') {
-                $elementHumanPath = 'раздела ' . $itemNumber;
-            } elseif ($itemType === 'part') {
-                $elementHumanPath = 'части ' . $itemNumber;
-            } elseif ($itemType === 'point') {
-                $elementHumanPath = 'пункта ' . $itemNumber;
-            } elseif ($itemType === 'subpoint') {
-                $elementHumanPath = 'подпункта ' . $itemNumber;
-            } elseif ($itemType === 'chapter') {
-                $elementHumanPath = 'главы ' . $itemNumber;
-            } elseif ($itemType === 'appendix' || $itemType === 'nested_appendix') {
-                $elementHumanPath = 'приложения ' . $itemNumber;
-            } elseif ($itemType === 'preamble') {
-                $elementHumanPath = 'преамбулы';
-            } elseif ($itemType === 'structured_table') {
-                $stmtHead = $pdo->prepare("SELECT head_text FROM npa_item_head_revision WHERE item_internal_id = ? ORDER BY valid_from DESC LIMIT 1");
-                $stmtHead->execute([$internal_item_id]);
-                $head = $stmtHead->fetch();
-                $tableHead = $head ? $head['head_text'] : '';
-                if (!empty($tableHead)) {
-                    $elementHumanPath = 'таблицы ' . $itemNumber . ' (' . $tableHead . ')';
-                } else {
-                    $elementHumanPath = '';
-                }
-            } else {
-                $elementHumanPath = 'элемента';
-            }
-        } else {
-            $changerElementId = (int)$rev['modified_by_id'];
-            $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
-            if ($npaInfo) {
-                $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
-                $npaTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
-                $sourceDecode = getElementHumanPath($changerElementId, $pdo);
-                $npaUrl = $npaInfo['npa_url'] ?? '';
-            } else {
-                $npaTitle = 'Неизвестный документ';
-                $sourceDecode = '';
-                $npaUrl = '';
-            }
-            $displayTitle = $npaTitle;
-            $elementHumanPath = getElementHumanPath($internal_item_id, $pdo);
-        }
-        if ($isExpiredRev) {
-            $notValidId = $rev['not_valid'] ?? null;
-            if ($notValidId && $notValidId !== 'base') {
-                $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
-                if ($expiryNpaInfo) {
-                    $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
-                    $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
-                    $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
-                }
-            }
-            $displayTitle = $expirySource ?: 'последняя действующая редакция';
-            $sourceDecode = $expirySource ?: 'последняя действующая редакция';
-            $npaUrl = $expiryUrl;
-        }
-        $result[] = [
-            'rev_id'         => $rev['rev_id'],
-            'valid_from'     => $validFromDate,
-            'valid_to'       => $validToDate,
-            'valid_to_raw'   => $rev['valid_to'],
-            'valid_from_raw' => $rev['valid_from'],
-            'source_decode'  => $sourceDecode,
-            'modified_by_id' => $rev['modified_by_id'],
-            'display_title'  => $displayTitle,
-            'is_original'    => ($idx === 0 && !$isExpiredRev),
-            'is_expired'     => $isExpiredRev,
-            'expiry_source'  => $expirySource,
-            'expiry_url'     => $expiryUrl,
-            'element_path'   => $elementHumanPath,
-            'npa_title'      => $npaTitle,
-            'npa_url'        => $npaUrl,
-            'external_item_id' => $rev['external_item_id']
+function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = []) {
+    $current = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
+    if (!$current) return null;
+    $prev = getPreviousItemRevision($pdo, $internal_item_id, $current['rev_id']);
+    if (!$prev) {
+        return [
+            'prev_valid_from' => '',
+            'current_valid_from' => formatDateToRus($current['valid_from']),
+            'prev_html_raw' => '',
+            'current_html_raw' => '',
+            'element_human_path' => getElementHumanPath($internal_item_id, $pdo, 'genitive'),
+            'changing_elements' => [],
+            'highlights' => normalizeHighlights($current['highlights'] ?? null),
+            'mod_type' => $current['mod_type'] ?? ''
         ];
     }
-    $count = count($result);
-    if ($count > 0) {
-        $maxDate2 = getDocMaxDate($pdo, $npa_id, $asOfDate);
-        $isDocExpired = $notValidDate && ($maxDate2 !== null && $maxDate2 >= $notValidDate);
-        $currentIndex = -1;
-        foreach ($result as $idx => $rev) {
-            if ((is_null($rev['valid_to_raw']) || $rev['valid_to_raw'] >= $asOfDate) && $rev['valid_from_raw'] <= $asOfDate) {
-                $currentIndex = $idx;
-                break;
-            }
-        }
-        if ($currentIndex >= 0 && !$isDocExpired) {
-            $result[$currentIndex]['is_current'] = true;
-        } elseif ($currentIndex < 0 && !$isDocExpired) {
-            $result[$count - 1]['is_current'] = true;
+    $prevAsOfDate = $current['valid_from'];
+    $dtPrev = parseDate($prevAsOfDate);
+    if ($dtPrev) {
+        $dtPrev->modify('-1 day');
+        $prevAsOfDate = $dtPrev->format('Y-m-d');
+    } else {
+        $prevAsOfDate = $asOfDate;
+    }
+    $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internal_item_id, 0, null, false, true, $prevAsOfDate, false, false);
+    // Текущую колонку сравнения рендерим на актуальную дату просмотра ($asOfDate),
+    // чтобы изменения, внесённые в дочерние элементы после последней редакции
+    // родителя, тоже попадали в сравнение (у родителя отдельная редакция не создаётся).
+    $currContent = getItemRevisionContent($pdo, $current['rev_id'], $internal_item_id, 0, null, false, true, $asOfDate);
+    $prevHtml = $prevContent ? ensureTableWrapperForComparison($prevContent['html'], $internal_item_id, $pdo, $prevAsOfDate) : '';
+    $currHtml = $currContent ? ensureTableWrapperForComparison($currContent['html'], $internal_item_id, $pdo, $asOfDate) : '';
+    $changingElements = [];
+    if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
+        foreach (array_filter(array_map('trim', explode(',', $current['modified_by_id']))) as $changerStr) {
+            if ($changerStr === 'base') continue;
+            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
+            if (!$npaInfo) continue;
+            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
+            $changerNpaId = $npaInfo['npa_id'];
+            $changerNpaType = $npaInfo['npa_type'];
+            $changerHtml = getElementHtmlById($changerStr, $asOfDate, $pdo, $changerNpaId, $changerNpaType);
+            $changingElements[] = [
+                'note' => getRevisionSourceNote($changerStr, $pdo, true),
+                'html' => $changerHtml,
+                'date' => formatDateToRus($changerDate)
+            ];
         }
     }
-    return $result;
+    $highlightsForClient = null;
+    if (!empty($current['highlights'])) {
+        $decoded = json_decode($current['highlights'], true);
+        if (is_array($decoded)) $highlightsForClient = $decoded;
+    }
+    return [
+        'prev_valid_from' => formatDateToRus($prev['valid_from']),
+        'current_valid_from' => formatDateToRus($current['valid_from']),
+        'prev_html_raw' => $prevHtml,
+        'current_html_raw' => $currHtml,
+        'element_human_path' => getElementHumanPath($internal_item_id, $pdo, 'genitive'),
+        'changing_elements' => $changingElements,
+        'highlights' => normalizeHighlights($highlightsForClient),
+        'mod_type' => $current['mod_type']
+    ];
+}
+
+function getItemHeadCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = []) {
+    $current = getItemHeadRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
+    if (!$current) return null;
+    $prev = getPreviousItemHeadRevision($pdo, $internal_item_id, $current['id']);
+    if (!$prev) {
+        return [
+            'prev_valid_from' => '',
+            'current_valid_from' => formatDateToRus($current['valid_from']),
+            'prev_html_raw' => '',
+            'current_html_raw' => '',
+            'changing_elements' => [],
+            'highlights' => normalizeHighlights($current['highlights'] ?? null),
+            'mod_type' => $current['mod_type'] ?? ''
+        ];
+    }
+    $prevContent = getItemHeadRevisionContent($pdo, $prev['id'], $internal_item_id, $asOfDate);
+    $currContent = getItemHeadRevisionContent($pdo, $current['id'], $internal_item_id, $asOfDate);
+    $changingElements = [];
+    if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
+        foreach (array_filter(array_map('trim', explode(',', $current['modified_by_id']))) as $changerStr) {
+            if ($changerStr === 'base') continue;
+            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
+            if (!$npaInfo) continue;
+            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
+            $changingElements[] = [
+                'note' => getRevisionSourceNote($changerStr, $pdo, true),
+                'html' => getElementHtmlById($changerStr, $asOfDate, $pdo, $npaInfo['npa_id'], $npaInfo['npa_type']),
+                'date' => formatDateToRus($changerDate)
+            ];
+        }
+    }
+    $highlightsForClient = null;
+    if (!empty($current['highlights'])) {
+        $decoded = json_decode($current['highlights'], true);
+        if (is_array($decoded)) $highlightsForClient = $decoded;
+    }
+    return [
+        'prev_valid_from' => formatDateToRus($prev['valid_from']),
+        'current_valid_from' => formatDateToRus($current['valid_from']),
+        'prev_html_raw' => $prevContent ? $prevContent['html'] : '',
+        'current_html_raw' => $currContent ? $currContent['html'] : '',
+        'changing_elements' => $changingElements,
+        'highlights' => normalizeHighlights($highlightsForClient),
+        'mod_type' => $current['mod_type']
+    ];
+}
+
+function getItemHeadCompareHtml(PDO $pdo, $internal_item_id, $asOfDate) {
+    $stmt = $pdo->prepare("
+        SELECT * FROM npa_item_head_revision
+        WHERE item_internal_id = ? AND (valid_from <= ? OR valid_from IS NULL)
+        ORDER BY valid_from ASC, id ASC
+    ");
+    $stmt->execute([$internal_item_id, $asOfDate]);
+    $revisions = $stmt->fetchAll();
+    if (count($revisions) < 2) {
+        return [
+            'prev_html_raw' => '',
+            'current_html_raw' => '',
+            'prev_valid_from' => '',
+            'current_valid_from' => '',
+            'changing_elements' => [],
+            'highlights' => ['previous_edition' => ['deletion' => [], 'difference' => []], 'current_edition' => ['addition' => [], 'difference' => []]],
+            'mod_type' => null
+        ];
+    }
+    $prevRev = $revisions[count($revisions)-2];
+    $currRev = $revisions[count($revisions)-1];
+    $stmtItem = $pdo->prepare("SELECT * FROM npa_item WHERE id = ?");
+    $stmtItem->execute([$internal_item_id]);
+    $item = $stmtItem->fetch();
+    $itemType = $item ? $item['item_type'] : '';
+    $itemNumber = $item ? ($item['item_number'] ?? '') : '';
+    $oldHead = $prevRev['head_text'];
+    $newHead = $currRev['head_text'];
+    global $NPA_NO_NAME_IDS;
+    $skipName = in_array($item['item_id'], $NPA_NO_NAME_IDS);
+    $oldDisplay = '';
+    $newDisplay = '';
+    if ($itemType === 'chapter') {
+        $oldDisplay = ($skipName ? '' : 'Глава ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
+        $newDisplay = ($skipName ? '' : 'Глава ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
+    } elseif ($itemType === 'section') {
+        $oldDisplay = ($skipName ? '' : 'Раздел ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
+        $newDisplay = ($skipName ? '' : 'Раздел ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
+    } elseif ($itemType === 'article') {
+        $oldDisplay = ($skipName ? '' : 'Статья ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
+        $newDisplay = ($skipName ? '' : 'Статья ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
+    } elseif ($itemType === 'appendix' || $itemType === 'nested_appendix') {
+        $oldDisplay = ($skipName ? '' : 'Приложение ') . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
+        $newDisplay = ($skipName ? '' : 'Приложение ') . $itemNumber . ($newHead ? '. ' . $newHead : '');
+    } elseif ($itemType === 'structured_table') {
+        if (!empty($oldHead)) {
+            $oldDisplay = 'Таблица ' . $itemNumber . ($oldHead ? '. ' . $oldHead : '');
+        } else {
+            $oldDisplay = '';
+        }
+        if (!empty($newHead)) {
+            $newDisplay = 'Таблица ' . $itemNumber . ($newHead ? '. ' . $newHead : '');
+        } else {
+            $newDisplay = '';
+        }
+    } else {
+        $oldDisplay = $oldHead;
+        $newDisplay = $newHead;
+    }
+    $oldTitle = '';
+    $newTitle = '';
+    if (!empty($oldDisplay)) {
+        $oldTitle = '<p class="npa-doc-title"><b>' . htmlspecialchars($oldDisplay) . '</b></p>';
+    }
+    if (!empty($newDisplay)) {
+        $newTitle = '<p class="npa-doc-title"><b>' . htmlspecialchars($newDisplay) . '</b></p>';
+    }
+    $oldTitle = ensureTableWrapperForComparison($oldTitle, $internal_item_id, $pdo, $asOfDate);
+    $newTitle = ensureTableWrapperForComparison($newTitle, $internal_item_id, $pdo, $asOfDate);
+    $highlights = null;
+    if (!empty($currRev['highlights'])) {
+        $highlights = json_decode($currRev['highlights'], true);
+        if (!is_array($highlights)) $highlights = null;
+    }
+    $prevValidFrom = $prevRev['valid_from'] ? formatDateToRus($prevRev['valid_from']) : '';
+    $currValidFrom = $currRev['valid_from'] ? formatDateToRus($currRev['valid_from']) : '';
+    $changingElements = [];
+    if (!empty($currRev['modified_by_id']) && $currRev['modified_by_id'] !== 'base') {
+        $changerIds = array_filter(array_map('trim', explode(',', $currRev['modified_by_id'])));
+        foreach ($changerIds as $changerStr) {
+            if ($changerStr === 'base') continue;
+            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
+            if (!$npaInfo) continue;
+            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $currRev['valid_from'];
+            $changerNpaId = $npaInfo['npa_id'];
+            $changerNpaType = $npaInfo['npa_type'];
+            $changerHtml = getElementHtmlById($changerStr, $asOfDate, $pdo, $changerNpaId, $changerNpaType);
+            $note = getRevisionSourceNote($changerStr, $pdo, true);
+            $changingElements[] = [
+                'note' => $note,
+                'html' => $changerHtml,
+                'date' => formatDateToRus($changerDate)
+            ];
+        }
+    }
+    return [
+        'prev_html_raw' => $oldTitle,
+        'current_html_raw' => $newTitle,
+        'prev_valid_from' => $prevValidFrom,
+        'current_valid_from' => $currValidFrom,
+        'changing_elements' => $changingElements,
+        'highlights' => normalizeHighlights($highlights),
+        'mod_type' => $currRev['mod_type'] ?? null
+    ];
+}
+
+function ensureTableWrapperForComparison($html, $itemId, $pdo, $asOfDate) {
+    if (stripos($html, '<table') !== false) {
+        return $html;
+    }
+    if (is_numeric($itemId)) {
+        $stmt = $pdo->prepare("SELECT item_type, npa_id FROM npa_item WHERE id = ?");
+        $stmt->execute([$itemId]);
+        $item = $stmt->fetch();
+    } else {
+        $stmt = $pdo->prepare("SELECT npa_type FROM npa_base WHERE npa_id = ?");
+        $stmt->execute([$itemId]);
+        $item = $stmt->fetch();
+        if ($item) {
+            $item['item_type'] = 'base';
+        }
+    }
+    if (!$item) return $html;
+    if (isset($item['item_type']) && $item['item_type'] === 'structured_table') {
+        $stmtRev = $pdo->prepare("
+            SELECT rev_id FROM npa_item_revision
+            WHERE item_internal_id = ? AND (valid_from <= ? OR valid_from IS NULL) AND (valid_to IS NULL OR valid_to >= ?)
+            LIMIT 1
+        ");
+        $stmtRev->execute([$itemId, $asOfDate, $asOfDate]);
+        $rev = $stmtRev->fetch();
+        if ($rev) {
+            $stmtPara = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
+            $stmtPara->execute([$rev['rev_id']]);
+            $paragraphs = $stmtPara->fetchAll();
+            $itemsTree = getItemTree($pdo, $item['npa_id'], $asOfDate, [], false);
+            $fullTableHtml = renderStructuredTable($item, $paragraphs, $pdo, $asOfDate, $itemsTree, true);
+            if ($fullTableHtml) return $fullTableHtml;
+        }
+    }
+    if (stripos($html, '<tr') !== false && stripos($html, '<table') === false) {
+        return '<table class="npa-comparison-table" cellpadding="5" cellspacing="0" style="width:100%; border-collapse:collapse;">' .
+               '<tbody>' . $html . '</tbody>' .
+               '</table>';
+    }
+    return $html;
+}
+
+function getHeadCompareHtml(PDO $pdo, $npa_id, $asOfDate) {
+    $stmt = $pdo->prepare("
+        SELECT * FROM npa_head_revision
+        WHERE npa_id = ?
+        ORDER BY valid_from ASC
+    ");
+    $stmt->execute([$npa_id]);
+    $revisions = $stmt->fetchAll();
+    if (count($revisions) < 2) {
+        return [
+            'prev_html_raw' => '',
+            'current_html_raw' => '',
+            'prev_valid_from' => '',
+            'current_valid_from' => '',
+            'changing_elements' => [],
+            'highlights' => ['previous_edition' => ['deletion' => [], 'difference' => []], 'current_edition' => ['addition' => [], 'difference' => []]],
+            'mod_type' => null
+        ];
+    }
+    $prevRev = $revisions[count($revisions)-2];
+    $currRev = $revisions[count($revisions)-1];
+    $oldTitle = '<p class="npa-doc-title">' . htmlspecialchars($prevRev['npa_title']) . '</p>';
+    $newTitle = '<p class="npa-doc-title">' . htmlspecialchars($currRev['npa_title']) . '</p>';
+    $oldTitle = ensureTableWrapperForComparison($oldTitle, $npa_id, $pdo, $asOfDate);
+    $newTitle = ensureTableWrapperForComparison($newTitle, $npa_id, $pdo, $asOfDate);
+    $highlights = null;
+    if (!empty($currRev['highlights'])) {
+        $highlights = json_decode($currRev['highlights'], true);
+        if (!is_array($highlights)) $highlights = null;
+    }
+    $prevValidFrom = $prevRev['valid_from'] ? formatDateToRus($prevRev['valid_from']) : '';
+    $currValidFrom = $currRev['valid_from'] ? formatDateToRus($currRev['valid_from']) : '';
+    $changingElements = [];
+    if (!empty($currRev['modified_by_id']) && $currRev['modified_by_id'] !== 'base') {
+        $changerIds = array_filter(array_map('trim', explode(',', $currRev['modified_by_id'])));
+        foreach ($changerIds as $changerStr) {
+            if ($changerStr === 'base') continue;
+            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
+            if (!$npaInfo) continue;
+            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $currRev['valid_from'];
+            $changerNpaId = $npaInfo['npa_id'];
+            $changerNpaType = $npaInfo['npa_type'];
+            $changerHtml = getElementHtmlById($changerStr, $asOfDate, $pdo, $changerNpaId, $changerNpaType);
+            $note = getRevisionSourceNote($changerStr, $pdo, true);
+            $changingElements[] = [
+                'note' => $note,
+                'html' => $changerHtml,
+                'date' => formatDateToRus($changerDate)
+            ];
+        }
+    }
+    return [
+        'prev_html_raw' => $oldTitle,
+        'current_html_raw' => $newTitle,
+        'prev_valid_from' => $prevValidFrom,
+        'current_valid_from' => $currValidFrom,
+        'changing_elements' => $changingElements,
+        'highlights' => normalizeHighlights($highlights),
+        'mod_type' => $currRev['mod_type'] ?? null
+    ];
+}
+
+function renderTocTree($itemsById, $parentId, $level, $pageUrl, $viewDate, $noNameIds = []) {
+    $children = array_filter($itemsById, function($item) use ($parentId) {
+        return (string)$item['parent_id'] === (string)$parentId;
+    });
+    if (empty($children)) return '';
+    usort($children, function($a, $b) {
+        $sortA = isset($a['sort_order']) ? (float)$a['sort_order'] : 0;
+        $sortB = isset($b['sort_order']) ? (float)$b['sort_order'] : 0;
+        if ($sortA == $sortB) {
+            $idA = isset($a['id']) ? (float)$a['id'] : 0;
+            $idB = isset($b['id']) ? (float)$b['id'] : 0;
+            return $idA - $idB;
+        }
+        return $sortA - $sortB;
+    });
+    $res = '<ul class="toc-list level-' . $level . '">';
+    foreach ($children as $item) {
+        $isExpired = isset($item['is_expired']) && $item['is_expired'];
+        $hideSectionPrefix = !empty($item['hide_section_prefix']);
+        $display = getDisplayText($item, $isExpired, $noNameIds, $hideSectionPrefix);
+        if (empty($display) || empty($item['item_id'])) continue;
+
+        $res .= '<li class="toc-item level-' . $level . '">';
+        $res .= '<a href="' . htmlspecialchars($pageUrl . '#' . $item['item_id']) . '" '
+              . 'class="toc-link level-' . $level . '" data-toc-id="' . htmlspecialchars($item['item_id']) . '">'
+              . htmlspecialchars($display) . '</a>';
+        if (!$isExpired) {
+            $res .= renderTocTree($itemsById, $item['id'], $level + 1, $pageUrl, $viewDate, $noNameIds);
+        }
+        $res .= '</li>';
+    }
+    $res .= '</ul>';
+    return $res;
+}
+
+function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpired = true, array $selectedRevisionNpaIds = []) {
+    global $itemsByIdGlobal;
+    if ($npaData === null) {
+        $npaData = ['no_name_ids' => []];
+    }
+    $stmt = $pdo->prepare("SELECT * FROM npa_item WHERE npa_id = ? ORDER BY sort_order, id");
+    $stmt->execute([$npa_id]);
+    $items = $stmt->fetchAll();
+    $itemsById = [];
+    foreach ($items as $item) {
+        $internal_id = $item['id'];
+        $revision = getRevisionForSelectedEdition($pdo, $internal_id, $asOfDate, $selectedRevisionNpaIds);
+        if (!$revision) {
+            continue;
+        }
+        $isExpired = $revision['is_expired'];
+        if (!$includeExpired && $isExpired) {
+            continue;
+        }
+        $rev = $revision;
+        $expiredValidTo = null;
+        if ($isExpired) {
+            $expiredValidTo = $rev['valid_to'];
+        }
+        $headRev = getItemHeadRevisionForSelectedEdition($pdo, $internal_id, $asOfDate, $selectedRevisionNpaIds);
+        $itemHeadText = $headRev ? $headRev['head_text'] : '';
+        $stmtPara = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
+        $stmtPara->execute([$rev['rev_id']]);
+        $paragraphs = $stmtPara->fetchAll();
+        if (empty($paragraphs) && !$isExpired) {
+            $contentRev = getLastContentRevision($pdo, $internal_id, $rev['valid_from']);
+            if ($contentRev && $contentRev['rev_id'] != $rev['rev_id']) {
+                $stmtParaContent = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
+                $stmtParaContent->execute([$contentRev['rev_id']]);
+                $paragraphs = $stmtParaContent->fetchAll();
+            }
+        }
+        $displayNumber = getItemNumberForSelectedEdition($pdo, $internal_id, $asOfDate, $selectedRevisionNpaIds);
+        if ($displayNumber === null) {
+            $displayNumber = $item['item_number'];
+        }
+        $itemData = $item;
+        $itemData['internal_id']       = $internal_id;
+        $itemData['rev_id']            = $rev['rev_id'];
+        $itemData['mod_type']          = $rev['mod_type'];
+        $itemData['modified_by_id']    = $rev['modified_by_id'];
+        $itemData['valid_from']        = $rev['valid_from'];
+        $itemData['valid_to']          = $rev['valid_to'];
+        $itemData['not_valid']         = $rev['not_valid'];
+        $itemData['item_head']         = $itemHeadText;
+        $itemData['head_revision']     = $headRev;
+        $itemData['paragraphs']        = $paragraphs;
+        $itemData['is_expired']        = $isExpired;
+        $itemData['expired_valid_to']  = $expiredValidTo;
+        $itemData['display_number']    = $displayNumber;
+        if ($isExpired) {
+            $contentRevId = $rev['rev_id'];
+            $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM npa_paragraph WHERE rev_id = ?");
+            $stmtCheck->execute([$contentRevId]);
+            $hasContent = $stmtCheck->fetchColumn() > 0;
+            if (!$hasContent) {
+                $contentRev = getLastContentRevision($pdo, $internal_id, $rev['valid_from']);
+                if ($contentRev) {
+                    $contentRevId = $contentRev['rev_id'];
+                    $stmtContentRev = $pdo->prepare("SELECT * FROM npa_item_revision WHERE rev_id = ?");
+                    $stmtContentRev->execute([$contentRevId]);
+                    $fullContentRev = $stmtContentRev->fetch();
+                    if ($fullContentRev) {
+                        $rev = $fullContentRev;
+                        $itemData['rev_id'] = $rev['rev_id'];
+                        $itemData['mod_type'] = $rev['mod_type'];
+                        $itemData['modified_by_id'] = $rev['modified_by_id'];
+                        $itemData['valid_from'] = $rev['valid_from'];
+                        $itemData['valid_to'] = $rev['valid_to'];
+                        $itemData['not_valid'] = $rev['not_valid'];
+                        $stmtParaContent = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
+                        $stmtParaContent->execute([$contentRevId]);
+                        $itemData['paragraphs'] = $stmtParaContent->fetchAll();
+                    }
+                }
+            }
+            // Полный рендер последней действующей редакции (номер, заголовок, дочерние элементы),
+            // как в истории / «Предыдущая редакция». Вариант «только параграфы» — запасной.
+            $expiredContent = getItemRevisionContent($pdo, $itemData['rev_id'], $internal_id, 0, null, true, false, null, false);
+            if (!$expiredContent || empty($expiredContent['html'])) {
+                $expiredContent = getItemRevisionContent($pdo, $itemData['rev_id'], $internal_id, 0, null, false, false, null, true);
+            }
+            $itemData['expired_content_html'] = $expiredContent ? $expiredContent['html'] : '';
+        } else {
+            $itemData['expired_content_html'] = null;
+        }
+        $itemsById[$internal_id] = $itemData;
+    }
+    $itemsByIdGlobal = $itemsById;
+    $noNameIds = $npaData['no_name_ids'] ?? [];
+    $isInsideNoName = function($itemId, $itemsById, $noNameIds) use (&$isInsideNoName) {
+        if (in_array($itemId, $noNameIds, true)) {
+            return true;
+        }
+        $item = $itemsById[$itemId] ?? null;
+        if ($item && $item['parent_id']) {
+            $parentItem = $itemsById[$item['parent_id']] ?? null;
+            if ($parentItem && $parentItem['item_id']) {
+                return $isInsideNoName($parentItem['item_id'], $itemsById, $noNameIds);
+            }
+        }
+        return false;
+    };
+    foreach ($itemsById as &$itemData) {
+        if ($itemData['item_type'] === 'section') {
+            $itemData['hide_section_prefix'] = $isInsideNoName($itemData['item_id'], $itemsById, $noNameIds);
+        } else {
+            $itemData['hide_section_prefix'] = false;
+        }
+    }
+    return $itemsById;
 }
 
 function getInternalItemId(PDO $pdo, $npa_id, $external_item_id) {
@@ -1940,106 +2629,6 @@ function getInternalItemId(PDO $pdo, $npa_id, $external_item_id) {
     $stmt->execute([$npa_id, $external_item_id]);
     $row = $stmt->fetch();
     return $row ? (int)$row['id'] : 0;
-}
-
-function getDocumentStatus(PDO $pdo, $npa_id, $viewDateSql) {
-    $stmt = $pdo->prepare("SELECT valid_from, not_valid, not_valid_note, not_valid_npa_id, date_format FROM npa_base WHERE npa_id = ?");
-    $stmt->execute([$npa_id]);
-    $base = $stmt->fetch();
-    if (!$base) {
-        return ['status' => 'unknown', 'message' => ''];
-    }
-    $validFrom = $base['valid_from'];
-    $notValid = $base['not_valid'] ?? null;
-    $notValidNote = $base['not_valid_note'] ?? '';
-    $dateFormat = (int)$base['date_format'];
-    if ($validFrom && $viewDateSql < $validFrom) {
-        $formattedDate = formatRusDate($validFrom, $dateFormat);
-        return [
-            'status' => 'future',
-            'message' => "Документ вступает в силу с {$formattedDate}"
-        ];
-    }
-    if ($notValid) {
-        $dtNotValid = parseDate($notValid);
-        if ($dtNotValid) {
-            $dtNotValid->modify('+1 day');
-            $formattedDate = formatRusDate($dtNotValid->format('Y-m-d'), $dateFormat);
-        } else {
-            $formattedDate = formatRusDate($notValid, $dateFormat);
-        }
-        $maxDate = getDocMaxDate($pdo, $npa_id, $viewDateSql);
-        $isAlreadyExpired = ($maxDate !== null && $maxDate >= $notValid);
-        $msg = $isAlreadyExpired ? "Документ утратил силу с {$formattedDate}" : "Документ утрачивает силу с {$formattedDate}";
-        $cancellingNpaId = $base['not_valid_npa_id'] ?? null;
-        if ($cancellingNpaId) {
-            $stmtCancel = $pdo->prepare("SELECT npa_type, npa_number, npa_url, date_passed FROM npa_base WHERE npa_id = ?");
-            $stmtCancel->execute([$cancellingNpaId]);
-            $cancellingNpa = $stmtCancel->fetch();
-            if ($cancellingNpa) {
-                $type = ($cancellingNpa['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                $datePassed = formatRusDate($cancellingNpa['date_passed'], $dateFormat);
-                $url = $cancellingNpa['npa_url'] ?? '';
-                $cancellingText = $type . ' города Севастополя № ' . $cancellingNpa['npa_number'] . ' от ' . $datePassed;
-                if ($url) {
-                    $cancellingText = '<a href="' . $url . '" target="_blank" class="npa-revision-link">' . $cancellingText . '</a>';
-                }
-                $msg .= ' — ' . $cancellingText;
-            }
-        }
-        if (!empty($notValidNote)) {
-            $msg .= ' (' . htmlspecialchars($notValidNote) . ')';
-        }
-        return [
-            'status' => $isAlreadyExpired ? 'expired' : 'future_expired',
-            'message' => $msg
-        ];
-    }
-    return ['status' => 'active', 'message' => ''];
-}
-
-function getActiveRevisionsForDate(PDO $pdo, $npa_id, $date) {
-    $stmt = $pdo->prepare("
-        SELECT * FROM npa_revision_info
-        WHERE base_npa_id = ?
-          AND revision_date_valid <= ?
-        ORDER BY revision_date_valid ASC, revision_number ASC
-    ");
-    $stmt->execute([$npa_id, $date]);
-    return $stmt->fetchAll();
-}
-
-function getExactRevisionsForDate(PDO $pdo, $npa_id, $date) {
-    $stmt = $pdo->prepare("
-        SELECT * FROM npa_revision_info
-        WHERE base_npa_id = ?
-          AND revision_date_valid = ?
-        ORDER BY revision_number ASC
-    ");
-    $stmt->execute([$npa_id, $date]);
-    return $stmt->fetchAll();
-}
-
-function generateFilename($npaData, $revisions = []) {
-    $isLaw = ($npaData['npa_type'] === 'law');
-    $prefix = $isLaw ? 'zakon' : 'postanovlenie';
-    $npaNumForFile = str_replace('ЗС', 'ZS', $npaData['npa_number']);
-    $dateField = $isLaw ? 'date_passed' : 'date_passed';
-    $baseDate = $npaData[$dateField] ?? $npaData['date_passed'] ?? '';
-    $dt = parseDate($baseDate);
-    $dateStr = $dt ? $dt->format('d_m_Y') : 'unknown';
-    $filename = $prefix . '_' . $npaNumForFile . '_ot_' . $dateStr;
-    if (!empty($revisions)) {
-        $parts = [];
-        foreach ($revisions as $rev) {
-            $revNumForFile = str_replace('ЗС', 'ZS', $rev['revision_number']);
-            $revDt = parseDate($rev['revision_date_reg']);
-            $revDateStr = $revDt ? $revDt->format('d_m_Y') : 'unknown';
-            $parts[] = $revNumForFile . '_ot_' . $revDateStr;
-        }
-        $filename .= '_redakciya_' . implode('_i_', $parts);
-    }
-    return $filename . '.rtf';
 }
 
 function getElementHtmlById($elementId, $asOfDate, $pdo, $npaId, $npaType, $forComparison = false) {
@@ -2176,858 +2765,6 @@ function getElementHtmlById($elementId, $asOfDate, $pdo, $npaId, $npaType, $forC
     }
     $html .= '</div>';
     return $html;
-}
-
-function getHeadRevisionsList(PDO $pdo, $npa_id, $asOfDate) {
-    $stmtBaseValid = $pdo->prepare("SELECT not_valid FROM npa_base WHERE npa_id = ?");
-    $stmtBaseValid->execute([$npa_id]);
-    $baseRow = $stmtBaseValid->fetch();
-    $notValidDate = $baseRow ? ($baseRow['not_valid'] ?? null) : null;
-    $maxDate = getDocMaxDate($pdo, $npa_id, $asOfDate);
-    $isDocExpired = $notValidDate && ($maxDate !== null && $maxDate >= $notValidDate);
-    $sql = "SELECT id, npa_title, valid_from, valid_to, modified_by_id, not_valid
-            FROM npa_head_revision
-            WHERE npa_id = ?";
-    $params = [$npa_id];
-    if ($isDocExpired && $notValidDate) {
-        $sql .= " AND valid_from < ?";
-        $params[] = $notValidDate;
-    }
-    $sql .= " ORDER BY valid_from ASC";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $revisions = $stmt->fetchAll();
-    $totalRevs = count($revisions);
-    $result = [];
-    foreach ($revisions as $idx => $rev) {
-        $dt = parseDate($rev['valid_from']);
-        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
-        $validToDate = '';
-        if ($rev['valid_to']) {
-            $dtTo = parseDate($rev['valid_to']);
-            $validToDate = $dtTo ? $dtTo->format('d.m.Y') : '';
-        }
-        $isLastRev = ($idx === $totalRevs - 1);
-        $revValidToDate = !empty($rev['valid_to']) ? substr($rev['valid_to'], 0, 10) : null;
-        $isExpiredRev = $isLastRev && ($isDocExpired || ($revValidToDate !== null && $revValidToDate < $asOfDate) || (!empty($rev['not_valid']) && $revValidToDate === null));
-        $expirySource = '';
-        $expiryUrl = '';
-        if ($idx === 0) {
-            $displayTitle = 'Исходное наименование';
-            $sourceDecode = 'исходная редакция';
-            $npaUrl = '';
-            $elementPath = 'наименование документа';
-        } else {
-            $changerElementId = (int)$rev['modified_by_id'];
-            $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
-            if ($npaInfo) {
-                $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
-                $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
-                $sourceDecode = getElementHumanPath($changerElementId, $pdo);
-                $npaUrl = $npaInfo['npa_url'] ?? '';
-            } else {
-                $displayTitle = 'Неизвестный документ';
-                $sourceDecode = '';
-                $npaUrl = '';
-            }
-            $elementPath = 'наименование документа';
-        }
-        if ($isExpiredRev) {
-            $notValidId = $rev['not_valid'] ?? null;
-            if ($notValidId && $notValidId !== 'base') {
-                $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
-                if ($expiryNpaInfo) {
-                    $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
-                    $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
-                    $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
-                }
-            }
-            $displayTitle = $expirySource ?: 'последнее действующее наименование';
-            $sourceDecode = $expirySource ?: 'последнее действующее наименование';
-            $npaUrl = $expiryUrl;
-        }
-        $result[] = [
-            'rev_id'         => $rev['id'],
-            'valid_from'     => $validFromDate,
-            'valid_to'       => $validToDate,
-            'valid_to_raw'   => $rev['valid_to'],
-            'valid_from_raw' => $rev['valid_from'],
-            'source_decode'  => $sourceDecode,
-            'modified_by_id' => $rev['modified_by_id'],
-            'display_title'  => $displayTitle,
-            'is_original'    => ($idx === 0 && !$isExpiredRev),
-            'is_expired'     => $isExpiredRev,
-            'expiry_source'  => $expirySource,
-            'expiry_url'     => $expiryUrl,
-            'element_path'   => $elementPath,
-            'npa_title'      => $rev['npa_title'],
-            'npa_url'        => $npaUrl
-        ];
-    }
-    $count = count($result);
-    if ($count > 0) {
-        $maxDate2 = getDocMaxDate($pdo, $npa_id, $asOfDate);
-        $isDocExpired = $notValidDate && ($maxDate2 !== null && $maxDate2 >= $notValidDate);
-        $currentIndex = -1;
-        foreach ($result as $idx => $rev) {
-            if ((is_null($rev['valid_to_raw']) || $rev['valid_to_raw'] >= $asOfDate) && $rev['valid_from_raw'] <= $asOfDate) {
-                $currentIndex = $idx;
-                break;
-            }
-        }
-        if ($currentIndex >= 0 && !$isDocExpired) {
-            $result[$currentIndex]['is_current'] = true;
-        } elseif ($currentIndex < 0 && !$isDocExpired) {
-            $result[$count - 1]['is_current'] = true;
-        }
-    }
-    return $result;
-}
-
-function getItemHeadRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDate) {
-    $stmtBaseValid = $pdo->prepare("SELECT not_valid FROM npa_base WHERE npa_id = ?");
-    $stmtBaseValid->execute([$npa_id]);
-    $baseRow = $stmtBaseValid->fetch();
-    $notValidDate = $baseRow ? ($baseRow['not_valid'] ?? null) : null;
-    $maxDate = getDocMaxDate($pdo, $npa_id, $asOfDate);
-    $isDocExpired = $notValidDate && ($maxDate !== null && $maxDate >= $notValidDate);
-    $sql = "SELECT id, head_text, valid_from, valid_to, modified_by_id, not_valid
-            FROM npa_item_head_revision
-            WHERE item_internal_id = ?";
-    $params = [$internal_item_id];
-    if ($isDocExpired && $notValidDate) {
-        $sql .= " AND valid_from < ?";
-        $params[] = $notValidDate;
-    }
-    $sql .= " ORDER BY valid_from ASC";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $revisions = $stmt->fetchAll();
-    $totalRevs = count($revisions);
-    $result = [];
-    $elementHumanPath = getElementHumanPath($internal_item_id, $pdo);
-    $stmtItem = $pdo->prepare("SELECT item_type, item_number FROM npa_item WHERE id = ?");
-    $stmtItem->execute([$internal_item_id]);
-    $item = $stmtItem->fetch();
-    $itemType = $item ? $item['item_type'] : '';
-    $itemNumber = $item ? ($item['item_number'] ?? '') : '';
-    foreach ($revisions as $idx => $rev) {
-        $dt = parseDate($rev['valid_from']);
-        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
-        $validToDate = '';
-        if ($rev['valid_to']) {
-            $dtTo = parseDate($rev['valid_to']);
-            $validToDate = $dtTo ? $dtTo->format('d.m.Y') : '';
-        }
-        $isLastRev = ($idx === $totalRevs - 1);
-        $revValidToDate = !empty($rev['valid_to']) ? substr($rev['valid_to'], 0, 10) : null;
-        $isExpiredRev = $isLastRev && ($isDocExpired || ($revValidToDate !== null && $revValidToDate < $asOfDate) || (!empty($rev['not_valid']) && $revValidToDate === null));
-        $expirySource = '';
-        $expiryUrl = '';
-        if ($idx === 0) {
-            $displayTitle = 'Исходный заголовок элемента';
-            $sourceDecode = 'исходная редакция';
-            $npaUrl = '';
-            if ($itemType === 'structured_table') {
-                $tableHead = $rev['head_text'];
-                if (!empty($tableHead)) {
-                    $elementPath = 'таблицы ' . $itemNumber . ' (заголовок)';
-                } else {
-                    $elementPath = '';
-                }
-            } else {
-                $elementPath = $elementHumanPath . ' (заголовок)';
-            }
-        } else {
-            $changerElementId = (int)$rev['modified_by_id'];
-            $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
-            if ($npaInfo) {
-                $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
-                $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
-                $sourceDecode = getElementHumanPath($changerElementId, $pdo);
-                $npaUrl = $npaInfo['npa_url'] ?? '';
-            } else {
-                $displayTitle = 'Неизвестный документ';
-                $sourceDecode = '';
-                $npaUrl = '';
-            }
-            if ($itemType === 'structured_table') {
-                $tableHead = $rev['head_text'];
-                if (!empty($tableHead)) {
-                    $elementPath = 'таблицы ' . $itemNumber . ' (заголовок)';
-                } else {
-                    $elementPath = '';
-                }
-            } else {
-                $elementPath = $elementHumanPath . ' (заголовок)';
-            }
-        }
-        if ($isExpiredRev) {
-            $notValidId = $rev['not_valid'] ?? null;
-            if ($notValidId && $notValidId !== 'base') {
-                $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
-                if ($expiryNpaInfo) {
-                    $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
-                    $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
-                    $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
-                }
-            }
-            $displayTitle = $expirySource ?: 'последний действующий заголовок элемента';
-            $sourceDecode = $expirySource ?: 'последний действующий заголовок элемента';
-            $npaUrl = $expiryUrl;
-        }
-        $result[] = [
-            'rev_id'         => $rev['id'],
-            'valid_from'     => $validFromDate,
-            'valid_to'       => $validToDate,
-            'valid_to_raw'   => $rev['valid_to'],
-            'valid_from_raw' => $rev['valid_from'],
-            'source_decode'  => $sourceDecode,
-            'modified_by_id' => $rev['modified_by_id'],
-            'display_title'  => $displayTitle,
-            'is_original'    => ($idx === 0 && !$isExpiredRev),
-            'is_expired'     => $isExpiredRev,
-            'expiry_source'  => $expirySource,
-            'expiry_url'     => $expiryUrl,
-            'element_path'   => $elementPath,
-            'npa_title'      => $rev['head_text'],
-            'npa_url'        => $npaUrl
-        ];
-    }
-    $count = count($result);
-    if ($count > 0) {
-        $maxDate2 = getDocMaxDate($pdo, $npa_id, $asOfDate);
-        $isDocExpired = $notValidDate && ($maxDate2 !== null && $maxDate2 >= $notValidDate);
-        $currentIndex = -1;
-        foreach ($result as $idx => $rev) {
-            if ((is_null($rev['valid_to_raw']) || $rev['valid_to_raw'] >= $asOfDate) && $rev['valid_from_raw'] <= $asOfDate) {
-                $currentIndex = $idx;
-                break;
-            }
-        }
-        if ($currentIndex >= 0 && !$isDocExpired) {
-            $result[$currentIndex]['is_current'] = true;
-        } elseif ($currentIndex < 0 && !$isDocExpired) {
-            $result[$count - 1]['is_current'] = true;
-        }
-    }
-    return $result;
-}
-
-function getHeadRevisionContent(PDO $pdo, $rev_id, $npa_id, $asOfDate) {
-    $stmt = $pdo->prepare("
-        SELECT * FROM npa_head_revision
-        WHERE id = ? AND npa_id = ? AND (valid_from <= ? OR valid_from IS NULL) AND (valid_to IS NULL OR valid_to >= ?)
-        LIMIT 1
-    ");
-    $stmt->execute([$rev_id, $npa_id, $asOfDate, $asOfDate]);
-    $rev = $stmt->fetch();
-    if (!$rev) {
-        return null;
-    }
-    $html = '<div class="npa-head-block">';
-    $html .= '<p class="npa-doc-title"><b>' . htmlspecialchars($rev['npa_title']) . '</b></p>';
-    $html .= '</div>';
-    $sourceInfo = '';
-    if ($rev['modified_by_id'] && $rev['modified_by_id'] !== 'base') {
-        $sourceInfo = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative');
-        if ($sourceInfo && $sourceInfo !== 'исходная редакция') {
-            $sourceInfo = 'Внесено: ' . $sourceInfo;
-        } elseif ($sourceInfo === 'исходная редакция') {
-            $sourceInfo = 'Исходная редакция';
-        }
-    } else {
-        $sourceInfo = 'Исходная редакция';
-    }
-    $npaInfo = null;
-    if ($rev['modified_by_id'] && $rev['modified_by_id'] !== 'base') {
-        $npaInfo = getNpaInfoByItemId((int)$rev['modified_by_id'], $pdo);
-    }
-    return [
-        'html' => $html,
-        'modified_by_id' => $rev['modified_by_id'],
-        'valid_from' => $rev['valid_from'],
-        'valid_to' => $rev['valid_to'],
-        'source_info' => $sourceInfo,
-        'npa_url' => $npaInfo['npa_url'] ?? '',
-        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
-    ];
-}
-
-function getHeadCompareHtml(PDO $pdo, $npa_id, $asOfDate) {
-    $stmt = $pdo->prepare("
-        SELECT * FROM npa_head_revision
-        WHERE npa_id = ?
-        ORDER BY valid_from ASC
-    ");
-    $stmt->execute([$npa_id]);
-    $revisions = $stmt->fetchAll();
-    if (count($revisions) < 2) {
-        return [
-            'prev_html_raw' => '',
-            'current_html_raw' => '',
-            'prev_valid_from' => '',
-            'current_valid_from' => '',
-            'changing_elements' => [],
-            'highlights' => ['previous_edition' => ['deletion' => [], 'difference' => []], 'current_edition' => ['addition' => [], 'difference' => []]],
-            'mod_type' => null
-        ];
-    }
-    $prevRev = $revisions[count($revisions)-2];
-    $currRev = $revisions[count($revisions)-1];
-    $oldTitle = '<p class="npa-doc-title">' . htmlspecialchars($prevRev['npa_title']) . '</p>';
-    $newTitle = '<p class="npa-doc-title">' . htmlspecialchars($currRev['npa_title']) . '</p>';
-    $oldTitle = ensureTableWrapperForComparison($oldTitle, $npa_id, $pdo, $asOfDate);
-    $newTitle = ensureTableWrapperForComparison($newTitle, $npa_id, $pdo, $asOfDate);
-    $highlights = null;
-    if (!empty($currRev['highlights'])) {
-        $highlights = json_decode($currRev['highlights'], true);
-        if (!is_array($highlights)) $highlights = null;
-    }
-    $prevValidFrom = $prevRev['valid_from'] ? formatDateToRus($prevRev['valid_from']) : '';
-    $currValidFrom = $currRev['valid_from'] ? formatDateToRus($currRev['valid_from']) : '';
-    $changingElements = [];
-    if (!empty($currRev['modified_by_id']) && $currRev['modified_by_id'] !== 'base') {
-        $changerIds = array_filter(array_map('trim', explode(',', $currRev['modified_by_id'])));
-        foreach ($changerIds as $changerStr) {
-            if ($changerStr === 'base') continue;
-            $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
-            if (!$npaInfo) continue;
-            $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $currRev['valid_from'];
-            $changerNpaId = $npaInfo['npa_id'];
-            $changerNpaType = $npaInfo['npa_type'];
-            $changerHtml = getElementHtmlById($changerStr, $asOfDate, $pdo, $changerNpaId, $changerNpaType);
-            $note = getRevisionSourceNote($changerStr, $pdo, true);
-            $changingElements[] = [
-                'note' => $note,
-                'html' => $changerHtml,
-                'date' => formatDateToRus($changerDate)
-            ];
-        }
-    }
-    return [
-        'prev_html_raw' => $oldTitle,
-        'current_html_raw' => $newTitle,
-        'prev_valid_from' => $prevValidFrom,
-        'current_valid_from' => $currValidFrom,
-        'changing_elements' => $changingElements,
-        'highlights' => normalizeHighlights($highlights),
-        'mod_type' => $currRev['mod_type'] ?? null
-    ];
-}
-
-function getDocumentRevisionNote($activeRevInfos, $npaType, $pdo, $baseNpaId) {
-    if (empty($activeRevInfos)) return '';
-    $typeName   = ($npaType === 'law') ? 'Закона'  : 'Постановления Законодательного Собрания';
-    $pluralType = ($npaType === 'law') ? 'Законов' : 'Постановлений Законодательного Собрания';
-    $items = [];
-    foreach ($activeRevInfos as $rev) {
-        $dateReg = formatDateToRus($rev['revision_date_reg']);
-        $revisionNumber = $rev['revision_number'];
-        $revisionUrl = $rev['revision_url'] ?? '';
-        if ($revisionUrl) {
-            $items[] = '<a href="' . htmlspecialchars($revisionUrl) . '" target="_blank" class="npa-revision-link">№ ' . htmlspecialchars($revisionNumber) . ' от ' . $dateReg . '</a>';
-        } else {
-            $items[] = '№ ' . htmlspecialchars($revisionNumber) . ' от ' . $dateReg;
-        }
-    }
-    if (empty($items)) return '';
-    $word = (count($items) === 1) ? $typeName : $pluralType;
-    return '<div class="document-revision-note" style="margin: 0.5em 0; text-align: center;">'
-         . 'В редакции ' . $word . ' города Севастополя ' . implode('; ', $items)
-         . '</div>';
-}
-
-function renderTocTree($itemsById, $parentId, $level, $pageUrl, $viewDate, $noNameIds = []) {
-    $children = array_filter($itemsById, function($item) use ($parentId) {
-        return (string)$item['parent_id'] === (string)$parentId;
-    });
-    if (empty($children)) return '';
-    usort($children, function($a, $b) {
-        $sortA = isset($a['sort_order']) ? (float)$a['sort_order'] : 0;
-        $sortB = isset($b['sort_order']) ? (float)$b['sort_order'] : 0;
-        if ($sortA == $sortB) {
-            $idA = isset($a['id']) ? (float)$a['id'] : 0;
-            $idB = isset($b['id']) ? (float)$b['id'] : 0;
-            return $idA - $idB;
-        }
-        return $sortA - $sortB;
-    });
-    $res = '<ul class="toc-list level-' . $level . '">';
-    foreach ($children as $item) {
-        $isExpired = isset($item['is_expired']) && $item['is_expired'];
-        $hideSectionPrefix = !empty($item['hide_section_prefix']);
-        $display = getDisplayText($item, $isExpired, $noNameIds, $hideSectionPrefix);
-        if (empty($display) || empty($item['item_id'])) continue;
-
-        $res .= '<li class="toc-item level-' . $level . '">';
-        $res .= '<a href="' . htmlspecialchars($pageUrl . '#' . $item['item_id']) . '" '
-              . 'class="toc-link level-' . $level . '" data-toc-id="' . htmlspecialchars($item['item_id']) . '">'
-              . htmlspecialchars($display) . '</a>';
-        if (!$isExpired) {
-            $res .= renderTocTree($itemsById, $item['id'], $level + 1, $pageUrl, $viewDate, $noNameIds);
-        }
-        $res .= '</li>';
-    }
-    $res .= '</ul>';
-    return $res;
-}
-
-function getDisplayText($item, $isExpired = false, $noNameIds = [], $hideSectionPrefix = false) {
-    $type = $item['item_type'];
-    $number = $item['display_number'] ?? $item['item_number'] ?? '';
-    $head = $item['item_head'];
-    $itemId = $item['item_id'] ?? '';
-    switch ($type) {
-        case 'preamble':    $display = 'Преамбула'; break;
-        case 'chapter':     $display = 'Глава ' . $number . ($head ? '. ' . $head : ''); break;
-        case 'section':
-            if ($hideSectionPrefix) {
-                $display = $number . ($head ? '. ' . $head : '');
-            } else {
-                $display = 'Раздел ' . $number . ($head ? '. ' . $head : '');
-            }
-            break;
-        case 'article':     $display = 'Статья ' . $number . ($head ? '. ' . $head : ''); break;
-        case 'part':        $display = 'Часть ' . $number . ($head ? '. ' . $head : ''); break;
-        case 'point':       $display = 'Пункт ' . $number . ($head ? '. ' . $head : ''); break;
-        case 'subpoint':    $display = 'Подпункт ' . $number . ($head ? '. ' . $head : ''); break;
-        case 'appendix':
-        case 'nested_appendix': $display = 'Приложение ' . $number . ($head ? '. ' . $head : ''); break;
-        case 'structured_table':
-            if (!empty($head)) {
-                $display = 'Таблица ' . $number . ($head ? '. ' . $head : '');
-            } else {
-                $display = '';
-            }
-            break;
-        default:            $display = ''; break;
-    }
-    if ($isExpired && !empty($display)) {
-        $suffix = '';
-        if ($type === 'article') $suffix = 'а';
-        elseif ($type === 'part') $suffix = 'а';
-        elseif ($type === 'chapter') $suffix = 'а';
-        elseif ($type === 'section') $suffix = 'а';
-        elseif ($type === 'appendix' || $type === 'nested_appendix') $suffix = 'о';
-        elseif ($type === 'structured_table') $suffix = 'ы';
-        $display .= ' (Утратил' . $suffix . ' силу)';
-    }
-    return $display;
-}
-
-function getRevisionSelectorOptions(PDO $pdo, $npa_id, $displayDate) {
-    $options = [];
-    $stmt = $pdo->prepare("SELECT valid_from, not_valid FROM npa_base WHERE npa_id = ?");
-    $stmt->execute([$npa_id]);
-    $base = $stmt->fetch();
-
-    $baseValidFrom = $base['valid_from'] ?? null;
-    $notValidDate = $base['not_valid'] ?? null;
-    $isDocExpired = !empty($notValidDate);
-
-    $stmt = $pdo->prepare("
-        SELECT revision_date_valid
-        FROM npa_revision_info
-        WHERE base_npa_id = ?
-        ORDER BY revision_date_valid ASC, revision_number ASC
-    ");
-    $stmt->execute([$npa_id]);
-
-    $dates = [];
-    foreach ($stmt->fetchAll() as $row) {
-        if (!empty($row['revision_date_valid'])) $dates[$row['revision_date_valid']] = true;
-    }
-    $dates = array_keys($dates);
-    sort($dates);
-
-    $selectedDate = $baseValidFrom;
-    foreach ($dates as $dateRaw) {
-        if ($isDocExpired && $notValidDate && $dateRaw >= $notValidDate) continue;
-        if ($dateRaw <= $displayDate) $selectedDate = $dateRaw;
-    }
-
-    $currentDate = $baseValidFrom;
-    foreach ($dates as $dateRaw) {
-        if ($isDocExpired && $notValidDate && $dateRaw >= $notValidDate) continue;
-        $currentDate = $dateRaw;
-    }
-
-    if ($baseValidFrom) {
-        $baseDateFormatted = formatDateToRus($baseValidFrom);
-        $options[] = [
-            'date_raw' => $baseValidFrom,
-            'date_display' => $baseDateFormatted,
-            'label' => 'Первоначальная редакция (вступление в силу ' . $baseDateFormatted . ')',
-            'is_original' => true,
-            'is_current' => ($baseValidFrom === $currentDate),
-            'is_selected' => ($baseValidFrom === $selectedDate)
-        ];
-    }
-
-    foreach ($dates as $dateRaw) {
-        if ($isDocExpired && $notValidDate && $dateRaw >= $notValidDate) continue;
-
-        $stmtRev = $pdo->prepare("
-            SELECT revision_number, revision_date_reg
-            FROM npa_revision_info
-            WHERE base_npa_id = ? AND revision_date_valid = ?
-            ORDER BY revision_number ASC
-        ");
-        $stmtRev->execute([$npa_id, $dateRaw]);
-
-        $items = [];
-        foreach ($stmtRev->fetchAll() as $rev) {
-            $items[] = '№' . $rev['revision_number'] . ' от ' . formatDateToRus($rev['revision_date_reg']);
-        }
-
-        $options[] = [
-            'date_raw' => $dateRaw,
-            'date_display' => formatDateToRus($dateRaw),
-            'label' => 'Редакция — ' . implode('; ', $items),
-            'is_original' => false,
-            'is_current' => ($dateRaw === $currentDate),
-            'is_selected' => ($dateRaw === $selectedDate)
-        ];
-    }
-
-    return [
-        'options' => $options,
-        'selected_date' => $selectedDate,
-        'current_date' => $currentDate,
-        'active_date' => $selectedDate
-    ];
-}
-
-function renderSignature(PDO $pdo, $npa_id, $dateSigned, $npaNumber, $dateFormat, $includeRequisites = true) {
-    $stmt = $pdo->prepare("SELECT s.*, p.fio, pp.name as position_name
-                           FROM npa_signatory s
-                           JOIN person p ON s.person_id = p.id
-                           JOIN person_post pp ON s.person_post_id = pp.id
-                           WHERE s.npa_id = ? LIMIT 1");
-    $stmt->execute([$npa_id]);
-    $signer = $stmt->fetch();
-    if (!$signer) return '';
-    $signerPost = $signer['position_name'];
-    $signerName = $signer['fio'];
-    $phrases = ['Законодательного Собрания', 'города Севастополя'];
-    foreach ($phrases as $phrase) {
-        if (mb_stripos($signerPost, $phrase) !== false) {
-            if (!preg_match('/<br\s*\/?>\s*' . preg_quote($phrase, '/') . '/ui', $signerPost)) {
-                $signerPost = preg_replace('/(\s*)(' . preg_quote($phrase, '/') . ')/ui', '<br>$1$2', $signerPost, 1);
-            }
-        }
-    }
-    $signerPost = htmlspecialchars($signerPost);
-    $signerPost = str_replace(['&lt;br&gt;', '&lt;br /&gt;', '&lt;br/&gt;'], '<br>', $signerPost);
-    $signerName = htmlspecialchars($signerName);
-    $html = '<p class="justifyleft npa-signer">' . $signerPost;
-    if ($signerName) $html .= str_repeat('&nbsp;', 5) . $signerName;
-    $html .= '</p>';
-    if ($includeRequisites) {
-        $place = 'Севастополь';
-        $formattedDate = formatRusDate($dateSigned, $dateFormat);
-        $html .= '<p class="justifyleft npa-requisites">' . $place . '<br>' . $formattedDate . '<br>№&nbsp;' . htmlspecialchars($npaNumber) . '</p>';
-    }
-    return $html;
-}
-
-function getExpiryGenderSuffix($type) {
-     switch ($type) {
-            case 'article': return 'а';
-            case 'part':    return 'а';
-            case 'chapter': return 'а';
-            case 'section': return 'а';
-            case 'preamble':return 'а';
-            case 'appendix':return 'о';
-            case 'point':   return '';
-            case 'subpoint':return '';
-            default:        return '';
-        }
-}
-
-function getLocalElementGenitive($itemType, $itemNumber) {
-        $map = [
-            'preamble'  => 'преамбулы',
-            'chapter'   => 'главы',
-            'section'   => 'раздела',
-            'article'   => 'статьи',
-            'part'      => 'части',
-            'point'     => 'пункта',
-            'subpoint'  => 'подпункта',
-            'appendix'  => 'приложения',
-            'nested_appendix' => 'приложения'
-        ];
-        $base = $map[$itemType] ?? 'элемента';
-        if (in_array($itemType, ['preamble'])) {
-            return $base;
-        }
-                return $base . ' ' . trim($itemNumber, '. ');
-}
-
-function getIntroducingLawForDate(PDO $pdo, $baseNpaId, $validFromDate) {
-    if (empty($baseNpaId) || empty($validFromDate)) return null;
-    $stmt = $pdo->prepare("
-        SELECT *
-        FROM npa_revision_info
-        WHERE base_npa_id = ?
-          AND revision_date_valid <= ?
-        ORDER BY revision_date_valid DESC, revision_number ASC
-        LIMIT 1
-    ");
-    $stmt->execute([$baseNpaId, $validFromDate]);
-    return $stmt->fetch();
-}
-
-function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, $viewDate, $itemType, array $selectedRevisionNpaIds = []) {
-    $currentRev = getRevisionForSelectedEdition($pdo, $internal_item_id, $viewDate, $selectedRevisionNpaIds);
-    if (!$currentRev || empty($currentRev['rev_id'])) return '';
-
-    $currentRevId = (int)$currentRev['rev_id'];
-
-    $sql = "SELECT r.* FROM npa_item_revision r
-            WHERE r.item_internal_id = ?
-              AND (r.valid_from IS NULL OR r.valid_from <= ?";
-    $params = [$internal_item_id, $currentRev['valid_from']];
-
-    if (!empty($selectedRevisionNpaIds)) {
-        $placeholders = buildRevisionNpaIdPlaceholders($selectedRevisionNpaIds);
-        $sql .= " OR EXISTS (
-            SELECT 1 FROM npa_item changer
-            WHERE changer.npa_id IN ($placeholders)
-              AND INSTR(BINARY CONCAT(',', REPLACE(COALESCE(r.modified_by_id, ''), ' ', ''), ','), BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')) > 0
-        )";
-        $params = array_merge($params, array_values($selectedRevisionNpaIds));
-    }
-    $sql .= ") ORDER BY r.valid_from ASC, r.rev_id ASC";
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $allRevisions = $stmt->fetchAll();
-
-    $allowedRevisions = [];
-    foreach ($allRevisions as $rev) {
-        if ((int)$rev['rev_id'] <= $currentRevId) $allowedRevisions[] = $rev;
-    }
-    if (empty($allowedRevisions)) return '';
-
-    $lastNewRedactionIdx = -1;
-    foreach ($allowedRevisions as $idx => $rev) {
-        if ($rev['mod_type'] === 'new_redaction') $lastNewRedactionIdx = $idx;
-    }
-    $revisionsToProcess = ($lastNewRedactionIdx !== -1)
-        ? array_slice($allowedRevisions, $lastNewRedactionIdx)
-        : $allowedRevisions;
-
-    $addNote = null;
-    $newRedactionNote = null;
-    $changeNotes = [];
-
-    foreach ($revisionsToProcess as $rev) {
-        $shortDesc = getShortNpaDescription($rev['modified_by_id'], $pdo, true);
-        if ($shortDesc === 'исходная редакция') continue;
-
-        switch ($rev['mod_type']) {
-            case 'add': if ($addNote === null) $addNote = $shortDesc; break;
-            case 'new_redaction': $newRedactionNote = $shortDesc; break;
-            case 'change': if (!in_array($shortDesc, $changeNotes, true)) $changeNotes[] = $shortDesc; break;
-        }
-    }
-
-    $genderSuffix = '';
-    if ($itemType === 'article' || $itemType === 'part') $genderSuffix = 'а';
-    elseif ($itemType === 'appendix') $genderSuffix = 'о';
-
-    $parts = [];
-    if ($addNote) $parts[] = '<span class="revision-note">Введен' . $genderSuffix . ' — ' . $addNote . '</span>';
-    if ($newRedactionNote) $parts[] = '<span class="revision-note">В редакции — ' . $newRedactionNote . '</span>';
-    if (!empty($changeNotes)) $parts[] = '<span class="revision-note">С изменениями: ' . implode(', ', $changeNotes) . '</span>';
-
-    if (empty($parts) && !empty($baseNpaId) && !empty($selectedRevisionNpaIds)) {
-        $allNull = true;
-        foreach ($allowedRevisions as $rev) {
-            if (!empty($rev['mod_type']) || !empty($rev['modified_by_id'])) $allNull = false;
-        }
-        if ($allNull && !empty($currentRev['valid_from'])) {
-            $law = getIntroducingLawForDate($pdo, $baseNpaId, $currentRev['valid_from']);
-            if ($law) {
-                $lawShort = getShortNpaDescription($law['revision_id'], $pdo, true);
-                if ($lawShort !== 'исходная редакция') $addNote = $lawShort;
-            }
-        }
-        if ($addNote) $parts[] = '<span class="revision-note">Введен' . $genderSuffix . ' — ' . $addNote . '</span>';
-    }
-
-    if (empty($parts)) return '';
-
-    $dt = parseDate($currentRev['valid_from'] ?? null);
-    $validFromDate = $dt ? $dt->format('d.m.Y') : '';
-    $isDeferred = isDeferredSelectedEditionRevision($currentRev, $viewDate, $selectedRevisionNpaIds);
-    $dateBlock = buildRevisionEffectiveDateBlock($validFromDate, $isDeferred);
-
-    return '<div class="element-revision-notes" style="margin: 0.5em 0;">'
-         . $dateBlock . implode('<br>', $parts) . '</div>';
-}
-
-function getLastContentRevision(PDO $pdo, $internal_item_id, $asOfDate = null) {
-    if ($asOfDate) {
-        $stmt = $pdo->prepare("
-            SELECT rev_id, valid_from, valid_to
-            FROM npa_item_revision
-            WHERE item_internal_id = ?
-              AND valid_from <= ?
-              AND (valid_to IS NULL OR valid_to >= ?)
-              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = npa_item_revision.rev_id)
-            ORDER BY valid_from DESC
-        ");
-        $stmt->execute([$internal_item_id, $asOfDate, $asOfDate]);
-        $active = $stmt->fetch();
-        if ($active) return $active;
-        
-        $stmt = $pdo->prepare("
-            SELECT rev_id, valid_from, valid_to
-            FROM npa_item_revision
-            WHERE item_internal_id = ?
-              AND valid_from <= ?
-              AND (valid_to IS NULL OR valid_to >= ?)
-              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = npa_item_revision.rev_id)
-            ORDER BY valid_from DESC
-        ");
-        $stmt->execute([$internal_item_id, $asOfDate, $asOfDate]);
-        return $stmt->fetch();
-    } else {
-        $stmt = $pdo->prepare("
-            SELECT rev_id, valid_from, valid_to
-            FROM npa_item_revision
-            WHERE item_internal_id = ?
-              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = npa_item_revision.rev_id)
-            ORDER BY valid_from DESC
-        ");
-        $stmt->execute([$internal_item_id]);
-        return $stmt->fetch();
-    }
-}
-
-function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpired = true, array $selectedRevisionNpaIds = []) {
-    global $itemsByIdGlobal;
-    if ($npaData === null) {
-        $npaData = ['no_name_ids' => []];
-    }
-    $stmt = $pdo->prepare("SELECT * FROM npa_item WHERE npa_id = ? ORDER BY sort_order, id");
-    $stmt->execute([$npa_id]);
-    $items = $stmt->fetchAll();
-    $itemsById = [];
-    foreach ($items as $item) {
-        $internal_id = $item['id'];
-        $revision = getRevisionForSelectedEdition($pdo, $internal_id, $asOfDate, $selectedRevisionNpaIds);
-        if (!$revision) {
-            continue;
-        }
-        $isExpired = $revision['is_expired'];
-        if (!$includeExpired && $isExpired) {
-            continue;
-        }
-        $rev = $revision;
-        $expiredValidTo = null;
-        if ($isExpired) {
-            $expiredValidTo = $rev['valid_to'];
-        }
-        $headRev = getItemHeadRevisionForSelectedEdition($pdo, $internal_id, $asOfDate, $selectedRevisionNpaIds);
-        $itemHeadText = $headRev ? $headRev['head_text'] : '';
-        $stmtPara = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
-        $stmtPara->execute([$rev['rev_id']]);
-        $paragraphs = $stmtPara->fetchAll();
-        if (empty($paragraphs) && !$isExpired) {
-            $contentRev = getLastContentRevision($pdo, $internal_id, $rev['valid_from']);
-            if ($contentRev && $contentRev['rev_id'] != $rev['rev_id']) {
-                $stmtParaContent = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
-                $stmtParaContent->execute([$contentRev['rev_id']]);
-                $paragraphs = $stmtParaContent->fetchAll();
-            }
-        }
-        $displayNumber = getItemNumberForSelectedEdition($pdo, $internal_id, $asOfDate, $selectedRevisionNpaIds);
-        if ($displayNumber === null) {
-            $displayNumber = $item['item_number'];
-        }
-        $itemData = $item;
-        $itemData['internal_id']       = $internal_id;
-        $itemData['rev_id']            = $rev['rev_id'];
-        $itemData['mod_type']          = $rev['mod_type'];
-        $itemData['modified_by_id']    = $rev['modified_by_id'];
-        $itemData['valid_from']        = $rev['valid_from'];
-        $itemData['valid_to']          = $rev['valid_to'];
-        $itemData['not_valid']         = $rev['not_valid'];
-        $itemData['item_head']         = $itemHeadText;
-        $itemData['head_revision']     = $headRev;
-        $itemData['paragraphs']        = $paragraphs;
-        $itemData['is_expired']        = $isExpired;
-        $itemData['expired_valid_to']  = $expiredValidTo;
-        $itemData['display_number']    = $displayNumber;
-        if ($isExpired) {
-            $contentRevId = $rev['rev_id'];
-            $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM npa_paragraph WHERE rev_id = ?");
-            $stmtCheck->execute([$contentRevId]);
-            $hasContent = $stmtCheck->fetchColumn() > 0;
-            if (!$hasContent) {
-                $contentRev = getLastContentRevision($pdo, $internal_id, $rev['valid_from']);
-                if ($contentRev) {
-                    $contentRevId = $contentRev['rev_id'];
-                    $stmtContentRev = $pdo->prepare("SELECT * FROM npa_item_revision WHERE rev_id = ?");
-                    $stmtContentRev->execute([$contentRevId]);
-                    $fullContentRev = $stmtContentRev->fetch();
-                    if ($fullContentRev) {
-                        $rev = $fullContentRev;
-                        $itemData['rev_id'] = $rev['rev_id'];
-                        $itemData['mod_type'] = $rev['mod_type'];
-                        $itemData['modified_by_id'] = $rev['modified_by_id'];
-                        $itemData['valid_from'] = $rev['valid_from'];
-                        $itemData['valid_to'] = $rev['valid_to'];
-                        $itemData['not_valid'] = $rev['not_valid'];
-                        $stmtParaContent = $pdo->prepare("SELECT * FROM npa_paragraph WHERE rev_id = ? ORDER BY sort_order");
-                        $stmtParaContent->execute([$contentRevId]);
-                        $itemData['paragraphs'] = $stmtParaContent->fetchAll();
-                    }
-                }
-            }
-            // Полный рендер последней действующей редакции (номер, заголовок, дочерние элементы),
-            // как в истории / «Предыдущая редакция». Вариант «только параграфы» — запасной.
-            $expiredContent = getItemRevisionContent($pdo, $itemData['rev_id'], $internal_id, 0, null, true, false, null, false);
-            if (!$expiredContent || empty($expiredContent['html'])) {
-                $expiredContent = getItemRevisionContent($pdo, $itemData['rev_id'], $internal_id, 0, null, false, false, null, true);
-            }
-            $itemData['expired_content_html'] = $expiredContent ? $expiredContent['html'] : '';
-        } else {
-            $itemData['expired_content_html'] = null;
-        }
-        $itemsById[$internal_id] = $itemData;
-    }
-    $itemsByIdGlobal = $itemsById;
-    $noNameIds = $npaData['no_name_ids'] ?? [];
-    $isInsideNoName = function($itemId, $itemsById, $noNameIds) use (&$isInsideNoName) {
-        if (in_array($itemId, $noNameIds, true)) {
-            return true;
-        }
-        $item = $itemsById[$itemId] ?? null;
-        if ($item && $item['parent_id']) {
-            $parentItem = $itemsById[$item['parent_id']] ?? null;
-            if ($parentItem && $parentItem['item_id']) {
-                return $isInsideNoName($parentItem['item_id'], $itemsById, $noNameIds);
-            }
-        }
-        return false;
-    };
-    foreach ($itemsById as &$itemData) {
-        if ($itemData['item_type'] === 'section') {
-            $itemData['hide_section_prefix'] = $isInsideNoName($itemData['item_id'], $itemsById, $noNameIds);
-        } else {
-            $itemData['hide_section_prefix'] = false;
-        }
-    }
-    return $itemsById;
 }
 
 function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$renderedItems = [], $skipInteractive = false, $noNameIds = [], $forComparison = false) {
@@ -3343,56 +3080,358 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
     return $html;
 }
 
-function normalizeHighlights($highlights) {
-    $default = [
-        'previous_edition' => ['deletion' => [], 'difference' => []],
-        'current_edition'  => ['addition' => [], 'difference' => []]
-    ];
-    if (empty($highlights)) {
-        return $default;
+function getItemRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDate, $baseNpaId, $npaType) {
+    $stmtBaseValid = $pdo->prepare("SELECT not_valid FROM npa_base WHERE npa_id = ?");
+    $stmtBaseValid->execute([$npa_id]);
+    $baseRow = $stmtBaseValid->fetch();
+    $notValidDate = $baseRow ? ($baseRow['not_valid'] ?? null) : null;
+    $maxDate = getDocMaxDate($pdo, $npa_id, $asOfDate);
+    $isDocExpired = $notValidDate && ($maxDate !== null && $maxDate >= $notValidDate);
+    $sql = "SELECT r.rev_id, r.valid_from, r.valid_to, r.modified_by_id, r.mod_type, r.not_valid,
+                   i.item_id as external_item_id, i.item_type, i.item_number
+            FROM npa_item_revision r
+            INNER JOIN npa_item i ON r.item_internal_id = i.id
+            WHERE r.item_internal_id = ? AND i.npa_id = ?
+              AND EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)";
+    $params = [$internal_item_id, $npa_id];
+    if ($isDocExpired && $notValidDate) {
+        $sql .= " AND r.valid_from < ?";
+        $params[] = $notValidDate;
     }
-    $toArray = function($data) use (&$toArray) {
-        if (is_object($data)) {
-            $data = (array) $data;
+    $sql .= " ORDER BY r.valid_from ASC, r.rev_id ASC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $revisions = $stmt->fetchAll();
+    $totalRevs = count($revisions);
+    $result = [];
+    foreach ($revisions as $idx => $rev) {
+        $dt = parseDate($rev['valid_from']);
+        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
+        $validToDate = '';
+        if ($rev['valid_to']) {
+            $dtTo = parseDate($rev['valid_to']);
+            $validToDate = $dtTo ? $dtTo->format('d.m.Y') : '';
         }
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                $data[$key] = $toArray($value);
+        $isLastRev = ($idx === $totalRevs - 1);
+        $revValidToDate = !empty($rev['valid_to']) ? substr($rev['valid_to'], 0, 10) : null;
+        $isExpiredRev = $isLastRev && ($isDocExpired || ($revValidToDate !== null && $revValidToDate < $asOfDate) || (!empty($rev['not_valid']) && $revValidToDate === null));
+        $expirySource = '';
+        $expiryUrl = '';
+        $itemType = $rev['item_type'];
+        $itemNumber = $rev['item_number'];
+        $elementHumanPath = '';
+        if ($idx === 0) {
+            $npaTitle = '';
+            $displayTitle = 'Исходная редакция';
+            $sourceDecode = 'исходная редакция';
+            $npaUrl = '';
+            if ($itemType === 'article') {
+                $elementHumanPath = 'статьи ' . $itemNumber;
+            } elseif ($itemType === 'section') {
+                $elementHumanPath = 'раздела ' . $itemNumber;
+            } elseif ($itemType === 'part') {
+                $elementHumanPath = 'части ' . $itemNumber;
+            } elseif ($itemType === 'point') {
+                $elementHumanPath = 'пункта ' . $itemNumber;
+            } elseif ($itemType === 'subpoint') {
+                $elementHumanPath = 'подпункта ' . $itemNumber;
+            } elseif ($itemType === 'chapter') {
+                $elementHumanPath = 'главы ' . $itemNumber;
+            } elseif ($itemType === 'appendix' || $itemType === 'nested_appendix') {
+                $elementHumanPath = 'приложения ' . $itemNumber;
+            } elseif ($itemType === 'preamble') {
+                $elementHumanPath = 'преамбулы';
+            } elseif ($itemType === 'structured_table') {
+                $stmtHead = $pdo->prepare("SELECT head_text FROM npa_item_head_revision WHERE item_internal_id = ? ORDER BY valid_from DESC LIMIT 1");
+                $stmtHead->execute([$internal_item_id]);
+                $head = $stmtHead->fetch();
+                $tableHead = $head ? $head['head_text'] : '';
+                if (!empty($tableHead)) {
+                    $elementHumanPath = 'таблицы ' . $itemNumber . ' (' . $tableHead . ')';
+                } else {
+                    $elementHumanPath = '';
+                }
+            } else {
+                $elementHumanPath = 'элемента';
+            }
+        } else {
+            $changerElementId = (int)$rev['modified_by_id'];
+            $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
+            if ($npaInfo) {
+                $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $npaTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
+                $sourceDecode = getElementHumanPath($changerElementId, $pdo);
+                $npaUrl = $npaInfo['npa_url'] ?? '';
+            } else {
+                $npaTitle = 'Неизвестный документ';
+                $sourceDecode = '';
+                $npaUrl = '';
+            }
+            $displayTitle = $npaTitle;
+            $elementHumanPath = getElementHumanPath($internal_item_id, $pdo);
+        }
+        if ($isExpiredRev) {
+            $notValidId = $rev['not_valid'] ?? null;
+            if ($notValidId && $notValidId !== 'base') {
+                $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
+                if ($expiryNpaInfo) {
+                    $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
+                    $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
+                }
+            }
+            $displayTitle = $expirySource ?: 'последняя действующая редакция';
+            $sourceDecode = $expirySource ?: 'последняя действующая редакция';
+            $npaUrl = $expiryUrl;
+        }
+        $result[] = [
+            'rev_id'         => $rev['rev_id'],
+            'valid_from'     => $validFromDate,
+            'valid_to'       => $validToDate,
+            'valid_to_raw'   => $rev['valid_to'],
+            'valid_from_raw' => $rev['valid_from'],
+            'source_decode'  => $sourceDecode,
+            'modified_by_id' => $rev['modified_by_id'],
+            'display_title'  => $displayTitle,
+            'is_original'    => ($idx === 0 && !$isExpiredRev),
+            'is_expired'     => $isExpiredRev,
+            'expiry_source'  => $expirySource,
+            'expiry_url'     => $expiryUrl,
+            'element_path'   => $elementHumanPath,
+            'npa_title'      => $npaTitle,
+            'npa_url'        => $npaUrl,
+            'external_item_id' => $rev['external_item_id']
+        ];
+    }
+    $count = count($result);
+    if ($count > 0) {
+        $maxDate2 = getDocMaxDate($pdo, $npa_id, $asOfDate);
+        $isDocExpired = $notValidDate && ($maxDate2 !== null && $maxDate2 >= $notValidDate);
+        $currentIndex = -1;
+        foreach ($result as $idx => $rev) {
+            if ((is_null($rev['valid_to_raw']) || $rev['valid_to_raw'] >= $asOfDate) && $rev['valid_from_raw'] <= $asOfDate) {
+                $currentIndex = $idx;
+                break;
             }
         }
-        return $data;
-    };
-    if (is_string($highlights)) {
-        $decoded = json_decode($highlights, true);
-        if (is_array($decoded)) {
-            $highlights = $decoded;
-        } else {
-            return $default;
+        if ($currentIndex >= 0 && !$isDocExpired) {
+            $result[$currentIndex]['is_current'] = true;
+        } elseif ($currentIndex < 0 && !$isDocExpired) {
+            $result[$count - 1]['is_current'] = true;
         }
     }
-    $highlights = $toArray($highlights);
-    if (!is_array($highlights) || empty($highlights)) {
-        return $default;
-    }
-    if (!isset($highlights['previous_edition']) || !is_array($highlights['previous_edition'])) {
-        $highlights['previous_edition'] = [];
-    }
-    if (!isset($highlights['current_edition']) || !is_array($highlights['current_edition'])) {
-        $highlights['current_edition'] = [];
-    }
-    foreach (['deletion', 'difference'] as $key) {
-        if (!isset($highlights['previous_edition'][$key]) || !is_array($highlights['previous_edition'][$key])) {
-            $highlights['previous_edition'][$key] = [];
-        }
-    }
-    foreach (['addition', 'difference'] as $key) {
-        if (!isset($highlights['current_edition'][$key]) || !is_array($highlights['current_edition'][$key])) {
-            $highlights['current_edition'][$key] = [];
-        }
-    }
-    return $highlights;
+    return $result;
 }
 
+function getItemHeadRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDate) {
+    $stmtBaseValid = $pdo->prepare("SELECT not_valid FROM npa_base WHERE npa_id = ?");
+    $stmtBaseValid->execute([$npa_id]);
+    $baseRow = $stmtBaseValid->fetch();
+    $notValidDate = $baseRow ? ($baseRow['not_valid'] ?? null) : null;
+    $maxDate = getDocMaxDate($pdo, $npa_id, $asOfDate);
+    $isDocExpired = $notValidDate && ($maxDate !== null && $maxDate >= $notValidDate);
+    $sql = "SELECT id, head_text, valid_from, valid_to, modified_by_id, not_valid
+            FROM npa_item_head_revision
+            WHERE item_internal_id = ?";
+    $params = [$internal_item_id];
+    if ($isDocExpired && $notValidDate) {
+        $sql .= " AND valid_from < ?";
+        $params[] = $notValidDate;
+    }
+    $sql .= " ORDER BY valid_from ASC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $revisions = $stmt->fetchAll();
+    $totalRevs = count($revisions);
+    $result = [];
+    $elementHumanPath = getElementHumanPath($internal_item_id, $pdo);
+    $stmtItem = $pdo->prepare("SELECT item_type, item_number FROM npa_item WHERE id = ?");
+    $stmtItem->execute([$internal_item_id]);
+    $item = $stmtItem->fetch();
+    $itemType = $item ? $item['item_type'] : '';
+    $itemNumber = $item ? ($item['item_number'] ?? '') : '';
+    foreach ($revisions as $idx => $rev) {
+        $dt = parseDate($rev['valid_from']);
+        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
+        $validToDate = '';
+        if ($rev['valid_to']) {
+            $dtTo = parseDate($rev['valid_to']);
+            $validToDate = $dtTo ? $dtTo->format('d.m.Y') : '';
+        }
+        $isLastRev = ($idx === $totalRevs - 1);
+        $revValidToDate = !empty($rev['valid_to']) ? substr($rev['valid_to'], 0, 10) : null;
+        $isExpiredRev = $isLastRev && ($isDocExpired || ($revValidToDate !== null && $revValidToDate < $asOfDate) || (!empty($rev['not_valid']) && $revValidToDate === null));
+        $expirySource = '';
+        $expiryUrl = '';
+        if ($idx === 0) {
+            $displayTitle = 'Исходный заголовок элемента';
+            $sourceDecode = 'исходная редакция';
+            $npaUrl = '';
+            if ($itemType === 'structured_table') {
+                $tableHead = $rev['head_text'];
+                if (!empty($tableHead)) {
+                    $elementPath = 'таблицы ' . $itemNumber . ' (заголовок)';
+                } else {
+                    $elementPath = '';
+                }
+            } else {
+                $elementPath = $elementHumanPath . ' (заголовок)';
+            }
+        } else {
+            $changerElementId = (int)$rev['modified_by_id'];
+            $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
+            if ($npaInfo) {
+                $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
+                $sourceDecode = getElementHumanPath($changerElementId, $pdo);
+                $npaUrl = $npaInfo['npa_url'] ?? '';
+            } else {
+                $displayTitle = 'Неизвестный документ';
+                $sourceDecode = '';
+                $npaUrl = '';
+            }
+            if ($itemType === 'structured_table') {
+                $tableHead = $rev['head_text'];
+                if (!empty($tableHead)) {
+                    $elementPath = 'таблицы ' . $itemNumber . ' (заголовок)';
+                } else {
+                    $elementPath = '';
+                }
+            } else {
+                $elementPath = $elementHumanPath . ' (заголовок)';
+            }
+        }
+        if ($isExpiredRev) {
+            $notValidId = $rev['not_valid'] ?? null;
+            if ($notValidId && $notValidId !== 'base') {
+                $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
+                if ($expiryNpaInfo) {
+                    $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
+                    $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
+                }
+            }
+            $displayTitle = $expirySource ?: 'последний действующий заголовок элемента';
+            $sourceDecode = $expirySource ?: 'последний действующий заголовок элемента';
+            $npaUrl = $expiryUrl;
+        }
+        $result[] = [
+            'rev_id'         => $rev['id'],
+            'valid_from'     => $validFromDate,
+            'valid_to'       => $validToDate,
+            'valid_to_raw'   => $rev['valid_to'],
+            'valid_from_raw' => $rev['valid_from'],
+            'source_decode'  => $sourceDecode,
+            'modified_by_id' => $rev['modified_by_id'],
+            'display_title'  => $displayTitle,
+            'is_original'    => ($idx === 0 && !$isExpiredRev),
+            'is_expired'     => $isExpiredRev,
+            'expiry_source'  => $expirySource,
+            'expiry_url'     => $expiryUrl,
+            'element_path'   => $elementPath,
+            'npa_title'      => $rev['head_text'],
+            'npa_url'        => $npaUrl
+        ];
+    }
+    $count = count($result);
+    if ($count > 0) {
+        $maxDate2 = getDocMaxDate($pdo, $npa_id, $asOfDate);
+        $isDocExpired = $notValidDate && ($maxDate2 !== null && $maxDate2 >= $notValidDate);
+        $currentIndex = -1;
+        foreach ($result as $idx => $rev) {
+            if ((is_null($rev['valid_to_raw']) || $rev['valid_to_raw'] >= $asOfDate) && $rev['valid_from_raw'] <= $asOfDate) {
+                $currentIndex = $idx;
+                break;
+            }
+        }
+        if ($currentIndex >= 0 && !$isDocExpired) {
+            $result[$currentIndex]['is_current'] = true;
+        } elseif ($currentIndex < 0 && !$isDocExpired) {
+            $result[$count - 1]['is_current'] = true;
+        }
+    }
+    return $result;
+}
+
+
+/* ================= Контекст запроса (MODX) ================= */
+
+ $structured_tree_cache = [];
+ $npa_id = isset($npa_id) ? (int)$npa_id : 0;
+
+if (!$npa_id) {
+    $tvValue = $modx->getTemplateVar('npa_id', '*', $modx->documentObject['id']);
+    if ($tvValue && isset($tvValue['value'])) {
+        $npa_id = (int)$tvValue['value'];
+    }
+}
+
+if (!$npa_id) {
+    return -6;
+}
+
+ $tvValue = $modx->getTemplateVar('z-publish','*',$modx->documentObject['id']);
+ $z_publish = $tvValue['value'];
+ $baseUrl = $modx->config['site_url'];
+ $pdfUrl = $baseUrl . ltrim($z_publish, '/');
+ $tocTitle = isset($tocTitle) ? $tocTitle : 'Оглавление документа';
+ $NPA_NO_NAME_IDS = [];
+
+/* ================= Дата просмотра и подключение к БД ================= */
+
+ $rawDate = isset($_GET['view_date']) ? trim($_GET['view_date']) : null;
+ $isCustomDate = ($rawDate !== null);
+
+if ($isCustomDate) {
+    $viewDateObj = parseDate($rawDate);
+    if (!$viewDateObj) {
+        $viewDateObj = new DateTime('today', new DateTimeZone('UTC'));
+    }
+} else {
+    $viewDateObj = null;
+}
+
+try {
+    $pdo = new PDO(
+        "mysql:host=" . NPA_DB_HOST . ";dbname=" . NPA_DB_NAME . ";charset=" . NPA_DB_CHARSET,
+        NPA_DB_USER,
+        NPA_DB_PASS,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+} catch (PDOException $e) {
+    return -2;
+}
+
+if ($viewDateObj === null) {
+    $stmtMax = $pdo->prepare("
+        SELECT MAX(valid_from) as max_date FROM (
+            SELECT valid_from FROM npa_base WHERE npa_id = ?
+            UNION
+            SELECT revision_date_valid FROM npa_revision_info WHERE base_npa_id = ?
+        ) AS dates
+    ");
+    $stmtMax->execute([$npa_id, $npa_id]);
+    $maxRow = $stmtMax->fetch();
+    $lastDate = $maxRow['max_date'] ?? null;
+    if ($lastDate) {
+        $viewDateObj = parseDate($lastDate);
+    } else {
+        $viewDateObj = new DateTime('today', new DateTimeZone('UTC'));
+    }
+}
+
+ $viewDateSql = $viewDateObj->format('Y-m-d');
+
+
+/* ================= AJAX-обработка (может завершить выполнение) ================= */
 if (isset($_GET['ajax_action'])) {
     header('Content-Type: application/json');
     $action = $_GET['ajax_action'];
@@ -3840,6 +3879,9 @@ if (isset($_GET['ajax_action'])) {
     echo json_encode(['success' => false, 'error' => -1]);
     exit;
 }
+
+
+/* ================= Сборка страницы НПА ================= */
 
  $stmt = $pdo->prepare("SELECT * FROM npa_base WHERE npa_id = ?");
  $stmt->execute([$npa_id]);

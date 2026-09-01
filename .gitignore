@@ -34,6 +34,8 @@ data/logs/*.log
 data/debug_runs/*
 data/stage_answers/*.json
 data/work_tools/*
+!data/work_tools/build_snippet.py
+!data/work_tools/verify_build.py
 
 # OS
 Thumbs.db

@@ -9,6 +9,7 @@ You are operating inside the NPA-ZS harness. Follow these rules.
 - `src/revision/` — revision engine and AI pipeline
 - `src/db/` — database importer and editors
 - `src/site/` — PHP/JS/CSS for website output
+- `src/site/php/npazs/` — modular PHP source of truth for the `HtmlFromNpaZS` snippet (entry point = build recipe, AJAX, ~21 modules; map and agent rules in its `README.md`). `src/site/php/snippet.php` is GENERATED from these modules by `make build-snippet` — never edit it directly
 - `src/ui/` — Tkinter GUIs
 - `data/` — runtime data, prompts, base JSON, logs
 - `docs/` — technical documentation
@@ -30,6 +31,7 @@ Always import from `npazs.*`:
 3. Validate JSON against schema before and after changes.
 4. Log all operations to `data/logs/`.
 5. Run `make validate` after structural changes.
+6. Website PHP is edited only in `src/site/php/npazs/` modules (see its `README.md`); after edits run `make build-snippet` to regenerate `src/site/php/snippet.php` — the single script deployed into the MODX `HtmlFromNpaZS` snippet.
 
 ## Permissions
 
