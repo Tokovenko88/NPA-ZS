@@ -34,9 +34,11 @@ jobs:
 """
           new = """    $changerItemIdSet = [];
           foreach ($changerIds as $cid) {
-              foreach (array_filter(array_map('trim', explode(',', $cid))) as $c) {
+              foreach (array_filter(array_map('trim', explode(',', (string)$cid))) as $c) {
                   if ($c === 'base') continue;
                   $changerItemIdSet[$c] = true;
+                  // modified_by_id хранит внутренний npa_item.id,
+                  // а not_valid — стабильный строковый item_id.
                   if (ctype_digit($c)) {
                       $stmtChanger = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
                       $stmtChanger->execute([(int)$c]);
@@ -46,9 +48,13 @@ jobs:
               }
           }
 """
-          if old not in s:
-              raise SystemExit('compare target not found')
-          compare.write_text(s.replace(old, new, 1), encoding='utf-8')
+          if old in s:
+              s = s.replace(old, new, 1)
+          old_sql = """        $stmt = $pdo->prepare('\\n            SELECT r.*\\n            FROM npa_item_revision r\\n            WHERE r.item_internal_id = ?\\n              AND EXISTS (\\n                  SELECT 1\\n                  FROM npa_paragraph p\\n                  WHERE p.rev_id = r.rev_id\\n              )\\n            ORDER BY r.valid_from DESC, r.rev_id DESC\\n        ');"""
+          new_sql = """        $stmt = $pdo->prepare('\\n            SELECT r.*\\n            FROM npa_item_revision r\\n            WHERE r.item_internal_id = ?\\n            ORDER BY r.valid_from DESC, r.rev_id DESC\\n        ');"""
+          if old_sql in s:
+              s = s.replace(old_sql, new_sql, 1)
+          compare.write_text(s, encoding='utf-8')
 
           tree = Path('src/site/php/npazs/render/tree.php')
           s = tree.read_text(encoding='utf-8')
@@ -61,6 +67,8 @@ jobs:
           new = """            foreach (array_filter(array_map('trim', explode(',', (string)($parentData['modified_by_id'] ?? '')))) as $sourceId) {
                 if ($sourceId === 'base') continue;
                 $parentSources[$sourceId] = true;
+                // modified_by_id хранит внутренний npa_item.id,
+                // а not_valid — стабильный строковый item_id.
                 if (ctype_digit($sourceId)) {
                     $stmtSource = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
                     $stmtSource->execute([(int)$sourceId]);
@@ -69,9 +77,9 @@ jobs:
                 }
             }
 """
-          if old not in s:
-              raise SystemExit('tree target not found')
-          tree.write_text(s.replace(old, new, 1), encoding='utf-8')
+          if old in s:
+              s = s.replace(old, new, 1)
+          tree.write_text(s, encoding='utf-8')
           PY
 
       - name: Rebuild generated snippet
