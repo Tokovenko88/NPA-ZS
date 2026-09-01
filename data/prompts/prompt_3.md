@@ -131,58 +131,31 @@ body blocks:
 
 ---
 
-# CONTENT EXTRACTION (MANDATORY) — **DETERMINISTIC ALGORITHM**
+# CONTENT EXTRACTION (MANDATORY) — **VERBATIM COPY, NO MANUAL QUOTE STRIPPING**
 
-For EVERY `add` and `new_redaction` object, the `content` field MUST contain the **exact HTML fragment** that corresponds to the quoted text, **with all internal HTML tags and punctuation preserved**, but **without the outer service‑level guillemets «» and without any trailing punctuation that belongs to the enclosing sentence**.
+For EVERY `add` and `new_redaction` object, the `content` field is a **byte-for-byte copy** of the `html_text` of every block in the `order` range you already identified in `description` — concatenated in original order, exactly as those blocks appear in the input JSON.
 
-**STRICT ALGORITHM (apply to each block's `html_text`):**
+**THE RULE, IN ONE SENTENCE:** copy, do not edit. Do not add, remove, or change a single character — not a guillemet (`«` or `»`), not a comma, semicolon, period, space, HTML tag, or attribute (e.g. `class="justifyfull"` must survive unchanged).
 
-1. **Locate the outermost guillemets** – find the **first** occurrence of `«` and the **last** occurrence of `»` in the string.  
-   - If both are absent → the block contains no quoted text → **reject** the object (do not emit).
-2. **Extract the core text** – take the substring **between** these two characters (excluding the `«` and `»` themselves). This is the clean quoted content.
-3. **Preserve the surrounding HTML wrapper** – identify the opening HTML tag(s) that appear **before** the first `«` and the closing tag(s) that appear **after** the last `»`.  
-   - Usually the block is a single tag like `<p>...</p>` or `<p class="...">...</p>`.
-4. **Strip the trailing punctuation (if any)** – after the last `»`, there may be one or more punctuation characters (`.` `,` `;` `:` `!` `?`) and whitespace before the closing HTML tag. Remove **only** those punctuation characters and whitespace that are not part of the core text.  
-   - To do this: take the suffix after the last `»`, find the first `<` (start of the closing tag), and discard everything before that `<`.  
-   - If there is no `<` (e.g., the string ends without a closing tag), discard all trailing punctuation and whitespace.
-5. **Reassemble** – concatenate:  
-   `prefix (everything before the first «)` + `core text (from step 2)` + `closing tag (from step 4, i.e., everything from the first '<' after the last » to the end)`.  
-   - If there was no opening tag (prefix empty), just return the core text wrapped in the same closing tag if it existed, but typically there is a tag.
+**You are FORBIDDEN from removing the outer «» yourself.** A separate deterministic program step reads your `description` range against the original source and strips exactly the two service-level guillemets (and the sentence punctuation that follows the true closing one) from the correct place. That step already exists, is already correct, and is the only thing that ever touches those two characters. If you try to do it yourself you will get it wrong half the time — not because you're careless, but because it is a genuine bracket-matching problem: **a block's own `«`/`»` are frequently NOT a matched pair**. A block can open the quote with no closing mark of its own (its `»` lives in a later, sibling block), can close it with no opening mark of its own (its `«` lives in an earlier, sibling block), or can contain only fully-nested, self-contained inner pairs and no service mark at all. Guessing which case you're in from a single block is exactly the failure mode this rule exists to eliminate — so don't guess, just copy.
 
-**CRITICAL:**  
-- **All HTML tags inside the core text** (if any) are preserved exactly as they appear.  
-- **All punctuation inside the core text** (including dots, commas, semicolons) are preserved.  
-- **Inner guillemets** (nested `«` or `»`) are preserved because we only remove the outermost pair.  
-- The result is a valid HTML fragment with the same outer tags as the source, but with the quoted content cleanly extracted.
+**Reject only for the one legitimate reason:** if the range in `description` genuinely contains no quoted text at all (no `«`/`»` anywhere across the whole range), do not emit the object.
 
-**Examples:**
+**Worked example — a quote split across three sibling objects (в, г, д), exactly the shape that trips this up:**
 
-- Source: `"<p>«5–88, 93.».</p>"`  
-  - first « at position after `<p>`, last » before the dot.  
-  - core: `"5–88, 93."`  
-  - prefix: `"<p>"`  
-  - suffix after last »: `".</p>"` → find first '<' → `"</p>"`, discard `"."`  
-  - result: `"<p>5–88, 93.</p>"` ✅
+Source blocks:
+- `order=5`: `<p>«в) раздел P «Образование» (за исключением ... 85.42 «Образование профессиональное дополнительное»);</p>` — opens the shared quote; its own trailing `»);` is an *inner* closing mark, not the group's real end.
+- `order=6`: `<p>г) раздел Q «Деятельность...» (за исключением ... «Стоматологическая практика»...);</p>` — no service mark on either side at all.
+- `order=7`: `<p>д) раздел R «Деятельность...» (за исключением ... «...группировки»);»;</p>` — closes the shared quote; the very last `»` (right before the final `;`) is the group's real end.
 
-- Source: `"<p>«Текст с «внутренней» кавычкой»;</p>"`  
-  - first « before «Текст», last » after «кавычкой»  
-  - core: `"Текст с «внутренней» кавычкой"`  
-  - prefix: `"<p>"`  
-  - suffix: `";</p>"` → discard `";"` → `"</p>"`  
-  - result: `"<p>Текст с «внутренней» кавычкой</p>"` ✅ (inner quote preserved)
+Correct `content` for each — **the html_text unchanged, nothing removed**:
+- в) (`description="5"`): `<p>«в) раздел P «Образование» (за исключением ... 85.42 «Образование профессиональное дополнительное»);</p>`
+- г) (`description="6"`): `<p>г) раздел Q «Деятельность...» (за исключением ... «Стоматологическая практика»...);</p>`
+- д) (`description="7"`): `<p>д) раздел R «Деятельность...» (за исключением ... «...группировки»);»;</p>`
 
-- Source: `"<p class=\"justifyfull\">«2) налоговая ставка ...»;</p>"`  
-  - core: `"2) налоговая ставка ..."`  
-  - prefix: `"<p class=\"justifyfull\">"`  
-  - suffix: `";</p>"` → `"</p>"`  
-  - result: `"<p class=\"justifyfull\">2) налоговая ставка ...</p>"` ✅
+Yes — that means all three still carry their `«`/`»` characters exactly as in the source, including the leading `«` on в) and the trailing `»;` on д). **This is correct and expected.** Do not strip anything from any of them. The pipeline strips the two real service marks (the `«` on в) and the final `»` on д)) automatically once it sees your `order` ranges.
 
-- Source: `"<p>«1.5. Текст ...».</p>"`  
-  - core: `"1.5. Текст ..."`  
-  - suffix: `".</p>"` → `"</p>"`  
-  - result: `"<p>1.5. Текст ...</p>"` ✅ (dot inside core preserved)
-
-**If you cannot apply this algorithm unambiguously (e.g., multiple outermost pairs, no closing tag, etc.), you MUST reject the object and not emit it.** Fabricating or guessing content is strictly forbidden.
+**Single self-contained block** (e.g. `<p class="justifyfull">«2) налоговая ставка ...»;</p>`) works the same way: `content` is that string, unchanged, quotes and semicolon and all. Do not touch it.
 
 ---
 
@@ -212,7 +185,7 @@ This rule overrides all others. Apply it literally for every object with `type =
 - skipping the marker/verb block in the numbering;
 - returning anything in `description` other than numbers/ranges based on actual `order`.
 
-The `content` field must contain the verbatim HTML of exactly these local blocks, without the external guillemets «». `content` MUST include the exact HTML tags (e.g., `<p class="justifyfull">...</p>`) present in the source `html_text`.
+The `content` field must contain the verbatim HTML of exactly these local blocks — copied unchanged, including any «» and punctuation they contain. Do NOT remove the guillemets yourself; see CONTENT EXTRACTION above. `content` MUST include the exact HTML tags (e.g., `<p class="justifyfull">...</p>`) present in the source `html_text`.
 
 ---
 
@@ -225,7 +198,7 @@ For EVERY object with `type = "add"` or `type = "new_redaction"`, the field `con
 - `content` MUST be present in EVERY `add` and EVERY `new_redaction` object. The field MUST NOT be omitted, even when the extracted fragment is long, multiline, or consists of several HTML blocks.
 - `content` MUST be a STRING containing the exact HTML fragment from the source document corresponding to the new/replaced element. This includes all HTML tags (e.g., `<p>`, `class="..."`) and attributes.
 - Copy `content` VERBATIM from `html_text`: preserve every HTML tag, attribute, text character, whitespace that is part of the HTML fragment, and table structure. Do not summarize, paraphrase, normalize, shorten, or reconstruct it.
-- `content` MUST contain the actual new/replacement text enclosed by the source quotes «», but the external service-level enclosing guillemets themselves MUST be removed. **Remove ONLY the outermost « and » characters (first and last in the string). Do not remove any punctuation, spaces, or other characters.**
+- `content` MUST contain the actual new/replacement text enclosed by the source quotes «», **including those guillemets themselves — copy them, do not remove them.** Removing the service-level guillemets is done automatically downstream from your `description` range; you must not attempt it. Do not remove or add any punctuation, spaces, or other characters — `content` is an unmodified copy.
 - `content` MUST cover exactly the same source fragment identified by `description`. The first paragraph/block in `content` MUST correspond to the starting `order` number in `description`, and the last paragraph/block MUST correspond to the ending `order` number in `description`.
 - For a multi-block range such as `description = "2-4"`, `content` MUST contain blocks with `order` 2, 3, and 4 in their original order, each with its own HTML tags.
 - For split `add`/`new_redaction` objects, each object's `content` MUST contain ONLY the HTML fragment belonging to that specific structural element. Do not put the content of sibling elements into the same object.
@@ -702,7 +675,7 @@ They are ONLY the `order` numbers as given in the JSON for the blocks that conta
        - If `type = "change"`: Form `description` (verbatim HTML + instruction without the parent setter).
        - If `type = "new_redaction"` or `"add"`:
           * Extract the new HTML fragment (after the verb and colon, in quotes).
-          * IMMEDIATELY populate the mandatory `content` field using the **deterministic algorithm** described in the CONTENT EXTRACTION section: find the outermost « and », take the core text, preserve all inner HTML and punctuation, and reassemble with the same outer tags, removing trailing punctuation after the closing ». 
+          * IMMEDIATELY populate the mandatory `content` field per the CONTENT EXTRACTION section: copy the `html_text` of the blocks in your `order` range **verbatim, unchanged** — including any « » and punctuation. Do NOT strip anything yourself.
           * **CRITICAL:** The `content` MUST include **all HTML tags** exactly as they appear in the source `html_text`. Do not strip `<p>`, classes, or any other markup.
           * Do NOT postpone content extraction until after constructing the other fields.
           * Do NOT emit the object until `content` has been extracted and validated.
@@ -715,11 +688,11 @@ They are ONLY the `order` numbers as given in the JSON for the blocks that conta
        - `type` = original type (`new_redaction` or `add`).
        - `revision_number` = common to all objects of this change (from the sub-item of the amending article, derived from JSON path).
        - `description` = LOCAL BLOCK NUMBERS — compute EXCLUSIVELY per "MANDATORY LOCAL BLOCK NUMBERING EXAMPLE", "ABSOLUTE PRIORITY", and "RULE: LOCAL BLOCK NUMBERING FOR description OF add/new_redaction" above. Use the actual `order` values. Never HTML, never instruction text, never words — only numbers/ranges, and never a position counted from the start of the JSON.
-       - `content` = EXACT HTML fragment corresponding to the local block range in `description`, obtained via the deterministic algorithm (outermost « » removed, trailing punctuation stripped). **ALL HTML tags MUST be preserved.** **ALL punctuation inside the core text MUST be preserved.** `content` MUST NOT be empty or omitted.
+       - `content` = EXACT, UNMODIFIED HTML of the blocks in the local range from `description` — a verbatim copy, guillemets and punctuation included as-is (see CONTENT EXTRACTION). **ALL HTML tags MUST be preserved.** **ALL punctuation MUST be preserved, including any « » characters.** `content` MUST NOT be empty or omitted.
        - ADDITIONAL CONSTRAINTS (on top of the LOCAL BLOCK NUMBERING algorithm):
-          * `content` MUST contain the exact HTML of every block selected by that local range, in original order.
-          * If the opening quote and closing quote are in the same block, `content` is that exact block after applying the deterministic algorithm.
-          * If the quote spans several blocks, concatenate the exact blocks in order without losing tags or attributes, and apply the algorithm to each block separately (or to the whole combined string – but the algorithm works on each block individually, as each block has its own « and »).
+          * `content` MUST contain the exact HTML of every block selected by that local range, in original order, unchanged.
+          * Do NOT try to decide whether a given block "has its own" opening or closing guillemet — many blocks in a multi-block range do not, by design (their matching mark sits in a sibling block). This is expected and is not something you need to detect or fix.
+          * If the quote spans several blocks, concatenate the exact blocks in order without losing tags, attributes, or any character.
           * `content` and `description` MUST refer to the same source blocks; they are two representations of the same extracted payload — `description` as LOCAL numbers, `content` as their verbatim HTML.
           * If exact `content` cannot be extracted (e.g., if you are unsure about the HTML or punctuation), reject the object instead of emitting an incomplete object.
           * It is forbidden to put HTML itself, instruction text, or words in `description`. Only numbers and ranges.
@@ -838,7 +811,7 @@ MANDATORY SELF-CHECK BEFORE WRITING EACH OBJECT. If there is a mismatch — FIX 
 **CONTENT-RULE — HIGHEST PRIORITY:**
 - For EVERY `add` and `new_redaction`, `content` MUST exist, MUST be a non-empty string, and MUST contain the exact HTML fragment from the source represented by `description`.
 - **CRITICAL:** `content` MUST include **all HTML tags** exactly as in the source. Stripping tags is a CRITICAL ERROR.
-- **CRITICAL:** `content` MUST include **all punctuation marks** that are part of the legal text, such as trailing semicolons, periods, commas, etc. Removing punctuation is a CRITICAL ERROR.
+- **CRITICAL:** `content` MUST include **all punctuation marks and all « » guillemets**, exactly as in the source — trailing semicolons, periods, commas, quote marks, everything. `content` is a verbatim copy, not an edited excerpt. Removing anything, including a guillemet, is a CRITICAL ERROR — the pipeline removes the two service-level guillemets automatically from `description`, that is never your job.
 - Missing `content`, empty `content`, `null`, guessed content, shortened content, paraphrased content, or content that does not correspond exactly to `description` is a CRITICAL ERROR.
 - If the model cannot determine the exact content, it MUST NOT fabricate it. The malformed object must be rejected rather than emitted without `content`.
 - `description` NEVER replaces `content`.
@@ -907,7 +880,7 @@ Absence of any of these components is a critical error. If the reference in the 
 - Trace the opening guillemet « within this LOCAL group and verify that the starting number in `description` EXACTLY MATCHES the `order` of the block containing «.
 - If the opening quote « is in block with `order=2`, but `description` starts with "3-" or higher, this is a CRITICAL ERROR. You incorrectly skipped a block, or you counted globally instead of locally. FIX the range to start from the correct `order`.
 - The range MUST encompass ALL local blocks from the « to the ».
-- `content` MUST encompass exactly the same range, in the same order, with only the external service-level guillemets removed (and trailing punctuation stripped per the deterministic algorithm).
+- `content` MUST encompass exactly the same range, in the same order, as an unmodified copy of the source `html_text` — including any « » and punctuation. You do not remove the service-level guillemets; that happens automatically downstream from `description`.
 
 ---
 
@@ -936,7 +909,7 @@ For new_redaction/add split into multiple elements, each element is a separate o
 - Commenting, clarifying, explaining decisions.
 - Deleting, replacing, or modifying HTML tags (especially table tags) in `description` for change and delete types.
 - For new_redaction and add, `description` must not contain HTML.
-- For new_redaction and add, `content` must be exact source HTML; **never strip, shorten, paraphrase, or reconstruct it**. The `content` must be a verbatim copy of the `html_text` of the selected blocks, with only the outer guillemets removed (and trailing punctuation stripped per the deterministic algorithm). Preserve all punctuation inside the core text.
+- For new_redaction and add, `content` must be exact source HTML; **never strip, shorten, paraphrase, or reconstruct it — and never remove the guillemets either.** The `content` must be a 100% verbatim copy of the `html_text` of the selected blocks, unmodified: every «, », and punctuation mark stays exactly where it was in the source.
 
 ---
 

@@ -21,13 +21,29 @@ _PATCHED = False
 
 
 def _clean_ai_content(content: str) -> str:
+    """Normalize AI-supplied ``content`` before comparing it to the program candidate.
+
+    Prompt 3 now asks the model to copy blocks verbatim (guillemets and all) rather
+    than strip the two service-level marks itself, since that stripping is a
+    bracket-matching problem the model gets wrong in ways a "starts with «" check
+    can't catch — e.g. a block that only carries the *closing* mark (no leading «)
+    still needs its trailing » evaluated. So instead of gating on a leading «, run
+    ANY content that contains a guillemet through the same two-sided boundary
+    stripper already used for the program-side ``add`` candidate
+    (:func:`_unwrap_add_candidate`), which independently checks the start and the
+    end and only removes a mark when it's genuinely the outer one.
+    """
     content = (content or "").strip()
     if not content:
         return ""
-    if content.startswith("«"):
-        extracted = extract_quoted_html_robust(content)
-        if extracted:
-            return extracted.strip()
+    if "«" in content or "»" in content:
+        unwrapped = _unwrap_add_candidate(content, None, "AI content")
+        if unwrapped:
+            return unwrapped.strip()
+        if content.startswith("«"):
+            extracted = extract_quoted_html_robust(content)
+            if extracted:
+                return extracted.strip()
     return content
 
 
