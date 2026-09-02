@@ -303,6 +303,9 @@ class GuiBuilderMixin:
                     self.log(f"Ошибка при обработке файла изменений: {e}", 'error')
 
         def log(self, message, tag=None):
+            if not hasattr(self, 'logs'):
+                self.logs = []
+            self.logs.append((tag, message))
             def _log():
                 self.log_text.config(state='normal')
                 if tag:

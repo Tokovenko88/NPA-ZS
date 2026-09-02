@@ -159,3 +159,200 @@ class FileOpsMixin:
                 self.log(f"Отладочная папка сохранена: {run_dir}", 'info')
             except Exception as e:
                 self.log(f"Ошибка сохранения отладочной папки: {e}", 'warning')
+
+        def _normalize_log_level(self, tag):
+            """Привести тег уровня лога к верхнему регистру (INFO/WARNING/ERROR/...)."""
+            if not tag:
+                return 'INFO'
+            return str(tag).upper()
+
+        def _dump_tk_log(self, log_text):
+            """Вернуть ``[(level, text)]`` из Tk Text через ``dump``.
+
+            ``self.log`` в GUI откладывает запись в виджет через ``root.after``,
+            поэтому чтение виджета из фонового потока может быть неполным.
+            Метод обёрнут в try/except и используется только как fallback,
+            когда ``self.logs`` недоступен.
+            """
+            level_tags = ('error', 'warning', 'info', 'input', 'result', 'source', 'debug')
+            try:
+                items = log_text.dump('1.0', 'end', all=True) or []
+            except Exception:
+                items = []
+            active = []
+            lines = []
+            buf = []
+            current = 'INFO'
+
+            def _level():
+                for t in reversed(active):
+                    if t in level_tags:
+                        return t.upper()
+                return 'INFO'
+
+            for item in items:
+                kind = item[1] if len(item) > 1 else ''
+                if kind == 'tagon':
+                    active.append(item[2])
+                    current = _level()
+                elif kind == 'tagoff':
+                    tag = item[2]
+                    if tag in active:
+                        active.remove(tag)
+                    current = _level()
+                elif kind == 'text':
+                    text = item[2] if len(item) > 2 else ''
+                    parts = text.split('\n')
+                    for i, part in enumerate(parts):
+                        if part:
+                            buf.append(part)
+                        if i < len(parts) - 1:
+                            line = ''.join(buf).rstrip()
+                            if line:
+                                lines.append((current, line))
+                            buf = []
+                            current = _level()
+            line = ''.join(buf).rstrip()
+            if line:
+                lines.append((current, line))
+            return lines
+
+        def _collect_work_log_entries(self):
+            """Собрать записи журнала работы как список кортежей ``(level, text)``.
+
+            Предпочитает потокобезопасный ``self.logs`` (список ``(tag, message)``),
+            поддерживаемый как GUI, так и headless‑режимом. Если список пуст или
+            отсутствует, выполняет fallback на чтение виджета ``self.log_text``.
+            """
+            logs = getattr(self, 'logs', None)
+            if isinstance(logs, list) and logs:
+                return [(self._normalize_log_level(tag), msg) for tag, msg in logs]
+
+            log_text = getattr(self, 'log_text', None)
+            if log_text is None:
+                return []
+            entries = []
+            try:
+                entries = self._dump_tk_log(log_text)
+            except Exception:
+                entries = []
+            if entries:
+                return entries
+            try:
+                raw = log_text.get('1.0', tk.END)
+            except Exception:
+                raw = ''
+            return [('INFO', ln) for ln in raw.splitlines() if ln.strip()]
+
+        def _save_work_log(self, out_dir, change_data, result_data=None, tracker=None):
+            """Сохранить журнал работы программы в ``<номер_НПА_изменения>_log.md``.
+
+            Файл рядом с ``<number>_work.json`` и результатом ``_izm_...json``.
+            Содержит: метаданные прогона, сводку трекера изменений и полный
+            текстовый журнал операций.
+            """
+            change_npa_number = (change_data or {}).get('npa_number', '')
+            change_clean_num = clean_number_for_filename(change_npa_number)
+            if not change_clean_num:
+                change_clean_num = 'unknown'
+            filename = f"{change_clean_num}_log.md"
+            out_path = os.path.join(out_dir, filename)
+
+            orig_npa_number = (result_data or {}).get('npa_number', '')
+            run_info = {}
+            answers = getattr(self, '_prompt_answers', None)
+            if isinstance(answers, dict):
+                run_info = answers.get('run_info', {}) or {}
+
+            lines = []
+            lines.append("# Журнал работы программы")
+            lines.append("")
+            lines.append(f"**Изменяющий НПА:** `{change_npa_number or '—'}`")
+            lines.append(f"**Целевой НПА:** `{orig_npa_number or '—'}`")
+            if run_info.get('started_at'):
+                lines.append(f"**Запуск:** `{run_info.get('started_at')}`")
+            if run_info.get('finished_at'):
+                lines.append(f"**Завершение:** `{run_info.get('finished_at')}`")
+            if run_info.get('model'):
+                lines.append(f"**Модель:** `{run_info.get('model')}`")
+            if run_info.get('backend'):
+                lines.append(f"**Бэкенд:** `{run_info.get('backend')}`")
+            lines.append("")
+
+            if tracker is not None:
+                report = None
+                try:
+                    report = tracker.get_run_status_report()
+                except Exception:
+                    report = None
+                if report:
+                    summary = report.get('summary', {}) or {}
+                    status = report.get('run_status', '')
+                    lines.append("## Сводка применения изменений")
+                    lines.append("")
+                    lines.append(f"**Статус прогона:** `{status or '—'}`")
+                    lines.append("")
+                    lines.append("| Метрика | Значение |")
+                    lines.append("|---|---|")
+                    for key, value in summary.items():
+                        lines.append(f"| {key} | {value} |")
+                    lines.append("")
+                    failed = report.get('failed_changes', []) or []
+                    pending = report.get('pending_changes', []) or []
+                    prepared = report.get('prepared_changes', []) or []
+                    unverified = report.get('unverified_changes', []) or []
+                    user_cancelled = report.get('user_cancelled_changes', []) or []
+                    if prepared:
+                        lines.append("### Подготовлены, но не применены")
+                        lines.append("")
+                        for c in prepared:
+                            lines.append(f"- `[{c.get('revision_number', '')}] {c.get('structural_element', '')} ({c.get('type', '')})`")
+                        lines.append("")
+                    if failed:
+                        lines.append("### Не удалось применить")
+                        lines.append("")
+                        for c in failed:
+                            lines.append(f"- `[{c.get('revision_number', '')}] {c.get('structural_element', '')} ({c.get('type', '')}): {c.get('reason', '')}`")
+                        lines.append("")
+                    if pending:
+                        lines.append("### Отложены")
+                        lines.append("")
+                        for c in pending:
+                            lines.append(f"- `[{c.get('revision_number', '')}] {c.get('structural_element', '')} ({c.get('type', '')}): {c.get('reason', '')}`")
+                        lines.append("")
+                    if unverified:
+                        lines.append("### Применены, но не проверены")
+                        lines.append("")
+                        for c in unverified:
+                            lines.append(f"- `[{c.get('revision_number', '')}] {c.get('structural_element', '')} ({c.get('type', '')})`")
+                        lines.append("")
+                    if user_cancelled:
+                        lines.append("### Отменены пользователем")
+                        lines.append("")
+                        for c in user_cancelled:
+                            lines.append(f"- `[{c.get('revision_number', '')}] {c.get('structural_element', '')} ({c.get('type', '')}): {c.get('reason', '')}`")
+                        lines.append("")
+
+            entries = self._collect_work_log_entries()
+            lines.append("## Полный журнал операций")
+            lines.append("")
+            if entries:
+                lines.append("```")
+                for level, text in entries:
+                    text = text.replace('\r\n', '\n').replace('\r', '\n')
+                    for ln in text.split('\n'):
+                        ln = ln.rstrip()
+                        if not ln:
+                            continue
+                        lines.append(f"[{level}] {ln}")
+                lines.append("```")
+            else:
+                lines.append("_Журнал пуст._")
+            lines.append("")
+
+            try:
+                with open(out_path, 'w', encoding='utf-8') as f:
+                    f.write('\n'.join(lines))
+                self.log(f"Журнал работы сохранён в:\n{out_path}", 'result')
+            except Exception as e:
+                self.log(f"Ошибка сохранения журнала работы: {e}", 'error')

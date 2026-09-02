@@ -32,6 +32,12 @@ Always import from `npazs.*`:
 4. Log all operations to `data/logs/`.
 5. Run `make validate` after structural changes.
 6. Website PHP is edited only in `src/site/php/npazs/` modules (see its `README.md`); after edits run `make build-snippet` to regenerate `src/site/php/snippet.php` — the single script deployed into the MODX `HtmlFromNpaZS` snippet.
+7. The revision pipeline (`run_all`) writes its artifacts **next to the target NPA file**
+   (not in `data/output/`): `<number>_work.json` (cached AI stage answers),
+   `<number>_log.md` (program work log: run metadata + change-tracker summary + full
+   operation log), and `<orig>_<orig_date>_izm_<change>_<change_date>.json` (the
+   resulting NPA). `<number>` is the amending NPA's cleaned `npa_number`, so `_work.json`
+   and `_log.md` always share the same prefix for one run.
 
 ## Permissions
 

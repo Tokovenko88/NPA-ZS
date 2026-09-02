@@ -102,6 +102,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.thread = None
             self.current_dialog = None
             self.manual_mapping_cache = {}
+            self.logs = []
             self.message_queue = queue.Queue()
             self.answer_queue = queue.Queue()
             self.create_widgets()

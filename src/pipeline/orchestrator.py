@@ -1933,6 +1933,8 @@ class AiPipelineMixin:
             self.run_btn.config(state='disabled')
             self.cancel_btn.config(state='normal')
             self.log_text.delete(1.0, tk.END)
+            if hasattr(self, 'logs'):
+                self.logs.clear()
             self.stop_event.clear()
         
             def process():
@@ -2288,6 +2290,11 @@ class AiPipelineMixin:
                         pass
                     self._export_debug_run(orig_file, change_file)
                     self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data if 'result_data' in dir() else None)
+                    self._save_work_log(
+                        os.path.dirname(orig_file), change_data,
+                        result_data if 'result_data' in dir() else None,
+                        tracker if 'tracker' in dir() else None,
+                    )
                     self.message_queue.put({
                         'type': 'done',
                         'success': not error_occurred
