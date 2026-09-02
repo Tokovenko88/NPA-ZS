@@ -92,6 +92,7 @@ function normalizeHighlightText(text) {
             return '';
         }
     }
+    text = text.replace(/<[^>]+>/g, '');
     return text.replace(/[–—‑‐]/g, '-').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 }
 function parseHighlightIdentifier(identifier) {
@@ -420,6 +421,90 @@ function buildHighlightList(highlights, side, itemIdPrefix) {
     }
     return list;
 }
+function applyTextHighlightsToParagraph(paragraph, highlightList, paragraphIndex) {
+    const textNodes = getAllTextNodes(paragraph);
+    if (!textNodes.length) return;
+    let fullText = '';
+    const nodeOffsets = [];
+    for (const node of textNodes) {
+        const len = node.nodeValue.length;
+        nodeOffsets.push({ node: node, start: fullText.length, end: fullText.length + len });
+        fullText += node.nodeValue;
+    }
+    const rangesByNode = new Map();
+    for (const rule of highlightList) {
+        let targetOccurrences = null;
+        let targetParagraph = null;
+        if (rule.identifier && typeof rule.identifier === 'object') {
+            targetParagraph = rule.identifier.paragraph;
+            targetOccurrences = rule.identifier.occurrence;
+        }
+        if (targetParagraph !== null && targetParagraph !== undefined && targetParagraph !== paragraphIndex) {
+            continue;
+        }
+        let foundRanges = [];
+        if (targetOccurrences === 'all' || (Array.isArray(targetOccurrences) && targetOccurrences.length === 1 && targetOccurrences[0] === 'all')) {
+            const regex = buildFlexibleRegex(rule.phrase);
+            let match;
+            while ((match = regex.exec(fullText)) !== null) {
+                foundRanges.push({ start: match.index, end: match.index + match[0].length });
+            }
+        } else if (Array.isArray(targetOccurrences) && targetOccurrences.length) {
+            for (const occ of targetOccurrences) {
+                foundRanges = foundRanges.concat(findNthOccurrence(fullText, rule.phrase, occ));
+            }
+        } else if (typeof targetOccurrences === 'number') {
+            foundRanges = foundRanges.concat(findNthOccurrence(fullText, rule.phrase, targetOccurrences));
+        } else {
+            const regex = buildFlexibleRegex(rule.phrase);
+            let match;
+            while ((match = regex.exec(fullText)) !== null) {
+                foundRanges.push({ start: match.index, end: match.index + match[0].length });
+            }
+        }
+        for (const r of foundRanges) {
+            for (const offset of nodeOffsets) {
+                if (offset.start < r.end && offset.end > r.start) {
+                    const nodeStart = Math.max(r.start, offset.start);
+                    const nodeEnd = Math.min(r.end, offset.end);
+                    if (!rangesByNode.has(offset.node)) rangesByNode.set(offset.node, []);
+                    rangesByNode.get(offset.node).push({ start: nodeStart - offset.start, end: nodeEnd - offset.start, rule: rule });
+                }
+            }
+        }
+    }
+    if (rangesByNode.size === 0) return;
+    const sortedNodes = Array.from(rangesByNode.keys()).reverse();
+    for (const node of sortedNodes) {
+        const ranges = rangesByNode.get(node);
+        ranges.sort((a, b) => a.start - b.start);
+        const merged = [];
+        for (const range of ranges) {
+            if (merged.length === 0) {
+                merged.push({ start: range.start, end: range.end, rule: range.rule });
+                continue;
+            }
+            const last = merged[merged.length - 1];
+            if (range.start <= last.end) {
+                last.end = Math.max(last.end, range.end);
+                if (!last.rule.pairId && range.rule.pairId) last.rule.pairId = range.rule.pairId;
+                const typePriority = { 'insert': 3, 'delete': 2, 'difference': 1 };
+                const lastP = typePriority[last.rule.type] || 0;
+                const rangeP = typePriority[range.rule.type] || 0;
+                if (rangeP > lastP) {
+                    last.rule = range.rule;
+                }
+            } else {
+                merged.push({ start: range.start, end: range.end, rule: range.rule });
+            }
+        }
+        if (merged.length) {
+            if (node.parentNode) {
+                applyRangesToTextNode(node, merged);
+            }
+        }
+    }
+}
 function applyHighlightsToDom(container, highlightList, context) {
     if (!highlightList || !highlightList.length) return;
     const textRules = [];
@@ -441,11 +526,7 @@ function applyHighlightsToDom(container, highlightList, context) {
         if (remainingRules.length) {
             let paraIndex = 1;
             for (const para of paragraphs) {
-                const textNodes = getAllTextNodes(para);
-                for (const node of textNodes) {
-                    const ranges = collectRangesFromTextNodeSimple(node.nodeValue, remainingRules, paraIndex);
-                    if (ranges.length) applyRangesToTextNode(node, ranges);
-                }
+                applyTextHighlightsToParagraph(para, remainingRules, paraIndex);
                 paraIndex++;
             }
         }
