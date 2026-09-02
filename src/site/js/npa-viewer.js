@@ -1550,7 +1550,7 @@ function filterInvalidButtons() {
         const isAdd = compareData && compareData.success && compareData.mod_type === 'add';
         const isDelete = compareData && compareData.success && compareData.mod_type === 'delete';
         let shouldRemove = false;
-        if (isAdd) {
+        if (isAdd && !isExpired) {
             shouldRemove = true;
         } else if (isExpired || isDelete) {
             if (!text.includes('истор')) {
