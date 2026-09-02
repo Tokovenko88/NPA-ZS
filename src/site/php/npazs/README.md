@@ -80,7 +80,7 @@ src/site/php/snippet.php  (ЕДИНЫЙ скрипт, генерируется �
 | `content/tables.php` | Структурные таблицы | `renderStructuredTable`, `getTableBorderFromContent`, `renderTableFragment`, `renderTableRowWithButtons`, `renderElementAsTableFragment` |
 | `content/compare.php` | Сравнение редакций (diff) | `collectExpiredChildChanges`, `getItemCompareForSelectedEdition`, `getItemHeadCompareForSelectedEdition`, `getItemHeadCompareHtml`, `ensureTableWrapperForComparison`, `getHeadCompareHtml` |
 | `ui/buttons.php` | Кнопки редакций, дата вступления в силу | `getElementRevisionButtons`, `getHeadRevisionButtons`, `getItemHeadRevisionButtons`, `buildRevisionEffectiveDateBlock` |
-| `ui/notes.php` | Примечания к элементам/заголовкам | `getItemHeadRevisionNotes`, `getElementRevisionNotes` |
+| `ui/notes.php` | Примечания к элементам/заголовкам | `isOriginalRevision`, `getItemHeadRevisionNotes`, `getElementRevisionNotes` |
 | `ui/selector.php` | Селектор редакций документа | `getRevisionSelectorOptions` |
 | `ui/signature.php` | Подписной блок | `renderSignature` |
 | `render/tree.php` | Дерево элементов и оглавление | `getItemTree`, `renderTocTree` |

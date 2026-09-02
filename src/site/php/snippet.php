@@ -1421,11 +1421,16 @@ function buildRevisionEffectiveDateBlock($validFromDate, $isDeferred, $label = '
          . '</div>';
 }
 
+function isOriginalRevision(array $rev): bool {
+    return empty($rev['mod_type']) && empty($rev['modified_by_id']);
+}
+
 function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType, array $selectedRevisionNpaIds = [], $baseNpaId = null) {
     $currentRev = getItemHeadRevisionForSelectedEdition($pdo, $internal_item_id, $viewDate, $selectedRevisionNpaIds);
     if (!$currentRev || empty($currentRev['id'])) return '';
 
     $currentRevId = (int)$currentRev['id'];
+    $currentRevIsOriginal = isOriginalRevision($currentRev);
 
     $sql = "SELECT r.* FROM npa_item_head_revision r
             WHERE r.item_internal_id = ?
@@ -1496,10 +1501,13 @@ function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType,
 
     if (empty($parts)) return '';
 
-    $dt = parseDate($currentRev['valid_from'] ?? null);
-    $validFromDate = $dt ? $dt->format('d.m.Y') : '';
-    $isDeferred = isDeferredSelectedEditionRevision($currentRev, $viewDate, $selectedRevisionNpaIds);
-    $dateBlock = buildRevisionEffectiveDateBlock($validFromDate, $isDeferred);
+    $dateBlock = '';
+    if (!$currentRevIsOriginal) {
+        $dt = parseDate($currentRev['valid_from'] ?? null);
+        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
+        $isDeferred = isDeferredSelectedEditionRevision($currentRev, $viewDate, $selectedRevisionNpaIds);
+        $dateBlock = buildRevisionEffectiveDateBlock($validFromDate, $isDeferred);
+    }
 
     return '<div class="element-revision-notes" style="margin: 0.5em 0;">'
          . $dateBlock . implode('<br>', $parts) . '</div>';
@@ -1510,6 +1518,7 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
     if (!$currentRev || empty($currentRev['rev_id'])) return '';
 
     $currentRevId = (int)$currentRev['rev_id'];
+    $currentRevIsOriginal = isOriginalRevision($currentRev);
 
     $sql = "SELECT r.* FROM npa_item_revision r
             WHERE r.item_internal_id = ?
@@ -1563,26 +1572,28 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
         }
     }
 
-    $ownChangerIdsList = array_keys($ownChangerIds);
-    $prevRevForNotes = getPreviousItemRevision($pdo, $internal_item_id, $currentRevId);
-    $childChangerNotes = collectExpiredChildChangerNotes(
-        $pdo,
-        $internal_item_id,
-        $viewDate,
-        $ownChangerIdsList,
-        $selectedRevisionNpaIds,
-        $currentRevId,
-        $prevRevForNotes ? $prevRevForNotes['rev_id'] : null
-    );
-    foreach ($childChangerNotes as $modifiedById) {
-        $npaInfo = getNpaInfoByItemId($modifiedById, $pdo);
-        if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
-            $seenChangeNpaIds[] = $npaInfo['npa_id'];
-            $changeNotes[] = getShortNpaDescription($modifiedById, $pdo, true);
-        } elseif (!$npaInfo) {
-            $desc = getShortNpaDescription($modifiedById, $pdo, true);
-            if ($desc && $desc !== 'исходная редакция' && !in_array($desc, $changeNotes, true)) {
-                $changeNotes[] = $desc;
+    if (!$currentRevIsOriginal) {
+        $ownChangerIdsList = array_keys($ownChangerIds);
+        $prevRevForNotes = getPreviousItemRevision($pdo, $internal_item_id, $currentRevId);
+        $childChangerNotes = collectExpiredChildChangerNotes(
+            $pdo,
+            $internal_item_id,
+            $viewDate,
+            $ownChangerIdsList,
+            $selectedRevisionNpaIds,
+            $currentRevId,
+            $prevRevForNotes ? $prevRevForNotes['rev_id'] : null
+        );
+        foreach ($childChangerNotes as $modifiedById) {
+            $npaInfo = getNpaInfoByItemId($modifiedById, $pdo);
+            if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
+                $seenChangeNpaIds[] = $npaInfo['npa_id'];
+                $changeNotes[] = getShortNpaDescription($modifiedById, $pdo, true);
+            } elseif (!$npaInfo) {
+                $desc = getShortNpaDescription($modifiedById, $pdo, true);
+                if ($desc && $desc !== 'исходная редакция' && !in_array($desc, $changeNotes, true)) {
+                    $changeNotes[] = $desc;
+                }
             }
         }
     }
@@ -1613,10 +1624,13 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
 
     if (empty($parts)) return '';
 
-    $dt = parseDate($currentRev['valid_from'] ?? null);
-    $validFromDate = $dt ? $dt->format('d.m.Y') : '';
-    $isDeferred = isDeferredSelectedEditionRevision($currentRev, $viewDate, $selectedRevisionNpaIds);
-    $dateBlock = buildRevisionEffectiveDateBlock($validFromDate, $isDeferred);
+    $dateBlock = '';
+    if (!$currentRevIsOriginal) {
+        $dt = parseDate($currentRev['valid_from'] ?? null);
+        $validFromDate = $dt ? $dt->format('d.m.Y') : '';
+        $isDeferred = isDeferredSelectedEditionRevision($currentRev, $viewDate, $selectedRevisionNpaIds);
+        $dateBlock = buildRevisionEffectiveDateBlock($validFromDate, $isDeferred);
+    }
 
     return '<div class="element-revision-notes" style="margin: 0.5em 0;">'
          . $dateBlock . implode('<br>', $parts) . '</div>';
