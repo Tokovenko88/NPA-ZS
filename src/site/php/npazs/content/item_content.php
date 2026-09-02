@@ -199,23 +199,25 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         } else {
             $selRevIds = [];
         }
-        $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, true, $selRevIds);
+        // Текущая колонка ($useEditionContext === true): утратившие силу дочерние
+        // элементы НЕ должны отображаться вовсе. Предыдущая колонка
+        // ($useEditionContext === false): утратившие силу дочерние элементы
+        // отображаются как обычный контент (не как блоки «Утратил силу») —
+        // клиентский JS сам обернёт их в <del class="npa-diff-delete">, увидев,
+        // что элемента нет в текущей колонке.
+        $includeExpired = !$useEditionContext;
+        $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, $includeExpired, $selRevIds);
         if (!isset($itemsById[$internal_item_id])) return null;
-        // Дочерние элементы, на которые ссылалось body предыдущей редакции, но
-        // которых нет в body новой, должны отображаться в этой колонке зачёркнутыми.
-        // getItemTree сам пометил тех, у кого выставлен not_valid на инициатора;
-        // здесь дополнительно помечаем удалённых без явного not_valid, чтобы
-        // renderElement отрисовал их через ветку истёкших сроков.
-        if (!empty($forceExpiredChildIds) && is_array($forceExpiredChildIds)) {
-            foreach ($forceExpiredChildIds as $fid) {
-                $fid = (int)$fid;
-                if ($fid > 0 && isset($itemsById[$fid]) && empty($itemsById[$fid]['is_expired'])) {
-                    $itemsById[$fid]['is_expired'] = true;
-                    if (empty($itemsById[$fid]['expired_valid_to'])) {
-                        $itemsById[$fid]['expired_valid_to'] = $itemsById[$fid]['valid_to'] ?? null;
-                    }
+        if ($includeExpired) {
+            // Предыдущая колонка: снимаем флаг is_expired с элементов, чтобы они
+            // рендерились как обычный контент (не как блоки «Утратил силу»).
+            foreach ($itemsById as $fid => &$fitem) {
+                if (!empty($fitem['is_expired'])) {
+                    $fitem['is_expired'] = false;
+                    $fitem['expired_valid_to'] = null;
                 }
             }
+            unset($fitem);
         }
         $itemData = $itemsById[$internal_item_id];
         $npaData = [

@@ -1940,19 +1940,19 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         } else {
             $selRevIds = [];
         }
-        $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, true, $selRevIds);
-        if (!isset($itemsById[$internal_item_id])) return null;
         
-        if (!empty($forceExpiredChildIds) && is_array($forceExpiredChildIds)) {
-            foreach ($forceExpiredChildIds as $fid) {
-                $fid = (int)$fid;
-                if ($fid > 0 && isset($itemsById[$fid]) && empty($itemsById[$fid]['is_expired'])) {
-                    $itemsById[$fid]['is_expired'] = true;
-                    if (empty($itemsById[$fid]['expired_valid_to'])) {
-                        $itemsById[$fid]['expired_valid_to'] = $itemsById[$fid]['valid_to'] ?? null;
-                    }
+        $includeExpired = !$useEditionContext;
+        $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, $includeExpired, $selRevIds);
+        if (!isset($itemsById[$internal_item_id])) return null;
+        if ($includeExpired) {
+            
+            foreach ($itemsById as $fid => &$fitem) {
+                if (!empty($fitem['is_expired'])) {
+                    $fitem['is_expired'] = false;
+                    $fitem['expired_valid_to'] = null;
                 }
             }
+            unset($fitem);
         }
         $itemData = $itemsById[$internal_item_id];
         $npaData = [
