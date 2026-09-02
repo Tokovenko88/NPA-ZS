@@ -320,6 +320,37 @@ def _transfer_structural_state(old_child, new_child, log_callback=None):
     for k in set(old_by.keys()) & set(new_by.keys()):
         _transfer_structural_state(old_by[k], new_by[k], log_callback)
 
+_PENDING_ATTRS = (
+    '_pending_new_redaction_html',
+    '_pending_html',
+    '_pending_mod_type',
+    '_pending_modified_by_id',
+    '_pending_valid_from',
+    '_pending_highlights',
+)
+
+
+def _already_revised_this_run(element, change_date):
+    """True when `element` already carries an active revision stamped with the
+    current run's change date and has no pending override left.
+
+    Such an element was reconstructed earlier in this run (e.g. by its own
+    CONTENT_REBUILD). Its revisions must be preserved verbatim by a parent
+    structural sync: re-deriving the body from the parent's re-parsed HTML is
+    unsafe because that HTML can hold a *stale* copy of the child (duplicate
+    old+new text), which would otherwise close the correct revision and create a
+    ghost ``change`` revision with the old body and no highlights.
+    """
+    if any(element.get(k) is not None for k in _PENDING_ATTRS):
+        return False
+    if getattr(element, '_force_rebuild', False):
+        return False
+    for rev in element.get('revisions', []):
+        if rev.get('valid_to') is None and rev.get('valid_from') == change_date:
+            return True
+    return False
+
+
 def sync_structural_element_recursive(old_element, new_element, change_date, modified_by_id, data_context, log_callback, is_top_level=True, override_mod_type=None, highlights=None, is_table_child=False):
     valid_from_dt = datetime.strptime(change_date, '%d.%m.%Y')
     valid_to_prev = (valid_from_dt - timedelta(days=1)).strftime('%d.%m.%Y')
@@ -584,6 +615,22 @@ def sync_structural_element_recursive(old_element, new_element, change_date, mod
                     continue
         filtered_ordered.append(child)
     old_element['item_children'] = filtered_ordered
+    # A child that was already reconstructed earlier in this run (it now has an
+    # active revision dated `change_date` and no pending override) must NOT be
+    # re-derived from the parent's re-parsed HTML here. The parent HTML can
+    # contain a stale duplicate of the child (old+new text concatenated), which
+    # would close the already-correct child revision and spawn a ghost `change`
+    # revision carrying the OLD body and no highlights (see 127<-516 point 1/9).
+    # Only the top-level element of this sync may rebuild its own body.
+    if not is_top_level and _already_revised_this_run(old_element, change_date):
+        if log_callback:
+            log_callback(
+                f"  Сохраняем уже перестроенный дочерний элемент "
+                f"{old_element.get('item_id')} (active rev valid_from={change_date}); "
+                f"перестройка тела отменена — риск дублирования ревизии.",
+                'info',
+            )
+        return
     if is_table_child and old_element.get('item_type') in ('section', 'point', 'subpoint'):
         old_num = old_element.get('item_number', '')
         new_num = new_element.get('item_number') or new_element.get('number', '')
