@@ -163,3 +163,88 @@ def test_backend_params_threaded_through_apply_chain():
     # change снова доступен в _apply_change_to_element_content (иначе TypeError
     # на `'_quoted_html' in change` в ветке new_redaction)
     assert "change" in inspect.signature(_apply_change_to_element_content).parameters
+
+
+def test_paragraph_new_redaction_sets_parent_mod_type_change():
+    """Paragraph-level new_redaction must produce mod_type='change' on the parent
+    structural element, and the verifier must accept it."""
+    from npazs.revision.change_applier import apply_grouped_changes
+    from npazs.revision.change_pipeline import verify_change_applied
+
+    element = {
+        "item_id": "part_1_7",
+        "item_type": "part",
+        "item_number": "1.7",
+        "revisions": [
+            {
+                "revision_id": "rev-old",
+                "valid_from": "01.01.2026",
+                "valid_to": None,
+                "body": [
+                    {
+                        "type": "paragraph",
+                        "html_text": "<p>старый текст</p>",
+                        "order": 1,
+                    }
+                ],
+            }
+        ],
+    }
+    changes = [
+        {
+            "change_id": "c1",
+            "type": "new_redaction",
+            "structural_element": "Статья 2 часть 1.7 абзац 1",
+            "revision_number": "1)",
+            "description": "",
+            "_quoted_html": "<p>новый текст</p>",
+            "_resolved_item_id": "part_1_7",
+        }
+    ]
+    rebuild_ids = []
+    logs = []
+    result = apply_grouped_changes(
+        element=element,
+        changes=changes,
+        valid_from=date(2026, 8, 31),
+        change_data={"npa_id": "931-ЗС"},
+        data={"npa_items_revision": [element]},
+        model=None,
+        prompt4=None,
+        log_callback=lambda msg, level="info": logs.append((msg, level)),
+        rebuild_ids=rebuild_ids,
+        extra_options={},
+        source_item_id="src_art_1",
+        change_ids=["c1"],
+    )
+    if result[0]["status"] != "PREPARED":
+        print("LOGS:", logs)
+        print("RESULT:", result)
+    assert result[0]["status"] == "PREPARED"
+    assert element["_pending_mod_type"] == "change"
+    assert element["_pending_new_redaction_html"] == "<p>новый текст</p>"
+
+    # Simulate rebuild: create a new revision with mod_type='change'
+    from datetime import timedelta
+    valid_to_prev = (date(2026, 8, 31) - timedelta(days=1)).strftime("%d.%m.%Y")
+    element["revisions"][0]["valid_to"] = valid_to_prev
+    element["revisions"].append(
+        {
+            "revision_id": "rev-new",
+            "valid_from": "31.08.2026",
+            "valid_to": None,
+            "mod_type": "change",
+            "body": [{"type": "paragraph", "html_text": "<p>новый текст</p>", "order": 1}],
+        }
+    )
+    element.pop("_pending_mod_type", None)
+    element.pop("_pending_new_redaction_html", None)
+
+    verified = verify_change_applied(
+        change=changes[0],
+        data={"npa_items_revision": [element]},
+        change_data={"npa_id": "931-ЗС"},
+        log_callback=lambda *_a, **_k: None,
+        expected_revision_id="rev-new",
+    )
+    assert verified is True

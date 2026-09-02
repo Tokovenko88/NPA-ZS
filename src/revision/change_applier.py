@@ -427,7 +427,9 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
         if 'раздел' in structural or 'глава' in structural or 'статья' in structural:
             is_number_change = True
         change_types.add(ch.get('type', ''))
-    if 'change' in change_types:
+    if not text_changes and paragraph_ops:
+        mod_type = 'change'
+    elif 'change' in change_types:
         mod_type = 'change'
     elif 'new_redaction' in change_types:
         mod_type = 'new_redaction'

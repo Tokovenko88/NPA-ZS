@@ -222,7 +222,7 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
         $expiryDateFormatted = $expiryDate->format('d.m.Y');
         $notValidId = $itemData['not_valid'] ?? null;
         if ($notValidId && $notValidId !== 'base') {
-            $sourceNote = getShortNpaDescription($notValidId, $pdo, true);
+            $sourceNote = getShortNpaDescription($notValidId, $pdo, true, 'nominative');
         } else {
             $sourceNote = 'последняя действующая редакция';
         }

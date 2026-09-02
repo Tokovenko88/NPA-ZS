@@ -38,25 +38,24 @@ function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType,
     }
     if (empty($allowedRevisions)) return '';
 
-    $lastNewRedactionIdx = -1;
-    foreach ($allowedRevisions as $idx => $rev) {
-        if ($rev['mod_type'] === 'new_redaction') $lastNewRedactionIdx = $idx;
-    }
-    $revisionsToProcess = ($lastNewRedactionIdx !== -1)
-        ? array_slice($allowedRevisions, $lastNewRedactionIdx)
-        : $allowedRevisions;
-
     $addNote = $newRedactionNote = null;
     $changeNotes = [];
+    $seenChangeNpaIds = [];
 
-    foreach ($revisionsToProcess as $rev) {
+    foreach ($allowedRevisions as $rev) {
         $shortDesc = getShortNpaDescription($rev['modified_by_id'], $pdo, true);
         if ($shortDesc === 'исходная редакция') continue;
 
         switch ($rev['mod_type']) {
-            case 'add': if ($addNote === null) $addNote = $shortDesc; break;
-            case 'new_redaction': $newRedactionNote = $shortDesc; break;
-            case 'change': if (!in_array($shortDesc, $changeNotes, true)) $changeNotes[] = $shortDesc; break;
+            case 'add': if ($addNote === null) $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'new_redaction': $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'change':
+                $npaInfo = getNpaInfoByItemId($rev['modified_by_id'], $pdo);
+                if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
+                    $seenChangeNpaIds[] = $npaInfo['npa_id'];
+                    $changeNotes[] = $shortDesc;
+                }
+                break;
         }
     }
 
@@ -73,7 +72,7 @@ function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType,
         if ($allNull && !empty($currentRev['valid_from'])) {
             $law = getIntroducingLawForDate($pdo, $baseNpaId, $currentRev['valid_from']);
             if ($law) {
-                $lawShort = getShortNpaDescription($law['revision_id'], $pdo, true);
+                $lawShort = getShortNpaDescription($law['revision_id'], $pdo, true, 'nominative');
                 if ($lawShort !== 'исходная редакция') $addNote = $lawShort;
             }
         }
@@ -123,27 +122,26 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
     }
     if (empty($allowedRevisions)) return '';
 
-    $lastNewRedactionIdx = -1;
-    foreach ($allowedRevisions as $idx => $rev) {
-        if ($rev['mod_type'] === 'new_redaction') $lastNewRedactionIdx = $idx;
-    }
-    $revisionsToProcess = ($lastNewRedactionIdx !== -1)
-        ? array_slice($allowedRevisions, $lastNewRedactionIdx)
-        : $allowedRevisions;
-
     $addNote = null;
     $newRedactionNote = null;
     $changeNotes = [];
+    $seenChangeNpaIds = [];
     $ownChangerIds = [];
 
-    foreach ($revisionsToProcess as $rev) {
+    foreach ($allowedRevisions as $rev) {
         $shortDesc = getShortNpaDescription($rev['modified_by_id'], $pdo, true);
         if ($shortDesc === 'исходная редакция') continue;
 
         switch ($rev['mod_type']) {
-            case 'add': if ($addNote === null) $addNote = $shortDesc; break;
-            case 'new_redaction': $newRedactionNote = $shortDesc; break;
-            case 'change': if (!in_array($shortDesc, $changeNotes, true)) $changeNotes[] = $shortDesc; break;
+            case 'add': if ($addNote === null) $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'new_redaction': $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'change':
+                $npaInfo = getNpaInfoByItemId($rev['modified_by_id'], $pdo);
+                if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
+                    $seenChangeNpaIds[] = $npaInfo['npa_id'];
+                    $changeNotes[] = $shortDesc;
+                }
+                break;
         }
         foreach (array_filter(array_map('trim', explode(',', (string)($rev['modified_by_id'] ?? '')))) as $mid) {
             if ($mid !== '' && $mid !== 'base') $ownChangerIds[$mid] = true;
@@ -167,8 +165,17 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
         $currentRevId,
         $prevRevForNotes ? $prevRevForNotes['rev_id'] : null
     );
-    foreach ($childChangerNotes as $desc) {
-        if (!in_array($desc, $changeNotes, true)) $changeNotes[] = $desc;
+    foreach ($childChangerNotes as $modifiedById) {
+        $npaInfo = getNpaInfoByItemId($modifiedById, $pdo);
+        if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
+            $seenChangeNpaIds[] = $npaInfo['npa_id'];
+            $changeNotes[] = getShortNpaDescription($modifiedById, $pdo, true);
+        } elseif (!$npaInfo) {
+            $desc = getShortNpaDescription($modifiedById, $pdo, true);
+            if ($desc && $desc !== 'исходная редакция' && !in_array($desc, $changeNotes, true)) {
+                $changeNotes[] = $desc;
+            }
+        }
     }
 
     $genderSuffix = '';
@@ -188,7 +195,7 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
         if ($allNull && !empty($currentRev['valid_from'])) {
             $law = getIntroducingLawForDate($pdo, $baseNpaId, $currentRev['valid_from']);
             if ($law) {
-                $lawShort = getShortNpaDescription($law['revision_id'], $pdo, true);
+                $lawShort = getShortNpaDescription($law['revision_id'], $pdo, true, 'nominative');
                 if ($lawShort !== 'исходная редакция') $addNote = $lawShort;
             }
         }

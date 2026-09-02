@@ -386,9 +386,7 @@ def _verify_revision_exists(revisions, expected_revision_id, ch_type, structural
                         log_callback(f"  verify {ch_type}: revision {expected_revision_id} уже закрыта (valid_to={rev.get('valid_to')})", 'error')
                     return False
                 mod_type = rev.get('mod_type', '')
-                if ch_type == 'new_redaction' and mod_type == 'new_redaction':
-                    return True
-                if ch_type == 'change' and mod_type in ('change', 'new_redaction'):
+                if mod_type in ('change', 'new_redaction'):
                     return True
                 if log_callback:
                     log_callback(f"  verify {ch_type}: revision {expected_revision_id} имеет неверный mod_type='{mod_type}'", 'error')

@@ -60,7 +60,7 @@ function getDocumentStatus(PDO $pdo, $npa_id, $viewDateSql) {
             $stmtCancel->execute([$cancellingNpaId]);
             $cancellingNpa = $stmtCancel->fetch();
             if ($cancellingNpa) {
-                $type = ($cancellingNpa['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
+                $type = ($cancellingNpa['npa_type'] === 'law') ? 'Закон' : 'Постановление Законодательного Собрания';
                 $datePassed = formatRusDate($cancellingNpa['date_passed'], $dateFormat);
                 $url = $cancellingNpa['npa_url'] ?? '';
                 $cancellingText = $type . ' города Севастополя № ' . $cancellingNpa['npa_number'] . ' от ' . $datePassed;

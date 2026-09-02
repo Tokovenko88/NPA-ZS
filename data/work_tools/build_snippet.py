@@ -3,8 +3,11 @@
 
 Модули — источник истины. Скрипт читает точку входа HtmlFromNpaZS.php
 («рецепт сборки»), заменяет каждый require на содержимое соответствующего
-файла (без <?php и докблока) и записывает src/site/php/snippet.php —
-единственный большой скрипт для сайта, как и раньше.
+файла (без <?php, докблока и PHP-комментариев //, #, /* */) и записывает
+src/site/php/snippet.php — единственный большой скрипт для сайта.
+
+Комментарии удаляются с учётом строковых литералов и регулярных выражений,
+чтобы '#' внутри '/.../' или одиночных/двойных кавычек не пострадал.
 
 Сборка детерминирована (без меток времени): повторный запуск не меняет файл.
 
@@ -26,9 +29,236 @@ OUT = ROOT / "src" / "site" / "php" / "snippet.php"
 REQ = re.compile(r"^\s*require(_once)?\s+__DIR__\s*\.\s*'([^']+)'\s*;\s*$")
 
 
+def strip_php_comments(src: str) -> str:
+    """Удаляет //, # и /* */ комментарии с учётом строк и регулярных выражений.
+
+    Состояния:
+      - CODE: обычный PHP-код
+      - SQ:   одиночная кавычка (без интерполяции)
+      - DQ:   двойная кавычка (с поддержкой \\{$var\\} и простых экранирований)
+      - RE:   регулярное выражение /.../[flags] (PCRE-флаги после /)
+      - LC:   строчный комментарий // или # до конца строки
+      - BC:   блочный комментарий /* ... */
+    """
+    n = len(src)
+    i = 0
+    out = []
+    state = "CODE"
+    last_non_ws = ""  # последний значащий символ в CODE для эвристики регулярок
+
+    def prev_code_char(j: int) -> str:
+        """Предыдущий непустой символ в CODE-контексте перед позицией j в out."""
+        k = len(out) - 1
+        while k >= 0 and out[k] in " \t\r\n":
+            k -= 1
+        return out[k] if k >= 0 else last_non_ws
+
+    while i < n:
+        c = src[i]
+        nxt = src[i + 1] if i + 1 < n else ""
+
+        if state == "CODE":
+            if c == "/" and nxt == "/":
+                state = "LC"
+                i += 2
+                continue
+            if c == "#":
+                state = "LC"
+                i += 1
+                continue
+            if c == "/" and nxt == "*":
+                state = "BC"
+                i += 2
+                continue
+            if c == "'":
+                state = "SQ"
+                out.append(c)
+                i += 1
+                continue
+            if c == '"':
+                state = "DQ"
+                out.append(c)
+                i += 1
+                continue
+            if c == "/":
+                prev = prev_code_char(i)
+                if prev in "(=,[;:?&|%<>!~^{}+-*":
+                    state = "RE"
+                    i += 1
+                    continue
+            if c not in " \t\r\n":
+                last_non_ws = c
+            out.append(c)
+            i += 1
+            continue
+
+        if state == "SQ":
+            out.append(c)
+            if c == "\\" and nxt:
+                out.append(nxt)
+                i += 2
+                continue
+            if c == "'":
+                state = "CODE"
+            i += 1
+            continue
+
+        if state == "DQ":
+            out.append(c)
+            if c == "\\" and nxt:
+                out.append(nxt)
+                i += 2
+                continue
+            if c == "$" and nxt == "{":
+                state = "DQ_INTERP"
+                out.append("{")
+                i += 2
+                continue
+            if c == "{" and nxt == "$":
+                state = "DQ_INTERP"
+                i += 1
+                continue
+            if c == '"':
+                state = "CODE"
+            i += 1
+            continue
+
+        if state == "DQ_INTERP":
+            if c == "{":
+                out.append(c)
+                depth = 1
+                i += 1
+                while i < n and depth:
+                    cc = src[i]
+                    if cc == "{":
+                        depth += 1
+                    elif cc == "}":
+                        depth -= 1
+                    elif cc == "'":
+                        out.append(cc)
+                        i += 1
+                        while i < n and src[i] != "'":
+                            if src[i] == "\\" and i + 1 < n:
+                                out.append(src[i]); out.append(src[i + 1]); i += 2
+                                continue
+                            out.append(src[i]); i += 1
+                        if i < n:
+                            out.append(src[i]); i += 1
+                        continue
+                    elif cc == '"':
+                        out.append(cc)
+                        i += 1
+                        while i < n and src[i] != '"':
+                            if src[i] == "\\" and i + 1 < n:
+                                out.append(src[i]); out.append(src[i + 1]); i += 2
+                                continue
+                            if src[i] == "$" and i + 1 < n and src[i + 1] == "{":
+                                out.append(src[i]); out.append(src[i + 1]); i += 2
+                                sub_depth = 1
+                                while i < n and sub_depth:
+                                    if src[i] == "{": sub_depth += 1
+                                    elif src[i] == "}": sub_depth -= 1
+                                    out.append(src[i]); i += 1
+                                continue
+                            out.append(src[i]); i += 1
+                        if i < n:
+                            out.append(src[i]); i += 1
+                        continue
+                    out.append(cc); i += 1
+                state = "DQ"
+                continue
+            if c == "$" and (nxt.isalpha() or nxt == "_"):
+                out.append(c)
+                i += 1
+                while i < n and (src[i].isalnum() or src[i] == "_"):
+                    out.append(src[i]); i += 1
+                if i < n and src[i] == "[":
+                    out.append(src[i]); i += 1
+                    while i < n and src[i] != "]":
+                        if src[i] == "\\" and i + 1 < n:
+                            out.append(src[i]); out.append(src[i + 1]); i += 2
+                            continue
+                        out.append(src[i]); i += 1
+                    if i < n:
+                        out.append(src[i]); i += 1
+                continue
+            if c == '"':
+                out.append(c)
+                state = "CODE"
+                i += 1
+                continue
+            out.append(c); i += 1
+            continue
+
+        if state == "RE":
+            if c == "\\" and nxt:
+                out.append(c); out.append(nxt); i += 2
+                continue
+            if c == "[":
+                out.append(c); i += 1
+                while i < n and src[i] != "]":
+                    if src[i] == "\\" and i + 1 < n:
+                        out.append(src[i]); out.append(src[i + 1]); i += 2
+                        continue
+                    out.append(src[i]); i += 1
+                if i < n:
+                    out.append(src[i]); i += 1
+                continue
+            if c == "/":
+                state = "RE_FLAGS"
+                out.append(c); i += 1
+                continue
+            out.append(c); i += 1
+            continue
+
+        if state == "RE_FLAGS":
+            if c.isalpha():
+                out.append(c); i += 1
+                continue
+            state = "CODE"
+            if c not in " \t\r\n":
+                last_non_ws = c
+            out.append(c); i += 1
+            continue
+
+        if state == "LC":
+            if c == "\n":
+                state = "CODE"
+                out.append(c)
+            i += 1
+            continue
+
+        if state == "BC":
+            if c == "*" and nxt == "/":
+                state = "CODE"
+                i += 2
+                continue
+            if c == "\n":
+                out.append(c)
+            i += 1
+            continue
+
+    return "".join(out)
+
+
+def collapse_blank_lines(text: str) -> str:
+    """Схлопывает подряд идущие пустые строки до одной (после удаления комментов)."""
+    lines = text.split("\n")
+    out = []
+    prev_blank = False
+    for ln in lines:
+        is_blank = ln.strip() == ""
+        if is_blank and prev_blank:
+            continue
+        out.append(ln)
+        prev_blank = is_blank
+    return "\n".join(out)
+
+
 def read_body_lines(path: Path) -> list:
-    """Содержимое модуля без <?php, докблока и пустых строк после него."""
-    lines = path.read_bytes().decode("utf-8").splitlines()
+    """Содержимое модуля без <?php, докблока, PHP-комментариев и лишних пустых строк."""
+    text = path.read_bytes().decode("utf-8")
+    lines = text.splitlines()
     if not lines or not lines[0].lstrip().startswith("<?php"):
         raise ValueError(f"{path.name}: файл должен начинаться с <?php")
     i = 1
@@ -38,7 +268,10 @@ def read_body_lines(path: Path) -> list:
         i += 1  # за '*/'
         while i < len(lines) and not lines[i].strip():
             i += 1
-    return lines[i:]
+    body = "\n".join(lines[i:])
+    body = strip_php_comments(body)
+    body = collapse_blank_lines(body)
+    return body.split("\n")
 
 
 def required_modules() -> list:
@@ -59,7 +292,8 @@ def build() -> bytes:
         if not (SRC_DIR / rel).exists():
             raise FileNotFoundError(f"модуль из точки входа не найден: {rel}")
 
-    entry_lines = ENTRY.read_bytes().decode("utf-8").splitlines()
+    entry_text = ENTRY.read_bytes().decode("utf-8")
+    entry_lines = entry_text.splitlines()
     if not entry_lines or not entry_lines[0].lstrip().startswith("<?php"):
         raise ValueError("точка входа должна начинаться с <?php")
     i = 1
@@ -71,9 +305,13 @@ def build() -> bytes:
     while i < len(entry_lines) and not entry_lines[i].strip():
         i += 1
 
+    tail_text = "\n".join(entry_lines[i:])
+    tail_text = strip_php_comments(tail_text)
+    tail_text = collapse_blank_lines(tail_text)
+    tail_lines = tail_text.split("\n")
+
     parts = ["<?php"]
-    while i < len(entry_lines):
-        line = entry_lines[i]
+    for line in tail_lines:
         m = REQ.match(line)
         if m:
             body = read_body_lines(SRC_DIR / m.group(2).lstrip("/"))
@@ -82,7 +320,6 @@ def build() -> bytes:
                 parts.append("")
         else:
             parts.append(line)
-        i += 1
 
     return ("\n".join(parts) + "\n").encode("utf-8")
 def watch(interval: float = 2.0) -> None:

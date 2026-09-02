@@ -178,9 +178,11 @@ function getItemHeadCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOf
  * состав его дочерних элементов.
  *
  * Логика отбора кандидатов идентична collectExpiredChildChanges(), но
- * результат — уникальные short-desc описания НПА-инициаторов, без HTML.
+ * результат — уникальные item_id инициаторов (deduplicated по npa_id),
+ * без HTML и без пути элемента. Вызывающий код преобразует item_id в
+ * описание через getShortNpaDescription().
  *
- * @return string[] Уникальные короткие описания инициаторов утраты силы.
+ * @return string[] Уникальные item_id инициаторов утраты силы (deduplicated по npa_id).
  */
 function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate, array $changerIds, array $selectedRevisionNpaIds = [], $parentRevisionId = null, $prevRevisionId = null) {
     if ($parentRevisionId === null) {
@@ -298,6 +300,7 @@ function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate,
     }
 
     $notes = [];
+    $seenNpaIds = [];
     foreach (array_keys($bodyChildIds) as $childInternalId) {
         $stmt = $pdo->prepare('SELECT id, item_id, parent_id FROM npa_item WHERE id = ? LIMIT 1');
         $stmt->execute([$childInternalId]);
@@ -319,9 +322,16 @@ function collectExpiredChildChangerNotes(PDO $pdo, $internal_item_id, $asOfDate,
             $notValidIds = array_filter(array_map('trim', explode(',', (string)($candidate['not_valid'] ?? ''))));
             foreach ($notValidIds as $nvid) {
                 if (isset($changerItemIdSet[$nvid])) {
-                    $shortDesc = getRevisionSourceNote($nvid, $pdo, true);
-                    if ($shortDesc && $shortDesc !== 'исходная редакция' && !in_array($shortDesc, $notes, true)) {
-                        $notes[] = $shortDesc;
+                    $npaInfo = getNpaInfoByItemId($nvid, $pdo);
+                    if ($npaInfo) {
+                        if (!in_array($npaInfo['npa_id'], $seenNpaIds, true)) {
+                            $seenNpaIds[] = $npaInfo['npa_id'];
+                            $notes[] = $nvid;
+                        }
+                    } else {
+                        if (!in_array($nvid, $notes, true)) {
+                            $notes[] = $nvid;
+                        }
                     }
                     break 2;
                 }
