@@ -1,30 +1,14 @@
 """HTML-утилиты для извлечения и очистки HTML."""
 
-import os
-import sys
-import re
-import json
-import time
-import requests
-import threading
 import copy
-from datetime import datetime, timedelta, date
-import traceback
-from collections import defaultdict
-from bs4 import BeautifulSoup
-import json5
-import queue
 import difflib
-from json_repair import repair_json
+import json
+import re
 
-from npazs.constants import (
-    DEFAULT_OLLAMA_MODEL,
-    _ollama_base_url,
-    _user_retry_callback,
-)
-
-from npazs.revision.text_utils import safe_re_sub, strip_thinking_tags, clean_number
+from bs4 import BeautifulSoup
 from npazs.revision.ai_utils import TYPE_TO_RUSSIAN
+from npazs.revision.text_utils import clean_number, safe_re_sub, strip_thinking_tags
+
 
 def clean_and_unwrap_html(html_text, is_table_child=False):
     if not html_text:
@@ -896,16 +880,13 @@ def _looks_like_json_response(text):
     if lower.startswith('json'):
         return True
 
-    if stripped.startswith('{') or stripped.startswith('['):
+    if stripped.startswith(('{', '[')):
         return True
 
     if '"html"' in stripped[:500] or "'html'" in stripped[:500]:
         return True
 
-    if '"highlights"' in stripped[:1000]:
-        return True
-
-    return False
+    return '"highlights"' in stripped[:1000]
 
 
 def _is_valid_ai_html(html):
@@ -917,7 +898,7 @@ def _is_valid_ai_html(html):
     if not html:
         return False
 
-    if html.startswith('{') or html.startswith('['):
+    if html.startswith(('{', '[')):
         return False
 
     if re.search(r'^\s*\{?\s*"html"\s*:', html, re.IGNORECASE):
@@ -926,14 +907,7 @@ def _is_valid_ai_html(html):
     if re.search(r'^\s*\{?\s*["\']html["\']\s*:', html, re.IGNORECASE):
         return False
 
-    if not re.search(
-        r'<(?:p|div|table|tbody|thead|tr|td|th|br|ol|ul|li)\b',
-        html,
-        re.IGNORECASE
-    ):
-        return False
-
-    return True
+    return re.search(r'<(?:p|div|table|tbody|thead|tr|td|th|br|ol|ul|li)\b', html, re.IGNORECASE)
 
 
 def _extract_html_from_parsed_data(data, log_callback=None):
@@ -1186,10 +1160,10 @@ def format_structural_number(number, is_header=False, has_title=False):
             return clean_num
         return f"{clean_num}." if not clean_num.endswith('.') else clean_num
 
-def get_item_html_recursive(item, all_items_map, include_header=True):
+def get_item_html_recursive(item, all_items_map, include_header=True, include_children=True):
     item_type = item.get('item_type', '')
     number = item.get('item_number', '')
-    item_id = item.get('item_id', '')
+    item.get('item_id', '')
     html_out = ""
     if include_header and item_type in ('article', 'chapter', 'section', 'appendix'):
         type_rus = TYPE_TO_RUSSIAN.get(item_type, item_type).capitalize()
@@ -1238,13 +1212,11 @@ def get_item_html_recursive(item, all_items_map, include_header=True):
             active_body.insert(0, {'type': 'paragraph', 'html_text': f"{formatted_num} ", 'order': 1})
     for block in active_body:
         b_type = block.get('type')
-        if b_type == 'paragraph':
-            html_out += block.get('html_text', '') + "\n"
-        elif b_type == 'table_fragment':
-            html_out += block.get('html_text', '') + "\n"
-        elif b_type == 'table_header':
+        if b_type == 'paragraph' or b_type == 'table_fragment' or b_type == 'table_header':
             html_out += block.get('html_text', '') + "\n"
         elif b_type == 'child_ref':
+            if not include_children:
+                continue
             child_id = block.get('item_id')
             child_item = None
             if item.get('item_children'):
@@ -1260,6 +1232,24 @@ def get_full_element_html(element, use_original_structure=False, include_number=
     if not element:
         return ""
     return get_item_html_recursive(element, {}, include_header=include_header)
+
+def get_own_text_html(element, include_header=True):
+    """HTML только собственного текста элемента — без разворота дочерних элементов.
+
+    Блоки ``child_ref`` пропускаются: тексты дочерних пунктов/частей хранятся
+    в отдельных элементах и попадают в тело родителя только как ``child_ref``.
+    Для элемента без детей результат совпадает с ``get_full_element_html``.
+
+    Используется при подготовке HTML для ИИ и pending-HTML, когда меняется
+    собственный текст элемента, у которого есть дети. Полный разворот детей
+    приводил к тому, что их тексты дублировались при перестройке родителя
+    как неструктурированные абзацы (прогон 516-ЗС -> 127-ЗС, часть 5 статьи 6).
+    """
+    if not element:
+        return ""
+    return get_item_html_recursive(
+        element, {}, include_header=include_header, include_children=False
+    )
 
 def extract_text_from_revision(rev):
     text = ''

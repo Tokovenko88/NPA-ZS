@@ -1,37 +1,35 @@
 """Применение изменений к документу."""
 
-import os
-import sys
-import re
-import json
-import time
 import copy
+import re
 import uuid
-from datetime import datetime, timedelta, date
-from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 
+from npazs.constants import DEFAULT_BACKEND, TYPE_TO_RUSSIAN
 from npazs.revision.ai_utils import ask_ollama
-from npazs.revision.text_utils import (
-    adjust_punctuation_after_deletion,
-    clean_head_text,
-    safe_re_sub,
+from npazs.revision.element_finder import (
+    _extract_paragraph_order,
+    _resolve_modified_by_ids,
+    find_item_by_revision_number,
 )
 from npazs.revision.html_utils import (
+    _correct_table_highlights,
     clean_and_unwrap_html,
     clean_description_html,
     extract_paragraphs_by_indices,
     get_current_head,
+    get_full_element_html,
+    get_own_text_html,
     parse_ai_response_for_prompt4,
     parse_structural_tokens,
     remove_leading_number_from_html,
     split_html_to_paragraphs,
     strip_number_from_element_html,
-    get_full_element_html,
 )
-from npazs.revision.ui_utils import (
-    _ensure_path,
-    _fetch_source_html_for_change,
-    _find_existing_element_flexible,
+from npazs.revision.text_utils import (
+    adjust_punctuation_after_deletion,
+    clean_head_text,
+    safe_re_sub,
 )
 from npazs.revision.tree_utils import (
     adjust_highlights_for_paragraph_change,
@@ -39,20 +37,16 @@ from npazs.revision.tree_utils import (
     find_child_by_type_and_number,
     find_item_by_id,
 )
-from npazs.revision.element_finder import _resolve_modified_by_ids, find_item_by_revision_number, _extract_paragraph_order
 from npazs.revision.ui_utils import (
     _add_new_element,
     _close_revision,
-    _make_new_revision,
     _fetch_source_html_for_change,
-    _ensure_path,
     _find_existing_element_flexible,
+    _make_new_revision,
     build_new_body_preserving_child_refs,
     is_highlights_empty,
     parse_add_new_field,
 )
-from npazs.revision.html_utils import _correct_table_highlights
-from npazs.constants import DEFAULT_BACKEND, TYPE_TO_RUSSIAN
 
 
 def _assign_revision_id(revision):
@@ -109,10 +103,9 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
                           change_ids=None, backend="ollama", kilo_gateway_url=None, api_key=None,
                           prompt_answer_callback=None):
     from npazs.revision.revision_builder import _merge_highlights_with_paragraph_prefix
-    if stop_event and stop_event.is_set():
-        if log_callback:
-            log_callback("  apply_grouped_changes: остановка", 'warning')
-            return [_make_failed_result(cid, "operation failed") for cid in (change_ids or [""])]
+    if stop_event and stop_event.is_set() and log_callback:
+        log_callback("  apply_grouped_changes: остановка", 'warning')
+        return [_make_failed_result(cid, "operation failed") for cid in (change_ids or [""])]
     if log_callback:
         log_callback(f"Применение группы из {len(changes)} изменений к элементу {element.get('item_id')}", 'info')
     if any(c.get('type') == 'new_redaction' for c in changes):
@@ -122,7 +115,7 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
             if '_quoted_html' in ch:
                 source_html = ch['_quoted_html']
                 if log_callback:
-                    log_callback(f"  Используем ранее извлечённый HTML из _quoted_html", 'info')
+                    log_callback("  Используем ранее извлечённый HTML из _quoted_html", 'info')
             else:
                 source_html = _fetch_source_html_for_change(ch, change_data, source_context_root, log_callback)
                 if not source_html:
@@ -207,7 +200,12 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
     ai_paragraphs = []
     combined_highlights = None
     if text_changes:
-        current_html = get_full_element_html(element, include_header=False)
+        # Собственный текст элемента без разворота дочерних элементов (child_ref):
+        # тексты детей живут в отдельных элементах и попадают в тело родителя как
+        # child_ref. Полный разворот (с текстами детей) приводил к тому, что ИИ
+        # возвращал их «эхо», а при перестройке родителя эти тексты дублировались
+        # неструктурированными абзацами (прогон 516-ЗС -> 127-ЗС, часть 5 статьи 6).
+        current_html = get_own_text_html(element, include_header=False)
         if not current_html.strip():
             if log_callback:
                 log_callback(f"  Не удалось получить HTML-содержимое элемента {element.get('item_id')}. Изменения типа 'change' невозможны.", 'error')
@@ -330,10 +328,8 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
                     log_callback(f"  Абзац {target_idx} заменён", 'result')
             else:
                 insert_idx = target_idx - 1
-                if insert_idx < 0:
-                    insert_idx = 0
-                if insert_idx > len(ai_paragraphs):
-                    insert_idx = len(ai_paragraphs)
+                insert_idx = max(insert_idx, 0)
+                insert_idx = min(insert_idx, len(ai_paragraphs))
                 ai_paragraphs.insert(insert_idx, new_html)
                 combined_highlights = adjust_highlights_for_paragraph_change(
                     combined_highlights, 'add', insert_idx + 1,
@@ -387,10 +383,8 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
                 new_html = source_html
             new_html = clean_description_html(new_html)
             insert_idx = target_idx - 1
-            if insert_idx < 0:
-                insert_idx = 0
-            if insert_idx > len(ai_paragraphs):
-                insert_idx = len(ai_paragraphs)
+            insert_idx = max(insert_idx, 0)
+            insert_idx = min(insert_idx, len(ai_paragraphs))
             ai_paragraphs.insert(insert_idx, new_html)
             combined_highlights = adjust_highlights_for_paragraph_change(
                 combined_highlights, 'add', insert_idx + 1,
@@ -427,9 +421,7 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
         if 'раздел' in structural or 'глава' in structural or 'статья' in structural:
             is_number_change = True
         change_types.add(ch.get('type', ''))
-    if not text_changes and paragraph_ops:
-        mod_type = 'change'
-    elif 'change' in change_types:
+    if not text_changes and paragraph_ops or 'change' in change_types:
         mod_type = 'change'
     elif 'new_redaction' in change_types:
         mod_type = 'new_redaction'
@@ -489,7 +481,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
             if ch_type == 'add':
                 new_spec = change.get('new', '')
                 if not new_spec:
-                    log_callback(f"  ADD: отсутствует поле new", 'error')
+                    log_callback("  ADD: отсутствует поле new", 'error')
                     return False
                 ru_type, child_num = parse_add_new_field(new_spec)
                 if not ru_type or not child_num:
@@ -515,7 +507,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
                 else:
                     source_html = _fetch_source_html_for_change(change, change_data, source_context_root, log_callback)
                     if not source_html:
-                        log_callback(f"  Не удалось получить HTML для add", 'error')
+                        log_callback("  Не удалось получить HTML для add", 'error')
                         return False
                 range_str = change.get('description', '').strip()
                 cleaned_html = extract_paragraphs_by_indices(source_html, range_str, log_callback)
@@ -609,7 +601,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
                                                  backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     if structural_lower == "наименование":
         return _apply_change_to_head(change, data, change_data, valid_from, rev_number, source_element, source_item_id, log_callback, model, prompt4, extra_options, stop_event, manual_resolver, source_context_root, prompt_answer_callback=prompt_answer_callback, backend=backend, kilo_gateway_url=kilo_gateway_url, api_key=api_key)
-    if structural_lower.endswith(' наименование') and not structural_lower == 'наименование':
+    if structural_lower.endswith(' наименование') and structural_lower != 'наименование':
         element_part = structural[:-len(' наименование')].strip()
         change_copy = change.copy()
         change_copy['structural_element'] = f"наименование {element_part}"
@@ -621,7 +613,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
     if ch_type == 'add':
         new_spec = change.get('new', '')
         if not new_spec:
-            log_callback(f"  ADD: отсутствует поле new", 'error')
+            log_callback("  ADD: отсутствует поле new", 'error')
             return False
         ru_type, child_num = parse_add_new_field(new_spec)
         if not ru_type or not child_num:
@@ -647,7 +639,7 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
         else:
             source_html = _fetch_source_html_for_change(change, change_data, source_context_root, log_callback)
             if not source_html:
-                log_callback(f"  Не удалось получить HTML для add", 'error')
+                log_callback("  Не удалось получить HTML для add", 'error')
                 return False
         range_str = change.get('description', '').strip()
         cleaned_html = extract_paragraphs_by_indices(source_html, range_str, log_callback)
@@ -759,9 +751,7 @@ def _has_pending_fields(data, change):
             if has_pending_recursive(item.get('item_children', [])):
                 return True
         return False
-    if has_pending_recursive(data.get('npa_items_revision', [])):
-        return True
-    return False
+    return bool(has_pending_recursive(data.get('npa_items_revision', [])))
 
 
 def _find_new_revision(data, change):
@@ -835,7 +825,7 @@ def _apply_change_to_appendix_prefix(change, data, change_data, valid_from, rev_
         else:
             source_html = _fetch_source_html_for_change(change, change_data, source_context_root, log_callback)
             if not source_html:
-                log_callback(f"  Не удалось получить HTML из элемента-источника", 'error')
+                log_callback("  Не удалось получить HTML из элемента-источника", 'error')
                 return False
         range_str = change.get('description', '').strip()
         new_prefix = extract_paragraphs_by_indices(source_html, range_str, log_callback)
@@ -983,7 +973,7 @@ def _apply_change_to_head(change, data, change_data, valid_from, rev_number,
         context_root=source_context_root)
     if modified_by_id_str is None:
         if log_callback:
-            log_callback(f"  Не удалось определить modified_by_id для заголовка", 'error')
+            log_callback("  Не удалось определить modified_by_id для заголовка", 'error')
         return None
     _close_revision(head_rev[active_idx], valid_to_str)
     new_rev = {
@@ -1029,7 +1019,7 @@ def _apply_change_to_element_head(change, data, change_data, valid_from, rev_num
         structural_element=structural, manual_resolver=manual_resolver, stop_event=stop_event,
         context_root=source_context_root)
     if modified_by_id_str is None:
-        log_callback(f"  Не удалось определить modified_by_id для наименования элемента", 'error')
+        log_callback("  Не удалось определить modified_by_id для наименования элемента", 'error')
         return False
     head_revisions = target_element.setdefault('head_revisions', [])
     active_idx = -1
@@ -1146,7 +1136,7 @@ def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
         context_root=source_context_root)
     if modified_by_id_str is None:
         if log_callback:
-            log_callback(f"  Не удалось определить modified_by_id для преамбулы", 'error')
+            log_callback("  Не удалось определить modified_by_id для преамбулы", 'error')
         return False
     valid_to_str = (valid_from - timedelta(days=1)).strftime('%d.%m.%Y')
     if ch_type == 'delete':
@@ -1156,7 +1146,7 @@ def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
             if 'revision_id' not in revisions[active_idx]:
                 revisions[active_idx]['revision_id'] = str(uuid.uuid4())
         if log_callback:
-            log_callback(f"  Преамбула помечена как удалённая", 'result')
+            log_callback("  Преамбула помечена как удалённая", 'result')
         return True
     elif ch_type == 'change':
         if not model or not prompt4:
@@ -1191,7 +1181,7 @@ def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
         new_revision = _make_new_revision(new_body, mod_type='change', modified_by_id=modified_by_id_str, highlights=highlights)
         revisions.append(new_revision)
         if log_callback:
-            log_callback(f"  Получен новый HTML от ИИ для преамбулы", 'result')
+            log_callback("  Получен новый HTML от ИИ для преамбулы", 'result')
         return _make_success_result(change.get('change_id') or _get_change_id(change), revision=new_revision)
     elif ch_type == 'new_redaction':
         if '_quoted_html' in change:
@@ -1228,7 +1218,7 @@ def _apply_change_to_preamble(change, data, change_data, valid_from, rev_number,
         new_revision = _make_new_revision(new_body, mod_type='new_redaction', modified_by_id=modified_by_id_str, highlights=highlights)
         revisions.append(new_revision)
         if log_callback:
-            log_callback(f"  Преамбула заменена новой редакцией (источник)", 'result')
+            log_callback("  Преамбула заменена новой редакцией (источник)", 'result')
         return _make_success_result(change.get('change_id') or _get_change_id(change), revision=new_revision)
     else:
         if log_callback:
@@ -1259,7 +1249,7 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
     if ch_type == 'delete':
         if modified_by_id_str is None:
             if log_callback:
-                log_callback(f"  Не удалось определить modified_by_id для удаления", 'error')
+                log_callback("  Не удалось определить modified_by_id для удаления", 'error')
             return False
         if active_idx >= 0:
             revisions[active_idx]['valid_to'] = valid_to_str
@@ -1292,19 +1282,21 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
             return False
         if modified_by_id_str is None:
             if log_callback:
-                log_callback(f"  Не удалось определить modified_by_id для изменения", 'error')
+                log_callback("  Не удалось определить modified_by_id для изменения", 'error')
             return False
         has_children = bool(element.get('item_children'))
         if has_children:
             old_child_refs = extract_child_refs_from_revision(old_rev) if old_rev else []
-            current_html = get_full_element_html(element, include_header=False)
+            # Собственный текст без текстов детей: children попадут в new_body
+            # как child_ref (см. ниже), их тексты не должны дублироваться абзацами.
+            current_html = get_own_text_html(element, include_header=False)
             if log_callback:
                 log_callback(f"  Текущий HTML элемента (длина {len(current_html)} символов)", 'input')
             if " ; " in description and not description.startswith("1. "):
                 parts = [p.strip() for p in description.split(" ; ")]
                 formatted_desc = "\n".join(f"{i+1}. {p}" for i, p in enumerate(parts))
                 if log_callback:
-                    log_callback(f"  Преобразовано описание в нумерованный список", 'info')
+                    log_callback("  Преобразовано описание в нумерованный список", 'info')
                 description = formatted_desc
             stage4_prompt = prompt4.replace("{element_html}", current_html).replace("{description}", description)
             if log_callback:
@@ -1348,14 +1340,14 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
             revisions.append(new_rev)
             rebuild_ids.append(element['item_id'])
             if log_callback:
-                log_callback(f"  Элемент обновлён через ИИ (сохранён HTML для перестройки)", 'result')
+                log_callback("  Элемент обновлён через ИИ (сохранён HTML для перестройки)", 'result')
             return True
         else:
             is_table_child = element.get('_is_table_child', False)
             if is_table_child:
                 current_html = get_full_element_html(element, include_header=False)
                 if log_callback:
-                    log_callback(f"  Элемент является дочерним для структурированной таблицы, сохраняем HTML как есть", 'info')
+                    log_callback("  Элемент является дочерним для структурированной таблицы, сохраняем HTML как есть", 'info')
                 new_html = description
                 if not new_html:
                     if '_quoted_html' in change:
@@ -1391,10 +1383,10 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
                     revisions.append(new_rev)
                     rebuild_ids.append(element['item_id'])
                     if log_callback:
-                        log_callback(f"  Элемент таблицы обновлён (сохранён фрагмент)", 'result')
+                        log_callback("  Элемент таблицы обновлён (сохранён фрагмент)", 'result')
                     return True
                 else:
-                    log_callback(f"  Не удалось получить HTML для табличного элемента", 'error')
+                    log_callback("  Не удалось получить HTML для табличного элемента", 'error')
                     return False
             else:
                 current_html = get_full_element_html(element, include_header=False)
@@ -1404,7 +1396,7 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
                     parts = [p.strip() for p in description.split(" ; ")]
                     formatted_desc = "\n".join(f"{i+1}. {p}" for i, p in enumerate(parts))
                     if log_callback:
-                        log_callback(f"  Преобразовано описание в нумерованный список", 'info')
+                        log_callback("  Преобразовано описание в нумерованный список", 'info')
                     description = formatted_desc
                 stage4_prompt = prompt4.replace("{element_html}", current_html).replace("{description}", description)
                 if log_callback:
@@ -1439,7 +1431,7 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
     elif ch_type == 'new_redaction':
         if modified_by_id_str is None:
             if log_callback:
-                log_callback(f"  Не удалось определить modified_by_id для замены", 'error')
+                log_callback("  Не удалось определить modified_by_id для замены", 'error')
             return False
         is_table_child = element.get('_is_table_child', False)
         if is_table_child:
@@ -1466,11 +1458,11 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
                         if log_callback:
                             log_callback(f"  revision_number == null, берём HTML из target_element (ID {source_context_root.get('item_id')})", 'info')
                     else:
-                        log_callback(f"  revision_number == null, но target_element не передан", 'error')
+                        log_callback("  revision_number == null, но target_element не передан", 'error')
                         return False
                 if not source_html:
                     if log_callback:
-                        log_callback(f"  Не удалось получить HTML для новой редакции табличного элемента", 'error')
+                        log_callback("  Не удалось получить HTML для новой редакции табличного элемента", 'error')
                     return False
             range_str = change.get('description', '').strip()
             cleaned_html = extract_paragraphs_by_indices(source_html, range_str, log_callback)
@@ -1528,11 +1520,11 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
                         if log_callback:
                             log_callback(f"  revision_number == null, берём HTML из target_element (ID {source_context_root.get('item_id')})", 'info')
                     else:
-                        log_callback(f"  revision_number == null, но target_element не передан", 'error')
+                        log_callback("  revision_number == null, но target_element не передан", 'error')
                         return False
                 if not source_html:
                     if log_callback:
-                        log_callback(f"  Не удалось получить HTML для новой редакции", 'error')
+                        log_callback("  Не удалось получить HTML для новой редакции", 'error')
                     return False
             range_str = change.get('description', '').strip()
             cleaned_html = extract_paragraphs_by_indices(source_html, range_str, log_callback)

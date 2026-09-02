@@ -34,55 +34,93 @@
 детерминированность результата зависит от подтверждений пользователя.
 """
 
-import os
-import sys
 import copy
-import threading
-import queue
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from datetime import datetime, timedelta
-import traceback
-import re
 import json
+import os
+import re
+import threading
+import tkinter as tk
+import traceback
+from datetime import datetime
+from tkinter import messagebox
 
 from npazs._bootstrap import _bootstrap_project_root
 
 _bootstrap_project_root()
 
+from json_repair import repair_json
 from npazs.constants import (
-    settings,
-    _ollama_base_url,
-    DEFAULT_EXTRA_OPTIONS,
-    DEFAULT_OLLAMA_MODEL,
-    LAST_PATHS_FILE,
-    STAGE_ANSWERS_FILE,
-    LAST_RUN_LOG_FILE,
-    PROMPT_1,
-    PROMPT_2,
-    PROMPT_3,
-    PROMPT_4,
     TYPE_TO_RUSSIAN,
     save_last_run_log,
 )
-from json_repair import repair_json
-from npazs.revision.text_utils import strip_thinking_tags
-from npazs.revision.ai_utils import ask_ollama, _extract_prompt_inputs
+from npazs.revision.ai_utils import _extract_prompt_inputs, ask_ollama
+from npazs.revision.change_pipeline import (
+    apply_change_tracked,
+    apply_grouped_changes_tracked,
+    run_verification_stage,
+)
+from npazs.revision.change_tracker import ChangeStatus, ChangeTracker
+from npazs.revision.element_finder import find_item_by_revision_number, narrow_source_id_to_subpoint
 from npazs.revision.engine import *
-from npazs.revision.tree_utils import _find_target_element, find_item_by_id
-from npazs.revision.ui_utils import _correct_change_description, _fetch_source_html_for_change, _add_new_element, _find_existing_element_flexible, _normalize_highlights_positions, _resolve_add_parent_and_deferred, _ensure_path, extract_json_from_text, expand_range_in_new_field, split_range_changes, get_date_for_filename, parse_add_new_field
-from npazs.revision.element_finder import narrow_source_id_to_subpoint, find_item_by_revision_number
+from npazs.revision.html_utils import (
+    _extract_quoted_html,
+    extract_html_for_added_element,
+    extract_structural_block,
+    extract_text_from_element,
+    get_full_element_html,
+    validate_quote_extraction,
+)
 from npazs.revision.retroactive_notes import (
-    apply_retroactive_rules_to_groups,
-    _append_item_note,
     _add_npa_note,
+    apply_retroactive_rules_to_groups,
     normalize_amending_note_text,
 )
-from npazs.revision.html_utils import extract_html_for_added_element, _extract_quoted_html, extract_structural_block, extract_text_from_element, get_full_element_html, validate_quote_extraction
-from npazs.revision.change_pipeline import apply_change_tracked, apply_grouped_changes_tracked, run_verification_stage
-from npazs.revision.change_tracker import ChangeTracker, ChangeStatus
-from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
-from npazs.ui.dialogs.source_mapping import SourceMappingDialog
+from npazs.revision.text_utils import strip_thinking_tags
+from npazs.revision.tree_utils import _find_target_element, find_item_by_id
+from npazs.revision.ui_utils import (
+    _add_new_element,
+    _correct_change_description,
+    _ensure_path,
+    _fetch_source_html_for_change,
+    _find_existing_element_flexible,
+    _resolve_add_parent_and_deferred,
+    expand_range_in_new_field,
+    extract_json_from_text,
+    parse_add_new_field,
+    split_range_changes,
+)
+
+
+def update_parent_pending_html(element, element_id, raw_ids, result_data, log, pass_label=""):
+    """Обновление pending-HTML родителя перед перестройкой с учётом перестроенных детей.
+
+    Если у элемента есть собственный pending-HTML (собственное изменение текста,
+    mod_type change/new_redaction), он уже содержит актуальный СОБСТВЕННЫЙ текст
+    элемента. Тексты перестроенных дочерних элементов в него НЕ дописываются:
+    дочерние элементы сохраняются в теле родителя как ``child_ref`` на этапе
+    структурной синхронизации (``sync_structural_element_recursive``).
+
+    Прежнее дописывание HTML детей (без нумераторов) приводило к тому, что парсер
+    уносил их тексты в collected_content родителя как неструктурированные абзацы
+    (прогон 516-ЗС -> 127-ЗС: в части 5 статьи 6 после пункта 9) «вылезали» тексты
+    пунктов 1-9 и добавленных 10-11).
+
+    Если собственного изменения нет — собираем полный HTML элемента из текущего
+    состояния (включая тексты детей), чтобы структура была перестроена целиком.
+    """
+    if element.get('_pending_new_redaction_html'):
+        log(
+            f"  У {element_id} есть собственный pending-HTML: тексты перестроенных "
+            f"дочерних элементов не дописываются (дети сохранятся как child_ref)"
+            f"{pass_label}",
+            'info',
+        )
+        return
+    new_html = get_full_element_html(element, use_original_structure=False)
+    if new_html:
+        element['_pending_new_redaction_html'] = new_html
+        log(f"  HTML для {element_id} обновлён с учётом изменений дочерних элементов{pass_label}", 'info')
+
 
 class AiPipelineMixin:
         def _init_prompt_answers(self):
@@ -297,7 +335,7 @@ class AiPipelineMixin:
             def _parse_stage2(raw_text, label):
                 raw_text = strip_thinking_tags(raw_text)
                 if not raw_text or raw_text.lower() in ('null', ''):
-                    self.log(f"ℹ️ Ответ от ИИ (этап 2): null — дополнительных указаний нет.", 'info')
+                    self.log("ℹ️ Ответ от ИИ (этап 2): null — дополнительных указаний нет.", 'info')
                     return None
                 try:
                     repaired = repair_json(raw_text)
@@ -539,9 +577,7 @@ class AiPipelineMixin:
             unique_set = set(unique_ids)
             for uid in unique_ids:
                 elem = find_item_by_id(result_data, uid)
-                if elem and (elem.get('_pending_new_redaction_html') or elem.get('_pending_html')):
-                    filtered_ids.append(uid)
-                elif not is_ancestor_in_list(uid, unique_set - {uid}):
+                if elem and (elem.get('_pending_new_redaction_html') or elem.get('_pending_html')) or not is_ancestor_in_list(uid, unique_set - {uid}):
                     filtered_ids.append(uid)
 
             self.log(f"📊 после фильтрации: {len(filtered_ids)}", 'info')
@@ -555,29 +591,6 @@ class AiPipelineMixin:
 
             self.log(f"🔧 Список ID для перестройки (отсортирован по глубине, сначала глубокие): {filtered_ids_sorted}", 'info')
             rebuild_modified_by = str(change_data.get('npa_id', 'unknown'))
-
-            # Вспомогательная функция для получения HTML дочернего элемента из его перестроенной ревизии
-            def get_child_html_after_rebuild(child_id):
-                child = find_item_by_id(result_data, child_id)
-                if not child:
-                    return None
-                revs = child.get('revisions', [])
-                active_rev = None
-                for rev in reversed(revs):
-                    if rev.get('valid_to') is None:
-                        active_rev = rev
-                        break
-                if not active_rev:
-                    return None
-                body_parts = []
-                for block in active_rev.get('body', []):
-                    if block.get('type') == 'paragraph':
-                        body_parts.append(block.get('html_text', ''))
-                    elif block.get('type') == 'table_fragment':
-                        body_parts.append(block.get('html_text', ''))
-                if not body_parts:
-                    return None
-                return '\n'.join(body_parts)
 
             for element_id in filtered_ids_sorted:
                 if self.stop_event.is_set():
@@ -602,48 +615,13 @@ class AiPipelineMixin:
                     check_children_for_ids(element)
 
                     if has_changed_children:
-                        # Если у элемента есть собственное изменение (_pending_new_redaction_html)
-                        if element.get('_pending_new_redaction_html'):
-                            base_html = element['_pending_new_redaction_html']
-                            from bs4 import BeautifulSoup
-                            soup = BeautifulSoup(base_html, 'html.parser')
-                            # Собираем ID только прямых потомков элемента, которые есть в raw_ids.
-                            # Вложенные элементы (например, пункты внутри новой части) уже
-                            # учтены в HTML контейнера через child_ref, поэтому их HTML
-                            # добавлять в родителя повторно нельзя.
-                            child_ids_to_add = []
-                            for child in element.get('item_children', []):
-                                if child.get('item_id') in raw_ids:
-                                    child_ids_to_add.append(child.get('item_id'))
-                            added_any = False
-                            for child_id in child_ids_to_add:
-                                child_html = get_child_html_after_rebuild(child_id)
-                                if not child_html:
-                                    continue
-                                child_elem = find_item_by_id(result_data, child_id)
-                                if not child_elem:
-                                    continue
-                                child_num = child_elem.get('item_number')
-                                child_type = child_elem.get('item_type')
-                                if child_type == 'part' and child_num:
-                                    child_soup = BeautifulSoup(child_html, 'html.parser')
-                                    first_p = child_soup.find('p')
-                                    if first_p:
-                                        first_p.insert(0, f"{child_num}. ")
-                                    soup.append(child_soup)
-                                else:
-                                    new_p = BeautifulSoup(child_html, 'html.parser')
-                                    soup.append(new_p)
-                                added_any = True
-                            if added_any:
-                                element['_pending_new_redaction_html'] = str(soup)
-                                self.log(f"  Дополнен HTML для {element_id} HTML-кодами перестроенных дочерних элементов", 'info')
-                        else:
-                            # Нет собственного изменения – собираем полный HTML из текущего состояния (включая детей)
-                            new_html = get_full_element_html(element, use_original_structure=False)
-                            if new_html:
-                                element['_pending_new_redaction_html'] = new_html
-                                self.log(f"  HTML для {element_id} обновлён с учётом изменений дочерних элементов", 'info')
+                        # Если у элемента есть собственный pending-HTML — он уже содержит
+                        # актуальный собственный текст; тексты перестроенных детей НЕ
+                        # дописываются: дети сохраняются в теле родителя как child_ref.
+                        # Дописывание HTML детей (без нумераторов) дублировало тексты
+                        # пунктов в теле родителя как неструктурированные абзацы
+                        # (прогон 516-ЗС -> 127-ЗС, часть 5 статьи 6).
+                        update_parent_pending_html(element, element_id, raw_ids, result_data, self.log)
 
                 pending_html = element.get('_pending_new_redaction_html', element.get('_pending_html', ''))
                 pending_len = len(pending_html) if isinstance(pending_html, str) else "not a string"
@@ -734,45 +712,13 @@ class AiPipelineMixin:
                         check_children_for_ids2(element)
 
                         if has_changed_children:
-                            if element.get('_pending_new_redaction_html'):
-                                base_html = element['_pending_new_redaction_html']
-                                from bs4 import BeautifulSoup
-                                soup = BeautifulSoup(base_html, 'html.parser')
-                                child_ids_to_add = []
-                                def collect_child_ids2(item):
-                                    for child in item.get('item_children', []):
-                                        if child.get('item_id') in raw_ids:
-                                            child_ids_to_add.append(child.get('item_id'))
-                                        collect_child_ids2(child)
-                                collect_child_ids2(element)
-                                added_any = False
-                                for child_id in child_ids_to_add:
-                                    child_html = get_child_html_after_rebuild(child_id)
-                                    if not child_html:
-                                        continue
-                                    child_elem = find_item_by_id(result_data, child_id)
-                                    if not child_elem:
-                                        continue
-                                    child_num = child_elem.get('item_number')
-                                    child_type = child_elem.get('item_type')
-                                    if child_type == 'part' and child_num:
-                                        child_soup = BeautifulSoup(child_html, 'html.parser')
-                                        first_p = child_soup.find('p')
-                                        if first_p:
-                                            first_p.insert(0, f"{child_num}. ")
-                                        soup.append(child_soup)
-                                    else:
-                                        new_p = BeautifulSoup(child_html, 'html.parser')
-                                        soup.append(new_p)
-                                    added_any = True
-                                if added_any:
-                                    element['_pending_new_redaction_html'] = str(soup)
-                                    self.log(f"  Дополнен HTML для {element_id} (второй проход) HTML-кодами перестроенных детей", 'info')
-                            else:
-                                new_html = get_full_element_html(element, use_original_structure=False)
-                                if new_html:
-                                    element['_pending_new_redaction_html'] = new_html
-                                    self.log(f"  HTML для {element_id} (второй проход) обновлён", 'info')
+                            # См. комментарий в первом проходе: собственный pending-HTML
+                            # уже содержит актуальный собственный текст, тексты детей
+                            # не дописываются (иначе дублирование абзацами).
+                            update_parent_pending_html(
+                                element, element_id, raw_ids, result_data, self.log,
+                                pass_label=" (второй проход)",
+                            )
 
                     pending_html = element.get('_pending_new_redaction_html', element.get('_pending_html', ''))
                     pending_len = len(pending_html) if isinstance(pending_html, str) else "not a string"
@@ -851,9 +797,9 @@ class AiPipelineMixin:
 
         # ============== ОСТАЛЬНЫЕ МЕТОДЫ (без изменений) ==============
         def _group_changes(self, remaining_changes, original_data, target_element, general_valid_from, model, extra_options, change_data, ambiguous_callback, tracker=None):
-            from collections import defaultdict
             import copy
             import uuid
+            from collections import defaultdict
             SENTINEL_НАИМЕНОВАНИЕ = '__наименование__'
             SENTINEL_ПРЕАМБУЛА = '__преамбула__'
             expanded_changes = []
@@ -1225,18 +1171,18 @@ class AiPipelineMixin:
                             resolved_ok = _handle_needs_user_address(ch, change_id, target_element.get('item_id') if target_element else None)
                             if resolved_ok and resolved_ok.get('status') in ('APPLIED', 'PREPARED'):
                                 success_count += 1
-                                self.log(f"✅ Добавление в корень применено после ручного выбора", 'result')
+                                self.log("✅ Добавление в корень применено после ручного выбора", 'result')
                             else:
                                 fail_count += 1
-                                self.log(f"❌ Не удалось применить добавление в корень после ручного выбора", 'error')
+                                self.log("❌ Не удалось применить добавление в корень после ручного выбора", 'error')
                                 error_occurred = True
                                 break
                         elif ok:
                             success_count += 1
-                            self.log(f"✅ Добавление в корень применено", 'result')
+                            self.log("✅ Добавление в корень применено", 'result')
                         else:
                             fail_count += 1
-                            self.log(f"❌ Не удалось применить добавление в корень", 'error')
+                            self.log("❌ Не удалось применить добавление в корень", 'error')
                             error_occurred = True
                             break
                     continue
@@ -1293,18 +1239,18 @@ class AiPipelineMixin:
                             resolved_ok = _handle_needs_user_address(ch, change_id, source_id)
                             if resolved_ok and resolved_ok.get('status') in ('APPLIED', 'PREPARED'):
                                 success_count += 1
-                                self.log(f"✅ Изменение применено после ручного выбора", 'result')
+                                self.log("✅ Изменение применено после ручного выбора", 'result')
                             else:
                                 fail_count += 1
-                                self.log(f"❌ Не удалось применить изменение после ручного выбора", 'error')
+                                self.log("❌ Не удалось применить изменение после ручного выбора", 'error')
                                 error_occurred = True
                                 break
                         elif ok:
                             success_count += 1
-                            self.log(f"✅ Изменение применено", 'result')
+                            self.log("✅ Изменение применено", 'result')
                         else:
                             fail_count += 1
-                            self.log(f"❌ Не удалось применить изменение", 'error')
+                            self.log("❌ Не удалось применить изменение", 'error')
                             error_occurred = True
                             break
                     continue
@@ -1388,21 +1334,21 @@ class AiPipelineMixin:
                     )
                     if ok_h:
                         success_count += 1
-                        self.log(f"✅ Наименование обновлено", 'result')
+                        self.log("✅ Наименование обновлено", 'result')
                     elif ok_h and ok_h.get('status') == 'NEEDS_USER_ADDRESS':
                         resolved_ok = _handle_needs_user_address(h_ch, change_id, target_element.get('item_id') if target_element else None)
                         if resolved_ok and resolved_ok.get('status') in ('APPLIED', 'PREPARED'):
                             success_count += 1
-                            self.log(f"✅ Наименование обновлено после ручного выбора", 'result')
+                            self.log("✅ Наименование обновлено после ручного выбора", 'result')
                         else:
                             fail_count += 1
-                            self.log(f"❌ Не удалось обновить наименование после ручного выбора", 'error')
+                            self.log("❌ Не удалось обновить наименование после ручного выбора", 'error')
                             error_occurred = True
                             target_failed = True
                             break
                     else:
                         fail_count += 1
-                        self.log(f"❌ Не удалось обновить наименование", 'error')
+                        self.log("❌ Не удалось обновить наименование", 'error')
                         error_occurred = True
                         target_failed = True
                         break
@@ -1467,19 +1413,19 @@ class AiPipelineMixin:
                         resolved_ok = _handle_needs_user_address(del_ch, change_id, target_element.get('item_id') if target_element else None)
                         if resolved_ok and resolved_ok.get('status') in ('APPLIED', 'PREPARED'):
                             success_count += 1
-                            self.log(f"✅ Удаление элемента применено после ручного выбора", 'result')
+                            self.log("✅ Удаление элемента применено после ручного выбора", 'result')
                         else:
                             fail_count += 1
-                            self.log(f"❌ Не удалось применить удаление после ручного выбора", 'error')
+                            self.log("❌ Не удалось применить удаление после ручного выбора", 'error')
                             error_occurred = True
                             target_failed = True
                             break
                     elif ok:
                         success_count += 1
-                        self.log(f"✅ Удаление элемента применено", 'result')
+                        self.log("✅ Удаление элемента применено", 'result')
                     else:
                         fail_count += 1
-                        self.log(f"❌ Не удалось применить удаление", 'error')
+                        self.log("❌ Не удалось применить удаление", 'error')
                         error_occurred = True
                         target_failed = True
                         break
@@ -1552,7 +1498,7 @@ class AiPipelineMixin:
                 for add_ch in to_add:
                     change_id = tracker.register_change(add_ch) if tracker else None
                     if '_quoted_html' not in add_ch:
-                        self.log(f"  add: отсутствует _quoted_html, пытаемся получить заново", 'warning')
+                        self.log("  add: отсутствует _quoted_html, пытаемся получить заново", 'warning')
                         source_html = None
                         rev_num = add_ch.get('revision_number')
                         if not rev_num or rev_num == 'null':
@@ -1571,7 +1517,7 @@ class AiPipelineMixin:
                             extracted = _extract_quoted_html(source_html, self.log)
                             add_ch['_quoted_html'] = extracted if extracted else source_html
                         else:
-                            self.log(f"  Не удалось получить HTML для add, изменение пропущено", 'error')
+                            self.log("  Не удалось получить HTML для add, изменение пропущено", 'error')
                             fail_count += 1
                             error_occurred = True
                             if tracker:
@@ -1607,7 +1553,7 @@ class AiPipelineMixin:
                                     resolved, add_ch.get('structural_element', ''), change_data, self.log
                                 )
                         if not src_id:
-                            self.log(f"  Не удалось определить modified_by_id для добавляемого элемента", 'error')
+                            self.log("  Не удалось определить modified_by_id для добавляемого элемента", 'error')
                             fail_count += 1
                             error_occurred = True
                             if tracker:
@@ -1711,7 +1657,7 @@ class AiPipelineMixin:
                             if resolved:
                                 src_id = narrow_source_id_to_subpoint(resolved, structural, change_data, self.log)
                         if not src_id:
-                            self.log(f"  Не удалось определить modified_by_id для добавляемого элемента", 'error')
+                            self.log("  Не удалось определить modified_by_id для добавляемого элемента", 'error')
                             fail_count += 1
                             error_occurred = True
                             if tracker:
@@ -1794,17 +1740,16 @@ class AiPipelineMixin:
 
         def _save_failed_run(self, result_data, orig_file, change_data, tracker):
             try:
-                orig_id = result_data.get('npa_id', 'unknown')
-                change_id = change_data.get('npa_id', 'unknown')
+                result_data.get('npa_id', 'unknown')
+                change_data.get('npa_id', 'unknown')
                 date_signed = change_data.get('date_signed', '')
                 if date_signed:
                     try:
-                        dt = datetime.strptime(date_signed, '%d.%m.%Y')
-                        date_part = f"{dt.year:04d}_{dt.month:02d}_{dt.day:02d}"
+                        datetime.strptime(date_signed, '%d.%m.%Y')
                     except ValueError:
-                        date_part = datetime.now().strftime('%Y_%m_%d')
+                        datetime.now().strftime('%Y_%m_%d')
                 else:
-                    date_part = datetime.now().strftime('%Y_%m_%d')
+                    datetime.now().strftime('%Y_%m_%d')
 
                 orig_npa_number = result_data.get('npa_number', '')
                 from npazs.revision.file_ops import clean_number_for_filename, get_date_for_filename
@@ -1991,7 +1936,6 @@ class AiPipelineMixin:
                         result_data = copy.deepcopy(original_data)
                         rebuild_ids = []
                     
-                        law_invalidated = False
                         mapped_changes = []
                         for change in deletion_changes:
                             if change.get('structural_element_for_delete') == 'law':
@@ -2010,7 +1954,6 @@ class AiPipelineMixin:
                                 else:
                                     result_data.pop('not_valid_note', None)
                                 self.log(f"Закон полностью помечен как утративший силу с {result_data['not_valid']}.", 'result')
-                                law_invalidated = True
                             else:
                                 element_to_delete = change.get('structural_element_for_delete')
                                 if element_to_delete:
@@ -2043,7 +1986,7 @@ class AiPipelineMixin:
                                 result_data['revision_info'] = []
                             if not any(r.get('revision_id') == rev_info['revision_id'] for r in result_data['revision_info']):
                                 result_data['revision_info'].append(rev_info)
-                                self.log(f"Добавлена информация об изменяющем законе в revision_info", 'result')
+                                self.log("Добавлена информация об изменяющем законе в revision_info", 'result')
 
                         remove_empty_children(result_data)
                         self._save_result(result_data, orig_file, change_data)
@@ -2181,12 +2124,12 @@ class AiPipelineMixin:
                             remaining_changes.append(change)
 
                     tracker = ChangeTracker(log_callback=self.log)
-                    self.log(f"CHANGE TRACKER: инициализирован для отслеживания изменений", 'info')
+                    self.log("CHANGE TRACKER: инициализирован для отслеживания изменений", 'info')
 
                     groups_by_target_id = self._group_changes(remaining_changes, original_data, target_element, general_valid_from, model, extra_options, change_data, ambiguous_callback, tracker=tracker)
                     self.log(f"Сформировано групп изменений: {len(groups_by_target_id)}", 'info')
 
-                    for _gid, _ch_list in groups_by_target_id.items():
+                    for _ch_list in groups_by_target_id.values():
                         for _ch in _ch_list:
                             if self.stop_event.is_set():
                                 break
@@ -2235,13 +2178,13 @@ class AiPipelineMixin:
                                 'warning')
 
                     self.log("=== ЭТАП 6: Верификация изменений ===", 'info')
-                    all_verified = run_verification_stage(tracker, result_data, change_data, self.log)
+                    run_verification_stage(tracker, result_data, change_data, self.log)
 
                     run_status = tracker.compute_run_status()
                     tracker.print_summary()
 
                     if run_status == "FAILED":
-                        self.log(f"❌ RUN STATUS: FAILED — не все изменения применены/проверены", 'error')
+                        self.log("❌ RUN STATUS: FAILED — не все изменения применены/проверены", 'error')
                         self._save_failed_run(result_data, orig_file, change_data, tracker)
                         self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data)
                         self.root.after(0, lambda: messagebox.showerror(
@@ -2270,7 +2213,7 @@ class AiPipelineMixin:
                             result_data['revision_info'] = []
                         if not any(r.get('revision_id') == rev_info['revision_id'] for r in result_data['revision_info']):
                             result_data['revision_info'].append(rev_info)
-                            self.log(f"Добавлена информация об изменяющем законе в revision_info", 'result')
+                            self.log("Добавлена информация об изменяющем законе в revision_info", 'result')
 
                     remove_empty_children(result_data)
                     self._save_result(result_data, orig_file, change_data)
