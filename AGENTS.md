@@ -7,6 +7,7 @@ You are operating inside the NPA-ZS harness. Follow these rules.
 - `src/` — all Python source code
 - `src/core/` — HTML parser, MODX processor
 - `src/revision/` — revision engine and AI pipeline
+- `src/compare/` — NPA revision comparison: our RTF vs legal-system document (DOCX/DOC/RTF), AI agent + Markdown report
 - `src/db/` — database importer and editors
 - `src/site/` — PHP/JS/CSS for website output
 - `src/site/php/npazs/` — modular PHP source of truth for the `HtmlFromNpaZS` snippet (entry point = build recipe, AJAX, ~21 modules; map and agent rules in its `README.md`). `src/site/php/snippet.php` is GENERATED from these modules by `make build-snippet` — never edit it directly
@@ -23,6 +24,7 @@ Always import from `npazs.*`:
 - `npazs.revision.engine`
 - `npazs.db.importer`
 - `npazs.config.settings`
+- `npazs.compare.runner`
 
 ## Execution Rules
 
@@ -38,6 +40,9 @@ Always import from `npazs.*`:
    operation log), and `<orig>_<orig_date>_izm_<change>_<change_date>.json` (the
    resulting NPA). `<number>` is the amending NPA's cleaned `npa_number`, so `_work.json`
    and `_log.md` always share the same prefix for one run.
+8. The compare module (`src/compare/`) writes reports/checkpoints to
+   `data/output/compare/` and logs to `data/logs/compare_*.log`; it reads
+   `data/base/` read-only (rule 1 applies).
 
 ## Permissions
 

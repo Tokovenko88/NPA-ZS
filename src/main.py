@@ -538,11 +538,51 @@ def _cmd_report(args) -> int:
     return EXIT_OK
 
 
+# ------------------------------------------------------------------ compare
+def _cmd_compare(args) -> int:
+    from npazs.compare.runner import CompareOptions, run_compare
+
+    ours = getattr(args, 'ours', None)
+    theirs = getattr(args, 'theirs', None)
+    if not ours or not theirs:
+        # Без файлов запускаем GUI модуля сравнения.
+        from npazs.compare.gui import main as gui_main
+
+        gui_main()
+        return EXIT_OK
+
+    options = CompareOptions(
+        ours_path=ours,
+        theirs_path=theirs,
+        output_path=getattr(args, 'output', None) or '',
+        target_number=getattr(args, 'target', None) or '',
+        mode='mechanical' if getattr(args, 'mechanical', False) else 'agent',
+        backend=getattr(args, 'backend', None) or '',
+        model=getattr(args, 'model', None) or '',
+        resume=not getattr(args, 'no_resume', False),
+        batch_size=int(getattr(args, 'batch_size', 1) or 1),
+    )
+
+    def log(msg: str, level: str = 'info') -> None:
+        prefix = {'warning': 'WARN', 'error': 'ERROR', 'success': 'OK'}.get(level)
+        print(f'[{prefix}] {msg}' if prefix else msg)
+
+    result = run_compare(options, log=log)
+    if result.stopped:
+        _print_err(
+            'Сравнение остановлено до завершения; повторный запуск продолжит '
+            'с чекпойнта (отключить: --no-resume).'
+        )
+        return EXIT_ERROR
+    return EXIT_OK
+
+
 # ------------------------------------------------------------------ dispatch
 _HANDLERS = {
     'init': _cmd_init,
     'parse': _cmd_parse,
     'revise': _cmd_revise,
+    'compare': _cmd_compare,
     'import': _cmd_import,
     'sync': _cmd_sync,
     'validate': _cmd_validate,

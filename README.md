@@ -20,6 +20,7 @@ NPA-ZS is a full-cycle harness for working with normative legal acts (NLAs):
 | Site output | `src/site/` | PHP snippet, JS viewer, CSS styles |
 | UI | `src/ui/` | Tkinter applications |
 | Config | `src/config/` | Settings for DB, MODX, Ollama |
+| Compare | `src/compare/` | RTF/DOCX/DOC comparison of NPA revisions with AI agent |
 
 ## Quick Start
 
@@ -28,6 +29,7 @@ python -m pip install -r requirements.txt
 python scripts/run_parser.py      # HTML → JSON
 python scripts/run_importer.py    # JSON → DB
 python scripts/run_revision.py    # Apply changes
+python scripts/run_compare.py     # Compare our RTF vs legal-system document
 python scripts/run_site_sync.py   # Sync to site
 ```
 
@@ -35,6 +37,7 @@ python scripts/run_site_sync.py   # Sync to site
 
 - `data/input/` — source and target NPA JSON
 - `data/output/` — result JSON
+- `data/output/compare/` — comparison reports (Markdown) + checkpoints
 - `data/base/` — base JSON files (laws/resolutions)
 - `data/prompts/` — AI pipeline prompts
 - `data/stage_answers/` — cached AI answers

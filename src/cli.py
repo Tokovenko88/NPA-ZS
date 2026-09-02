@@ -9,6 +9,7 @@
 init       Проверить окружение, создать каталоги ``data/``, показать статус
 parse      Запустить GUI парсера HTML -> JSON
 revise     Запустить GUI внесения изменений (5-этапный AI-пайплайн)
+compare    Сравнить редакции НПА: наш RTF против документа правовой системы
 import     Запустить импортёр JSON -> MySQL
 sync       Показать/подготовить артефакты вывода НПА на сайт
 validate   Проверить JSON НПА и конфигурацию (без GUI)
@@ -31,6 +32,7 @@ COMMANDS = {
     'init': 'Проверить окружение и подготовить каталоги data/',
     'parse': 'GUI парсера: HTML НПА -> каноничный JSON',
     'revise': 'GUI внесения изменений: 5-этапный AI-пайплайн',
+    'compare': 'Сравнение редакций НПА: наш RTF против правовой системы',
     'import': 'Импорт JSON НПА в MySQL',
     'sync': 'Артефакты вывода НПА на сайт (PHP/JS/CSS)',
     'validate': 'Валидация JSON НПА и конфигурации',
@@ -50,6 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
             '  npazs validate --input data/base/law/110/110.json\n'
             '  npazs import --file data/output/result_npa.json --dry-run\n'
             '  npazs revise\n'
+            '  npazs compare --ours ours.rtf --theirs theirs.docx\n'
         ),
     )
     parser.add_argument('--version', action='store_true', help='Показать версию и выйти')
@@ -93,6 +96,39 @@ def build_parser() -> argparse.ArgumentParser:
         help='LLM-бэкенд (по умолчанию из LLM_BACKEND)',
     )
     revise_parser.add_argument('--model', help='Имя модели')
+
+    # --- compare ------------------------------------------------------------
+    compare_parser = subparsers.add_parser(
+        'compare', help=COMMANDS['compare'], description=COMMANDS['compare']
+    )
+    compare_parser.add_argument(
+        '--ours', help='Файл, сформированный нашим проектом (RTF/DOCX/DOC)'
+    )
+    compare_parser.add_argument(
+        '--theirs', help='Файл, сформированный правовой системой'
+    )
+    compare_parser.add_argument('--output', help='Куда сохранить отчёт (Markdown)')
+    compare_parser.add_argument(
+        '--target', help='Номер целевого НПА (по умолчанию — определить автоматически)'
+    )
+    compare_parser.add_argument(
+        '--mechanical', action='store_true', help='Сравнение без ИИ-агента'
+    )
+    compare_parser.add_argument(
+        '--backend',
+        choices=('ollama', 'kilo_gateway'),
+        help='LLM-бэкенд (по умолчанию из LLM_BACKEND)',
+    )
+    compare_parser.add_argument('--model', help='Имя модели')
+    compare_parser.add_argument(
+        '--no-resume', action='store_true', help='Не использовать чекпойнт'
+    )
+    compare_parser.add_argument(
+        '--batch-size',
+        type=int,
+        default=1,
+        help='Сколько различий отправлять модели за один запрос',
+    )
 
     # --- import -------------------------------------------------------------
     import_parser = subparsers.add_parser(
