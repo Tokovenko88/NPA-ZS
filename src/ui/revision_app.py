@@ -26,7 +26,6 @@ from npazs.constants import (
     DEFAULT_EXTRA_OPTIONS,
     DEFAULT_OLLAMA_MODEL,
     DEFAULT_KILO_GATEWAY_URL,
-    DEFAULT_KILO_GATEWAY_MODEL,
     DEFAULT_BACKEND,
     LAST_PATHS_FILE,
     STAGE_ANSWERS_FILE,
@@ -37,6 +36,10 @@ from npazs.constants import (
     PROMPT_4,
     TYPE_TO_RUSSIAN,
     save_last_run_log,
+)
+from npazs.llm_models import (
+    fetch_kilo_gateway_free_models,
+    fetch_ollama_models,
 )
 from npazs.revision.text_utils import safe_re_sub
 from npazs.revision.html_utils import get_full_element_html, get_clean_text_from_block
@@ -68,7 +71,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.change_path = tk.StringVar()
             self.law_ref = tk.StringVar(value="№ 0000-ЗС от 00.00.0000")
             self.original_law_ref = tk.StringVar(value="№ 0000-ЗС")
-            self.ollama_model = tk.StringVar(value=DEFAULT_KILO_GATEWAY_MODEL if DEFAULT_BACKEND == "kilo_gateway" else DEFAULT_OLLAMA_MODEL)
+            self.ollama_model = tk.StringVar(value="" if DEFAULT_BACKEND == "kilo_gateway" else DEFAULT_OLLAMA_MODEL)
             self.backend = tk.StringVar(value=DEFAULT_BACKEND)
             self.kilo_gateway_url = tk.StringVar(value=DEFAULT_KILO_GATEWAY_URL)
             self.kilo_gateway_api_key = tk.StringVar(value=settings.kilo_gateway_api_key or "")
@@ -107,7 +110,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.answer_queue = queue.Queue()
             self.create_widgets()
             self.check_queue()
-            threading.Thread(target=lambda: self._fetch_models(try_api=False), daemon=True).start()
+            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
             _constants._user_retry_callback = self._ask_user_retry
 
         def _ask_user_retry(self, error_message):
@@ -146,24 +149,15 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
 
         def _fetch_ollama_models(self):
             try:
-                import requests
-                url = f"{_ollama_base_url}/api/tags"
-                response = requests.get(url, timeout=5)
-                if response.status_code == 200:
-                    data = response.json()
-                    models = [m['name'] for m in data.get('models', [])]
-                    models = [m for m in models if m in _constants.OLLAMA_MODELS_WHITELIST]
-                    self.root.after(0, self.log, f"Получено {len(models)} моделей от Ollama (после фильтрации)", 'info')
-                    models.sort()
-                    self.ollama_models = models
-                    if self.ollama_models:
-                        current = self.ollama_model.get()
-                        if current not in self.ollama_models:
-                            self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
-                    else:
-                        self.root.after(0, self.log, "Нет разрешённых моделей в локальном Ollama. Убедитесь, что сервер запущен и загружены разрешённые модели.", 'warning')
+                models = fetch_ollama_models()
+                self.root.after(0, self.log, f"Получено {len(models)} моделей от Ollama (после фильтрации)", 'info')
+                self.ollama_models = models
+                if self.ollama_models:
+                    current = self.ollama_model.get()
+                    if current not in self.ollama_models:
+                        self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
                 else:
-                    self.root.after(0, self.log, f"Ошибка загрузки списка моделей: {response.status_code}", 'error')
+                    self.root.after(0, self.log, "Нет разрешённых моделей в локальном Ollama. Убедитесь, что сервер запущен и загружены разрешённые модели.", 'warning')
             except Exception as e:
                 self.root.after(0, self.log, f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен.", 'error')
                 self.ollama_models = []
@@ -178,42 +172,26 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                 self.root.after(0, self.log, f"Установлены модели Kilo Gateway по умолчанию: {models}", 'info')
                 return
             try:
-                url = f"{self.kilo_gateway_url.get().rstrip('/')}/models"
-                headers = {}
-                api_key = self.kilo_gateway_api_key.get().strip()
-                if api_key:
-                    headers["Authorization"] = f"Bearer {api_key}"
-                response = requests.get(url, headers=headers, timeout=10)
-                if response.status_code == 200:
-                    data = response.json()
-                    raw_ids = [m.get('id') for m in data.get('data', []) if m.get('id')]
-                    self.root.after(0, self.log, f"Kilo Gateway вернул модели: {raw_ids}", 'info')
-                    ids_lower = {m.lower(): m for m in raw_ids}
-                    selected = []
-                    for expected in _constants.KILO_GATEWAY_FREE_MODELS:
-                        if expected in raw_ids:
-                            selected.append(expected)
-                        elif expected.lower() in ids_lower:
-                            selected.append(ids_lower[expected.lower()])
-                    if not selected:
-                        for m in raw_ids:
-                            low = m.lower()
-                            if 'free' in low or 'auto free' in low:
-                                selected.append(m)
-                    self.root.after(0, self.log, f"Выбрано бесплатных моделей: {selected}", 'info')
-                    models = sorted(selected)
-                    self.ollama_models = models
-                    if self.ollama_models:
-                        current = self.ollama_model.get()
-                        if current not in self.ollama_models:
-                            self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
-                    else:
-                        self.root.after(0, self.log, "Нет доступных бесплатных моделей в Kilo Gateway. Проверьте API ключ или URL.", 'warning')
+                models = fetch_kilo_gateway_free_models(
+                    self.kilo_gateway_url.get().strip(),
+                    self.kilo_gateway_api_key.get().strip(),
+                )
+                self.ollama_models = models
+                if self.ollama_models:
+                    current = self.ollama_model.get()
+                    if current not in self.ollama_models:
+                        self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
+                    self.root.after(0, self.log, f"Выбрано бесплатных моделей: {models}", 'info')
                 else:
-                    self.root.after(0, self.log, f"Ошибка загрузки списка моделей Kilo Gateway: HTTP {response.status_code} {response.text}", 'error')
+                    self.root.after(0, self.log, "Нет доступных бесплатных моделей в Kilo Gateway. Проверьте API ключ или URL.", 'warning')
             except Exception as e:
                 self.root.after(0, self.log, f"Ошибка подключения к Kilo Gateway: {e}. Проверьте URL и API ключ.", 'error')
-                self.ollama_models = []
+                self.root.after(0, self.log, 'Kilo Gateway недоступен — показан запасной список моделей.', 'warning')
+                models = sorted(_constants.KILO_GATEWAY_FREE_MODELS)
+                self.ollama_models = models
+                current = self.ollama_model.get()
+                if current not in self.ollama_models:
+                    self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
 
         def fetch_model_parameters(self, model_name):
             if self.backend.get() != "ollama":

@@ -14,14 +14,15 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-import requests
 from npazs.constants import (
     DEFAULT_BACKEND,
     DEFAULT_KILO_GATEWAY_URL,
     KILO_GATEWAY_FREE_MODELS,
-    OLLAMA_MODELS_WHITELIST,
-    _ollama_base_url,
     settings,
+)
+from npazs.llm_models import (
+    fetch_kilo_gateway_free_models,
+    fetch_ollama_models,
 )
 
 from .runner import CompareOptions, run_compare
@@ -44,36 +45,6 @@ _LEVEL_TAGS = {
     'error': ('error',),
     'success': ('success',),
 }
-
-
-def _filter_free_models(payload, known=KILO_GATEWAY_FREE_MODELS) -> list:
-    """Отобрать реально существующие free-модели из ответа Kilo Gateway.
-
-    ``payload`` — объект из ответа ``GET /models`` (словарь с ключом
-    ``data``). Сначала отбираются все модели, в id/названии которых есть
-    признак ``free`` (или ``auto free``); если таких нет — по известным
-    id из ``known``. Возвращается отсортированный список без дубликатов.
-    """
-    candidates = []
-    for m in payload.get('data', []) if isinstance(payload, dict) else []:
-        if not isinstance(m, dict):
-            continue
-        model_id = str(m.get('id') or '').strip()
-        name = str(m.get('name') or '').strip()
-        if model_id:
-            candidates.append((model_id, name))
-    ids_lower = {model_id.lower(): model_id for model_id, _ in candidates}
-    selected = []
-    for model_id, name in candidates:
-        low = f"{model_id} {name}".lower()
-        if 'free' in low or 'auto free' in low:
-            selected.append(model_id)
-    if not selected:
-        for expected in known:
-            lower = expected.lower()
-            if lower in ids_lower:
-                selected.append(ids_lower[lower])
-    return sorted(set(selected))
 
 
 class CompareApp:
@@ -389,17 +360,9 @@ class CompareApp:
 
     def _fetch_ollama_models(self) -> None:
         try:
-            url = f"{_ollama_base_url}/api/tags"
-            response = requests.get(url, timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                models = [m['name'] for m in data.get('models', [])]
-                models = [m for m in models if m in OLLAMA_MODELS_WHITELIST]
-                models.sort()
-                self.log_queue.put(('info', f"Получено {len(models)} моделей от Ollama (после фильтрации)"))
-                self.log_queue.put(('models', ('ollama', models)))
-            else:
-                self.log_queue.put(('error', f"Ошибка загрузки списка моделей: {response.status_code}"))
+            models = fetch_ollama_models()
+            self.log_queue.put(('info', f"Получено {len(models)} моделей от Ollama (после фильтрации)"))
+            self.log_queue.put(('models', ('ollama', models)))
         except Exception as e:  # noqa: BLE001 - показываем причину пользователю
             self.log_queue.put(('error', f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен."))
             self.log_queue.put(('models', ('ollama', [])))
@@ -407,29 +370,20 @@ class CompareApp:
     def _fetch_kilo_gateway_models(self, kilo_gateway_url, kilo_gateway_api_key) -> None:
         """Загрузить реально существующие free-модели Kilo Gateway.
 
-        HTTP-запрос ``GET /models`` выполняется в фоновом потоке, результат
-        уходит в ``log_queue`` как ``('models', ('kilo_gateway', models))``.
-        Если API недоступно, используется захардкоженный список как
-        временный fallback, чтобы поле выбора не оставалось пустым.
+        Запрос ``GET /models`` выполняется в фоновом потоке через общую
+        функцию :func:`npazs.llm_models.fetch_kilo_gateway_free_models`,
+        результат уходит в ``log_queue`` как ``('models', ('kilo_gateway',
+        models))``. Если API недоступно, используется захардкоженный список
+        как временный fallback, чтобы поле выбора не оставалось пустым.
         """
         try:
-            url = f"{kilo_gateway_url.rstrip('/')}/models"
-            headers = {}
-            if kilo_gateway_api_key:
-                headers["Authorization"] = f"Bearer {kilo_gateway_api_key}"
-            response = requests.get(url, headers=headers, timeout=10)
-            if response.status_code != 200:
-                self.log_queue.put(('error', f"Ошибка загрузки списка моделей Kilo Gateway: HTTP {response.status_code} {response.text}"))
-                self.log_queue.put(('warning', 'Kilo Gateway недоступен — показан запасной список моделей.'))
-                models = sorted(KILO_GATEWAY_FREE_MODELS)
+            models = fetch_kilo_gateway_free_models(
+                kilo_gateway_url, kilo_gateway_api_key
+            )
+            if models:
+                self.log_queue.put(('info', f"Выбрано бесплатных моделей: {models}"))
             else:
-                data = response.json()
-                self.log_queue.put(('info', f"Kilo Gateway вернул моделей: {len(data.get('data') or [])}"))
-                models = _filter_free_models(data)
-                if models:
-                    self.log_queue.put(('info', f"Выбрано бесплатных моделей: {models}"))
-                else:
-                    self.log_queue.put(('warning', 'Free-модели в списке Kilo Gateway не найдены — поле выбора пусто.'))
+                self.log_queue.put(('warning', 'Free-модели в списке Kilo Gateway не найдены — поле выбора пусто.'))
             self.log_queue.put(('models', ('kilo_gateway', models)))
         except Exception as e:  # noqa: BLE001 - показываем причину пользователю
             self.log_queue.put(('error', f"Ошибка подключения к Kilo Gateway: {e}. Проверьте URL и API ключ."))

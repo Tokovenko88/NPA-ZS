@@ -36,6 +36,7 @@ You must output STRICTLY a valid JSON object. No markdown, no thinking tags, no 
 - **NESTING_RULE**: If the new replacing text contains the old target text, this DOES NOT cancel the multiplicity rule. You MUST process EVERY isolated occurrence.
 - **GRAMMATICAL_CASE_RULE**: If instruction states "in the corresponding case", different grammatical forms are treated as SEPARATE unique strings. Each form gets its own independent `N_old` counter starting at 1.
 - **PUNCTUATION_BOUNDARY_RULE**: If a quoted `old_text`, `new_text`, or anchor begins or ends with a punctuation mark, that mark is the literal edge of the string. Include it in the search, mask, and occurrence count exactly as quoted.
+- **QUOTE_DEMARCATION_RULE**: Guillemets «...» wrapped around an `old_text`, `new_text`, or anchor in `change_description` are, by default, the standard legal-drafting convention for NAMING a referenced word or phrase (as in "слово «X» заменить словом «Y»") — they are NOT literal characters of the text being modified. Before matching, masking, counting, or writing to `working_html` or to ANY highlight record (`raw_diff_prev`, `raw_diff_curr`, `raw_deletion`, `raw_add_curr`), strip these demarcation guillemets from `old_text` and `new_text`. Treat a guillemet as literal text ONLY if that same «...» pair is ALSO found surrounding the identical phrase inside `<target_html>` — i.e., the source document itself already prints the word/phrase in quotes there. When in doubt, check `<target_html>` for the literal quote marks before deciding; never assume they are present. This rule does not override PUNCTUATION_BOUNDARY_RULE for punctuation genuinely INSIDE the quoted phrase (commas, dashes, etc.) — only the outer demarcation guillemets themselves are affected. See EXAMPLE 17.
 - **SENTENCE_SCOPE_RULE**: If an ADD instruction specifies a sentence, locate the Nth sentence in the target paragraph to determine the insertion point.
 - **DEFAULT_INSERTION_RULE**: Determine an ADD instruction's insertion point using this exact priority order:
   1. **Explicit anchor**: "после слов «Y»" / "перед словами «Y»" → insert immediately after/before Y.
@@ -217,6 +218,20 @@ Pass 2: Convert the pre-insertion `;` to `.` (silent). Insert `insert_text` righ
 **Result**: current_edition.addition -> `[{"text": "Подарки, полученные в связи с протокольными мероприятиями, признаются собственностью города Севастополя и передаются по акту в уполномоченный орган;", "positions": "1-1"}]`
 ❌ **FORBIDDEN OUTPUT**: `<p>...юридических лиц; Подарки, полученные...уполномоченный орган;</p>` — leaving the pre-insertion `;` unconverted splices a new capitalized sentence directly after a non-terminal enumeration mark, which is a syntax error.
 ❌ **FORBIDDEN OUTPUT**: `<p>...юридических лиц. Подарки, полученные...уполномоченный орган;.</p>` — adding an extra dot after the inserted `;` violates NO_EXTRA_TERMINAL_PUNCTUATION.
+
+### EXAMPLE 17 (REPLACE where change_description's guillemets are naming-convention quotes, not literal text)
+**Input**: `<p class="justifyfull">1) обеспечение основных гарантий государственной защиты прав и законных интересов ребенка, восстановление нарушенных прав и законных интересов ребенка;</p>`
+**Instruction**: в пункте 1 слово «ребенка» заменить словом «детей»;
+**Logic**:
+**QUOTE_DEMARCATION_RULE** applies: the instruction uses the standard drafting formula "слово «X» заменить словом «Y»". Checking `<target_html>`: the word "ребенка" appears there with NO surrounding guillemets anywhere. Therefore the «» around «ребенка» and «детей» in `change_description` are naming-convention quotes only. Strip them: `old_text` = "ребенка", `new_text` = "детей" (no guillemets in either).
+Pass 1: "ребенка" appears 2 times.
+i=1: N_old=1. Substring before: "1) обеспечение основных гарантий государственной защиты прав и законных интересов ". New text ("детей") occurrences before = 0. `i-1`=0. N_new=1. Coords: Old="1-1", New="1-1". Mask 1st occurrence.
+i=2: N_old=2. Substring before (with marker 1 in place): "...интересов ###MARKER_1###, восстановление нарушенных прав и законных интересов ". New text occurrences = 0. `i-1`=1. N_new=0+1+1=2. Coords: Old="1-2", New="1-2". Mask 2nd occurrence.
+Pass 2: Expand both markers to `new_text` verbatim (no guillemets) -> `<p class="justifyfull">1) обеспечение основных гарантий государственной защиты прав и законных интересов детей, восстановление нарушенных прав и законных интересов детей;</p>`
+**Result**:
+previous_edition.difference = `[{"text": "ребенка", "positions": "1-1,1-2"}]`
+current_edition.difference = `[{"text": "детей", "positions": "1-1,1-2"}]`
+❌ **FORBIDDEN OUTPUT**: `<p class="justifyfull">...интересов «детей», ...интересов «детей»;</p>` with highlight records `{"text": "«ребенка»", ...}` / `{"text": "«детей»", ...}` — this wrongly literalizes the drafting-convention guillemets from `change_description` into both `working_html` and the highlight text, producing quote marks that never existed in the source law and corrupting the diff record.
 
 ## INPUT_DATA
 ```xml
