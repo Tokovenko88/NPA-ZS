@@ -1,0 +1,5078 @@
+{
+ "fingerprint": "07bf7c2f1b1c28c0",
+ "started_at": "2026-09-03T17:05:26",
+ "processed": 5,
+ "total": 750,
+ "diffs": [
+  {
+   "path": "преамбула",
+   "path_key": [
+    [
+     "preamble",
+     ""
+    ]
+   ],
+   "kind": "change",
+   "old": "в редакции от",
+   "new": "Закон города Севастополя от 17.04.2015 N 127-ЗС (ред. от 08.07.20",
+   "count": 65,
+   "reason": "original_edition",
+   "explanation": "Различие в преамбуле указывает на использование разной редакции закона правовой системой, которая начинается с полного названия и даты принятия закона, тогда как проект использует более короткую форму 'в редакции от'.",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": "Настоящий Закон определяет порядок назначения на должность и освобождения от должности Уполномоченного по правам ребенка в городе Севастополе, его статус, компетенцию, организационные формы, условия и иные вопросы его деятельности."
+  },
+  {
+   "path": "преамбула",
+   "path_key": [
+    [
+     "preamble",
+     ""
+    ]
+   ],
+   "kind": "change",
+   "old": ".0",
+   "new": ") \"Об Уполномоченном по правам ребенка в городе Севастополе\" (принят Законодательным Собранием г. Севастополя 14.04.2015) Документ предоставлен КонсультантПлюс …",
+   "count": 209,
+   "reason": "implementation_gap",
+   "explanation": "Различие в преамбуле указывает на неполную или иной формулировку в документе проекта по сравнению с правовой системой, что свидетельствует о различной реализации одной и той же правовой мысли проектом и сторонней системой.",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "преамбула",
+   "path_key": [
+    [
+     "preamble",
+     ""
+    ]
+   ],
+   "kind": "change",
+   "old": ".2019",
+   "new": "апреля 2015 года | N 127-ЗС",
+   "count": 28,
+   "reason": "original_edition",
+   "explanation": "Различие в дате и номере документа в преамбуле указывает на использование иной редакции исходного нормативного акта правовой системой.",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": "Настоящий Закон определяет порядок назначения на должность и освобождения от должности Уполномоченного по правам ребенка в городе Севастополе, его статус, компетенцию, организационные формы, условия и иные вопросы его деятельности."
+  },
+  {
+   "path": "преамбула",
+   "path_key": [
+    [
+     "preamble",
+     ""
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "unclear",
+   "explanation": "Не удалось определить причину различия, так как отсутствуют детали примечаний документа проекта и содержание изменения в преамбуле не указано.",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": "Настоящий Закон определяет порядок назначения на должность и освобождения от должности Уполномоченного по правам ребенка в городе Севастополе, его статус, компетенцию, организационные формы, условия и иные вопросы его деятельности."
+  },
+  {
+   "path": "преамбула",
+   "path_key": [
+    [
+     "preamble",
+     ""
+    ]
+   ],
+   "kind": "change",
+   "old": "Уполномоченном по правам ребенка в городе Севастополе В редакции Законов города Севастополя ; Принят Законодательным Собранием города Севастополя",
+   "new": "ранием города Севастополя",
+   "count": 147,
+   "reason": "unclear",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": "Настоящий Закон определяет порядок назначения на должность и освобождения от должности Уполномоченного по правам ребенка в городе Севастополе, его статус, компетенцию, организационные формы, условия и иные вопросы его деятельности."
+  },
+  {
+   "path": "преамбула",
+   "path_key": [
+    [
+     "preamble",
+     ""
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "Б УПОЛНОМОЧЕННОМ ПО ПРАВАМ РЕБЕНКА В ГОРОДЕ СЕВАСТОПОЛЕ Принят Законодательным Со",
+   "count": 81,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "преамбула",
+   "path_key": [
+    [
+     "preamble",
+     ""
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "| | Список изменяющих документов (в ред. Законов города Севастополя от 25.12.2015 N 221-ЗС, от 08.07.2019 N 516-ЗС) |",
+   "count": 119,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "add",
+   "old": "евастополе (далее – Уполномоченный",
+   "new": "",
+   "count": 34,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "add",
+   "old": "учреждается в соответствии с Конвенцией Организации Объединенных Наций о правах ребенка, Конституцией Российской Федерации, Федеральным законом от 24 июля 1998 …",
+   "new": "",
+   "count": 951,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "add",
+   "old": "интересов детей, не отменяет и не влечет пересмотра компетенции органов государственной власти города Севастополя, органов местного самоуправления в городе Сева…",
+   "new": "",
+   "count": 228,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вст",
+   "new": "1. Должность Уполномоченного по правам ребенка в городе Севастополе (далее - Уполномоченный)",
+   "count": 93,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "пили в сил",
+   "new": "чреждается в соответствии с Конвенцией Организации Объединенных Наций о правах ребенка, Констит",
+   "count": 95,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "с",
+   "new": "цией Российской Федерации, Федеральным законом от 24 июля",
+   "count": 57,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редакции —",
+   "new": "N 5",
+   "count": 14,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": ". Должность Уполномоченного по правам ребенка в городе",
+   "new": "6-З",
+   "count": 55,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вст",
+   "new": "4. Деятельность Уполномоченного дополняет с",
+   "count": 43,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "пили в сил",
+   "new": "ществ",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "с 19",
+   "new": "ющие средства государственной защиты прав и законных интересов детей, не отменяет и не влечет пересмотра компетенции органов государственной власти города Севас…",
+   "count": 364,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "изменениями:",
+   "new": "емейным кодексом Российской Федерации, Федеральным законом от 2",
+   "count": 63,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": ". Деяте",
+   "new": "июля 1998 года N 124-ФЗ \"Об основных гарантиях прав ребенка в Российской Федерации\", иные права, установленные Федера",
+   "count": 118,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "ост",
+   "new": "ым законом от 21 декабря 1996 года N 159-ФЗ \"О дополнител",
+   "count": 57,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "Уполномо",
+   "new": "ных гарантиях по социальной поддержке детей-сирот и детей, оставшихся без попе",
+   "count": 78,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "ного дополняет с",
+   "new": "ия родителей\", др",
+   "count": 17,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "ществ",
+   "new": "гими федеральными законами и законами города Севастополя, в сл",
+   "count": 62,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "ющие средства государственной защиты прав и законны",
+   "new": "чае и",
+   "count": 51,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "ных прав и законных интересов детей",
+   "new": "ия в городе Севастополе",
+   "count": 35,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "N 516-З",
+   "count": 8,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "change",
+   "old": "изменениями: 5. Уполномоченный защищает права и законные интересы детей, определенные Конвенцией Организации Объединенных Наций о правах ребенка, Всеобщей декла…",
+   "new": ")",
+   "count": 726,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "98 года N 124-ФЗ \"Об основных гарантиях прав ребенка в Российской Федерации\", Федеральным законом от 27 декабря 2018 года N 501-ФЗ \"Об уполномоченных по правам …",
+   "count": 841,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 1",
+   "path_key": [
+    [
+     "article",
+     "1"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "5. Уполномоченный защищает права и законные интересы детей, определенные Конвенцией Организации Объединенных Наций о правах ребенка, Всеобщей декларацией прав ч…",
+   "count": 269,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": "Последние изменения вступили в силу с",
+   "new": "",
+   "count": 38,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": "ствует в пределах компетенции",
+   "new": "",
+   "count": 29,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": "интересов детей, и жалобы на решения или действия (бездействие) органов государственной власти города Севастополя, органов местного самоуправления в городе Сева…",
+   "new": "",
+   "count": 249,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": "власти города Севастополя, органам местного самоуправления в городе Севастополе, их должностным лицам, руководителям организаций города Севастополя, в решениях …",
+   "new": "",
+   "count": 425,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": ") Утратил силу Утратил силу с 19",
+   "new": "",
+   "count": 32,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": "власти города Севастополя",
+   "new": "",
+   "count": 26,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": "территориальными органами федеральных органов государственной власти, расположенными на территории города Севастополя, направляет данным органам рекомендации от…",
+   "new": "",
+   "count": 436,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "add",
+   "old": "направляет Губернатору города Севастополя мотивированные предложения о признании утратившими силу или приостановлении действия актов исполнительных органов госу…",
+   "new": "",
+   "count": 444,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": ". Уполномоченный осуществляет свою деятельность в границах территории города Севастополя, действует в пределах компетенции, установленной настоящим Законом, и н…",
+   "count": 416,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями",
+   "new": "2. В целях выполнения своих функций и задач Уполномоченный",
+   "count": 58,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": ". Уполномоченны",
+   "new": ") осуществляет прием граждан, рассматривает обращения граждан, объединени",
+   "count": 73,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "осу",
+   "new": "граждан, организаций, содержа",
+   "count": 29,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ествляет сво",
+   "new": "ие предложения, заявления или ину",
+   "count": 33,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "деятельность в грани",
+   "new": "информа",
+   "count": 20,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ах территории города Севастополя",
+   "new": "ию по вопросам",
+   "count": 32,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "д",
+   "new": "касающимся нарушения прав и законных интересов дет",
+   "count": 50,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "установленно",
+   "new": "и жалобы на решения или де",
+   "count": 26,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "настоящим Законом, и не вправе принимать решения, отнесенные к компетенции других",
+   "new": "ствия (бездействие)",
+   "count": 82,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "2. В целях выполнения своих функций и задач Уполномоченный: Последние изменения вступили в силу с 19",
+   "new": "Закона города Севастополя от 08",
+   "count": 101,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 1",
+   "new": "2",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "осу",
+   "new": "самостоятельно или совместно с уполномоченными государственными органами города Севастополя и должностными лицами проводит проверку информации, изложенной в обр…",
+   "count": 162,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ствляет прием гра",
+   "new": "нии на имя Уполномоченного, содер",
+   "count": 33,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "дан",
+   "new": "ащем жалобу",
+   "count": 11,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "рассматривает о",
+   "new": "ли",
+   "count": 15,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ращения, граждан, объединени",
+   "new": "о ино",
+   "count": 28,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "граждан, организ",
+   "new": "информ",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "й, содержащие предложения, заявления или иную информацию",
+   "new": "и",
+   "count": 56,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(п. 2 в ред. Закона города Севастополя от 08",
+   "count": 44,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редакции — 2",
+   "new": "3",
+   "count": 14,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "самостоятельно или совместно с уполномоченными государственными органами города Севастополя и должностными лицами проводит проверку информации, изложенно",
+   "new": "в соответствии с де",
+   "count": 154,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "в обращении на имя Уполномоченного, содержащем жалобу, либо иной информации по вопросам, каса",
+   "new": "ству",
+   "count": 94,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ся нару",
+   "new": "законодательством оказывает детям, их законным представителям, несовер",
+   "count": 71,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ия",
+   "new": "нолетним, содержащимся в учреждениях системы профилактики безнадзорности и правонарушений несовершеннолетних, гражданам, являющимся выпускниками детских домов, …",
+   "count": 306,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 3",
+   "new": "4",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "в соответствии с",
+   "new": "осуществляет в установленном",
+   "count": 29,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "оказывает детям, их законным представителям, несовершеннолетним, содерж",
+   "new": "порядке судебную з",
+   "count": 71,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "мся в учреждениях системы профилактики безнадзорности и правонарушений несовершеннолетних, гражданам, являющимся выпускниками детских домов, домов-интернатов (д…",
+   "new": "ту",
+   "count": 287,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 4",
+   "new": "5",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "осу",
+   "new": "направляет органам государственной власти города Севастополя, органам местного самоуправления в городе Севастополе, их должностным лицам, руководителям организа…",
+   "count": 314,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ствляет в установленном д",
+   "new": "е рекомендации о необходимых мерах по восстановлению нарушенных прав и законных интересов дет",
+   "count": 93,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ству",
+   "new": "и предотвращени",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "щим законодате",
+   "new": "подобных нарушений в да",
+   "count": 24,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ством порядке судебную защиту прав и законных интересов дет",
+   "new": "н",
+   "count": 59,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 5",
+   "new": "6",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "направляет органам государственно",
+   "new": "информирует правоохранительные органы города Севастополя о фактах нарушения прав и законных интересов дете",
+   "count": 107,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 6",
+   "new": "7",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "информирует правоохрани",
+   "new": "вносит в органы государственной власти города Севастополя, органы местного самоуправления в городе Севастополе предложения о совершенствовании дея",
+   "count": 147,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ые органы города Севастополя о фактах нарушения",
+   "new": "ости по осуществлению защиты",
+   "count": 47,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 7",
+   "new": "8",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "вносит в органы государственной власти города Севастополя, органы местного самоуправления в городе Севастополе предложения о совершенствовании деятельности по о…",
+   "new": "-",
+   "count": 230,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "—",
+   "new": "N 516-ЗС;",
+   "count": 9,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "—",
+   "new": "N 516-ЗС)",
+   "count": 9,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": "10",
+   "count": 2,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Утратил силу",
+   "new": "направляет в территориальные органы федеральных органов государственной власти, расположенные на территории города Севастополя, в органы государственной власти …",
+   "count": 500,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Введен — 9.",
+   "new": "1",
+   "count": 11,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "осу",
+   "new": "обра",
+   "count": 5,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ествляет мониторинг и анализ реализа",
+   "new": "ается в Законодательное Собрание города Севастополя с предложениями о создании спе",
+   "count": 82,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "и",
+   "new": "альной комиссии по проверке фактов нарушения прав и законных интересов детей",
+   "count": 76,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "со",
+   "new": "а также непосредственно ли",
+   "count": 26,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "дения и защиты прав и законных интересов детей в городе Севастополе",
+   "new": "чения по результатам проверки",
+   "count": 67,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "оследние изменения вступили в силу с 19",
+   "new": "резиденте Российской Федерации по правам ребенка, в правоохранительные и иные компетентные органы в порядке, определенном федеральным законодательством; (в ред.…",
+   "count": 192,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями:",
+   "new": "N 516-ЗС)",
+   "count": 15,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "0",
+   "new": "3",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "направляет в территориальные органы федеральных органов",
+   "new": "направляет в органы",
+   "count": 56,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "расположенные на территории города Севастополя",
+   "new": "о внесении в нормативные правовые акты города Севастополя изменений",
+   "count": 67,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "в органы государственно",
+   "new": "направленных на обеспечение реализации и соблюдения прав и законных интересов дете",
+   "count": 82,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "в органы местного самоуправления в городе Севастополе",
+   "new": "о признании нормативных правовых актов города Севастополя утратившими силу или приостановлении их действия в случаях",
+   "count": 116,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "в организации города Севастополя ходатайства о возбуждении дисциплинарного или административного производства либо уголовного дела в отно",
+   "new": "если эти акты нару",
+   "count": 137,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ении должностных лиц, в решениях или действиях (бездействии) которых он усматривает нарушения прав и законных интересов",
+   "new": "ают права и законные интересы",
+   "count": 119,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "1) обращается в",
+   "new": "3 в ред.",
+   "count": 15,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "одательное Собрание города Севастополя с предложениями о создании специальной комиссии по проверке фактов нарушения прав и законных интересов детей, а также неп…",
+   "new": "а города Севастополя от 08",
+   "count": 392,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями:",
+   "new": "N 516-ЗС)",
+   "count": 15,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "2",
+   "new": "4",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "направляет Губернатору города Севастополя мотивированные предложения о признании утратившими силу или приостановлении действия актов исполнительных органов госу…",
+   "count": 199,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "е",
+   "new": "ях, если эти акты",
+   "count": 17,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ения прав и законных интересов",
+   "new": "ают права и законные интересы",
+   "count": 30,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с",
+   "new": "(п.",
+   "count": 37,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": "4 в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редакции —",
+   "new": "N 516-ЗС)",
+   "count": 13,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "3",
+   "new": "5",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "направляет в органы государственно",
+   "new": "принимает в пределах своих полномочи",
+   "count": 37,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "власти города Севастополя и органы местного самоуправления в городе Севастополе мотивированные предло",
+   "new": "меры по предупре",
+   "count": 101,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ения об издании",
+   "new": "дению и пресечению нарушения прав и законных интересов детей.",
+   "count": 62,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "ринятии) нормативных правовых актов города Севастополя, о внесении в нормативные правовые акты города Севастополя изменений, направленных на обеспечение реализа…",
+   "new": ".",
+   "count": 421,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": "5 введен Законом города Севастополя от 08",
+   "count": 41,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редакции —",
+   "new": "N 5",
+   "count": 14,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "change",
+   "old": "4",
+   "new": "6-ЗС",
+   "count": 4,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": ", нарушающие права и законные интересы детей; (в ред",
+   "count": 52,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "шем",
+   "count": 3,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": ") утратили силу. - Закон города Севастополя от 08",
+   "count": 49,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "9.1) осуществляет мониторинг и анализ реализации, соблюдения и защиты прав и законных интересов детей в городе Севастополе; (п. 9.1 введен Законом города Севаст…",
+   "count": 170,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "о через своего представителя участвует в работе указанной комиссии и заслушивании на заседании Законодательного Собрания города Севастополя зак",
+   "count": 143,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "12) в случае нарушения прав и законных интересов детей территориальными органами федеральных органов государственной власти, расположенными на территории города…",
+   "count": 338,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "города Севастополя и органы местного самоуправления в городе Севастополе мотивированные предложения об издании (принятии) нормативных правовых актов города Сева…",
+   "count": 168,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "(п.",
+   "count": 4,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "add",
+   "old": "которых обжаловались в связи с нарушением прав детей.",
+   "new": "",
+   "count": 54,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "add",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "add",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "следние и",
+   "new": "окончании календарного года Уполномоченный направляет Губернатору города Севастополя, в Законодательное Собрание города Севастополя и Уполномоченному при Пре",
+   "count": 158,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "менения вступили в силу с",
+   "new": "иденте Российской Федерации по правам ребенка доклад о результатах своей деятельности, содержащий в том числе оценку соблюдения прав и законных интересов детей …",
+   "count": 264,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": "в ред. Закона города Севастополя от 08",
+   "count": 39,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редак",
+   "new": "2. По отдельным вопросам нарушений прав и законных интересов детей Уполномоченный может направлять спе",
+   "count": 102,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "и —",
+   "new": "альные доклады Губернатору города Севастополя, Законодательному Собранию города Севастополя, Правительству Севастополя, прокурору города Севастополя.",
+   "count": 149,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "1. По окончании календарного года Уполномоченный направляет Губернатору города Севастополя, в",
+   "new": "(в ред.",
+   "count": 93,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "одательное Собрание города Севастополя и Уполномоченному при Президенте Российской Федерации по правам ребенка доклад о результатах своей деятельности, содержащ…",
+   "new": "а города Севастополя от 08",
+   "count": 363,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "С и",
+   "new": "3. В докладе о деятельности Уполномоченного ука",
+   "count": 47,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "менениями:",
+   "new": "ываются государственные органы города Севастополя и органы местного самоуправления в городе Севастополе, должностные лица, решения или действия (бездеятельность…",
+   "count": 215,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "2. По отдельным вопросам нарушений прав и законных интересов детей Уполномоченный может направлять специальные доклады Губернатору города Севастополя,",
+   "new": "(в ред.",
+   "count": 150,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "одательному Собранию города Севастополя, Правительству Севастополя, прокурору города Севастополя. Последние изменения вступили в силу с 19",
+   "new": "а города Севастополя от 08",
+   "count": 138,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 3. В докладе о деятельности Уполномоченного указываются государственные органы города Севастополя и органы местного самоуправления в городе Севас…",
+   "new": "N 516-ЗС",
+   "count": 224,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "«",
+   "new": "\"",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "»",
+   "new": "\"",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "следние и",
+   "new": "ре",
+   "count": 9,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "менения вступили в силу с",
+   "new": "ультатам рассмотрения ежегодного и специальных докладов Уполномоченного руководители органов государственной власти, указанных в частях",
+   "count": 135,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": "и 2 настоящей статьи, в пределах своей компетенции принимают меры по устранению выявленных нарушений, обеспечению и усилению защиты прав и законных интересов де…",
+   "count": 260,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями:",
+   "new": "N 51",
+   "count": 16,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "change",
+   "old": ". По результатам рассмотрения ежегодного и специальных докладов Уполномоченного руководители органов государственной власти, указанных в частях 1 и 2 настоящей …",
+   "new": "-ЗС)",
+   "count": 365,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "1.",
+   "count": 3,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "6.",
+   "count": 3,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "Последние изменения вступили в силу с",
+   "new": "",
+   "count": 38,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "информацию от территориальных органов федеральных органов государственной власти, расположенных на территории города Севастополя, органов государственной власти…",
+   "new": "",
+   "count": 373,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "е наказания, и следственные изоляторы, в которы",
+   "new": "",
+   "count": 47,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "основе",
+   "new": "",
+   "count": 7,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "изменениями: 6",
+   "new": "",
+   "count": 15,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "самостоятельно или совместно с соответствующими органами, в ведении которых находятся вопросы, связанные с защитой и восстановлением прав и законных интересов д…",
+   "new": "",
+   "count": 399,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "изменениями: 9",
+   "new": "",
+   "count": 15,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "присутствовать на заседаниях и совещаниях территориальных органов федеральных органов государственной власти, расположенных на территории города Севастополя, За…",
+   "new": "",
+   "count": 343,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": ",",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "Последние изменения вступили в силу с",
+   "new": "",
+   "count": 38,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "12) участвовать в пределах своих полномочий в деятельности по профилактике безнадзорности и правонарушений несовершеннолетних в порядке, установленном федеральн…",
+   "new": "",
+   "count": 183,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "add",
+   "old": "Последние изменения вступили в силу с 19.07.2019 Заголовок изменен:",
+   "new": "",
+   "count": 68,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": ") безотлагательно быть принятым руководителями либо лицами, временно исполняющими их обязанности, иными должностными лицами территориальных органов федеральных …",
+   "count": 560,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редак",
+   "new": "2) запрашивать и получать в установленном порядке необходимые сведения, документы, материалы, разъяснения, объяснения и иную информа",
+   "count": 132,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "и — 1)",
+   "new": "ю от территориальных органов федеральных органов государственной власти, расположенных на территории города Севастополя, органов государственной власти города С…",
+   "count": 290,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "езотлагательно",
+   "new": "ственности, их должностных лиц по вопросам, связанным с со",
+   "count": 58,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ыть принятым руководителями либо лицами, временно исполня",
+   "new": "л",
+   "count": 57,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ми и",
+   "new": "той прав и законны",
+   "count": 18,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "обязанности, иными должностными лицами территориальных органов федеральных органов государственной власти, расположенных на территории города Севастополя, орган…",
+   "new": "интересов",
+   "count": 423,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "изменениями: 2) запрашиват",
+   "new": "евастополя, органы государственной власти города Севастополя, органы местного самоуправления в городе Севастополе, расположенные на территории города Севастопол…",
+   "count": 173,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "и получат",
+   "new": "ные и медицинские организации, организации, оказывающие социал",
+   "count": 62,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "в установленном порядке необходимые сведения, документы, материалы, разъяснения, объяснения и ину",
+   "new": "ные и иные услуги детям и семьям, име",
+   "count": 98,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "той прав и законных интересов",
+   "new": "м",
+   "count": 29,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(п. 3 в ред. Закона города Севастополя от 08",
+   "count": 44,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редакции — 3",
+   "new": "4",
+   "count": 14,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "территориальные органы федеральных органов государственной власти, располо",
+   "new": "учре",
+   "count": 74,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "енные на территории города Севастополя, органы государственной власти города Севастополя, органы местного самоуправления в городе Севастополе, расположенные на …",
+   "new": "дения, исполня",
+   "count": 253,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "социа",
+   "new": "наказания, и следственные изоляторы, в которых содержатся несовершеннолетние, беременные женщины и женщины, дети которых находятся в домах ребенка исправите",
+   "count": 156,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "е и иные услуги детям и семьям, имеющим дете",
+   "new": "х учреждени",
+   "count": 44,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(п. 4 в ред. Закона города Севастополя от 08",
+   "count": 44,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редакции — 4",
+   "new": "5",
+   "count": 14,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "по предъявлении удостоверения посе",
+   "new": "привлекать для осу",
+   "count": 35,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ать",
+   "new": "ествления экспертных и на",
+   "count": 25,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "реждения, исполня",
+   "new": "но-аналитических работ, каса",
+   "count": 28,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "содер",
+   "new": "ся защиты прав детей, научные и иные организации, а так",
+   "count": 55,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "атся несовершеннолетние, беременные женщины и женщины, дети котор",
+   "new": "е учен",
+   "count": 65,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "находятся в домах ребенка исправительных у",
+   "new": "и специалистов, в том",
+   "count": 42,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "реждени",
+   "new": "исле на договорно",
+   "count": 17,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(п. 5 в ред. Закона города Севастополя от 08",
+   "count": 44,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "В редакции — 5",
+   "new": "6",
+   "count": 14,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "привлекат",
+   "new": "самостоятел",
+   "count": 12,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "для осуществления экспертных и научно-аналитических работ, каса",
+   "new": "но или совместно с соответству",
+   "count": 64,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ся",
+   "new": "находятся вопросы, связанные с",
+   "count": 31,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ы прав дете",
+   "new": "о",
+   "count": 11,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": ", научные и иные организа",
+   "new": "и восстановлением прав и законных интересов детей, проводить проверку деятельности органов государственной власти города Севастополя, органов местного самоуправ…",
+   "count": 206,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ии, а также учены",
+   "new": ", организаций города Севастополя, нарушающи",
+   "count": 43,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "и специалистов, в том числе на договорно",
+   "new": "права и законные интересы дете",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "N 516-З",
+   "count": 8,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "8) поручать компетентным государственным учреждениям города Севастополя и научным учреждениям проведение экспертных исследований и подготовку заключений по вопр…",
+   "count": 443,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "изменениями: 8) поручат",
+   "new": "евастополя, Законодател",
+   "count": 24,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "компетентным государственным учреждениям города",
+   "new": "ного",
+   "count": 48,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "евастополя и научным учреждениям проведение экспертны",
+   "new": "обрания города Севастополя, Правительства Севастополя, други",
+   "count": 60,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "исследовани",
+   "new": "органов государственно",
+   "count": 22,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "и подготовку заключений по вопросам, подлежащим выяснению в ходе рассмотрения обращений граждан, объединений граждан, организаций, содержащих предложения, заявл…",
+   "new": "власти города Севастополя, органов местного самоуправления в городе Севастополе",
+   "count": 273,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "N 516-З",
+   "count": 8,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "9",
+   "new": "1) обращаться в суд с административными исковыми заявлениями о признании незаконными решений, действий (бездействия) органов государственной власти города Севас…",
+   "count": 819,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Введен —",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": ") обращаться в суд с административными исковыми заявлениями о признании незаконными решений, действий (бездействия) органов государственной власти",
+   "new": "2 введен Законом",
+   "count": 146,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": ", органов местного самоуправления в городе Севастополе, иных органов, организаций, наделенных отдельными государственными или иными публичными полномочиями, дол…",
+   "new": "от 08",
+   "count": 647,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Введен —",
+   "new": "2. Территориальные органы федеральных органов государственной власти, расположенные на территории города Севастополя, органы государственной власти города Севас…",
+   "count": 282,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "или) законодательством",
+   "new": "в ред. Закона",
+   "count": 22,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": ". Последние изменения вступили в силу с 19",
+   "new": "от 08",
+   "count": 42,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "N 516-З",
+   "count": 8,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "изменениями: 2. Территориальные органы федеральных органов государственной власти, расположенные на территории города Севастополя, органы государственной власти…",
+   "new": ")",
+   "count": 296,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "3) предоставлять по запросам Уполномоченного разъяснения, объяснения по вопросам, связанным с соблюдением и защитой прав и законных интересов детей; (в ред. Зак…",
+   "count": 188,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "изменениями: 3) предоставлять по запросам Уполномоченного разъяснения, объяснения по вопросам, связанным с соблюдением и защитой прав и законных интересов детей…",
+   "new": "евастополя от 08",
+   "count": 203,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "С изменениями: 4) полу",
+   "new": "3. Вмешательство в деятельность Уполномо",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ив закл",
+   "new": "енного с цель",
+   "count": 13,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "ие Уполномо",
+   "new": "ного в иной форме вле",
+   "count": 21,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "нного, содержащее рекомендации относител",
+   "new": "т за собой ответственност",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "но возможных и необходимых мер по защите прав и законных интересов детей, в 15-дневный срок рассмотрет",
+   "new": ", установленную федерал",
+   "count": 102,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "его и в пис",
+   "new": "ным законодател",
+   "count": 15,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "менной форме сообщить о принятых мерах Уполномоченному. В случае если рекомендации Уполномоченного не выполнены, в ответе должно содержаться обоснование причин …",
+   "new": "ством",
+   "count": 175,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "Последние изменения вступили в силу с 19",
+   "new": "(в ред. Закона города Севастополя от 08",
+   "count": 40,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "N 516-З",
+   "count": 8,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "изменениями: 3. Вмешательство в деятельность Уполномоченного с целью повлиять на его решение, неисполнение должностными лицами обязанностей, установленных насто…",
+   "new": ")",
+   "count": 321,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "change",
+   "old": "",
+   "new": "",
+   "count": 1,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "дением и за",
+   "count": 11,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "3) по предъявлении удостоверения посещать территориальные органы федеральных органов государственной власти, расположенные на территории города",
+   "count": 144,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "основе",
+   "count": 7,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 12",
+   "path_key": [
+    [
+     "article",
+     "12"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "N 516-ЗС)",
+   "count": 10,
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text"

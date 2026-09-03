@@ -17,7 +17,6 @@ from tkinter import filedialog, messagebox, ttk
 import requests
 from npazs.constants import (
     DEFAULT_BACKEND,
-    DEFAULT_KILO_GATEWAY_MODEL,
     DEFAULT_KILO_GATEWAY_URL,
     KILO_GATEWAY_FREE_MODELS,
     OLLAMA_MODELS_WHITELIST,
@@ -47,6 +46,36 @@ _LEVEL_TAGS = {
 }
 
 
+def _filter_free_models(payload, known=KILO_GATEWAY_FREE_MODELS) -> list:
+    """Отобрать реально существующие free-модели из ответа Kilo Gateway.
+
+    ``payload`` — объект из ответа ``GET /models`` (словарь с ключом
+    ``data``). Сначала отбираются все модели, в id/названии которых есть
+    признак ``free`` (или ``auto free``); если таких нет — по известным
+    id из ``known``. Возвращается отсортированный список без дубликатов.
+    """
+    candidates = []
+    for m in payload.get('data', []) if isinstance(payload, dict) else []:
+        if not isinstance(m, dict):
+            continue
+        model_id = str(m.get('id') or '').strip()
+        name = str(m.get('name') or '').strip()
+        if model_id:
+            candidates.append((model_id, name))
+    ids_lower = {model_id.lower(): model_id for model_id, _ in candidates}
+    selected = []
+    for model_id, name in candidates:
+        low = f"{model_id} {name}".lower()
+        if 'free' in low or 'auto free' in low:
+            selected.append(model_id)
+    if not selected:
+        for expected in known:
+            lower = expected.lower()
+            if lower in ids_lower:
+                selected.append(ids_lower[lower])
+    return sorted(set(selected))
+
+
 class CompareApp:
     """Главное окно модуля сравнения."""
 
@@ -63,8 +92,9 @@ class CompareApp:
         self.backend = tk.StringVar(value=DEFAULT_BACKEND)
         self.kilo_gateway_url = tk.StringVar(value=DEFAULT_KILO_GATEWAY_URL)
         self.kilo_gateway_api_key = tk.StringVar(value=settings.kilo_gateway_api_key or "")
-        self.available_models = list(KILO_GATEWAY_FREE_MODELS) if DEFAULT_BACKEND == "kilo_gateway" else []
-        self.model = tk.StringVar(value=DEFAULT_KILO_GATEWAY_MODEL if DEFAULT_BACKEND == "kilo_gateway" else "")
+        self.available_models = []
+        self._models_backend = None
+        self.model = tk.StringVar(value="")
         self.resume = tk.BooleanVar(value=True)
 
         self.log_queue: queue.Queue = queue.Queue()
@@ -129,17 +159,20 @@ class CompareApp:
             mode_frame, text='Механический (без ИИ)', variable=self.mode,
             value='mechanical',
         ).pack(side=tk.LEFT, padx=4)
-        tk.Label(mode_frame, text='Модель:').pack(side=tk.LEFT, padx=(16, 4))
-        self.model_combo = ttk.Combobox(
-            mode_frame, textvariable=self.model, values=self.available_models, width=24
-        )
-        self.model_combo.pack(side=tk.LEFT)
         tk.Checkbutton(
             mode_frame, text='Возобновлять с чекпойнта', variable=self.resume
         ).pack(side=tk.LEFT, padx=(16, 0))
 
+        model_frame = tk.Frame(frame)
+        model_frame.grid(row=5, column=0, columnspan=3, sticky='w', **pad)
+        tk.Label(model_frame, text='Модель:').pack(side=tk.LEFT, padx=(0, 8))
+        self.model_combo = ttk.Combobox(
+            model_frame, textvariable=self.model, values=self.available_models, width=50
+        )
+        self.model_combo.pack(side=tk.LEFT)
+
         backend_frame = tk.Frame(frame)
-        backend_frame.grid(row=5, column=0, columnspan=3, sticky='w', **pad)
+        backend_frame.grid(row=6, column=0, columnspan=3, sticky='w', **pad)
         tk.Label(backend_frame, text='Бэкенд:').pack(side=tk.LEFT, padx=(0, 8))
         tk.Radiobutton(
             backend_frame, text='Kilo Gateway', variable=self.backend,
@@ -171,7 +204,7 @@ class CompareApp:
         self.fetch_models_btn.pack(side=tk.LEFT, padx=(16, 0))
 
         btn_frame = tk.Frame(frame)
-        btn_frame.grid(row=6, column=0, columnspan=3, sticky='w', **pad)
+        btn_frame.grid(row=7, column=0, columnspan=3, sticky='w', **pad)
         self.run_button = tk.Button(
             btn_frame, text='Сравнить', command=self._start, width=18,
             bg='#e8f0e8',
@@ -184,11 +217,11 @@ class CompareApp:
         self.stop_button.pack(side=tk.LEFT)
 
         tk.Label(frame, text='Журнал работы:').grid(
-            row=7, column=0, sticky='w', **pad
+            row=8, column=0, sticky='w', **pad
         )
         log_frame = tk.Frame(frame)
-        log_frame.grid(row=8, column=0, columnspan=3, sticky='nsew', **pad)
-        frame.grid_rowconfigure(8, weight=1)
+        log_frame.grid(row=9, column=0, columnspan=3, sticky='nsew', **pad)
+        frame.grid_rowconfigure(9, weight=1)
         frame.grid_columnconfigure(1, weight=1)
 
         scrollbar = tk.Scrollbar(log_frame)
@@ -257,10 +290,28 @@ class CompareApp:
                 if level == 'failed':
                     self._set_running(False)
                     continue
+                if level == 'models':
+                    self._on_models_loaded(payload)
+                    continue
+                if level == 'button':
+                    self.fetch_models_btn.config(state=tk.NORMAL, text=payload)
+                    continue
                 self._append_log(str(payload), level)
         except queue.Empty:
             pass
         self.root.after(150, self._poll_log)
+
+    def _on_models_loaded(self, payload) -> None:
+        """Применить список моделей, полученный фоновым потоком.
+
+        ``payload`` — кортеж ``(backend, models)``. Список применяется только
+        если бэкенд, для которого он получен, всё ещё выбран.
+        """
+        backend, models = payload
+        self._models_backend = backend
+        if backend == self.backend.get():
+            self.available_models = models
+            self._update_model_combo()
 
     def _show_log_menu(self, event) -> None:
         self.log_menu.post(event.x_root, event.y_root)
@@ -288,14 +339,13 @@ class CompareApp:
             self.kg_url_entry.config(state=tk.NORMAL)
             self.kg_key_label.config(state=tk.NORMAL)
             self.kg_key_entry.config(state=tk.NORMAL)
-            if not self.available_models:
-                self._fetch_kilo_gateway_models(try_api=False)
         else:
             self.kg_url_label.config(state=tk.DISABLED)
             self.kg_url_entry.config(state=tk.DISABLED)
             self.kg_key_label.config(state=tk.DISABLED)
             self.kg_key_entry.config(state=tk.DISABLED)
-            self._fetch_ollama_models()
+        if getattr(self, '_models_backend', None) != self.backend.get():
+            self._fetch_models()
         self._update_model_combo()
 
     def _update_model_combo(self) -> None:
@@ -308,17 +358,34 @@ class CompareApp:
             self.model.set('')
 
     def _fetch_models(self) -> None:
-        self.fetch_models_btn.config(state=tk.DISABLED, text='Загрузка...')
-        threading.Thread(target=self._fetch_models_worker, daemon=True).start()
+        """Обновить список моделей выбранного бэкенда в фоновом потоке.
 
-    def _fetch_models_worker(self) -> None:
+        Значения Tk-переменных снимаются в главном потоке, а результат
+        возвращается через ``log_queue`` (обрабатывается в ``_poll_log``);
+        из фонового потока Tcl-вызовы не выполняются.
+        """
+        if getattr(self, '_models_fetching', False):
+            return
+        self._models_fetching = True
+        self.fetch_models_btn.config(state=tk.DISABLED, text='Загрузка...')
+        backend = self.backend.get()
+        url = self.kilo_gateway_url.get().strip()
+        api_key = self.kilo_gateway_api_key.get().strip()
+        threading.Thread(
+            target=self._fetch_models_worker,
+            args=(backend, url, api_key),
+            daemon=True,
+        ).start()
+
+    def _fetch_models_worker(self, backend, kilo_gateway_url, kilo_gateway_api_key) -> None:
         try:
-            if self.backend.get() == 'kilo_gateway':
-                self._fetch_kilo_gateway_models(try_api=True)
+            if backend == 'kilo_gateway':
+                self._fetch_kilo_gateway_models(kilo_gateway_url, kilo_gateway_api_key)
             else:
                 self._fetch_ollama_models()
         finally:
-            self.root.after(0, lambda: self.fetch_models_btn.config(state=tk.NORMAL, text='Обновить модели'))
+            self._models_fetching = False
+            self.log_queue.put(('button', 'Обновить модели'))
 
     def _fetch_ollama_models(self) -> None:
         try:
@@ -328,57 +395,46 @@ class CompareApp:
                 data = response.json()
                 models = [m['name'] for m in data.get('models', [])]
                 models = [m for m in models if m in OLLAMA_MODELS_WHITELIST]
-                self.root.after(0, self.log, f"Получено {len(models)} моделей от Ollama (после фильтрации)", 'info')
                 models.sort()
-                self.available_models = models
-                self.root.after(0, self._update_model_combo)
+                self.log_queue.put(('info', f"Получено {len(models)} моделей от Ollama (после фильтрации)"))
+                self.log_queue.put(('models', ('ollama', models)))
             else:
-                self.root.after(0, self.log, f"Ошибка загрузки списка моделей: {response.status_code}", 'error')
-        except Exception as e:
-            self.root.after(0, self.log, f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен.", 'error')
-            self.available_models = []
-            self.root.after(0, self._update_model_combo)
+                self.log_queue.put(('error', f"Ошибка загрузки списка моделей: {response.status_code}"))
+        except Exception as e:  # noqa: BLE001 - показываем причину пользователю
+            self.log_queue.put(('error', f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен."))
+            self.log_queue.put(('models', ('ollama', [])))
 
-    def _fetch_kilo_gateway_models(self, try_api=True) -> None:
-        if not try_api:
-            models = sorted(KILO_GATEWAY_FREE_MODELS)
-            self.available_models = models
-            self.root.after(0, self._update_model_combo)
-            self.root.after(0, self.log, f"Установлены модели Kilo Gateway по умолчанию: {models}", 'info')
-            return
+    def _fetch_kilo_gateway_models(self, kilo_gateway_url, kilo_gateway_api_key) -> None:
+        """Загрузить реально существующие free-модели Kilo Gateway.
+
+        HTTP-запрос ``GET /models`` выполняется в фоновом потоке, результат
+        уходит в ``log_queue`` как ``('models', ('kilo_gateway', models))``.
+        Если API недоступно, используется захардкоженный список как
+        временный fallback, чтобы поле выбора не оставалось пустым.
+        """
         try:
-            url = f"{self.kilo_gateway_url.get().rstrip('/')}/models"
+            url = f"{kilo_gateway_url.rstrip('/')}/models"
             headers = {}
-            api_key = self.kilo_gateway_api_key.get().strip()
-            if api_key:
-                headers["Authorization"] = f"Bearer {api_key}"
+            if kilo_gateway_api_key:
+                headers["Authorization"] = f"Bearer {kilo_gateway_api_key}"
             response = requests.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                raw_ids = [m.get('id') for m in data.get('data', []) if m.get('id')]
-                self.root.after(0, self.log, f"Kilo Gateway вернул модели: {raw_ids}", 'info')
-                ids_lower = {m.lower(): m for m in raw_ids}
-                selected = []
-                for expected in KILO_GATEWAY_FREE_MODELS:
-                    if expected in raw_ids:
-                        selected.append(expected)
-                    elif expected.lower() in ids_lower:
-                        selected.append(ids_lower[expected.lower()])
-                if not selected:
-                    for m in raw_ids:
-                        low = m.lower()
-                        if 'free' in low or 'auto free' in low:
-                            selected.append(m)
-                self.root.after(0, self.log, f"Выбрано бесплатных моделей: {selected}", 'info')
-                models = sorted(selected)
-                self.available_models = models
-                self.root.after(0, self._update_model_combo)
+            if response.status_code != 200:
+                self.log_queue.put(('error', f"Ошибка загрузки списка моделей Kilo Gateway: HTTP {response.status_code} {response.text}"))
+                self.log_queue.put(('warning', 'Kilo Gateway недоступен — показан запасной список моделей.'))
+                models = sorted(KILO_GATEWAY_FREE_MODELS)
             else:
-                self.root.after(0, self.log, f"Ошибка загрузки списка моделей Kilo Gateway: HTTP {response.status_code} {response.text}", 'error')
-        except Exception as e:
-            self.root.after(0, self.log, f"Ошибка подключения к Kilo Gateway: {e}. Проверьте URL и API ключ.", 'error')
-            self.available_models = []
-            self.root.after(0, self._update_model_combo)
+                data = response.json()
+                self.log_queue.put(('info', f"Kilo Gateway вернул моделей: {len(data.get('data') or [])}"))
+                models = _filter_free_models(data)
+                if models:
+                    self.log_queue.put(('info', f"Выбрано бесплатных моделей: {models}"))
+                else:
+                    self.log_queue.put(('warning', 'Free-модели в списке Kilo Gateway не найдены — поле выбора пусто.'))
+            self.log_queue.put(('models', ('kilo_gateway', models)))
+        except Exception as e:  # noqa: BLE001 - показываем причину пользователю
+            self.log_queue.put(('error', f"Ошибка подключения к Kilo Gateway: {e}. Проверьте URL и API ключ."))
+            self.log_queue.put(('warning', 'Kilo Gateway недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('kilo_gateway', sorted(KILO_GATEWAY_FREE_MODELS))))
 
     def _set_running(self, running: bool) -> None:
         self.run_button.config(state=tk.DISABLED if running else tk.NORMAL)
@@ -426,7 +482,7 @@ class CompareApp:
         try:
             result = run_compare(options, log=log, stop_event=self.stop_event)
             self.log_queue.put(('done', result))
-        except Exception as error:
+        except Exception as error:  # noqa: BLE001 - показываем причину пользователю
             self.log_queue.put(('error', f'Ошибка: {error}'))
             self.log_queue.put(('failed', None))
 

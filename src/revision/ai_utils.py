@@ -92,7 +92,7 @@ def _repair_json_answer(answer, log_callback=None):
         return None
 
 
-def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=3, retry_delay=30, change_info=None, base_url=None, api_key=None):
+def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=5, retry_delay=15, backoff_factor=2, change_info=None, base_url=None, api_key=None):
     if stop_event and stop_event.is_set():
         if log_callback:
             log_callback("  Запрос к Kilo Gateway отменён", 'warning')
@@ -128,6 +128,8 @@ def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event
     while True:
         try:
             response = requests.post(url, json=payload, headers=headers, timeout=900)
+            if response.status_code == 429:
+                raise Exception(f"HTTP 429 (rate limit): {response.text[:200]}")
             if response.status_code != 200:
                 if response.status_code == 403 and log_callback:
                     log_callback("  Kilo Gateway инфраструктурная ошибка: HTTP 403 (доступ запрещён)", 'error')
@@ -158,13 +160,14 @@ def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event
                     msg += f" [изменение: {change_info}]"
                 log_callback(msg, 'error')
             if attempt < max_retries:
+                wait = retry_delay * (backoff_factor ** (attempt - 1))
                 if log_callback:
-                    log_callback(f"  Повтор через {retry_delay} секунд...", 'info')
+                    log_callback(f"  Повтор через {wait} секунд...", 'info')
                 if stop_event and stop_event.is_set():
                     if log_callback:
                         log_callback("  Запрос отменён во время ожидания повторной попытки", 'warning')
                     return None
-                for _ in range(retry_delay):
+                for _ in range(wait):
                     if stop_event and stop_event.is_set():
                         return None
                     time.sleep(1)
@@ -197,9 +200,9 @@ def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event
                     return None
 
 
-def ask_ollama(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=3, retry_delay=30, change_info=None, backend="ollama", kilo_gateway_url=None, api_key=None):
+def ask_ollama(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=5, retry_delay=15, backoff_factor=2, change_info=None, backend="ollama", kilo_gateway_url=None, api_key=None):
     if backend == "kilo_gateway":
-        return ask_kilo_gateway(prompt, model, log_callback, extra_options, stop_event, max_retries, retry_delay, change_info, kilo_gateway_url, api_key)
+        return ask_kilo_gateway(prompt, model, log_callback, extra_options, stop_event, max_retries, retry_delay, backoff_factor, change_info, kilo_gateway_url, api_key)
     if stop_event and stop_event.is_set():
         if log_callback:
             log_callback("  Запрос к Ollama отменён", 'warning')
@@ -278,13 +281,14 @@ def ask_ollama(prompt, model, log_callback, extra_options=None, stop_event=None,
                     msg += f" [изменение: {change_info}]"
                 log_callback(msg, 'error')
             if attempt < max_retries:
+                wait = retry_delay * (backoff_factor ** (attempt - 1))
                 if log_callback:
-                    log_callback(f"  Повтор через {retry_delay} секунд...", 'info')
+                    log_callback(f"  Повтор через {wait} секунд...", 'info')
                 if stop_event and stop_event.is_set():
                     if log_callback:
                         log_callback("  Запрос отменён во время ожидания повторной попытки", 'warning')
                     return None
-                for _ in range(retry_delay):
+                for _ in range(wait):
                     if stop_event and stop_event.is_set():
                         return None
                     time.sleep(1)
