@@ -5,12 +5,14 @@
 1. «Примечания и даты вступления в силу» — наличие примечаний, их привязка
    к изменяющим НПА и соответствие дат (без сравнения стиля оформления);
 2. «Расхождения текста» — посимвольные различия по каждому структурному
-   элементу с полным путём, причинами и текстами изменений из базы;
+   элементу с точным местом (элемент, абзац, часть/пункт), причинами
+   и текстами изменений из базы;
 3. «Итоги и рекомендации» — сводка расхождений и замечания конвертеров.
 """
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
@@ -67,6 +69,21 @@ def _norm_date(date: str) -> str:
     return str(date or '')
 
 
+def _clean_note_text(text: str, limit: int = 90) -> str:
+    """Однострочный текст примечания для отчёта.
+
+    Переносы строк внутри примечания ломают и таблицы, и выравнивание,
+    поэтому текст приводится к одной строке и усекается с многоточием.
+    Остатки табличной разметки правовых систем («| | …») убираются.
+    """
+    text = (text or '').replace('\r', ' ').replace('\n', ' ')
+    text = ' '.join(text.split())
+    text = re.sub(r'^(?:\|\s*)+', '', text).strip()
+    if len(text) > limit:
+        text = text[:limit - 1].rstrip() + '…'
+    return text or '—'
+
+
 def _group_notes(notes: List[Note]) -> List[Tuple[List[Note], int]]:
     """Сгруппировать примечания по (НПА, даты, дата вступления).
 
@@ -93,11 +110,15 @@ def build_notes_report(
 ) -> Tuple[List[NoteCompRecord], str]:
     """Сравнить примечания двух документов.
 
-    Возвращает (записи сравнения, markdown-таблица). Пометки без дат и
-    номеров НПА (пустые «В редакции —», «С изменениями:») в таблицу
+    Возвращает (записи сравнения, markdown-раздел). Пометки без дат и
+    номеров НПА (пустые «В редакции —», «С изменениями:») в отчёт
     не выводятся — они уже исключены из сравнения текста. Повторяющиеся
     пометки группируются («вступили в силу с …» у каждого пункта) и
-    выводятся одной строкой с количеством вхождений.
+    выводятся одной записью с количеством вхождений.
+
+    Записи выводятся списком, сгруппированным по статусу, — широкая
+    таблица с длинными примечаниями нечитаема и ломается переносами
+    строк внутри ячеек.
     """
     notes_ours = [n for n in notes_ours if n.npa_numbers or n.dates]
     notes_theirs = [n for n in notes_theirs if n.npa_numbers or n.dates]
@@ -167,19 +188,32 @@ def build_notes_report(
         )
 
     lines = [
-        '| № | Примечание | НПА | Даты (проект) | Даты (прав. система) | Кол-во | Статус |',
-        '|---|---|---|---|---|---|---|',
+        f'_Всего записей: {len(records)}_',
+        '',
     ]
-    for i, rec in enumerate(records, start=1):
-        text = (rec.text or '').replace('|', '\\|')
-        if len(text) > 90:
-            text = text[:87] + '…'
-        ours_dates = '; '.join(rec.dates_ours) if rec.dates_ours else '—'
-        theirs_dates = '; '.join(rec.dates_theirs) if rec.dates_theirs else '—'
-        lines.append(
-            f'| {i} | {text} | {rec.number_label} | {ours_dates} | '
-            f'{theirs_dates} | {rec.count} | {rec.status} |'
-        )
+    status_order = (
+        'Даты различаются',
+        'Только в документе проекта',
+        'Только в документе правовой системы',
+        'Совпадает',
+    )
+    for status in status_order:
+        group = [r for r in records if r.status == status]
+        if not group:
+            continue
+        lines.append(f'**{status} ({len(group)}):**')
+        lines.append('')
+        for i, rec in enumerate(group, start=1):
+            text = _clean_note_text(rec.text)
+            lines.append(f'{i}. «{text}»')
+            lines.append(f'   - НПА: {rec.number_label}')
+            dates_ours = '; '.join(rec.dates_ours) if rec.dates_ours else '—'
+            dates_theirs = '; '.join(rec.dates_theirs) if rec.dates_theirs else '—'
+            lines.append(f'   - Даты (проект): {dates_ours}')
+            lines.append(f'   - Даты (прав. система): {dates_theirs}')
+            if rec.count != 1:
+                lines.append(f'   - Вхождений: {rec.count}')
+        lines.append('')
     return records, '\n'.join(lines)
 
 
@@ -192,41 +226,35 @@ def _quote_md(text: str, limit: int = 400) -> str:
 
 
 def _cosmetics_section(cosmetics: List[DiffRecord]) -> str:
-    """Компактная сводка различий оформления (регистр/пунктуация/пробелы).
+    """Различия оформления с точным местом каждого вхождения.
 
-    Такие различия не требуют разбора и классификации — выводятся одной
-    таблицей «элемент → количество → пример», чтобы не засорять основной
-    список расхождений.
+    Такие различия затрагивают только оформление (регистр, пунктуация,
+    пробелы, е/ё), однако в тексте НПА важен каждый знак — поэтому каждый
+    случай выводится отдельным пунктом: элемент, название, номер абзаца
+    (с нумерацией части/пункта) и контекст из обоих документов.
     """
     lines = [
         '',
-        '### Мелкие различия оформления (в разбор не включены)',
+        '### Различия оформления (регистр, пунктуация, пробелы, е/ё)',
         '',
-        'Различия только в оформлении: регистр, пунктуация, пробелы, е/ё. '
-        'Содержание текста не меняют, классификация не требуется.',
+        (
+            'В тексте НПА важен каждый знак, поэтому каждое вхождение указано '
+            'с точным местом: элемент, абзац, часть/пункт.'
+        ),
         '',
-        '| Элемент | Кол-во | Пример |',
-        '|---|---|---|',
     ]
-    by_path: Dict[str, List[DiffRecord]] = {}
-    order: List[str] = []
-    for rec in cosmetics:
-        if rec.path not in by_path:
-            by_path[rec.path] = []
-            order.append(rec.path)
-        by_path[rec.path].append(rec)
-    for path in order:
-        recs = by_path[path]
-        sample = next(
-            (
-                r for r in recs
-                if (r.old or '').strip() or (r.new or '').strip()
-            ),
-            recs[0],
-        )
-        old = _quote_md(sample.old, 70)
-        new = _quote_md(sample.new, 70)
-        lines.append(f'| {path} | {len(recs)} | {old} → {new} |')
+    for idx, rec in enumerate(cosmetics, start=1):
+        if rec.kind == 'add':
+            change = f'есть только в документе проекта: «{rec.old}»'
+        elif rec.kind == 'remove':
+            change = f'есть только в документе правовой системы: «{rec.new}»'
+        else:
+            change = f'«{rec.old}» → «{rec.new}»'
+        lines.append(f'{idx}. **{rec.location or rec.path}** — {change}')
+        if (rec.context_old or '').strip() or (rec.context_new or '').strip():
+            lines.append(f'   > ❌ Документ проекта: {_quote_md(rec.context_old, 160)}')
+            lines.append(f'   > ✅ Документ правовой системы: {_quote_md(rec.context_new, 160)}')
+        lines.append('')
     return '\n'.join(lines)
 
 
@@ -239,7 +267,7 @@ def build_diffs_report(
 
     ``cosmetics`` — различия только в оформлении (см.
     :func:`npazs.compare.differ.is_cosmetic_diff`); при наличии выводятся
-    компактной таблицей в конце раздела.
+    отдельным перечнем с точным местом каждого вхождения.
     """
     lines = ['## 2. Расхождения текста', '']
     if not diffs:
@@ -254,7 +282,7 @@ def build_diffs_report(
             'remove': 'Есть только в документе правовой системы',
         }.get(diff.kind, diff.kind)
 
-        lines.append(f'### 2.{idx}. {diff.path}')
+        lines.append(f'### 2.{idx}. {diff.location or diff.path or "—"}')
         lines.append('')
         lines.append(f'**Тип различия:** {kind_label}')
         if diff.reason:
@@ -356,8 +384,8 @@ def build_report(
     lines.append(f'  - удалений (только в правовой системе): {diff_stats.get("remove", 0)}')
     if diff_stats.get('cosmetic'):
         lines.append(
-            f'  - различий оформления (регистр/пунктуация, справочно): '
-            f'{diff_stats["cosmetic"]}'
+            f'  - различий оформления (регистр/пунктуация/пробелы/е-ё; '
+            f'каждое указано с точным местом): {diff_stats["cosmetic"]}'
         )
     lines.append('')
     by_reason: Dict[str, int] = {}

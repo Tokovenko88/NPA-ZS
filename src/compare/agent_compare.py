@@ -90,6 +90,9 @@ def build_classify_prompt(
             {
                 'id': idx,
                 'path': diff.path,
+                # точное место (элемент, абзац, часть/пункт) — помогает
+                # модели привязать объяснение к конкретному месту текста
+                'location': diff.location,
                 'kind': diff.kind,
                 'old': diff.old,
                 'new': diff.new,
