@@ -74,7 +74,7 @@ function getItemHeadRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $asOfD
         'valid_to' => $rev['valid_to'],
         'source_info' => $sourceInfo,
         'npa_url' => $npaInfo['npa_url'] ?? '',
-        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
+        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']) : ''
     ];
 }
 
@@ -308,7 +308,7 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         'valid_to' => $itemData['valid_to'],
         'source_info' => $sourceInfo,
         'npa_url' => $npaInfo['npa_url'] ?? '',
-        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
+        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']) : ''
     ];
 }
 

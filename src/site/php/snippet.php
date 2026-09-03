@@ -800,14 +800,14 @@ function getDocumentStatus(PDO $pdo, $npa_id, $viewDateSql) {
         $msg = $isAlreadyExpired ? "Документ утратил силу с {$formattedDate}" : "Документ утрачивает силу с {$formattedDate}";
         $cancellingNpaId = $base['not_valid_npa_id'] ?? null;
         if ($cancellingNpaId) {
-            $stmtCancel = $pdo->prepare("SELECT npa_type, npa_number, npa_url, date_passed FROM npa_base WHERE npa_id = ?");
+            $stmtCancel = $pdo->prepare("SELECT b.npa_type, b.npa_number, b.npa_url, COALESCE(NULLIF(l.date_signed, ''), b.date_passed) AS req_date FROM npa_base b LEFT JOIN npa_law l ON b.npa_id = l.npa_id WHERE b.npa_id = ?");
             $stmtCancel->execute([$cancellingNpaId]);
             $cancellingNpa = $stmtCancel->fetch();
             if ($cancellingNpa) {
                 $type = ($cancellingNpa['npa_type'] === 'law') ? 'Закон' : 'Постановление Законодательного Собрания';
-                $datePassed = formatRusDate($cancellingNpa['date_passed'], $dateFormat);
+                $reqDate = formatRusDate($cancellingNpa['req_date'], $dateFormat);
                 $url = $cancellingNpa['npa_url'] ?? '';
-                $cancellingText = $type . ' города Севастополя № ' . $cancellingNpa['npa_number'] . ' от ' . $datePassed;
+                $cancellingText = $type . ' города Севастополя № ' . $cancellingNpa['npa_number'] . ' от ' . $reqDate;
                 if ($url) {
                     $cancellingText = '<a href="' . $url . '" target="_blank" class="npa-revision-link">' . $cancellingText . '</a>';
                 }
@@ -891,7 +891,7 @@ function getHeadRevisionsList(PDO $pdo, $npa_id, $asOfDate) {
             $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
             if ($npaInfo) {
                 $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
                 $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
                 $sourceDecode = getElementHumanPath($changerElementId, $pdo);
                 $npaUrl = $npaInfo['npa_url'] ?? '';
@@ -908,7 +908,7 @@ function getHeadRevisionsList(PDO $pdo, $npa_id, $asOfDate) {
                 $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
                 if ($expiryNpaInfo) {
                     $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $dateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                     $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
                     $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
                 }
@@ -991,7 +991,7 @@ function getHeadRevisionContent(PDO $pdo, $rev_id, $npa_id, $asOfDate) {
         'valid_to' => $rev['valid_to'],
         'source_info' => $sourceInfo,
         'npa_url' => $npaInfo['npa_url'] ?? '',
-        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
+        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']) : ''
     ];
 }
 
@@ -1059,6 +1059,13 @@ function getNpaInfoByItemId($itemInternalId, $pdo) {
     ];
 }
 
+function npaRequisiteDate(array $npaInfo): string {
+    if (!empty($npaInfo['date_signed'])) {
+        return (string)$npaInfo['date_signed'];
+    }
+    return (string)($npaInfo['date_passed'] ?? '');
+}
+
 function getShortNpaDescription($modifiedById, $pdo, $asHtml = false, $case = 'genitive') {
     if (empty($modifiedById) || $modifiedById === 'base') {
         return 'исходная редакция';
@@ -1085,7 +1092,7 @@ function getShortNpaDescription($modifiedById, $pdo, $asHtml = false, $case = 'g
             ? 'Закона'
             : 'Постановления Законодательного Собрания';
     }
-    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
     $text = $typeName . ' № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
         $url = $npaInfo['npa_url'];
@@ -1194,7 +1201,7 @@ function getRevisionDocNoteImproved($modifiedBy, $pdo, $case = 'genitive', $asHt
         }
     }
     
-    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
     $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
     $npaText = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
@@ -1224,7 +1231,7 @@ function getRevisionSourceNote($modifiedById, $pdo, $asHtml = false) {
     }
     
     $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
     $text = $path . ' ' . $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
         $url = $npaInfo['npa_url'];
@@ -1834,7 +1841,7 @@ function getItemHeadRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $asOfD
         'valid_to' => $rev['valid_to'],
         'source_info' => $sourceInfo,
         'npa_url' => $npaInfo['npa_url'] ?? '',
-        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
+        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления Законодательного Собрания') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']) : ''
     ];
 }
 
@@ -2055,7 +2062,7 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         'valid_to' => $itemData['valid_to'],
         'source_info' => $sourceInfo,
         'npa_url' => $npaInfo['npa_url'] ?? '',
-        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']) : ''
+        'display_title' => $npaInfo ? ($npaInfo['npa_type'] === 'law' ? 'Закона' : 'Постановления') . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']) : ''
     ];
 }
 
@@ -3706,7 +3713,7 @@ function getItemRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDate, $
             $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
             if ($npaInfo) {
                 $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
                 $npaTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
                 $sourceDecode = getElementHumanPath($changerElementId, $pdo);
                 $npaUrl = $npaInfo['npa_url'] ?? '';
@@ -3724,7 +3731,7 @@ function getItemRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDate, $
                 $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
                 if ($expiryNpaInfo) {
                     $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $dateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                     $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
                     $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
                 }
@@ -3831,7 +3838,7 @@ function getItemHeadRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDat
             $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
             if ($npaInfo) {
                 $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
                 $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
                 $sourceDecode = getElementHumanPath($changerElementId, $pdo);
                 $npaUrl = $npaInfo['npa_url'] ?? '';
@@ -3857,7 +3864,7 @@ function getItemHeadRevisionsList(PDO $pdo, $internal_item_id, $npa_id, $asOfDat
                 $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
                 if ($expiryNpaInfo) {
                     $typeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $dateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                     $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
                     $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
                 }
@@ -4928,7 +4935,7 @@ foreach ($itemsById as $item) {
                         $typeName = ($expiryNpaInfo['npa_type'] === 'law')
                             ? 'Закона'
                             : 'Постановления Законодательного Собрания';
-                        $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                        $dateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                         $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
                         $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
                     }
@@ -5050,7 +5057,7 @@ foreach ($itemsById as $item) {
                     $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
                     if ($expiryNpaInfo) {
                         $expiryTypeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                        $expiryDateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                        $expiryDateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                         $expirySources = $expiryTypeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $expiryDateForDisplay;
                         $expiryUrls = $expiryNpaInfo['npa_url'] ?? '';
                     }
@@ -5089,7 +5096,7 @@ foreach ($itemsById as $item) {
                 $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
                 if ($npaInfo) {
                     $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления';
-                    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
                     $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
                     $sourceDecode = getElementHumanPath($changerElementId, $pdo);
                     $npaUrl = $npaInfo['npa_url'] ?? '';
@@ -5187,7 +5194,7 @@ if (!empty($allHeadRevisions)) {
                 $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
                 if ($expiryNpaInfo) {
                     $expiryTypeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $expiryDateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $expiryDateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                     $expirySources = $expiryTypeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $expiryDateForDisplay;
                     $expiryUrls = $expiryNpaInfo['npa_url'] ?? '';
                 }
@@ -5206,7 +5213,7 @@ if (!empty($allHeadRevisions)) {
             $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
             if ($npaInfo) {
                 $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
                 $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
                 $sourceDecode = getElementHumanPath($changerElementId, $pdo);
                 $npaUrl = $npaInfo['npa_url'] ?? '';

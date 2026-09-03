@@ -626,7 +626,7 @@ foreach ($itemsById as $item) {
                         $typeName = ($expiryNpaInfo['npa_type'] === 'law')
                             ? 'Закона'
                             : 'Постановления Законодательного Собрания';
-                        $dateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                        $dateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                         $expirySource = $typeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $dateForDisplay;
                         $expiryUrl = $expiryNpaInfo['npa_url'] ?? '';
                     }
@@ -753,7 +753,7 @@ foreach ($itemsById as $item) {
                     $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
                     if ($expiryNpaInfo) {
                         $expiryTypeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                        $expiryDateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                        $expiryDateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                         $expirySources = $expiryTypeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $expiryDateForDisplay;
                         $expiryUrls = $expiryNpaInfo['npa_url'] ?? '';
                     }
@@ -792,7 +792,7 @@ foreach ($itemsById as $item) {
                 $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
                 if ($npaInfo) {
                     $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления';
-                    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
                     $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
                     $sourceDecode = getElementHumanPath($changerElementId, $pdo);
                     $npaUrl = $npaInfo['npa_url'] ?? '';
@@ -890,7 +890,7 @@ if (!empty($allHeadRevisions)) {
                 $expiryNpaInfo = getNpaInfoByItemId($notValidId, $pdo);
                 if ($expiryNpaInfo) {
                     $expiryTypeName = ($expiryNpaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-                    $expiryDateForDisplay = formatRusDate($expiryNpaInfo['date_passed'], $expiryNpaInfo['date_format']);
+                    $expiryDateForDisplay = formatRusDate(npaRequisiteDate($expiryNpaInfo), $expiryNpaInfo['date_format']);
                     $expirySources = $expiryTypeName . ' города Севастополя № ' . $expiryNpaInfo['npa_number'] . ' от ' . $expiryDateForDisplay;
                     $expiryUrls = $expiryNpaInfo['npa_url'] ?? '';
                 }
@@ -909,7 +909,7 @@ if (!empty($allHeadRevisions)) {
             $npaInfo = getNpaInfoByItemId($changerElementId, $pdo);
             if ($npaInfo) {
                 $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления';
-                $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+                $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
                 $displayTitle = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
                 $sourceDecode = getElementHumanPath($changerElementId, $pdo);
                 $npaUrl = $npaInfo['npa_url'] ?? '';

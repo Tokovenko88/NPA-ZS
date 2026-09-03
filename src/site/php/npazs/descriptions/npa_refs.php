@@ -52,6 +52,22 @@ function getNpaInfoByItemId($itemInternalId, $pdo) {
         'external_item_id' => $row['external_item_id'] ?? ''
     ];
 }
+/**
+ * Дата для реквизитов НПА в надписях вида «Закона города Севастополя № … от <дата>».
+ *
+ * Для ЗАКОНОВ официальные реквизиты датируются датой ПОДПИСАНИЯ Губернатором
+ * (npa_law.date_signed), а не датой принятия Законодательным Собранием
+ * (npa_base.date_passed). Для постановлений реквизитной является дата принятия.
+ * getNpaInfoByItemId() уже кладёт в 'date_signed' правильное значение
+ * (для закона — date_signed из npa_law, для остальных — date_passed);
+ * при пустом date_signed откатываемся на date_passed.
+ */
+function npaRequisiteDate(array $npaInfo): string {
+    if (!empty($npaInfo['date_signed'])) {
+        return (string)$npaInfo['date_signed'];
+    }
+    return (string)($npaInfo['date_passed'] ?? '');
+}
 
 function getShortNpaDescription($modifiedById, $pdo, $asHtml = false, $case = 'genitive') {
     if (empty($modifiedById) || $modifiedById === 'base') {
@@ -79,7 +95,7 @@ function getShortNpaDescription($modifiedById, $pdo, $asHtml = false, $case = 'g
             ? 'Закона'
             : 'Постановления Законодательного Собрания';
     }
-    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
     $text = $typeName . ' № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
         $url = $npaInfo['npa_url'];
@@ -188,7 +204,7 @@ function getRevisionDocNoteImproved($modifiedBy, $pdo, $case = 'genitive', $asHt
         }
     }
     
-    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
     $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
     $npaText = $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
@@ -218,7 +234,7 @@ function getRevisionSourceNote($modifiedById, $pdo, $asHtml = false) {
     }
     
     $typeName = ($npaInfo['npa_type'] === 'law') ? 'Закона' : 'Постановления Законодательного Собрания';
-    $dateForDisplay = formatRusDate($npaInfo['date_passed'], $npaInfo['date_format']);
+    $dateForDisplay = formatRusDate(npaRequisiteDate($npaInfo), $npaInfo['date_format']);
     $text = $path . ' ' . $typeName . ' города Севастополя № ' . $npaInfo['npa_number'] . ' от ' . $dateForDisplay;
     if ($asHtml && !empty($npaInfo['npa_url'])) {
         $url = $npaInfo['npa_url'];

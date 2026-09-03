@@ -56,14 +56,14 @@ function getDocumentStatus(PDO $pdo, $npa_id, $viewDateSql) {
         $msg = $isAlreadyExpired ? "Документ утратил силу с {$formattedDate}" : "Документ утрачивает силу с {$formattedDate}";
         $cancellingNpaId = $base['not_valid_npa_id'] ?? null;
         if ($cancellingNpaId) {
-            $stmtCancel = $pdo->prepare("SELECT npa_type, npa_number, npa_url, date_passed FROM npa_base WHERE npa_id = ?");
+            $stmtCancel = $pdo->prepare("SELECT b.npa_type, b.npa_number, b.npa_url, COALESCE(NULLIF(l.date_signed, ''), b.date_passed) AS req_date FROM npa_base b LEFT JOIN npa_law l ON b.npa_id = l.npa_id WHERE b.npa_id = ?");
             $stmtCancel->execute([$cancellingNpaId]);
             $cancellingNpa = $stmtCancel->fetch();
             if ($cancellingNpa) {
                 $type = ($cancellingNpa['npa_type'] === 'law') ? 'Закон' : 'Постановление Законодательного Собрания';
-                $datePassed = formatRusDate($cancellingNpa['date_passed'], $dateFormat);
+                $reqDate = formatRusDate($cancellingNpa['req_date'], $dateFormat);
                 $url = $cancellingNpa['npa_url'] ?? '';
-                $cancellingText = $type . ' города Севастополя № ' . $cancellingNpa['npa_number'] . ' от ' . $datePassed;
+                $cancellingText = $type . ' города Севастополя № ' . $cancellingNpa['npa_number'] . ' от ' . $reqDate;
                 if ($url) {
                     $cancellingText = '<a href="' . $url . '" target="_blank" class="npa-revision-link">' . $cancellingText . '</a>';
                 }
