@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "npazs"
@@ -25,9 +25,7 @@ dev = ["pytest>=8.0", "mypy>=1.8", "ruff>=0.4"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools.package-dir]
-npazs = "src"
+include = ["npazs*"]
 
 [tool.ruff]
 line-length = 100

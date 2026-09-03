@@ -8,6 +8,7 @@ _ROOT = Path(__file__).resolve().parents[1]
 _spec = importlib.util.spec_from_file_location(
     "npazs_bootstrap", _ROOT / "src" / "bootstrap.py"
 )
+assert _spec is not None and _spec.loader is not None
 _bootstrap = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_bootstrap)
 _bootstrap.bootstrap()
