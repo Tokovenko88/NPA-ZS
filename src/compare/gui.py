@@ -15,7 +15,6 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 import requests
-
 from npazs.constants import (
     DEFAULT_BACKEND,
     DEFAULT_KILO_GATEWAY_MODEL,
@@ -245,6 +244,9 @@ class CompareApp:
         self.log_text.see(tk.END)
         self.log_text.config(state=tk.DISABLED)
 
+    def log(self, msg: str, level: str = 'info') -> None:
+        self._append_log(msg, level)
+
     def _poll_log(self) -> None:
         try:
             while True:
@@ -306,10 +308,17 @@ class CompareApp:
             self.model.set('')
 
     def _fetch_models(self) -> None:
-        if self.backend.get() == 'kilo_gateway':
-            self._fetch_kilo_gateway_models(try_api=True)
-        else:
-            self._fetch_ollama_models()
+        self.fetch_models_btn.config(state=tk.DISABLED, text='Загрузка...')
+        threading.Thread(target=self._fetch_models_worker, daemon=True).start()
+
+    def _fetch_models_worker(self) -> None:
+        try:
+            if self.backend.get() == 'kilo_gateway':
+                self._fetch_kilo_gateway_models(try_api=True)
+            else:
+                self._fetch_ollama_models()
+        finally:
+            self.root.after(0, lambda: self.fetch_models_btn.config(state=tk.NORMAL, text='Обновить модели'))
 
     def _fetch_ollama_models(self) -> None:
         try:
