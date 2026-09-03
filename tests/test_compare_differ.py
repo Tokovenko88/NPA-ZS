@@ -63,29 +63,56 @@ def test_compare_identical_documents():
     blocks = _blocks('Статья 1. Общие положения', 'Текст.', 'Статья 2. Итог', 'Текст 2.')
     ours = build_elements(blocks)
     theirs = build_elements(blocks)
-    diffs, stats = compare_elements(ours, theirs)
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
     assert diffs == []
+    assert cosmetics == []
     assert sum(stats.values()) == 0
 
 
 def test_compare_char_level_change():
     ours = build_elements(_blocks('Статья 1. Положения', 'Срок равен 10 дням.'))
     theirs = build_elements(_blocks('Статья 1. Положения', 'Срок равен 15 дням.'))
-    diffs, stats = compare_elements(ours, theirs)
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
     assert stats.get('change') == 1
+    assert cosmetics == []
     diff = diffs[0]
     assert diff.kind == 'change'
     assert diff.old and diff.new
     assert '0' in diff.old and '5' in diff.new
+    # фрагмент снабжён контекстом (читабельность отчёта)
+    assert 'Срок равен' in diff.old and 'Срок равен' in diff.new
     assert diff.count >= 1
 
 
-def test_compare_punctuation_diff_detected():
+def test_compare_punctuation_diff_is_cosmetic():
+    # Различие только в пунктуации — не содержательное: попадает в
+    # косметический список, основной список расхождений остаётся чистым.
     ours = build_elements(_blocks('Статья 1. Положения', 'Полномочия органа: контроль.'))
     theirs = build_elements(_blocks('Статья 1. Положения', 'Полномочия органа; контроль.'))
-    diffs, stats = compare_elements(ours, theirs)
-    assert stats.get('change') == 1
-    assert ':' in diffs[0].old and ';' in diffs[0].new
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
+    assert diffs == []
+    assert stats.get('cosmetic') == 1
+    assert len(cosmetics) == 1
+    assert ':' in cosmetics[0].old and ';' in cosmetics[0].new
+
+
+def test_compare_case_diff_is_cosmetic():
+    # Различие в регистре («интересов» vs «Интересов») — оформление.
+    ours = build_elements(_blocks('Статья 1. Положения', 'защита интересов детей'))
+    theirs = build_elements(_blocks('Статья 1. Положения', 'защита Интересов детей'))
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
+    assert diffs == []
+    assert stats.get('cosmetic') == 1
+
+
+def test_compare_single_comma_not_split_into_huge_fragments():
+    # Регрессия autojunk: одно различие (запятая) не должно дробиться
+    # на несколько крупных ложных фрагментов.
+    ours = build_elements(_blocks('Статья 1. Положения', 'рассматривает обращения, граждан'))
+    theirs = build_elements(_blocks('Статья 1. Положения', 'рассматривает обращения граждан'))
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
+    assert diffs == []
+    assert stats.get('cosmetic') == 1
 
 
 def test_compare_add_and_remove():
@@ -94,13 +121,13 @@ def test_compare_add_and_remove():
         _blocks('Статья 1. Положения', 'Текст проекта.', 'Статья 2. Новая')
     )
     # элемент есть только в правовой системе -> remove
-    diffs, stats = compare_elements(ours, theirs)
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
     assert stats.get('remove') == 1
     assert diffs[0].kind == 'remove'
     assert 'Новая' in (diffs[0].new or diffs[0].old)
 
     # элемент есть только в документе проекта -> add
-    diffs, stats = compare_elements(theirs, ours)
+    diffs, stats, cosmetics = compare_elements(theirs, ours)
     assert stats.get('add') == 1
     assert diffs[0].kind == 'add'
     assert 'Новая' in (diffs[0].old or diffs[0].new)

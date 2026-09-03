@@ -35,6 +35,9 @@ class NoteCompRecord:
     npa_numbers: List[str] = field(default_factory=list)
     date_ours: str = ''
     date_theirs: str = ''
+    dates_ours: List[str] = field(default_factory=list)
+    dates_theirs: List[str] = field(default_factory=list)
+    count: int = 1
     status: str = ''
 
     @property
@@ -43,11 +46,14 @@ class NoteCompRecord:
 
 
 def _match_note(note: Note, others: List[Note]) -> Optional[Note]:
-    """Найти примечание-«двойник» по номерам НПА или тексту."""
+    """Найти примечание-«двойник» по номерам НПА, датам или тексту."""
     for other in others:
         for num in note.npa_numbers:
             if num in other.npa_numbers:
                 return other
+    for other in others:
+        if set(note.dates) & set(other.dates):
+            return other
     for other in others:
         if (note.text or '') == (other.text or '') and note.text:
             return other
@@ -61,22 +67,56 @@ def _norm_date(date: str) -> str:
     return str(date or '')
 
 
+def _group_notes(notes: List[Note]) -> List[Tuple[List[Note], int]]:
+    """Сгруппировать примечания по (НПА, даты, дата вступления).
+
+    Возвращает список (представители группы, количество) — одинаковые пометки
+    («Последние изменения вступили в силу с …» выводится для каждого пункта)
+    схлопываются в одну строку с количеством вхождений.
+    """
+    groups: dict = {}
+    for n in notes:
+        key = (
+            tuple(sorted(set(n.npa_numbers))),
+            tuple(sorted(set(n.dates), key=_norm_date)),
+            n.valid_from,
+        )
+        groups.setdefault(key, []).append(n)
+    out = []
+    for group in groups.values():
+        out.append((group, len(group)))
+    return out
+
+
 def build_notes_report(
     notes_ours: List[Note], notes_theirs: List[Note]
 ) -> Tuple[List[NoteCompRecord], str]:
     """Сравнить примечания двух документов.
 
-    Возвращает (записи сравнения, markdown-таблица).
+    Возвращает (записи сравнения, markdown-таблица). Пометки без дат и
+    номеров НПА (пустые «В редакции —», «С изменениями:») в таблицу
+    не выводятся — они уже исключены из сравнения текста. Повторяющиеся
+    пометки группируются («вступили в силу с …» у каждого пункта) и
+    выводятся одной строкой с количеством вхождений.
     """
-    records: List[NoteCompRecord] = []
-    theirs_used = [False] * len(notes_theirs)
+    notes_ours = [n for n in notes_ours if n.npa_numbers or n.dates]
+    notes_theirs = [n for n in notes_theirs if n.npa_numbers or n.dates]
+    ours_groups = _group_notes(notes_ours)
+    theirs_groups = _group_notes(notes_theirs)
 
-    for note in notes_ours:
+    records: List[NoteCompRecord] = []
+    theirs_used = [False] * len(theirs_groups)
+
+    def _dates(note: Note) -> List[str]:
+        return list(note.dates) or ([note.valid_from] if note.valid_from else [])
+
+    for ogroup, ocount in ours_groups:
+        note = ogroup[0]
         match_idx = None
-        for idx, other in enumerate(notes_theirs):
+        for idx, (tgroup, _tcount) in enumerate(theirs_groups):
             if theirs_used[idx]:
                 continue
-            if _match_note(note, [other]):
+            if _match_note(note, [tgroup[0]]):
                 match_idx = idx
                 break
         if match_idx is None:
@@ -85,50 +125,60 @@ def build_notes_report(
                     text=note.text,
                     npa_numbers=note.npa_numbers,
                     date_ours=note.valid_from,
+                    dates_ours=_dates(note),
+                    count=ocount,
                     status='Только в документе проекта',
                 )
             )
         else:
             theirs_used[match_idx] = True
-            other = notes_theirs[match_idx]
+            other = theirs_groups[match_idx][0][0]
             date_eq = _norm_date(note.valid_from) == _norm_date(other.valid_from)
             if date_eq:
                 status = 'Совпадает'
             else:
-                status = 'Дата вступления различается'
+                status = 'Даты различаются'
             records.append(
                 NoteCompRecord(
                     text=note.text,
                     npa_numbers=note.npa_numbers,
                     date_ours=note.valid_from,
                     date_theirs=other.valid_from,
+                    dates_ours=_dates(note),
+                    dates_theirs=_dates(other),
+                    count=max(ocount, theirs_groups[match_idx][1]),
                     status=status,
                 )
             )
 
-    for idx, other in enumerate(notes_theirs):
+    for idx, (tgroup, tcount) in enumerate(theirs_groups):
         if theirs_used[idx]:
             continue
+        other = tgroup[0]
         records.append(
             NoteCompRecord(
                 text=other.text,
                 npa_numbers=other.npa_numbers,
                 date_theirs=other.valid_from,
+                dates_theirs=_dates(other),
+                count=tcount,
                 status='Только в документе правовой системы',
             )
         )
 
     lines = [
-        '| № | Примечание (проект) | НПА | Дата (проект) | Дата (прав. система) | Статус |',
-        '|---|---|---|---|---|---|',
+        '| № | Примечание | НПА | Даты (проект) | Даты (прав. система) | Кол-во | Статус |',
+        '|---|---|---|---|---|---|---|',
     ]
     for i, rec in enumerate(records, start=1):
         text = (rec.text or '').replace('|', '\\|')
         if len(text) > 90:
             text = text[:87] + '…'
+        ours_dates = '; '.join(rec.dates_ours) if rec.dates_ours else '—'
+        theirs_dates = '; '.join(rec.dates_theirs) if rec.dates_theirs else '—'
         lines.append(
-            f'| {i} | {text} | {rec.number_label} | {rec.date_ours or "—"} | '
-            f'{rec.date_theirs or "—"} | {rec.status} |'
+            f'| {i} | {text} | {rec.number_label} | {ours_dates} | '
+            f'{theirs_dates} | {rec.count} | {rec.status} |'
         )
     return records, '\n'.join(lines)
 
@@ -141,11 +191,56 @@ def _quote_md(text: str, limit: int = 400) -> str:
     return text or '—'
 
 
+def _cosmetics_section(cosmetics: List[DiffRecord]) -> str:
+    """Компактная сводка различий оформления (регистр/пунктуация/пробелы).
+
+    Такие различия не требуют разбора и классификации — выводятся одной
+    таблицей «элемент → количество → пример», чтобы не засорять основной
+    список расхождений.
+    """
+    lines = [
+        '',
+        '### Мелкие различия оформления (в разбор не включены)',
+        '',
+        'Различия только в оформлении: регистр, пунктуация, пробелы, е/ё. '
+        'Содержание текста не меняют, классификация не требуется.',
+        '',
+        '| Элемент | Кол-во | Пример |',
+        '|---|---|---|',
+    ]
+    by_path: Dict[str, List[DiffRecord]] = {}
+    order: List[str] = []
+    for rec in cosmetics:
+        if rec.path not in by_path:
+            by_path[rec.path] = []
+            order.append(rec.path)
+        by_path[rec.path].append(rec)
+    for path in order:
+        recs = by_path[path]
+        sample = next(
+            (
+                r for r in recs
+                if (r.old or '').strip() or (r.new or '').strip()
+            ),
+            recs[0],
+        )
+        old = _quote_md(sample.old, 70)
+        new = _quote_md(sample.new, 70)
+        lines.append(f'| {path} | {len(recs)} | {old} → {new} |')
+    return '\n'.join(lines)
+
+
 def build_diffs_report(
     diffs: List[DiffRecord],
     mode: str = 'mechanical',
+    cosmetics: Optional[List[DiffRecord]] = None,
 ) -> str:
-    """Сформировать раздел «Расхождения текста» по записям диффа."""
+    """Сформировать раздел «Расхождения текста» по записям диффа.
+
+    ``cosmetics`` — различия только в оформлении (см.
+    :func:`npazs.compare.differ.is_cosmetic_diff`); при наличии выводятся
+    компактной таблицей в конце раздела.
+    """
     lines = ['## 2. Расхождения текста', '']
     if not diffs:
         lines.append('_Расхождений не обнаружено._')
@@ -195,6 +290,9 @@ def build_diffs_report(
         lines.append('---')
         lines.append('')
 
+    if cosmetics:
+        lines.append(_cosmetics_section(cosmetics))
+
     return '\n'.join(lines)
 
 
@@ -210,6 +308,7 @@ def build_report(
     notes_table: str,
     diffs: List[DiffRecord],
     diff_stats: Dict[str, int],
+    cosmetics: Optional[List[DiffRecord]] = None,
     warnings: List[str],
     started_at: Optional[datetime] = None,
 ) -> str:
@@ -246,15 +345,20 @@ def build_report(
     lines.append(notes_table)
     lines.append('')
 
-    lines.append(build_diffs_report(diffs, mode=mode))
+    lines.append(build_diffs_report(diffs, mode=mode, cosmetics=cosmetics))
 
     lines.append('## 3. Итоги и рекомендации')
     lines.append('')
-    total = sum(diff_stats.values())
+    total = sum(v for k, v in diff_stats.items() if k != 'cosmetic')
     lines.append(f'- Расхождений текста обнаружено: **{total}**')
     lines.append(f'  - изменений (замена): {diff_stats.get("change", 0)}')
     lines.append(f'  - добавлений (только в проекте): {diff_stats.get("add", 0)}')
     lines.append(f'  - удалений (только в правовой системе): {diff_stats.get("remove", 0)}')
+    if diff_stats.get('cosmetic'):
+        lines.append(
+            f'  - различий оформления (регистр/пунктуация, справочно): '
+            f'{diff_stats["cosmetic"]}'
+        )
     lines.append('')
     by_reason: Dict[str, int] = {}
     for d in diffs:

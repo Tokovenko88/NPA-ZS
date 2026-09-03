@@ -17,6 +17,7 @@ from npazs.compare.normalizer import (  # noqa: E402
     extract_notes,
     normalize_block,
     parse_note,
+    split_document_frame,
 )
 
 
@@ -94,3 +95,63 @@ def test_extract_notes_trailing_section():
     # структурный элемент после секции примечаний возвращает нас в тело
     assert any(b.text == 'Статья 2. Финальные положения' for b in body)
     assert len(notes) == 2
+
+
+# ----------------------------------------------------- split_document_frame
+def test_split_document_frame_title_and_signature():
+    body, frame = split_document_frame(
+        _blocks(
+            'ЗАКОН',
+            'ГОРОДА СЕВАСТОПОЛЯ',
+            'Об Уполномоченном по правам ребенка',
+            'Принят Законодательным Собранием',
+            'Настоящий Закон определяет порядок деятельности.',
+            'Статья 1. Общие положения',
+            'Текст статьи.',
+            'Губернатор города Севастополя',
+            'С.И.МЕНЯЙЛО',
+            'Севастополь',
+            '17 апреля 2015 года',
+            'N 127-ЗС',
+        )
+    )
+    assert [b.text for b in body] == [
+        'Настоящий Закон определяет порядок деятельности.',
+        'Статья 1. Общие положения',
+        'Текст статьи.',
+    ]
+    frame_texts = [b.text for b in frame]
+    assert 'ЗАКОН' in frame_texts
+    assert 'N 127-ЗС' in frame_texts
+    assert '17 апреля 2015 года' in frame_texts
+
+
+def test_split_document_frame_consultant_bibliography():
+    # Библиографическая строка правовой системы уходит в рамку, сравниваются
+    # только содержательные блоки преамбулы и статей.
+    body, frame = split_document_frame(
+        _blocks(
+            'Закон города Севастополя от 17.04.2015 N 127-ЗС '
+            '"Об Уполномоченном" (принят 14.04.2015)',
+            'Документ предоставлен КонсультантПлюс',
+            'ЗАКОН ГОРОДА СЕВАСТОПОЛЯ',
+            'Настоящий Закон определяет порядок деятельности.',
+            'Статья 1. Общие положения',
+            'Текст статьи.',
+        )
+    )
+    assert [b.text for b in body] == [
+        'Настоящий Закон определяет порядок деятельности.',
+        'Статья 1. Общие положения',
+        'Текст статьи.',
+    ]
+    assert len(frame) == 3
+
+
+def test_split_document_frame_without_frame_keeps_document():
+    # Документ без шапки и подписи не режется.
+    body, frame = split_document_frame(
+        _blocks('Статья 1. Положения', 'Текст статьи.')
+    )
+    assert [b.text for b in body] == ['Статья 1. Положения', 'Текст статьи.']
+    assert frame == []

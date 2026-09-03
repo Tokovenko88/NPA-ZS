@@ -34,7 +34,12 @@ from npazs.constants import LOGS_DIR, OUTPUT_DIR, PROMPTS_DIR
 from .agent_compare import DEFAULT_PROMPT, classify_diffs, mechanical_resolve
 from .converters import Document, read_document
 from .differ import DiffRecord, compare_elements
-from .normalizer import extract_notes, parse_note
+from .normalizer import (
+    clean_body_blocks,
+    extract_notes,
+    parse_note,
+    split_document_frame,
+)
 from .npa_resolver import get_original_element_text
 from .report_builder import build_notes_report, build_report
 from .tree import build_elements
@@ -149,11 +154,19 @@ def _collect_notes_by_path(elements) -> Dict[str, List[dict]]:
     «элемент -> изменяющий НПА» теряется. Ключ — путь элемента в формате
     отчёта (``diff.path``), значение — список словарей с текстом примечания,
     номерами связанных НПА и датами.
+
+    Учитываются как классические «примечания», так и служебные пометки
+    («в ред. …», «Последние изменения вступили в силу…», «С изменениями:»),
+    в которых правовые системы фиксируют изменяющие НПА.
     """
+    hints = (
+        'примечан', 'в ред.', 'в редакции', 'последние изменения',
+        'с изменениями', 'список изменяющих', 'введен', 'вступили в силу',
+    )
     notes_by_path: Dict[str, List[dict]] = {}
     for el in elements:
         text = el.text or ''
-        if 'примечан' not in text.lower():
+        if not any(hint in text.lower() for hint in hints):
             continue
         note = parse_note(text, order=el.order)
         if not note.text:
@@ -311,21 +324,54 @@ def run_compare(
 
     ours_body, ours_notes = extract_notes(ours_doc.blocks)
     theirs_body, theirs_notes = extract_notes(theirs_doc.blocks)
-    notes_records, notes_table = build_notes_report(ours_notes, theirs_notes)
     result.notes_count = len(ours_notes) + len(theirs_notes)
     log(f'Примечаний: {len(ours_notes)} / {len(theirs_notes)}')
+    log(
+        f'Служебных пометок: {len(ours_doc.blocks) - len(ours_body)} / '
+        f'{len(theirs_doc.blocks) - len(theirs_body)} '
+        '(обособлены в примечания, из сравнения текста исключены)'
+    )
+
+    # Нормализация пробелов и снятие остатков служебных пометок до сравнения:
+    # в противном случае неразрывные пробелы RTF и пометки «(в ред. …)»
+    # порождают сотни ложных посимвольных расхождений.
+    ours_body = clean_body_blocks(ours_body)
+    theirs_body = clean_body_blocks(theirs_body)
+
+    # Шапка (титул, библиографическая строка правовой системы) и подписной
+    # блок — оформление документа, а не содержание НПА: в сравнение текста
+    # не включаются (иначе дают десятки ложных расхождений). Их даты
+    # (принятие, подписание) и номера попадают в таблицу примечаний.
+    ours_body, ours_frame = split_document_frame(ours_body)
+    theirs_body, theirs_frame = split_document_frame(theirs_body)
+    if ours_frame or theirs_frame:
+        log(
+            f'Шапка/подпись (оформление, из сравнения текста исключены): '
+            f'{len(ours_frame)} / {len(theirs_frame)} блоков'
+        )
+        for blk in ours_frame:
+            note = parse_note(blk.text, order=blk.order)
+            if note.dates or note.valid_from or note.npa_numbers:
+                ours_notes.append(note)
+        for blk in theirs_frame:
+            note = parse_note(blk.text, order=blk.order)
+            if note.dates or note.valid_from or note.npa_numbers:
+                theirs_notes.append(note)
+
+    notes_records, notes_table = build_notes_report(ours_notes, theirs_notes)
 
     ours_elements = build_elements(ours_body)
     theirs_elements = build_elements(theirs_body)
     log(f'Структурных элементов: {len(ours_elements)} / {len(theirs_elements)}')
 
-    diffs, stats = compare_elements(ours_elements, theirs_elements)
+    diffs, stats, cosmetics = compare_elements(ours_elements, theirs_elements)
     result.diff_stats = stats
-    result.diffs_count = sum(stats.values())
+    result.diffs_count = sum(v for k, v in stats.items() if k != 'cosmetic')
     log(
         f"Различий: {result.diffs_count} "
         f"(замена={stats.get('change', 0)}, только проект={stats.get('add', 0)}, "
-        f"только правовая система={stats.get('remove', 0)})"
+        f"только правовая система={stats.get('remove', 0)}, "
+        f"оформление={stats.get('cosmetic', 0)})"
     )
 
     target_number = (options.target_number or '').strip() or (
@@ -421,6 +467,7 @@ def run_compare(
         notes_table=notes_table,
         diffs=diffs,
         diff_stats=stats,
+        cosmetics=cosmetics,
         warnings=warnings,
         started_at=started_at,
     )

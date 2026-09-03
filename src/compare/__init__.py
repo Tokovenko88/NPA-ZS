@@ -39,13 +39,18 @@ from .converters import (
     parse_rtf_bytes,
     read_document,
 )
-from .differ import DiffRecord, compare_elements
+from .differ import DiffRecord, compare_elements, is_cosmetic_diff
 from .normalizer import (
     Note,
+    clean_body_blocks,
     extract_notes,
+    is_service_mark_block,
     normalize_block,
     normalize_text,
+    normalize_typography,
     parse_note,
+    split_document_frame,
+    strip_service_markup,
 )
 from .npa_resolver import (
     clean_number,
@@ -71,6 +76,7 @@ __all__ = [
     'build_elements',
     'build_notes_report',
     'build_report',
+    'clean_body_blocks',
     'clean_number',
     'compare_elements',
     'detect_format',
@@ -80,8 +86,11 @@ __all__ = [
     'find_npa_files',
     'get_full_document_text',
     'get_original_element_text',
+    'is_cosmetic_diff',
+    'is_service_mark_block',
     'normalize_block',
     'normalize_text',
+    'normalize_typography',
     'parse_doc_bytes',
     'parse_docx_bytes',
     'parse_note',
@@ -90,4 +99,6 @@ __all__ = [
     'path_text',
     'read_document',
     'run_compare',
+    'split_document_frame',
+    'strip_service_markup',
 ]

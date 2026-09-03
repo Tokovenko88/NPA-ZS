@@ -60,7 +60,7 @@ def test_build_report_structure_and_sections():
 
     ours_elements = build_elements(ours_body)
     theirs_elements = build_elements(theirs_body)
-    diffs, stats = compare_elements(ours_elements, theirs_elements)
+    diffs, stats, cosmetics = compare_elements(ours_elements, theirs_elements)
     diff = diffs[0]
     diff.reason = 'implementation_gap'
     diff.source_npa = '41-ЗС/1038'
