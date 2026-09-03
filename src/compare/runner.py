@@ -76,6 +76,10 @@ class CompareOptions:
     backend: str = ''
     #: Имя модели (пусто — из конфигурации).
     model: str = ''
+    #: URL Kilo Gateway (пусто — из конфигурации).
+    kilo_gateway_url: str = ''
+    #: API ключ Kilo Gateway (пусто — из конфигурации).
+    kilo_gateway_api_key: str = ''
     #: Сколько различий отправлять модели за один запрос.
     batch_size: int = 1
     #: Продолжать с чекпойнта при повторном запуске.
@@ -385,6 +389,8 @@ def run_compare(
                 backend=options.backend or None,
                 model=options.model or None,
                 batch_size=max(1, int(options.batch_size or 1)),
+                kilo_gateway_url=options.kilo_gateway_url or None,
+                kilo_gateway_api_key=options.kilo_gateway_api_key or None,
             )
             processed = sum(1 for diff in diffs if diff.reason)
 

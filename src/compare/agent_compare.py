@@ -139,6 +139,8 @@ def classify_diffs(
     model: Optional[str] = None,
     batch_size: int = 1,
     max_queries: int = 200,
+    kilo_gateway_url: Optional[str] = None,
+    kilo_gateway_api_key: Optional[str] = None,
 ) -> None:
     """Классифицировать все различия (мутирует ``diffs``).
 
@@ -184,8 +186,8 @@ def classify_diffs(
             retry_delay=5,
             change_info=f'Сравнение НПА: пакет {index}',
             backend=active_backend,
-            kilo_gateway_url=active_config.get('base_url'),
-            api_key=active_config.get('api_key'),
+            kilo_gateway_url=kilo_gateway_url or active_config.get('base_url'),
+            api_key=kilo_gateway_api_key or active_config.get('api_key'),
         )
         parsed = _parse_classification(answer)
         result_map = {}
