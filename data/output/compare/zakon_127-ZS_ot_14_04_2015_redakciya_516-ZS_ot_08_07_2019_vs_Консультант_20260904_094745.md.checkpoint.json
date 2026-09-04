@@ -1,0 +1,332 @@
+{
+ "fingerprint": "7a7c0a5270c9cf42",
+ "started_at": "2026-09-04T09:47:45",
+ "processed": 0,
+ "total": 10,
+ "diffs": [
+  {
+   "path": "статья 6",
+   "path_key": [
+    [
+     "article",
+     "6"
+    ]
+   ],
+   "kind": "add",
+   "old": "…нии кандидатуры на должность Уполномоченного должны прилагаться следующие документы 1) письменное…",
+   "new": "",
+   "count": 99,
+   "para_no": 5,
+   "hierarchy": [
+    [
+     "часть",
+     "5"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Назначение на должность Уполномоченного",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 6",
+   "path_key": [
+    [
+     "article",
+     "6"
+    ]
+   ],
+   "kind": "add",
+   "old": "… на должность Уполномоченного должны прилагаться следующие документы 1) письменное заявлени…",
+   "new": "",
+   "count": 93,
+   "para_no": 5,
+   "hierarchy": [
+    [
+     "часть",
+     "5"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Назначение на должность Уполномоченного",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 6",
+   "path_key": [
+    [
+     "article",
+     "6"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "…дидатуры на должность Уполномоченного прилагаются следующие документы 1) письменное заявлен…",
+   "count": 93,
+   "para_no": 5,
+   "hierarchy": [
+    [
+     "часть",
+     "5"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Назначение на должность Уполномоченного",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 6",
+   "path_key": [
+    [
+     "article",
+     "6"
+    ]
+   ],
+   "kind": "change",
+   "old": "…ного Собрания города Севастополя, ответственного за направление материалов, установленных час…",
+   "new": "…ного Собрания города Севастополя, ответственных за направление материалов, установленных час…",
+   "count": 95,
+   "para_no": 26,
+   "hierarchy": [
+    [
+     "часть",
+     "6.3"
+    ],
+    [
+     "пункт",
+     "4"
+    ],
+    [
+     "подпункт",
+     "«б»"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Назначение на должность Уполномоченного",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 8",
+   "path_key": [
+    [
+     "article",
+     "8"
+    ]
+   ],
+   "kind": "add",
+   "old": "… деятельностью лично или через доверенных лиц участвовать в управлении хозяйствующими субъектами независимо от их организационно-правовых форм 3.1) участвовать…",
+   "new": "",
+   "count": 189,
+   "para_no": 5,
+   "hierarchy": [
+    [
+     "часть",
+     "2"
+    ],
+    [
+     "пункт",
+     "3"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Ограничения, связанные с выполнением Уполномоченным своих обязанностей",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 9",
+   "path_key": [
+    [
+     "article",
+     "9"
+    ]
+   ],
+   "kind": "add",
+   "old": "…о прекращения полномочий предыдущего Уполномооченного, в порядке, предусмотренном статьей 6…",
+   "new": "",
+   "count": 93,
+   "para_no": 19,
+   "hierarchy": [
+    [
+     "часть",
+     "8"
+    ],
+    [
+     "пункт",
+     "9"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Прекращение полномочий Уполномоченного",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 10",
+   "path_key": [
+    [
+     "article",
+     "10"
+    ]
+   ],
+   "kind": "remove",
+   "old": "",
+   "new": "… и задач Уполномоченный 1) осуществляет прием граждан, рассматривает обращения граждан, объединений граждан, организаций, с…",
+   "count": 125,
+   "para_no": 3,
+   "hierarchy": [
+    [
+     "часть",
+     "2"
+    ],
+    [
+     "пункт",
+     "1"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Полномочия Уполномоченного",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 11",
+   "path_key": [
+    [
+     "article",
+     "11"
+    ]
+   ],
+   "kind": "add",
+   "old": "… обжаловались в связи с нарушением прав детей, восстановление нарушенных прав и законных интересов детей 4. Доклад о деятельности Уполномоченного под…",
+   "new": "",
+   "count": 151,
+   "para_no": 3,
+   "hierarchy": [
+    [
+     "часть",
+     "3"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Доклады Уполномоченного",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 13",
+   "path_key": [
+    [
+     "article",
+     "13"
+    ]
+   ],
+   "kind": "add",
+   "old": "1. При рассмотрении обращений граждан Уполномоченный руководствуется требованиями …",
+   "new": "",
+   "count": 83,
+   "para_no": 1,
+   "hierarchy": [
+    [
+     "часть",
+     "1"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Порядок рассмотрения Уполномоченным обращений",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  },
+  {
+   "path": "статья 13",
+   "path_key": [
+    [
+     "article",
+     "13"
+    ]
+   ],
+   "kind": "add",
+   "old": "…новлению нарушенных прав и законных интересов детей. В случае необходимости заключение Уполномоч…",
+   "new": "",
+   "count": 98,
+   "para_no": 18,
+   "hierarchy": [
+    [
+     "часть",
+     "14"
+    ],
+    [
+     "пункт",
+     "1"
+    ]
+   ],
+   "item_label": "",
+   "element_title": "Порядок рассмотрения Уполномоченным обращений",
+   "context_old": "",
+   "context_new": "",
+   "reason": "",
+   "explanation": "",
+   "source_npa": "",
+   "source_item_id": "",
+   "change_text": "",
+   "original_text": ""
+  }
+ ]
+}

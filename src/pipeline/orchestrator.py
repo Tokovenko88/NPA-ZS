@@ -2238,6 +2238,43 @@ class AiPipelineMixin:
                         result_data if 'result_data' in dir() else None,
                         tracker if 'tracker' in dir() else None,
                     )
+                    # Пост-анализ внесения изменений (автоматический ИИ-контроль).
+                    # Запускается только после успешного завершения прогона;
+                    # отключается переменной окружения NPAZS_POST_ANALYSIS=0.
+                    if ('result_data' in dir() and result_data
+                            and ('error_occurred' not in dir() or not error_occurred)):
+                        try:
+                            from npazs.revision.post_analysis import (
+                                post_analysis_enabled,
+                                run_post_analysis,
+                            )
+                            if post_analysis_enabled():
+                                self.log("— Запуск пост-анализа внесения изменений —", 'result')
+                                pa_result = run_post_analysis(
+                                    orig_file, result_data, change_data,
+                                    stop_event=self.stop_event,
+                                    log_callback=self.log,
+                                    backend=self.backend.get() if hasattr(self, 'backend') else None,
+                                )
+                                if pa_result.get('status') == 'correct':
+                                    self.log(
+                                        f"Пост-анализ: изменения внесены корректно "
+                                        f"({pa_result.get('checked')} изм.)", 'result',
+                                    )
+                                elif pa_result.get('status') == 'incorrect':
+                                    if pa_result.get('corrected_path'):
+                                        self.log(
+                                            "Пост-анализ: выявлены ошибки, создан исправленный "
+                                            f"JSON: {pa_result['corrected_path']}", 'warning',
+                                        )
+                                    else:
+                                        self.log(
+                                            "Пост-анализ: выявлены ошибки, исправить "
+                                            "автоматически не удалось (см. отчёт)", 'error',
+                                        )
+                        except Exception as pa_exc:
+                            self.log(f"Ошибка пост-анализа: {pa_exc}", 'error')
+                            traceback.print_exc()
                     self.message_queue.put({
                         'type': 'done',
                         'success': not error_occurred
