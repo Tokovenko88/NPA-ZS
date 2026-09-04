@@ -154,8 +154,8 @@ def test_diff_location_down_to_paragraph_item():
     assert cosmetics == []
     diff = diffs[0]
     assert diff.para_no == 3
-    assert diff.item_label == 'пункт 1'
-    assert diff.location == 'статья 1 «Положения», абзац 3 (пункт 1)'
+    assert diff.hierarchy == [('часть', '1'), ('пункт', '1')]
+    assert diff.location == 'Статья 1, часть 1, пункт 1, абзац 3'
 
 
 def test_diff_location_plain_paragraph():
@@ -174,8 +174,8 @@ def test_diff_location_plain_paragraph():
     assert stats.get('change') == 1
     diff = diffs[0]
     assert diff.para_no == 2
-    assert diff.item_label == ''
-    assert diff.location == 'статья 2 «Отчетность», абзац 2'
+    assert diff.hierarchy == []
+    assert diff.location == 'Статья 2, абзац 2'
 
 
 def test_records_sorted_in_document_order():
@@ -210,7 +210,9 @@ def test_cosmetic_record_has_location_and_context():
     assert stats.get('cosmetic') == 1
     rec = cosmetics[0]
     assert rec.para_no == 2
-    assert rec.item_label == ''
+    # Перед абзацом идёт «1. Первая часть.» — это часть 1, она захватывается
+    # в иерархию сканированием назад.
+    assert rec.hierarchy == [('часть', '1')]
     assert 'абзац 2' in rec.location
     assert ':' in rec.context_old
     assert ';' in rec.context_new
@@ -234,4 +236,87 @@ def test_cosmetic_insert_at_block_end_stays_in_previous_paragraph():
     assert stats.get('cosmetic') == 1
     rec = cosmetics[0]
     assert rec.para_no == 1
-    assert rec.item_label == 'часть 1'
+    assert rec.hierarchy == [('часть', '1')]
+
+
+def test_diff_location_full_hierarchy():
+    # Полная иерархия: статья → часть → пункт → подпункт → абзац.
+    ours = build_elements(_blocks(
+        'Статья 1. Положения',
+        '1. Первая часть статьи.',
+        '1) Первый пункт перечня.',
+        'а) Подпункт первого пункта с текстом.',
+        'б) Второй подпункт с другим текстом для проверки.',
+    ))
+    theirs = build_elements(_blocks(
+        'Статья 1. Положения',
+        '1. Первая часть статьи.',
+        '1) Первый пункт перечня.',
+        'а) Подпункт первого пункта с текстом.',
+        'б) Второй подпункт с другим текстом для проверки изменений.',
+    ))
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
+    # ours короче theirs → insert → remove (есть только в правовой системе).
+    assert stats.get('remove') == 1
+    diff = diffs[0]
+    assert diff.kind == 'remove'
+    assert diff.para_no == 4
+    assert diff.hierarchy == [('часть', '1'), ('пункт', '1'), ('подпункт', '«б»')]
+    assert diff.location == 'Статья 1, часть 1, пункт 1, подпункт «б», абзац 4'
+
+
+def test_add_diff_includes_context():
+    # Различие типа add (есть только в проекте) снабжено контекстом,
+    # чтобы одиночный символ был читаем.
+    ours = build_elements(_blocks(
+        'Статья 1. Положения',
+        'Срок равен 10 дням.',
+    ))
+    theirs = build_elements(_blocks(
+        'Статья 1. Положения',
+        'Срок равен 10 дням',
+    ))
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
+    # Пропущенная точка — косметика (оформление), не содержательное изменение.
+    assert stats.get('cosmetic') == 1
+    rec = cosmetics[0]
+    assert rec.kind == 'add'
+    assert rec.old == '.'
+    assert 'Срок равен' in rec.context_old
+
+
+def test_remove_diff_includes_context():
+    # Различие типа remove (есть только в правовой системе) тоже снабжено
+    # контекстом из соответствующего документа.
+    ours = build_elements(_blocks(
+        'Статья 1. Положения',
+        'Срок равен 10 дням',
+    ))
+    theirs = build_elements(_blocks(
+        'Статья 1. Положения',
+        'Срок равен 10 дням.',
+    ))
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
+    assert stats.get('cosmetic') == 1
+    rec = cosmetics[0]
+    assert rec.kind == 'remove'
+    assert rec.new == '.'
+    assert 'Срок равен' in rec.context_new
+
+
+def test_substantive_add_diff_has_context_not_just_char():
+    # Содержательное add (не косметика): контекст вшит в old, а не только
+    # в context_old — отчёт сразу показывает читаемый фрагмент.
+    ours = build_elements(_blocks(
+        'Статья 1. Положения',
+        'Полномочия органа включают контроль.',
+    ))
+    theirs = build_elements(_blocks(
+        'Статья 1. Положения',
+        'Полномочия органа включают',
+    ))
+    diffs, stats, cosmetics = compare_elements(ours, theirs)
+    assert stats.get('add') == 1
+    diff = diffs[0]
+    assert 'контроль' in diff.old
+    assert 'Полномочия' in diff.old

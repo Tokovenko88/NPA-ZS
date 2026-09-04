@@ -26,8 +26,8 @@ from __future__ import annotations
 import difflib
 import re
 from collections import Counter
-from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple
 
 from .tree import Element
 
@@ -107,7 +107,11 @@ class DiffRecord:
 
     # Точное место различия внутри элемента (для отчёта).
     para_no: int = 0         # номер абзаца (блока) внутри элемента, с 1
-    item_label: str = ''     # «часть 2», «пункт 1», «подпункт «а»» — если нумерован
+    hierarchy: List[Tuple[str, str]] = field(default_factory=list)
+    # Иерархия от части до подпункта: [('часть', '2'), ('пункт', '1'), ('подпункт', '«а»')].
+    # Полная цепочка уровней, внутри которых находится абзац — один уровень
+    # item_label не достаточно для читаемого места.
+    item_label: str = ''     # устаревшее, для совместимости со старыми чекпойнтами
     element_title: str = ''  # название элемента (статьи) без служебного номера
     # Контекст фрагмента в обоих документах (заполняется для различий
     # оформления, чтобы в отчёте было видно, где именно символ отличается).
@@ -124,21 +128,26 @@ class DiffRecord:
 
     @property
     def location(self) -> str:
-        """Человекочитаемое место различия с точностью до абзаца.
+        """Человекочитаемое место различия: полная цепочка до абзаца.
 
-        Например: «статья 10 «Полномочия Уполномоченного», абзац 3
-        (часть 2)». Для записей, восстановленных из старых чекпойнтов,
-        абзац может быть неизвестен — возвращается только путь элемента.
+        Формат: «Статья 6, часть 5, пункт 1, подпункт «б», абзац 26».
+        Иерархия (часть → пункт → подпункт) идёт через запятую, без скобок
+        и без заголовка элемента — только структурная цепочка.
+        Для записей из старых чекпойнтов (без hierarchy, с item_label)
+        выполняется обратная совместимость в том же формате.
         """
-        head = self.path or '—'
-        if self.element_title:
-            head = f'{head} «{self.element_title}»'
+        head = (self.path or '—').replace('\n', ' ')
+        head = ' '.join(head.split())
+        if head[:1].islower():
+            head = head[0].upper() + head[1:]
         if not self.para_no:
             return head
-        label = f'{head}, абзац {self.para_no}'
+        if self.hierarchy:
+            chain = ', '.join(f'{t} {n}' for t, n in self.hierarchy)
+            return f'{head}, {chain}, абзац {self.para_no}'
         if self.item_label:
-            label = f'{label} ({self.item_label})'
-        return label
+            return f'{head}, {self.item_label}, абзац {self.para_no}'
+        return f'{head}, абзац {self.para_no}'
 
 
 def _clean_title(title: str) -> str:
@@ -168,29 +177,39 @@ def _block_index(el: Element, pos: int) -> int:
     return 0
 
 
-def _locate(el: Element, pos: int) -> Tuple[int, str]:
-    """Определить абзац и нумерацию блока для позиции ``pos`` в ``el.text``.
+def _locate(el: Element, pos: int) -> Tuple[int, List[Tuple[str, str]]]:
+    """Определить абзац и полную иерархию для позиции ``pos`` в ``el.text``.
 
-    Возвращает ``(номер абзаца с 1, метка нумерации)``; метка пуста для
-    ненумерованного абзаца.
+    Возвращает ``(номер абзаца с 1, иерархия)``, где иерархия — список
+    ``(тип, номер)`` от части до подпункта. Для ненумерованного абзаца
+    иерархия пуста.
     """
     if not el.blocks:
-        return 0, ''
+        return 0, []
     text_len = len(el.text)
     if text_len and pos >= text_len:
         pos = text_len - 1
     idx = _block_index(el, pos)
-    blk_text = (el.blocks[idx].text or '').lstrip()
-    m = _PART_RE.match(blk_text)
-    if m:
-        return idx + 1, f'часть {m.group(1)}'
-    m = _POINT_RE.match(blk_text)
-    if m:
-        return idx + 1, f'пункт {m.group(1)}'
-    m = _SUBPOINT_RE.match(blk_text)
-    if m:
-        return idx + 1, f'подпункт «{m.group(1).lower()}»'
-    return idx + 1, ''
+    # Сканируем назад, собирая ближайший заголовок каждого уровня.
+    # Уровни: 1 — часть, 2 — пункт, 3 — подпункт. ``setdefault`` сохраняет
+    # ближайший (первый при обратном ходе) заголовок каждого уровня.
+    found: Dict[int, Tuple[str, str]] = {}
+    for i in range(idx, -1, -1):
+        blk_text = (el.blocks[i].text or '').lstrip()
+        m = _PART_RE.match(blk_text)
+        if m:
+            found.setdefault(1, ('часть', m.group(1)))
+            continue
+        m = _POINT_RE.match(blk_text)
+        if m:
+            found.setdefault(2, ('пункт', m.group(1)))
+            continue
+        m = _SUBPOINT_RE.match(blk_text)
+        if m:
+            found.setdefault(3, ('подпункт', f'«{m.group(1).lower()}»'))
+            continue
+    hierarchy = [found[k] for k in sorted(found)]
+    return idx + 1, hierarchy
 
 
 def _make_record(
@@ -199,6 +218,7 @@ def _make_record(
     old: str,
     new: str,
     para_no: int = 0,
+    hierarchy: Optional[List[Tuple[str, str]]] = None,
     item_label: str = '',
 ) -> DiffRecord:
     return DiffRecord(
@@ -209,6 +229,7 @@ def _make_record(
         new=clip_fragment(new),
         count=max(len(old), len(new)),
         para_no=para_no,
+        hierarchy=hierarchy or [],
         item_label=item_label,
         element_title=_clean_title(element.title),
     )
@@ -264,22 +285,28 @@ def _diff_match(records: List[DiffRecord], cosmetics: List[DiffRecord],
             loc_el, loc_pos = ours_el, i1
         else:
             loc_el, loc_pos = theirs_el, j1
-        para_no, item_label = _locate(loc_el, loc_pos)
+        para_no, hierarchy = _locate(loc_el, loc_pos)
         if is_cosmetic_diff(old, new):
             # Регистр/пунктуация/пробелы — оформление, в основной список не
             # включаем; в отчёте каждый случай показывается с точным местом
             # и контекстом из обоих документов.
-            record = _make_record(kind, ours_el, old, new, para_no, item_label)
+            record = _make_record(kind, ours_el, old, new, para_no, hierarchy=hierarchy)
             record.context_old = _with_context(a, i1, i2)
             record.context_new = _with_context(b, j1, j2)
             cosmetics.append(record)
             stats['cosmetic'] += 1
             continue
-        if kind == 'change':
-            # Короткий фрагмент («ов» → «ы») нечитабелен: добавляем контекст.
+        # Контекст для коротких фрагментов (add/remove/change): одинарные
+        # символы («ь», «ю») нечитабельны без окружения, поэтому расширяем
+        # фрагмент тем документом, в котором он есть.
+        if kind == 'add':
+            old = _with_context(a, i1, i2)
+        elif kind == 'remove':
+            new = _with_context(b, j1, j2)
+        else:
             old = _with_context(a, i1, i2)
             new = _with_context(b, j1, j2)
-        records.append(_make_record(kind, ours_el, old, new, para_no, item_label))
+        records.append(_make_record(kind, ours_el, old, new, para_no, hierarchy=hierarchy))
         stats[kind] += 1
 
 

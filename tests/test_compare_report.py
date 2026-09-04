@@ -42,6 +42,8 @@ def _diff(**kwargs):
         change_text='',
         original_text='',
         explanation='',
+        hierarchy=[],
+        item_label='',
     )
     defaults.update(kwargs)
     return DiffRecord(**defaults)
@@ -89,8 +91,8 @@ def test_build_report_structure_and_sections():
     assert 'Примечания и даты вступления в силу' in report
     assert 'Расхождения текста' in report
     assert 'Итоги и рекомендации' in report
-    # путь к элементу указан полностью
-    assert 'статья 1' in report
+    # путь к элементу указан полностью (с капитализацией)
+    assert 'Статья 1' in report
     # фрагменты было/стало
     assert 'Срок равен 10 дням.' in report
     assert 'Срок равен 15 дням.' in report
@@ -143,9 +145,9 @@ def test_notes_report_is_readable_list():
 def test_diff_heading_shows_lowest_level():
     # Заголовок различия содержит самый нижний уровень: элемент, название,
     # номер абзаца и нумерацию блока.
-    diff = _diff(para_no=3, item_label='часть 2', element_title='Положения')
+    diff = _diff(para_no=3, hierarchy=[('часть', '2')], element_title='Положения')
     report = build_diffs_report([diff], mode='mechanical')
-    assert '### 2.1. статья 1 «Положения», абзац 3 (часть 2)' in report
+    assert '### 2.1. Статья 1, часть 2, абзац 3' in report
 
 
 def test_cosmetics_section_lists_each_occurrence_with_location():
@@ -154,8 +156,7 @@ def test_cosmetics_section_lists_each_occurrence_with_location():
     cosmetics = [
         DiffRecord(
             path='статья 4', path_key=(('article', '4'),), kind='add',
-            old=',', count=1, para_no=2, item_label='часть 2',
-            element_title='Принципы деятельности',
+            old=',', count=1, para_no=2, hierarchy=[('часть', '2')],
             context_old='…гуманности, ответственности…',
             context_new='…гуманности ответственности…',
         ),
@@ -169,8 +170,18 @@ def test_cosmetics_section_lists_each_occurrence_with_location():
     section = build_diffs_report([_diff()], mode='agent', cosmetics=cosmetics)
     assert '### Различия оформления (регистр, пунктуация, пробелы, е/ё)' in section
     assert 'Мелкие' not in section
-    assert '**статья 4 «Принципы деятельности», абзац 2 (часть 2)**' in section
+    assert '**Статья 4, часть 2, абзац 2**' in section
     assert 'есть только в документе проекта: «,»' in section
     assert 'есть только в документе правовой системы: «-»' in section
     assert section.count('❌ Документ проекта') == 2
     assert section.count('✅ Документ правовой системы') == 2
+
+
+def test_diff_heading_full_chain_no_brackets():
+    # Полная цепочка уровней — без скобок, через запятую, с капитализацией.
+    diff = _diff(
+        para_no=26,
+        hierarchy=[('часть', '5'), ('пункт', '1'), ('подпункт', '«б»')],
+    )
+    report = build_diffs_report([diff], mode='mechanical')
+    assert '### 2.1. Статья 1, часть 5, пункт 1, подпункт «б», абзац 26' in report
