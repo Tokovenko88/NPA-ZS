@@ -54,11 +54,19 @@ REASON_LABELS = {
 
 DEFAULT_PROMPT = """Вы — эксперт-аналитик нормативных правовых актов (НПА).
 
-У нас есть две версии одного НПА: «документ проекта» (сформирован нашей
-системой) и «документ правовой системы». Для каждого различия укажите, чем оно
-вызвано.
+Даны две версии одного НПА:
+* «документ проекта» — сформирован нашей системой;
+* «документ правовой системы» — сформирован сторонней правовой системой.
 
 target_number: {target_number}
+
+Направление всегда однозначно: поле old — текст ДОКУМЕНТА ПРОЕКТА,
+поле new — текст ДОКУМЕНТА ПРАВОВОЙ СИСТЕМЫ. kind означает:
+* change — фрагмент есть в ОБОИХ документах, но различается (old ≠ new);
+* add — фрагмент ЕСТЬ ТОЛЬКО в документе проекта; в правовой системе
+  отсутствует (new пуст);
+* remove — фрагмент есть ТОЛЬКО в документе правовой системы; в документе
+  проекта отсутствует (old пуст).
 
 Различия (json-массив с полем id):
 {diff_json}
@@ -74,7 +82,123 @@ target_number: {target_number}
 reason — одно из: original_edition, amendment, implementation_gap,
 technical_correction, formatting, unclear.
 Если источник изменения неизвестен, укажите source_npa пустой строкой.
+
+Правила:
+1. Объяснение НЕ должно противоречить направлению. Для kind = add нельзя
+   писать «в проекте отсутствует»/«проект не включил» — напротив, фрагмент
+   ЕСТЬ только в проекте. Для kind = remove нельзя писать «в правовой системе
+   отсутствует» — фрагмент есть только в правовой системе.
+2. reason = formatting применяется ТОЛЬКО к косметическим различиям (регистр,
+   пробелы, пунктуация, е/ё). Эти различия уже отнесены к содержательным,
+   поэтому formatting здесь, как правило, ошибочен — выбирайте содержательную
+   причину.
+3. source_npa — ИЗМЕНЯЮЩИЙ НПА (например, «516-ЗС»), а НЕ сам целевой НПА
+   ({target_number}) и не номер, совпадающий с ним. Если источник не
+   определён — пустая строка.
 """
+
+
+#: Маркеры, противоречащие направлению: если модель объясняет add словами
+#: «в проекте … отсутствует» или remove словами «в правовой системе …
+#: отсутствует», объяснение инвертировано и должно быть заменено нейтральным.
+#: Regex допускает слова между субъектом и отрицанием («в проекте эта норма
+#: отсутствует»).
+_NEG_PROJECT_RE = re.compile(
+    r'в проекте[^.]*?отсутств'
+    r'|в проекте[^.]*?\bнет\b'
+    r'|проект(?:ная версия)?[^.]*?\bне\s+(?:включ|содерж|учитыва|отража|использ|предостав)'
+    r'|проектной версией[^.]*?\bне\b'
+    r'|проектом[^.]*?\bне\b',
+    re.IGNORECASE,
+)
+_NEG_THEIRS_RE = re.compile(
+    r'в правовой системе[^.]*?отсутств'
+    r'|в правовой системе[^.]*?\bнет\b'
+    r'|в правовой версии[^.]*?отсутств'
+    r'|правовая система[^.]*?\bне\s+(?:включ|содерж|учитыва|отража|предостав)'
+    r'|в консультант(?:е)?\s+[^.]*?отсутств',
+    re.IGNORECASE,
+)
+
+
+def _direction_neutral_explanation(diff: DiffRecord) -> str:
+    """Читаемое нейтральное объяснение, согласованное с направлением."""
+    if diff.kind == 'add':
+        return ('Фрагмент содержится только в документе проекта и отсутствует '
+                'в документе правовой системы.')
+    if diff.kind == 'remove':
+        return ('Фрагмент содержится только в документе правовой системы и '
+                'отсутствует в документе проекта.')
+    return ''
+
+
+def _sanitize_direction(diff: DiffRecord, log=None) -> bool:
+    """Заменить объяснение, противоречащее направлению, нейтральным.
+
+    Модель иногда инвертирует направление («в проекте отсутствует» при
+    add) — из-за этого отчёт противоречит сам себе. Возвращает True, если
+    объяснение было заменено.
+    """
+    expl = diff.explanation or ''
+    if not expl.strip():
+        return False
+    if diff.kind == 'add':
+        bad = bool(_NEG_PROJECT_RE.search(expl))
+    elif diff.kind == 'remove':
+        bad = bool(_NEG_THEIRS_RE.search(expl))
+    else:
+        bad = False
+    if bad:
+        if log:
+            log(
+                f'Объяснение модели противоречит направлению ({diff.kind}, '
+                f'{diff.path}) — заменено на нейтральное',
+                'warning',
+            )
+        diff.explanation = _direction_neutral_explanation(diff)
+        return True
+    return False
+
+
+def _is_same_npa(a: str, b: str) -> bool:
+    """Совпадают ли номера НПА (по цифрам): «127-ЗС» == «№ 127-ЗС»."""
+    return _only_digits(a or '') == _only_digits(b or '')
+
+
+def _only_digits(s: str) -> str:
+    return re.sub(r'\D', '', s or '')
+
+
+def _apply_guards(diff: DiffRecord, target_number: str = '', log=None) -> None:
+    """Детерминированные правки ошибочной классификации модели.
+
+    1) reason=formatting невозможен для расхождений основного списка: косметика
+       (регистр, пунктуация, пробелы, е/ё) отсеивается в differ ещё до агента,
+       поэтому «только оформление» — всегда ошибка модели. Сбрасываем на unclear.
+    2) Объяснение не должно противоречить направлению (add/remove).
+    3) source_npa == целевой НПА — это не изменяющий акт, а сам закон.
+    """
+    if diff.reason == 'formatting':
+        if log:
+            log(
+                f'Модель отнесла содержательное различие к «оформлению» '
+                f'({diff.path}) — причина сброшена на unclear',
+                'warning',
+            )
+        diff.reason = 'unclear'
+        diff.explanation = (
+            'Расхождение относится к содержанию текста (не только к '
+            'оформлению); причина не установлена однозначно.'
+        )
+    _sanitize_direction(diff, log)
+    if diff.source_npa and target_number and _is_same_npa(diff.source_npa, target_number):
+        if log:
+            log(
+                f'Модель указала source_npa = целевой НПА ({target_number}) '
+                f'— источник сброшен',
+                'warning',
+            )
+        diff.source_npa = ''
 
 
 def build_classify_prompt(
@@ -127,6 +251,9 @@ def mechanical_resolve(
         diff.reason = 'unclear'
         if target_number:
             diff.original_text = get_original_text(target_number, diff.path_key)
+
+    if diff.kind in ('add', 'remove') and not diff.explanation:
+        diff.explanation = _direction_neutral_explanation(diff)
 
 
 def classify_diffs(
@@ -210,6 +337,11 @@ def classify_diffs(
             diff.reason = str(item.get('reason', 'unclear'))
             diff.explanation = str(item.get('explanation', ''))
             diff.source_npa = str(item.get('source_npa', '') or '')
+
+            # Детерминированные гварды против ошибочной классификации модели
+            # (formatting на содержательном различии, инверсия направления,
+            # source_npa == целевой НПА).
+            _apply_guards(diff, target_number, log)
 
             if diff.reason in ('amendment', 'implementation_gap'):
                 source = diff.source_npa
