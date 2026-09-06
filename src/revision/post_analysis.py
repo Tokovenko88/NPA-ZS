@@ -70,7 +70,10 @@ _FALLBACK_TEMPLATE = (
     '[{"item_id": "...", "field": "element_html|element_head|item_number|'
     'note_add|npa_head|not_valid", "value": "..."}]}]}. '
     'corrections.value must contain the COMPLETE corrected text (whole element). '
-    'Only report real semantic errors; ignore cosmetic HTML markup differences.'
+    'Only report real semantic errors; ignore cosmetic HTML markup differences. '
+    'DO NOT check spelling, grammar, or style. DO NOT complain about missing entries in <changes> or bad item_ids. '
+    'Check only whether the instruction from <instructions> was applied correctly and whether text was lost or truncated. '
+    'Treat unexplained truncation or missing mandatory phrases as critical errors.'
 )
 
 
@@ -353,6 +356,9 @@ def build_prompt(result, change_data, changes, extracted_instructions=None):
         + '\n\n<change_npa_number>' + str(change_data.get('npa_number', '')) + '</change_npa_number>'
         + '\n\n<target_npa_number>' + str(result.get('npa_number', '')) + '</target_npa_number>'
         + '\n\n<instructions>\n' + _cap(instructions, MAX_INSTRUCTIONS_CHARS) + '\n</instructions>'
+        + '\n\n<integrity_check>\nTexts in <changes> may be truncated with \"…[обрезано]\". '
+        'If truncation removed a mandatory phrase from the instruction or cut the sentence mid-clause, '
+        'treat it as an incorrect application and reconstruct the full correct text in corrections.value.\n</integrity_check>\n'
         + '\n\n<changes>\n' + changes_json + '\n</changes>'
     )
     return prompt
@@ -448,10 +454,11 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         if not new_body:
             return False, 'пустой исправленный HTML'
         rev['body'] = new_body
-        cleaned = _sanitize_highlights(rev.get('highlights'), old_html, value, log_callback)
+        original_highlights = rev.get('highlights')
+        cleaned = _sanitize_highlights(original_highlights, old_html, value, log_callback)
         if cleaned is not None and not _highlights_empty(cleaned):
             rev['highlights'] = cleaned
-        else:
+        elif not original_highlights:
             rev.pop('highlights', None)
         if element.get('item_children'):
             from npazs.revision.revision_builder import sync_parent_body_with_children

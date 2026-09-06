@@ -1,4 +1,4 @@
-.PHONY: help install lint typecheck test validate clean run-parser run-revision run-compare run-importer run-sync build-snippet
+.PHONY: help install lint typecheck test validate clean run-parser run-revision run-compare run-verify run-importer run-sync build-snippet
 
 help:
 	@echo NPA-ZS make targets:
@@ -10,6 +10,7 @@ help:
 	@echo   run-parser    - run HTML parser GUI
 	@echo   run-revision  - run revision processor GUI
 	@echo   run-compare   - run NPA revision comparison GUI
+	@echo   run-verify    - run verification GUI
 	@echo   run-importer  - run DB importer GUI
 	@echo   run-sync      - run site sync
 	@echo   build-snippet - assemble src/site/php/snippet.php from npazs/ modules
@@ -38,6 +39,9 @@ run-revision:
 
 run-compare:
 	python scripts/run_compare.py
+
+run-verify:
+	python scripts/run_verify.py
 
 run-importer:
 	python scripts/run_importer.py

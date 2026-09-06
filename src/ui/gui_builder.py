@@ -86,6 +86,18 @@ class GuiBuilderMixin:
             self.model_params_btn = tk.Button(frame_model, text="Загрузить параметры модели", command=self.load_model_params)
             self.model_params_btn.pack(side=tk.LEFT, padx=(5,0))
             row += 1
+            tk.Label(self.left_frame, text="Модель для пост-анализа:").grid(row=row, column=0, padx=10, pady=8, sticky='e')
+            frame_post_model = tk.Frame(self.left_frame)
+            frame_post_model.grid(row=row, column=1, columnspan=2, sticky='ew', padx=10, pady=8)
+            self.post_model_entry = tk.Entry(frame_post_model, textvariable=self.post_analysis_model)
+            self.post_model_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0,5))
+            add_context_menu(self.post_model_entry, allow_edit=True)
+            add_hotkeys(self.post_model_entry, allow_edit=True)
+            self.post_model_dropdown_btn = tk.Button(frame_post_model, text="▼", width=3, command=self.show_post_model_dropdown)
+            self.post_model_dropdown_btn.pack(side=tk.LEFT, padx=(0,5))
+            self.post_model_refresh_btn = tk.Button(frame_post_model, text="⟲", width=3, command=self.refresh_post_models)
+            self.post_model_refresh_btn.pack(side=tk.LEFT, padx=(0,5))
+            row += 1
             backend_frame = tk.Frame(self.left_frame)
             backend_frame.grid(row=row, column=0, columnspan=3, sticky='w', padx=10, pady=5)
             tk.Label(backend_frame, text="Бэкенд:").pack(side=tk.LEFT, padx=(0,10))
@@ -211,6 +223,24 @@ class GuiBuilderMixin:
 
         def on_model_selected(self, model):
             self.ollama_model.set(model)
+
+        def show_post_model_dropdown(self):
+            if not self.ollama_models:
+                self.log("Список моделей пуст. Нажмите кнопку обновления.", 'warning')
+                return
+            menu = tk.Menu(self.root, tearoff=0)
+            for model in self.ollama_models:
+                menu.add_command(label=model, command=lambda m=model: self.on_post_model_selected(m))
+            x = self.post_model_dropdown_btn.winfo_rootx()
+            y = self.post_model_dropdown_btn.winfo_rooty() + self.post_model_dropdown_btn.winfo_height()
+            menu.post(x, y)
+
+        def on_post_model_selected(self, model):
+            self.post_analysis_model.set(model)
+
+        def refresh_post_models(self):
+            self.log("Обновление списка моделей...", 'info')
+            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
         def refresh_models(self):
             self.log("Обновление списка моделей...", 'info')

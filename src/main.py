@@ -577,12 +577,46 @@ def _cmd_compare(args) -> int:
     return EXIT_OK
 
 
+# ------------------------------------------------------------------ verify
+def _cmd_verify(args) -> int:
+    from npazs.verify.runner import PostAnalysisOptions, run_post_analysis_standalone
+
+    result_path = getattr(args, 'result', None)
+    original_path = getattr(args, 'original', None)
+    change_path = getattr(args, 'change', None)
+    if not result_path or not original_path or not change_path:
+        from npazs.verify.gui import main as gui_main
+        gui_main()
+        return EXIT_OK
+
+    options = PostAnalysisOptions(
+        result_path=result_path,
+        original_path=original_path,
+        change_path=change_path,
+        work_json_path=getattr(args, 'work', None) or '',
+        output_path=getattr(args, 'output', None) or '',
+        model=getattr(args, 'model', None) or '',
+        backend=getattr(args, 'backend', None) or '',
+        extra_options=getattr(args, 'extra_options', None) or '',
+    )
+
+    def log(msg: str, level: str = 'info') -> None:
+        prefix = {'warning': 'WARN', 'error': 'ERROR', 'success': 'OK'}.get(level)
+        print(f'[{prefix}] {msg}' if prefix else msg)
+
+    result = run_post_analysis_standalone(options, log=log)
+    if result.status == 'incorrect' or result.errors:
+        return EXIT_ERROR
+    return EXIT_OK
+
+
 # ------------------------------------------------------------------ dispatch
 _HANDLERS = {
     'init': _cmd_init,
     'parse': _cmd_parse,
     'revise': _cmd_revise,
     'compare': _cmd_compare,
+    'verify': _cmd_verify,
     'import': _cmd_import,
     'sync': _cmd_sync,
     'validate': _cmd_validate,

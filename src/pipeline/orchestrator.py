@@ -2252,6 +2252,11 @@ class AiPipelineMixin:
                                 self.log("— Запуск пост-анализа внесения изменений —", 'result')
                                 pa_result = run_post_analysis(
                                     orig_file, result_data, change_data,
+                                    model=(
+                                        self.post_analysis_model.get().strip()
+                                        if hasattr(self, 'post_analysis_model') and self.post_analysis_model.get().strip()
+                                        else self.ollama_model.get().strip() if hasattr(self, 'ollama_model') else None
+                                    ),
                                     stop_event=self.stop_event,
                                     log_callback=self.log,
                                     backend=self.backend.get() if hasattr(self, 'backend') else None,

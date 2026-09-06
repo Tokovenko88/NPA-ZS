@@ -33,6 +33,7 @@ COMMANDS = {
     'parse': 'GUI парсера: HTML НПА -> каноничный JSON',
     'revise': 'GUI внесения изменений: 5-этапный AI-пайплайн',
     'compare': 'Сравнение редакций НПА: наш RTF против правовой системы',
+    'verify': 'Верификация корректности внесённых изменений',
     'import': 'Импорт JSON НПА в MySQL',
     'sync': 'Артефакты вывода НПА на сайт (PHP/JS/CSS)',
     'validate': 'Валидация JSON НПА и конфигурации',
@@ -128,6 +129,38 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=1,
         help='Сколько различий отправлять модели за один запрос',
+    )
+
+    # --- verify -------------------------------------------------------------
+    verify_parser = subparsers.add_parser(
+        'verify', help=COMMANDS['verify'], description=COMMANDS['verify']
+    )
+    verify_parser.add_argument(
+        '--result', required=True,
+        help='Файл результата внесения изменений (izm_...json)'
+    )
+    verify_parser.add_argument(
+        '--original', required=True,
+        help='Оригинальный НПА (target JSON)'
+    )
+    verify_parser.add_argument(
+        '--change', required=True,
+        help='НПА с изменениями (source JSON)'
+    )
+    verify_parser.add_argument(
+        '--work', help='Файл работы (_work.json)'
+    )
+    verify_parser.add_argument(
+        '--output', help='Куда сохранить отчёт пост-анализа (Markdown)'
+    )
+    verify_parser.add_argument(
+        '--backend',
+        choices=('ollama', 'kilo_gateway'),
+        help='LLM-бэкенд (по умолчанию из LLM_BACKEND)',
+    )
+    verify_parser.add_argument('--model', help='Имя модели')
+    verify_parser.add_argument(
+        '--extra-options', help='Дополнительные параметры генерации (JSON)'
     )
 
     # --- import -------------------------------------------------------------
