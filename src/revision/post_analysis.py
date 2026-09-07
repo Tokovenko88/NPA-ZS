@@ -33,6 +33,10 @@ from npazs.constants import (
     load_prompt_from_file,
 )
 from npazs.revision.ai_utils import _repair_json_answer, ask_ollama
+from npazs.revision.coverage_check import (
+    check_coverage,
+    format_coverage_gaps,
+)
 from npazs.revision.html_utils import extract_text_from_element, split_html_to_paragraphs
 from npazs.revision.text_utils import get_active_revision, safe_re_sub
 from npazs.revision.tree_utils import find_item_by_id
@@ -331,7 +335,8 @@ def extract_instructions_text(change_data):
     return '\n\n'.join(parts)
 
 
-def build_prompt(result, change_data, changes, extracted_instructions=None):
+def build_prompt(result, change_data, changes, extracted_instructions=None,
+                 coverage_section=None):
     """Собрать промпт пост-анализа: шаблон + схема JSON + инструкции + изменения."""
     template = load_prompt_from_file(PROMPT_POST_ANALYSIS_FILE) or _FALLBACK_TEMPLATE
     schema = ''
@@ -361,6 +366,8 @@ def build_prompt(result, change_data, changes, extracted_instructions=None):
         'treat it as an incorrect application and reconstruct the full correct text in corrections.value.\n</integrity_check>\n'
         + '\n\n<changes>\n' + changes_json + '\n</changes>'
     )
+    if coverage_section:
+        prompt += '\n\n' + coverage_section
     return prompt
 
 
@@ -586,7 +593,8 @@ def _result_path(orig_file, result_data, change_data):
 
 
 def _write_report(report_path, meta, verdict=None, raw_answer='', changes=None,
-                  applied=None, corrected_path=None, result_path=None, note=''):
+                   applied=None, corrected_path=None, result_path=None, note='',
+                   coverage_gaps=None):
     """Записать отчёт пост-анализа в формате Markdown."""
     changes = changes or []
     applied = applied or []
@@ -649,7 +657,21 @@ def _write_report(report_path, meta, verdict=None, raw_answer='', changes=None,
                 lines.append(f"- **Фактически:** {_cap(str(issue['actual']), 4000)}")
             if issue.get('fix'):
                 lines.append(f"- **Исправление:** {issue['fix']}")
-            lines.append('')
+                lines.append('')
+    if coverage_gaps:
+        lines += ['', '## Проверка покрытия норм (детерминированная)', '']
+        lines.append(
+            'Следующие нормы изменяющего закона помечены применёнными в трекере, '
+            'но не породили ревизию от изменяющего НПА в результате (LLM-агент '
+            'их не видит, т.к. нет записи в `<changes>`):'
+        )
+        for gap in coverage_gaps:
+            lines.append(
+                f"- **{gap.get('revision_number', '')}** — {gap.get('structural_element', '')}, "
+                f"тип: {gap.get('type', '')}, статус: {gap.get('status', '')}, "
+                f"причина: `{gap.get('reason', '')}` "
+                f"(change_id: {gap.get('change_id', '')})\n"
+            )
     if raw_answer and status != 'correct':
         fenced = raw_answer.replace('```', '```\\n')
         lines += ['', '## Исходный ответ ИИ-агента', '', '```', _cap(fenced, 20000), '```']
@@ -662,7 +684,8 @@ def _write_report(report_path, meta, verdict=None, raw_answer='', changes=None,
 
 
 def _finish_run(orig_file, started, result_data, change_data, final, verdict,
-                raw_answer, changes, applied, corrected_path, result_path, log_lines):
+                raw_answer, changes, applied, corrected_path, result_path, log_lines,
+                coverage_gaps=None):
     """Записать отчёт и журнал, вернуть итоговый результат пост-анализа."""
     report_path = os.path.join(
         os.path.dirname(orig_file) or '.',
@@ -675,7 +698,7 @@ def _finish_run(orig_file, started, result_data, change_data, final, verdict,
     }
     _write_report(report_path, meta, verdict=verdict, raw_answer=raw_answer,
                   changes=changes, applied=applied, corrected_path=corrected_path,
-                  result_path=result_path)
+                  result_path=result_path, coverage_gaps=coverage_gaps)
     final['report_path'] = report_path
     log_lines.append(f"REPORT: {report_path}")
     log_lines.append(f"RESULT: {json.dumps(final, ensure_ascii=False)}")
@@ -685,7 +708,7 @@ def _finish_run(orig_file, started, result_data, change_data, final, verdict,
 
 def run_post_analysis(orig_file, result_data, change_data, model=None, extra_options=None,
                       stop_event=None, log_callback=None, backend=None,
-                      extracted_instructions=None):
+                      extracted_instructions=None, tracker_snapshot=None):
     """Пост-анализ внесённых изменений (автоматический ИИ-контроль).
 
     Args:
@@ -698,6 +721,9 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         log_callback: функция ``log(message, level)``.
         backend: ``kilo_gateway`` | ``ollama`` (по умолчанию — из настроек).
         extracted_instructions: краткие инструкции изменений из трекера (этап 3).
+        tracker_snapshot: снимок объекта ChangeTracker (для детерминированной
+            проверки покрытия норм — catch «правка не применена, но трекер
+            закрыл чужой ревизией»). Передаётся из оркестратора.
 
     Returns:
         dict: ``{status, checked, issues, report_path, corrected_path}``,
@@ -715,12 +741,15 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         log_lines.append(f"[{level}] {msg}")
 
     change_npa_id = change_data.get('npa_id')
+    coverage_gaps: list = []
+    issues: list = []
     if not change_npa_id:
         _log('Пост-анализ пропущен: у изменяющего НПА нет npa_id', 'warning')
         return _finish_run(orig_file, started, result_data, change_data,
-                           {'status': 'skipped', 'checked': 0, 'issues': 0,
+                                                      {'status': 'skipped', 'checked': 0, 'issues': 0,
                             'corrected_path': None},
-                           None, '', [], None, None, '', log_lines)
+                           None, '', [], None, None, '', log_lines,
+                           coverage_gaps=coverage_gaps)
 
     result_path = _result_path(orig_file, result_data, change_data)
     work = None
@@ -735,16 +764,42 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     if work is None:
         work = copy.deepcopy(result_data)
 
-    changes = collect_changes(work, change_data)
+        changes = collect_changes(work, change_data)
     if not changes:
         _log('Пост-анализ пропущен: изменения изменяющего НПА в результате не найдены', 'warning')
         return _finish_run(orig_file, started, result_data, change_data,
                            {'status': 'skipped', 'checked': 0, 'issues': 0,
                             'corrected_path': None},
-                           None, '', [], None, None, result_path, log_lines)
+                           None, '', [], None, None, result_path, log_lines,
+                           coverage_gaps=coverage_gaps)
+
+    # ── Детерминированная проверка покрытия норм ──────────────────────────
+    # LLM видит только то, что попало в <changes>. Если правка не применена
+    # (ревизия не создана, либо трекер закрыл её чужой ревизией 2016 года),
+    # запись в <changes> отсутствует и LLM проблему пропустит. Детерминированная
+    # проверка не зависит от LLM и ловит такие случаи принудительно.
+    if tracker_snapshot is not None:
+        try:
+            coverage_gaps = check_coverage(
+                tracker_snapshot, work, change_npa_id
+            )
+        except Exception as gap_exc:  # noqa: BLE001 — дыра покрытия не должна ломать пост-анализ
+            _log(f'Ошибка детерминированной проверки покрытия: {gap_exc}', 'error')
+            coverage_gaps = []
+    if coverage_gaps:
+        for gap in coverage_gaps:
+            _log(
+                f"ПРОБЕЛ ПОКРЫТИЯ: change_id={gap.get('change_id')} "
+                f"norma={gap.get('revision_number')} status={gap.get('status')} "
+                f"reason={gap.get('reason')}",
+                'warning',
+            )
+    # ────────────────────────────────────────────────────────────────────────
 
     _log(f"Пост-анализ: найдено изменений, внесённых изменяющим НПА: {len(changes)}", 'info')
-    prompt = build_prompt(work, change_data, changes, extracted_instructions)
+    coverage_section = format_coverage_gaps(coverage_gaps)
+    prompt = build_prompt(work, change_data, changes, extracted_instructions,
+                          coverage_section=coverage_section)
 
     from npazs.config.settings import get_settings
     settings = get_settings()
@@ -765,7 +820,8 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         return _finish_run(orig_file, started, result_data, change_data,
                            {'status': 'error', 'checked': len(changes), 'issues': 0,
                             'corrected_path': None},
-                           None, '', changes, None, None, result_path, log_lines)
+                                                       None, '', changes, None, None, result_path, log_lines,
+                            coverage_gaps=coverage_gaps)
 
     verdict = None
     raw_answer = answer or ''
@@ -781,7 +837,36 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     else:
         status = 'error'
         _log('Пост-анализ: ИИ не вернул валидный вердикт (status отсутствует)', 'error')
-    issues = (verdict.get('issues') or []) if isinstance(verdict, dict) else []
+        issues = (verdict.get('issues') or []) if isinstance(verdict, dict) else []
+
+    # ── Слияние детерминированных проблем покрытия с ответом LLM ──────────
+    # Детерминированные пробелы покрытия норм (правка не применена, но трекер
+    # закрыл чужой ревизией) добавляются принудительно — LLM их не видит,
+    # но они являются реальными ошибками прогона.
+    for gap in coverage_gaps:
+        issues.append({
+            'path': gap.get('structural_element', ''),
+            'issue': f'Правка не применена: {gap.get("reason")}',
+            'expected': gap.get('revision_number'),
+            'actual': f'status={gap.get("status")}',
+            'fix': (
+                f'Норма изменяющего закона "{gap.get("revision_number")}" '
+                f'не породила ревизию от изменяющего НПА в результате. '
+                f'Проверить применение изменения в пайплайне Revizor.'
+            ),
+        })
+    # ────────────────────────────────────────────────────────────────────────
+
+    # Детерминированные пробелы покрытия делают вердикт incorrect независимо
+    # от ответа LLM (правка не применена — это ошибка прогона).
+    if coverage_gaps:
+        status = 'incorrect'
+        _log(
+            f'Пост-анализ: принудительно переведён в incorrect '
+            f'на основе детерминированной проверки покрытия '
+            f'({len(coverage_gaps)} пробелов).',
+            'warning',
+        )
 
     corrected_path = None
     applied = []
@@ -805,8 +890,17 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         else:
             _log('Исправления применить не удалось — файл _corrected не создан', 'warning')
 
-    return _finish_run(orig_file, started, result_data, change_data,
+        return _finish_run(orig_file, started, result_data, change_data,
                        {'status': status, 'checked': len(changes), 'issues': len(issues),
                         'corrected_path': corrected_path},
                        verdict if isinstance(verdict, dict) else None,
-                       raw_answer, changes, applied, corrected_path, result_path, log_lines)
+                       raw_answer, changes, applied, corrected_path, result_path, log_lines,
+                       coverage_gaps=coverage_gaps)
+
+    # Для status == 'correct' / 'error' / 'skipped' — исправления не применяются
+    return _finish_run(orig_file, started, result_data, change_data,
+                       {'status': status, 'checked': len(changes), 'issues': len(issues),
+                        'corrected_path': None},
+                       verdict if isinstance(verdict, dict) else None,
+                       raw_answer, changes, [], None, result_path, log_lines,
+                       coverage_gaps=coverage_gaps)

@@ -2260,6 +2260,7 @@ class AiPipelineMixin:
                                     stop_event=self.stop_event,
                                     log_callback=self.log,
                                     backend=self.backend.get() if hasattr(self, 'backend') else None,
+                                    tracker_snapshot=tracker,
                                 )
                                 if pa_result.get('status') == 'correct':
                                     self.log(
