@@ -147,7 +147,7 @@ class AiPipelineMixin:
             }
             self._prompt_answers["stages"].append(stage_entry)
 
-        def _save_prompt_answers(self, out_dir, change_data, result_data=None):
+        def _save_prompt_answers(self, out_dir, change_data, result_data=None, tracker=None):
             if not hasattr(self, '_prompt_answers') or not self._prompt_answers["stages"]:
                 return
             change_npa_number = change_data.get('npa_number', '')
@@ -162,6 +162,16 @@ class AiPipelineMixin:
             self._prompt_answers["run_info"]["change_npa_number"] = change_npa_number
             self._prompt_answers["run_info"]["change_doc_type"] = change_doc_type
             self._prompt_answers["run_info"]["finished_at"] = datetime.now().isoformat()
+            # Снимок трекера — для детерминированной проверки покрытия норм
+            # в standalone пост-анализе (verify/GUI без живого ChangeTracker).
+            if tracker is not None:
+                try:
+                    from npazs.revision.coverage_check import serialize_tracker_changes
+                    snapshot = serialize_tracker_changes(tracker)
+                    if snapshot:
+                        self._prompt_answers["tracker_changes"] = snapshot
+                except Exception as e:  # noqa: BLE001 — сбой снимка не роняет прогон
+                    self.log(f"Не удалось снять снимок трекера для work-файла: {e}", 'warning')
             try:
                 with open(out_path, 'w', encoding='utf-8') as f:
                     json.dump(self._prompt_answers, f, ensure_ascii=False, indent=2)
@@ -2186,7 +2196,7 @@ class AiPipelineMixin:
                     if run_status == "FAILED":
                         self.log("❌ RUN STATUS: FAILED — не все изменения применены/проверены", 'error')
                         self._save_failed_run(result_data, orig_file, change_data, tracker)
-                        self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data)
+                        self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data, tracker=tracker)
                         self.root.after(0, lambda: messagebox.showerror(
                             "Ошибка обработки",
                             f"Обработка завершена с ошибками.\n"
@@ -2232,7 +2242,8 @@ class AiPipelineMixin:
                     except Exception:
                         pass
                     self._export_debug_run(orig_file, change_file)
-                    self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data if 'result_data' in dir() else None)
+                    self._save_prompt_answers(os.path.dirname(orig_file), change_data, result_data if 'result_data' in dir() else None,
+                                              tracker=tracker if 'tracker' in dir() else None)
                     self._save_work_log(
                         os.path.dirname(orig_file), change_data,
                         result_data if 'result_data' in dir() else None,

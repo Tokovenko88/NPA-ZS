@@ -952,6 +952,34 @@ def _finish_run(orig_file, started, result_data, change_data, final, verdict,
     return final
 
 
+def _load_tracker_snapshot_from_work(orig_file, change_data, log):
+    """Снимок изменений трекера из ``<number>_work.json`` рядом с целевым НПА.
+
+    Standalone-прогоны (GUI-верификация, CLI ``verify``) не имеют живого объекта
+    ChangeTracker, поэтому оркестратор сохраняет снимок (ключ ``tracker_changes``)
+    в work-файл. Здесь он подгружается для детерминированной проверки покрытия.
+    """
+    try:
+        from npazs.revision.file_ops import clean_number_for_filename
+        change_num = clean_number_for_filename(str(change_data.get('npa_number', '') or ''))
+        if not change_num:
+            return None
+        work_path = os.path.join(os.path.dirname(orig_file) or '.', f'{change_num}_work.json')
+        if not os.path.isfile(work_path):
+            return None
+        with open(work_path, 'r', encoding='utf-8') as f:
+            work_data = json.load(f)
+        snapshot = work_data.get('tracker_changes') if isinstance(work_data, dict) else None
+        if isinstance(snapshot, list) and snapshot:
+            log(f'Пост-анализ: снимок трекера загружен из {work_path} ({len(snapshot)} изм.)',
+                'info')
+            return snapshot
+    except Exception as exc:  # noqa: BLE001 — отсутствие снимка не ломает пост-анализ
+        log(f'Пост-анализ: не удалось загрузить снимок трекера из work-файла: {exc}',
+            'warning')
+    return None
+
+
 def run_post_analysis(orig_file, result_data, change_data, model=None, extra_options=None,
                       stop_event=None, log_callback=None, backend=None,
                       extracted_instructions=None, tracker_snapshot=None):
@@ -1019,6 +1047,10 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     # проверка не зависит от LLM и ловит такие случаи принудительно.
     # ВАЖНО: проверка покрытия должна быть ДО пропуска по пустым changes,
     # иначе foreign_revision (чужая ревизия) не будет обнаружена.
+    # Standalone-прогоны (verify/GUI-постобработка) не имеют живого трекера —
+    # подгружаем снимок из work-файла, сохранённый оркестратором при прогоне.
+    if tracker_snapshot is None:
+        tracker_snapshot = _load_tracker_snapshot_from_work(orig_file, change_data, _log)
     if tracker_snapshot is not None:
         try:
             coverage_gaps = check_coverage(

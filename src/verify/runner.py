@@ -56,8 +56,43 @@ def _find_related_paths(result_path: str) -> dict[str, str | None]:
             change_num = parts[-1]
             orig_num = parts[0]
 
-    orig_path = _find_in_base(orig_num, base_dirs)
-    change_path = _find_in_base(change_num, base_dirs)
+    # Work-файл оркестратор сохраняет по номеру изменяющего НПА
+    # (правило 7 AGENTS.md): <изменяющий>_work.json, например 516_work.json.
+    change_lead = re.match(r'^([0-9]+)', change_num)
+    if change_lead:
+        candidate = os.path.join(result_dir, change_lead.group(1) + '_work.json')
+        if os.path.isfile(candidate):
+            work_path = candidate
+
+    def _find_npa(num: str) -> str | None:
+        """Рядом с результатом → каноническая база → номер без суффиксов.
+
+        Приоритет у папки результата: там лежат входные файлы прогона
+        (127.json, 516.json), и именно к ним относится проверяемый результат.
+        База ищется следом (полный номер, затем старшие цифры).
+        """
+        if not num:
+            return None
+        lead = re.match(r'^([0-9]+)', num)
+        candidates = [os.path.join(result_dir, num + '.json')]
+        if lead:
+            # Оригинал «127_2015_04_17» → 127.json; изменяющий
+            # «516_2019_07_08» → 516.json (вход прогона рядом с целью).
+            candidates.append(os.path.join(result_dir, f'{lead.group(1)}.json'))
+        candidates.append(os.path.join(result_dir,
+                                       re.sub(r'[^0-9a-zA-Z]', '', num) + '.json'))
+        candidates.append(_find_in_base(num, base_dirs))
+        if lead:
+            for base in base_dirs:
+                candidates.append(os.path.join(base, lead.group(1),
+                                               f'{lead.group(1)}.json'))
+        for candidate in candidates:
+            if candidate and os.path.isfile(candidate):
+                return candidate
+        return None
+
+    orig_path = _find_npa(orig_num)
+    change_path = _find_npa(change_num)
 
     return {
         'work': work_path if work_path and os.path.isfile(work_path) else None,
@@ -150,10 +185,18 @@ def run_post_analysis_standalone(
             _log('Некорректный JSON в дополнительных параметрах; используются значения по умолчанию.', 'warning')
 
     extracted_instructions = None
+    tracker_snapshot = None
     if work_path and os.path.isfile(work_path):
         work_data = _load_json(work_path)
         if isinstance(work_data, dict):
             extracted_instructions = _extract_instructions_from_work(work_data)
+            # Снимок трекера, сохранённый оркестратором при прогоне, — нужен для
+            # детерминированной проверки покрытия норм (правка не применена, но
+            # трекер закрыл её чужой ревизией).
+            snapshot = work_data.get('tracker_changes')
+            if isinstance(snapshot, list) and snapshot:
+                tracker_snapshot = snapshot
+                _log(f'Снимок трекера из work-файла: {len(snapshot)} изменений')
 
     _log(f'Файл результата: {result_path}')
     _log(f'Оригинальный НПА: {original_path}')
@@ -172,6 +215,7 @@ def run_post_analysis_standalone(
             log_callback=_log,
             backend=options.backend.strip() or None,
             extracted_instructions=extracted_instructions,
+            tracker_snapshot=tracker_snapshot,
         )
     except Exception as e:  # noqa: BLE001 - предотвращаем падение GUI
         result.errors.append(f'Ошибка пост-анализа: {e}')
