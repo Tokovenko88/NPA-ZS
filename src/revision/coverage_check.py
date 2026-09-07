@@ -97,13 +97,18 @@ def check_tracker_coverage(
     seen: set = set()
     for change in changes or []:
         change_id = str(change.get("change_id") or "")
-        # Нормализуем статус: трекер может хранить строку или enum (str, Enum)
-        status_raw = change.get("status")
-        status = str(status_raw).lower().strip() if status_raw is not None else ""
-        change_type = str(change.get("type") or "").lower()
+        # Нормализуем статус и тип: трекер может хранить строку или enum (str, Enum).
+        status = _normalize_status(change.get("status"))
+        change_type_raw = change.get("type")
+        if hasattr(change_type_raw, "value"):
+            change_type = str(change_type_raw.value).lower().strip()
+        else:
+            change_type = str(change_type_raw or "").lower()
         reason: str | None = None
         # Проверяем только правки, которые трекер считает применёнными (APPLIED/VERIFIED).
         # Статусы вроде EXTRACTED означают "ещё не применено" — это не пробел, это просто не сделано.
+        # Примечание: в Python 3.11+ str(EnumMember) возвращает "Class.MEMBER", поэтому
+        # используем .value для получения строкового значения enum.
         if status not in {"applied", "verified"}:
             continue
         if change_type in _STRICT_TYPES:
@@ -188,10 +193,22 @@ def serialize_tracker_changes(tracker: Any) -> list[dict]:
     snapshot: list[dict] = []
     for item in values:
         if isinstance(item, dict):
-            snapshot.append({key: item.get(key) for key in keys})
+            record = {key: item.get(key) for key in keys}
         else:
-            snapshot.append({key: getattr(item, key, None) for key in keys})
+            record = {key: getattr(item, key, None) for key in keys}
+        # Нормализуем status: enum -> строковое значение
+        record["status"] = _normalize_status(record.get("status"))
+        snapshot.append(record)
     return snapshot
+
+
+def _normalize_status(status: Any) -> str:
+    """Преобразовать статус трекера в строку (enum -> .value, str -> lower)."""
+    if status is None:
+        return ""
+    if hasattr(status, "value"):
+        return str(status.value).lower().strip()
+    return str(status).lower().strip()
 
 
 def check_coverage(tracker: Any, result: dict, change_npa_id: Any) -> list[dict]:

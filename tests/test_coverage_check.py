@@ -179,6 +179,32 @@ def test_coverage_gap_is_dict():
     assert gap["reason"] == "test"
 
 
+def test_change_status_enum_normalized():
+    """Статус в виде ChangeStatus enum (str, Enum) должен нормализоваться.
+
+    Баг: в Python 3.11+ str(ChangeStatus.VERIFIED) возвращает 'ChangeStatus.VERIFIED',
+    а не 'verified'. Из-за этого проверка 'status not in {"applied", "verified"}'
+    возвращала True и изменение пропускалось.
+    """
+    from npazs.revision.change_tracker import ChangeStatus
+
+    result = _result_dict()
+    changes = [
+        {
+            "change_id": "7caf60c9-545",
+            "revision_number": "6)->б)",
+            "structural_element": "Статья 6 часть 3",
+            "type": "change",
+            "status": ChangeStatus.VERIFIED,  # enum, не строка!
+            "target_item_id": "60050_article_6_part_3",
+            "revision_id": REV_ID,
+        },
+    ]
+    gaps = check_tracker_coverage(result, changes, "59121")
+    assert len(gaps) == 1, f"Ожидался 1 gap, получено: {gaps}"
+    assert gaps[0]["reason"] == "foreign_revision"
+
+
 def test_delete_type_checked_for_coverage():
     """Правка типа 'delete' (исключение слов) должна проверяться на покрытие.
 
