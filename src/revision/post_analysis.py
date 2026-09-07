@@ -308,6 +308,47 @@ def _revision_body_html(rev):
                 parts.append(html)
     return '\n'.join(parts)
 
+def _resolve_norm_id_for_gap(change_data, gap, log_callback=None):
+    """Резолвинг id нормы изменяющего НПА для пробела покрытия.
+
+    1) Стандартный путь — ``_resolve_modified_by_ids`` по ``revision_number``.
+       Не работает, когда номер нормы без ключевых слов (например «6)->б)»):
+       путь парсится как ['6', 'б'] и ищется среди статей верхнего уровня.
+    2) Fallback: точное совпадение текста инструкции (``gap.description``)
+       с текстом активной ревизии нормы изменяющего НПА. Трекер хранит
+       description из stage-3, а тексты норм в change_data — тот же текст,
+       поэтому совпадение однозначно.
+    """
+    from npazs.revision.element_finder import _resolve_modified_by_ids
+    quiet = log_callback or (lambda *args, **kwargs: None)
+    try:
+        norm_id = _resolve_modified_by_ids(
+            gap.get('revision_number'), change_data, None, None, quiet,
+            structural_element=gap.get('structural_element', ''),
+        )
+        if norm_id:
+            return norm_id
+    except Exception as exc:  # noqa: BLE001 — переходим к fallback по тексту
+        if log_callback:
+            log_callback(f'_resolve_modified_by_ids не сработал: {exc}', 'info')
+    description = _strip_html(gap.get('description') or '')
+    if not description:
+        return None
+
+    def _walk(items):
+        for item in items or []:
+            active = get_active_revision(item)
+            if active:
+                text = _strip_html(_revision_body_html(active))
+                if text and (description in text or text in description):
+                    return item.get('item_id')
+            found = _walk(item.get('item_children'))
+            if found:
+                return found
+        return None
+
+    return _walk(change_data.get('npa_items_revision'))
+
 
 def _type_ru(item_type):
     return TYPE_TO_RUSSIAN.get(item_type, item_type or '')
@@ -647,11 +688,14 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
             'revision_id': str(uuid.uuid4()),
             'valid_from': change_valid_from,
             'valid_to': '',
-            'modified_by_id': str(change_npa_id),
+            'modified_by_id': str(corr.get('modified_by_id') or change_npa_id),
             'not_valid': False,
             'body': [],
             'highlights': {},
         }
+        mod_type = corr.get('mod_type')
+        if mod_type:
+            new_rev['mod_type'] = str(mod_type)
         new_body = _build_body_preserving_structure(active_rev, value)
         if not new_body:
             return False, 'пустой исправленный HTML'
@@ -1077,11 +1121,33 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                                 f'детерминированно удалена фраза из инструкции',
                                 'info',
                             )
-                    issue_entry['corrections'] = [{
+                    correction = {
                         'item_id': target_item_id,
                         'field': 'element_html_new_rev',
                         'value': new_value,
-                    }]
+                    }
+                    # Резолвим норму изменяющего НПА (modified_by_id), чтобы
+                    # новая ревизия ссылалась на конкретный пункт/подпункт
+                    # закона, а не на голый npa_id (иначе DB-импортёр не
+                    # сможет разрешить автора ревизии).
+                    try:
+                        norm_id = _resolve_norm_id_for_gap(change_data, gap, _log)
+                    except Exception as exc:  # noqa: BLE001 — fallback на npa_id
+                        norm_id = None
+                        _log(f'Пост-анализ: не удалось резолвить норму для '
+                             f'{gap.get("revision_number")}: {exc}', 'warning')
+                    if norm_id:
+                        correction['modified_by_id'] = norm_id
+                    else:
+                        _log(f'Пост-анализ: норма для {gap.get("revision_number")} '
+                             f'не резолвится — автор ревизии npa_id={change_npa_id}',
+                             'warning')
+                    # mod_type по типу правки (конвенция change_applier):
+                    # change → change, new_redaction → new_redaction.
+                    correction['mod_type'] = (
+                        'new_redaction' if gap.get('type') == 'new_redaction' else 'change'
+                    )
+                    issue_entry['corrections'] = [correction]
                     _log(
                         f'Пост-анализ: для {gap.get("revision_number")} '
                         f'({gap.get("reason")}) сформирована коррекция '

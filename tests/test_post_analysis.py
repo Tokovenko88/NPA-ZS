@@ -95,6 +95,41 @@ def _make_change_law():
                         '«Территориальные органы федеральных органов государственной власти '
                         'города Севастополя, органы местного самоуправления».',
             },
+            # Вложенная норма «пункт 6) подпункт б)» — текст инструкции
+            # совпадает с description трекера для foreign_revision (fallback
+            # резолвинга нормы по тексту).
+            {
+                'item_id': '516_law_1_art_1',
+                'item_type': 'article',
+                'item_number': '1',
+                'item_children': [
+                    {
+                        'item_id': '516_law_1_art_1_point_6',
+                        'item_type': 'point',
+                        'item_number': '6)',
+                        'item_children': [
+                            {
+                                'item_id': '516_law_1_art_1_point_6_subpoint_b',
+                                'item_type': 'subpoint',
+                                'item_number': 'б)',
+                                'revisions': [
+                                    {
+                                        'valid_from': '20.07.2019',
+                                        'body': [
+                                            {
+                                                'type': 'paragraph',
+                                                'html_text': '<p>в части 3 слова «, указанными '
+                                                             'в статье 3» исключить;</p>',
+                                                'order': 1,
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
         ],
     }
 
@@ -347,9 +382,13 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     # Должна появиться новая ревизия от изменяющего НПА (516)
     assert len(art['revisions']) == 3, f"Ожидалось 3 ревизии, получено {len(art['revisions'])}"
     new_rev = art['revisions'][-1]
-    # modified_by_id = change_npa_id ('516' из _make_change_law)
-    assert new_rev['modified_by_id'] == '516', (
-        f"Ожидался modified_by_id='516', получено '{new_rev['modified_by_id']}'")
+    # modified_by_id — резолвнутая норма изменяющего НПА («6)->б)» найдена
+    # fallback-поиском по тексту инструкции), а не голый npa_id.
+    assert new_rev['modified_by_id'] == '516_law_1_art_1_point_6_subpoint_b', (
+        f"Ожидался modified_by_id='516_law_1_art_1_point_6_subpoint_b', "
+        f"получено '{new_rev['modified_by_id']}'")
+    assert new_rev.get('mod_type') == 'change', (
+        f"Ожидался mod_type='change', получено '{new_rev.get('mod_type')}'")
     assert new_rev['valid_to'] == '', "Новая ревизия должна быть активной"
 
     # Основное: реальная правка применена — фраза «указанными в статье 3» удалена
