@@ -390,6 +390,11 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     assert new_rev.get('mod_type') == 'change', (
         f"Ожидался mod_type='change', получено '{new_rev.get('mod_type')}'")
     assert new_rev['valid_to'] == '', "Новая ревизия должна быть активной"
+    # Закрытая чужая ревизия: valid_to = за день до valid_from новой (конвенция базы)
+    foreign_rev = art['revisions'][1]
+    assert foreign_rev['valid_to'] == '07.07.2019', (
+        f"Ожидался valid_to='07.07.2019' (день до 08.07.2019), "
+        f"получено '{foreign_rev.get('valid_to')}'")
 
     # Основное: реальная правка применена — фраза «указанными в статье 3» удалена
     new_body_text = ' '.join(

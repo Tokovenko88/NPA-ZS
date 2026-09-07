@@ -308,6 +308,17 @@ def _revision_body_html(rev):
                 parts.append(html)
     return '\n'.join(parts)
 
+
+def _prev_day(date_str):
+    """Дата предыдущего дня — конвенция базы: valid_to закрываемой ревизии
+    равен дню перед valid_from закрывающей (см. change_applier/ui_utils)."""
+    from datetime import datetime, timedelta
+    try:
+        dt = datetime.strptime(str(date_str).strip(), '%d.%m.%Y')  # noqa: DTZ007 — даты базы наивны
+        return (dt - timedelta(days=1)).strftime('%d.%m.%Y')
+    except (ValueError, TypeError):
+        return date_str
+
 def _resolve_norm_id_for_gap(change_data, gap, log_callback=None):
     """Резолвинг id нормы изменяющего НПА для пробела покрытия.
 
@@ -680,10 +691,11 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         element = find_item_by_id(result, item_id)
         if not element:
             return False, f"элемент {item_id} не найден"
-        # Закрываем предыдущую активную ревизию
+        # Закрываем предыдущую активную ревизию (valid_to = за день до,
+        # чтобы не было перекрытия с valid_from новой ревизии)
         active_rev = get_active_revision(element)
         if active_rev and active_rev.get('valid_to') in (None, ''):
-            active_rev['valid_to'] = change_valid_from
+            active_rev['valid_to'] = _prev_day(change_valid_from)
         new_rev = {
             'revision_id': str(uuid.uuid4()),
             'valid_from': change_valid_from,
