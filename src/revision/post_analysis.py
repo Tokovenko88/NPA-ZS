@@ -764,7 +764,7 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     if work is None:
         work = copy.deepcopy(result_data)
 
-        changes = collect_changes(work, change_data)
+    changes = collect_changes(work, change_data)
     if not changes:
         _log('Пост-анализ пропущен: изменения изменяющего НПА в результате не найдены', 'warning')
         return _finish_run(orig_file, started, result_data, change_data,
