@@ -177,3 +177,42 @@ def test_coverage_gap_is_dict():
     """CoverageGap — словарь (type alias)."""
     gap: CoverageGap = {"reason": "test", "change_id": "x"}
     assert gap["reason"] == "test"
+
+
+def test_delete_type_checked_for_coverage():
+    """Правка типа 'delete' (исключение слов) должна проверяться на покрытие.
+
+    Баг 127/516: правка 'в части 3 слова ... исключить' не проверялась,
+    потому что 'delete' отсутствовал в _STRICT_TYPES.
+    """
+    result = {
+        "npa_items_revision": [
+            {
+                "item_id": "60050_article_1_part_3",
+                "revisions": [
+                    {
+                        "revision_id": "aaaa1111",
+                        "modified_by_id": "9982_article_1_point_2",  # чужая ревизия
+                        "valid_from": "15.07.2016",
+                        "valid_to": None,
+                        "body": [],
+                    },
+                ],
+            },
+        ],
+    }
+    changes = [
+        {
+            "change_id": "del-1",
+            "revision_number": "1)->6)->б)",
+            "structural_element": "Статья 1 пункт 6 подпункт б",
+            "type": "delete",
+            "status": "applied",
+            "target_item_id": "60050_article_1_part_3",
+            "revision_id": "aaaa1111",
+        },
+    ]
+    gaps = check_tracker_coverage(result, changes, "59121")
+    assert len(gaps) == 1, f"Ожидался 1 gap, получено: {gaps}"
+    assert gaps[0]["reason"] == "foreign_revision"
+    assert gaps[0]["type"] == "delete"

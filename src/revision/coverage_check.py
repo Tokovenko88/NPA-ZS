@@ -27,7 +27,7 @@ _APPLIED_STATUSES = {"applied", "verified", "APPLIED", "VERIFIED"}
 
 #: Типы правок, для которых применима строгая проверка по ревизии.
 #: Для ``delete``/аннулирований отсутствие новой ревизии в результате — норма.
-_STRICT_TYPES = {"change", "new_redaction", "add"}
+_STRICT_TYPES = {"change", "new_redaction", "add", "delete"}
 
 #: Описание пробела покрытия одной нормы (словарь с ключами reason, change_id, …).
 CoverageGap = dict
