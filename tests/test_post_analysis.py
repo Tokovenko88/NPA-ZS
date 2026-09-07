@@ -258,3 +258,61 @@ def test_run_post_analysis_skips_when_no_changes(tmp_path, monkeypatch):
                                model='stub', backend='kilo_gateway')
     assert res['status'] == 'skipped'
     assert res['report_path'] and Path(res['report_path']).exists()
+
+
+def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
+    """Баг 516-ЗС: foreign_revision должна автоматически создавать новую ревизию
+    от изменяющего НПА через element_html_new_rev.
+    """
+    result = _make_result()
+    # Симулируем foreign_revision: ревизия от чужого НПА (9982)
+    result['npa_items_revision'][0]['revisions'][-1]['modified_by_id'] = '9982_law_1_art_2'
+    result['npa_items_revision'][0]['revisions'][-1]['revision_id'] = 'foreign-rev-001'
+
+    orig_file, change = _write_result_file(tmp_path, result)
+
+    # Симулируем coverage_gap для foreign_revision
+    coverage_gap = {
+        'change_id': 'test-gap-001',
+        'revision_number': '6)->б)',
+        'structural_element': 'Статья 6 часть 3',
+        'type': 'change',
+        'status': 'verified',
+        'reason': 'foreign_revision',
+        'revision_id': 'foreign-rev-001',
+        'target_item_id': '127_law_1_art_5',
+    }
+
+    # Монтируем check_coverage в модуле post_analysis, чтобы она вернула наш gap
+    import npazs.revision.post_analysis as pa_module
+    monkeypatch.setattr(
+        pa_module, 'check_coverage',
+        lambda *a, **k: [coverage_gap],
+    )
+
+    verdict = {'status': 'correct', 'summary': 'LLM не видит coverage gaps'}
+    monkeypatch.setattr(
+        pa, 'ask_ollama',
+        lambda *a, **k: json.dumps(verdict, ensure_ascii=False))
+
+    res = pa.run_post_analysis(str(orig_file), result, change,
+                               model='stub', backend='kilo_gateway',
+                               tracker_snapshot=True)  # чтобы check_coverage вызвалась
+
+    # Статус должен быть incorrect из-за foreign_revision
+    assert res['status'] == 'incorrect'
+    assert res['corrected_path'] and Path(res['corrected_path']).exists()
+
+    fixed = json.loads(Path(res['corrected_path']).read_text(encoding='utf-8'))
+    art = fixed['npa_items_revision'][0]
+
+    # Должна появиться новая ревизия от изменяющего НПА (516)
+    assert len(art['revisions']) == 3, f"Ожидалось 3 ревизии, получено {len(art['revisions'])}"
+    new_rev = art['revisions'][-1]
+    assert new_rev['modified_by_id'] == '516', (
+        f"Ожидался modified_by_id='516', получено '{new_rev['modified_by_id']}'")
+    assert new_rev['valid_to'] == '', "Новая ревизия должна быть активной"
+
+    # Предыдущая ревизия должна быть закрыта
+    prev_rev = art['revisions'][-2]
+    assert prev_rev['valid_to'] != '', "Предыдущая ревизия должна быть закрыта"

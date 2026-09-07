@@ -472,6 +472,35 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
             sync_parent_body_with_children(element, log_callback)
         return True, ''
 
+    if field == 'element_html_new_rev':
+        """Создать новую ревизию элемента от изменяющего НПА (для foreign_revision)."""
+        import uuid
+        element = find_item_by_id(result, item_id)
+        if not element:
+            return False, f"элемент {item_id} не найден"
+        # Закрываем предыдущую активную ревизию
+        active_rev = get_active_revision(element)
+        if active_rev and active_rev.get('valid_to') in (None, ''):
+            active_rev['valid_to'] = change_valid_from
+        new_rev = {
+            'revision_id': str(uuid.uuid4()),
+            'valid_from': change_valid_from,
+            'valid_to': '',
+            'modified_by_id': str(change_npa_id),
+            'not_valid': False,
+            'body': [],
+            'highlights': {},
+        }
+        new_body = _build_body_preserving_structure(active_rev, value)
+        if not new_body:
+            return False, 'пустой исправленный HTML'
+        new_rev['body'] = new_body
+        element.setdefault('revisions', []).append(new_rev)
+        if element.get('item_children'):
+            from npazs.revision.revision_builder import sync_parent_body_with_children
+            sync_parent_body_with_children(element, log_callback)
+        return True, ''
+
     if field == 'element_head':
         element = find_item_by_id(result, item_id)
         if not element:
@@ -765,19 +794,14 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         work = copy.deepcopy(result_data)
 
     changes = collect_changes(work, change_data)
-    if not changes:
-        _log('Пост-анализ пропущен: изменения изменяющего НПА в результате не найдены', 'warning')
-        return _finish_run(orig_file, started, result_data, change_data,
-                           {'status': 'skipped', 'checked': 0, 'issues': 0,
-                            'corrected_path': None},
-                           None, '', [], None, None, result_path, log_lines,
-                           coverage_gaps=coverage_gaps)
 
     # ── Детерминированная проверка покрытия норм ──────────────────────────
     # LLM видит только то, что попало в <changes>. Если правка не применена
     # (ревизия не создана, либо трекер закрыл её чужой ревизией 2016 года),
     # запись в <changes> отсутствует и LLM проблему пропустит. Детерминированная
     # проверка не зависит от LLM и ловит такие случаи принудительно.
+    # ВАЖНО: проверка покрытия должна быть ДО пропуска по пустым changes,
+    # иначе foreign_revision (чужая ревизия) не будет обнаружена.
     if tracker_snapshot is not None:
         try:
             coverage_gaps = check_coverage(
@@ -786,6 +810,15 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         except Exception as gap_exc:  # noqa: BLE001 — дыра покрытия не должна ломать пост-анализ
             _log(f'Ошибка детерминированной проверки покрытия: {gap_exc}', 'error')
             coverage_gaps = []
+
+    if not changes and not coverage_gaps:
+        _log('Пост-анализ пропущен: изменения изменяющего НПА в результате не найдены', 'warning')
+        return _finish_run(orig_file, started, result_data, change_data,
+                           {'status': 'skipped', 'checked': 0, 'issues': 0,
+                            'corrected_path': None},
+                           None, '', [], None, None, result_path, log_lines,
+                           coverage_gaps=coverage_gaps)
+
     if coverage_gaps:
         for gap in coverage_gaps:
             _log(
@@ -834,6 +867,7 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                 _log(f"Вердикт пост-анализа не разобран: {exc}", 'error')
     if isinstance(verdict, dict) and verdict.get('status'):
         status = str(verdict['status'])
+        issues = (verdict.get('issues') or [])
     else:
         status = 'error'
         _log('Пост-анализ: ИИ не вернул валидный вердикт (status отсутствует)', 'error')
@@ -844,7 +878,7 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     # закрыл чужой ревизией) добавляются принудительно — LLM их не видит,
     # но они являются реальными ошибками прогона.
     for gap in coverage_gaps:
-        issues.append({
+        issue_entry = {
             'path': gap.get('structural_element', ''),
             'issue': f'Правка не применена: {gap.get("reason")}',
             'expected': gap.get('revision_number'),
@@ -854,7 +888,27 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                 f'не породила ревизию от изменяющего НПА в результате. '
                 f'Проверить применение изменения в пайплайне Revizor.'
             ),
-        })
+        }
+        # Для foreign_revision автоматически создаём новую ревизию от изменяющего НПА
+        target_item_id = gap.get('target_item_id')
+        if gap.get('reason') == 'foreign_revision' and target_item_id:
+            element = find_item_by_id(work, target_item_id)
+            if element:
+                active_rev = get_active_revision(element)
+                if active_rev:
+                    current_html = _revision_body_html(active_rev)
+                    issue_entry['corrections'] = [{
+                        'item_id': target_item_id,
+                        'field': 'element_html_new_rev',
+                        'value': current_html,
+                    }]
+                    _log(
+                        f'Пост-анализ: для {gap.get("revision_number")} '
+                        f'({gap.get("reason")}) сформирована коррекция '
+                        f'element_html_new_rev → {target_item_id}',
+                        'info',
+                    )
+        issues.append(issue_entry)
     # ────────────────────────────────────────────────────────────────────────
 
     # Детерминированные пробелы покрытия делают вердикт incorrect независимо
@@ -874,7 +928,8 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         _log(f"Пост-анализ: выявлены проблемы ({len(issues)}). Применяются исправления…", 'warning')
         change_valid_from = (change_data.get('valid_from')
                              or change_data.get('date_signed') or '')
-        applied = apply_corrections(work, verdict, change_npa_id, change_valid_from, _log)
+        # Передаём полный список issues (включая coverage_gaps), а не только verdict
+        applied = apply_corrections(work, {'issues': issues}, change_npa_id, change_valid_from, _log)
         if any(a.get('ok') for a in applied):
             corrected_path = os.path.join(
                 os.path.dirname(result_path) or '.',
