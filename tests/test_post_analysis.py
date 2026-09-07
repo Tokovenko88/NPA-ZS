@@ -260,13 +260,48 @@ def test_run_post_analysis_skips_when_no_changes(tmp_path, monkeypatch):
     assert res['report_path'] and Path(res['report_path']).exists()
 
 
+def test_apply_deletion_instruction_shared_quote():
+    """Правка «слова «...№ 185-ЗС «О правовых актах...»» исключить» — внешняя и
+    внутренняя цитаты разделяют одну „»". Фраза должна быть удалена вместе с
+    внутренними кавычками, а пустая ссылка (остаток <a href="..."></a>) — вычищена.
+    """
+    desc = ('<p>в части 3 слова «, указанными в статье 3 Закона города Севастополя'
+            ' от 29 сентября 2015 года <a href="http://sevzakon.ru/">№ 185-ЗС</a>'
+            ' «О правовых актах города Севастополя» исключить;</p>')
+    current = ('<p class="justifyfull">Предложения о кандидатах на должность'
+               ' Уполномоченного вносятся в Законодательное Собрание города'
+               ' Севастополя субъектами права законодательной инициативы,'
+               ' указанными в статье 3 Закона города Севастополя от 29 сентября'
+               ' 2015 года <a href="view/laws/bank/09_2015/o_pravovyh_aktah_goroda_sevastopolya/">'
+               '№ 185-ЗС</a> «О правовых актах города Севастополя».</p>')
+    corrected = pa._apply_deletion_instruction(current, desc)
+    assert corrected is not None, 'Удаление должно было примениться'
+    # Фраза удалена
+    assert 'указанными в статье 3 Закона города Севастополя' not in pa._strip_html(corrected)
+    assert '№ 185-ЗС' not in pa._strip_html(corrected)
+    # Текст-обёртка сохранён
+    assert 'Предложения о кандидатах на должность Уполномоченного вносятся' in pa._strip_html(corrected)
+    assert 'субъектами права законодательной инициативы' in pa._strip_html(corrected)
+    # Пустая ссылка вычищена
+    assert '<a href=' not in corrected
+    # Нет двойных пробелов
+    assert '  ' not in corrected
+
+
+def test_apply_deletion_instruction_balanced_quote():
+    """Простая сбалансированная правка: «слова «X» исключить»."""
+    desc = '<p>в части 2 слова «в возрасте до 35 лет» исключить;</p>'
+    current = '<p>Лицо, достигшее возраста «в возрасте до 35 лет», назначается.</p>'
+    corrected = pa._apply_deletion_instruction(current, desc)
+    assert corrected is not None
+    text = pa._strip_html(corrected)
+    assert 'до 35 лет' not in text
+    assert 'Лицо, достигшее возраста' in text
+
+
 def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     """Баг 516-ЗС: foreign_revision должна автоматически создавать новую ревизию
     от изменяющего НПА через element_html_new_rev.
-
-    Реальный сценарий: трекер закрыл норму чужой ревизией (9982) от 2016 года,
-    а ревизии от изменяющего НПА (516/59121) не существует. Пост-анализ должен
-    детерминированно найти foreign_revision и создать новую ревизию от 59121.
     """
     from npazs.revision.change_tracker import ChangeTracker
 
@@ -274,6 +309,10 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     # Симулируем foreign_revision: ревизия от чужого НПА (9982)
     result['npa_items_revision'][0]['revisions'][-1]['modified_by_id'] = '9982_law_1_art_2'
     result['npa_items_revision'][0]['revisions'][-1]['revision_id'] = 'foreign-rev-001'
+    # Новая ревизия должна содержать реальную правку (удаление фразы),
+    # а не копию текущего текста.
+    result['npa_items_revision'][0]['revisions'][-1]['body'][0][
+        'html_text'] = '<p>Предложения о кандидатах вносятся, указанными в статье 3.</p>'
 
     orig_file, change = _write_result_file(tmp_path, result)
 
@@ -283,6 +322,7 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
         'revision_number': '6)->б)',
         'structural_element': 'Статья 6 часть 3',
         'type': 'change',
+        'description': '<p>в части 3 слова «, указанными в статье 3» исключить;</p>',
     })
     tracker.mark_applying(cid, '127_law_1_art_5')
     tracker.mark_applied(cid, 'foreign-rev-001', '127_law_1_art_5')
@@ -311,6 +351,14 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     assert new_rev['modified_by_id'] == '516', (
         f"Ожидался modified_by_id='516', получено '{new_rev['modified_by_id']}'")
     assert new_rev['valid_to'] == '', "Новая ревизия должна быть активной"
+
+    # Основное: реальная правка применена — фраза «указанными в статье 3» удалена
+    new_body_text = ' '.join(
+        pa._strip_html(b.get('html_text', ''))
+        for b in new_rev.get('body', []) if b.get('type') == 'paragraph')
+    assert 'указанными в статье 3' not in new_body_text, (
+        f"Фраза должна быть удалена, но осталась: {new_body_text}")
+    assert 'Предложения о кандидатах вносятся' in new_body_text
 
     # Предыдущая ревизия должна быть закрыта
     prev_rev = art['revisions'][-2]

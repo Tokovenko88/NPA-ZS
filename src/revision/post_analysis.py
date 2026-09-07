@@ -26,6 +26,7 @@ import os
 import re
 from datetime import datetime
 
+from bs4 import BeautifulSoup
 from npazs.constants import (
     LOGS_DIR,
     PROJECT_ROOT,
@@ -109,6 +110,166 @@ def _strip_html(html):
     text = safe_re_sub(r'<[^>]+>', ' ', str(html))
     text = text.replace('&nbsp;', ' ')
     return ' '.join(text.split())
+
+
+def _raw_text_of_html(html):
+    """Сырой текст HTML: конкатенация текстовых узлов в порядке документа.
+
+    Сохраняет все пробельные символы (включая \\xa0 от &nbsp;) — в отличие
+    от ``_strip_html``, который их коллапсирует.
+    """
+    if not html:
+        return ''
+    soup = BeautifulSoup(html, 'html.parser')
+    return ''.join(str(node) for node in soup.find_all(string=True))
+
+
+def _extract_quoted_phrase(description_html):
+    """Извлечь фразу в «...» из инструкции вида «слова «X» исключить».
+
+    Учитывает вложенные кавычки: внешняя пара «...» может содержать
+    внутренние «...» (например, название закона). Возвращает текст между
+    внешними кавычками (без самих кавычек) или None.
+
+    В правовых текстах встречается стиль, когда внешняя и внутренняя цитата
+    РАЗДЕЛЯЮТ одну закрывающую „»": «...«Внутренний текст»» — в исходнике
+    это выглядит как «...«Внутренний текст» (одна „»"). В таком случае
+    исключаемый фрагмент включает разделённую „»" (depth не достигает 0),
+    поэтому берём текст до последней „»" включительно.
+    """
+    text = _raw_text_of_html(description_html)
+    start = text.find('«')
+    if start == -1:
+        return None
+    depth = 0
+    last_close = -1
+    for i in range(start, len(text)):
+        ch = text[i]
+        if ch == '«':
+            depth += 1
+        elif ch == '»':
+            depth -= 1
+            last_close = i
+            if depth == 0:
+                # Сбалансированный случай: фраза — без закрывающей кавычки
+                return text[start + 1:i]
+    # Несбалансированный случай: общая закрывающая „»" входит в фразу
+    if last_close > start:
+        return text[start + 1:last_close + 1]
+    return None
+
+
+def _map_norm_to_raw(raw, norm_offset):
+    """Индекс в ``raw``, соответствующий ``norm_offset`` в нормализованном тексте.
+
+    Нормализация: \\xa0 -> пробел, коллапс всех пробельных серий в один пробел,
+    ведущие/хвостовые пробелы отбрасываются (как в ``' '.join(raw.split())``).
+    """
+    count = 0
+    started = False
+    in_space = False
+    for i, ch in enumerate(raw):
+        if ch.isspace() or ch == '\xa0':
+            if started and not in_space:
+                in_space = True
+                count += 1
+            continue
+        started = True
+        in_space = False
+        if count >= norm_offset:
+            return i
+        count += 1
+    return len(raw)
+
+
+def _find_phrase_raw_range(raw, phrase):
+    """Найти ``phrase`` в ``raw`` (пробельно-гибко) и вернуть (start, end) raw-индексы.
+
+    Пробелы, \\xa0 и их серии считаются эквивалентными. Возвращает None,
+    если фраза не найдена.
+    """
+    def norm(s):
+        return ' '.join(s.replace('\xa0', ' ').split())
+
+    nraw = norm(raw)
+    nphrase = norm(phrase)
+    idx = nraw.find(nphrase)
+    if idx == -1:
+        return None
+    start = _map_norm_to_raw(raw, idx)
+    end = _map_norm_to_raw(raw, idx + len(nphrase))
+    return start, end
+
+
+def _remove_raw_range_from_html(html, raw_start, raw_end):
+    """Удалить диапазон сырого текста [raw_start, raw_end) из HTML.
+
+    Работает на уровне текстовых узлов BeautifulSoup, сохраняя все теги
+    за пределами диапазона. Возвращает новый HTML.
+    """
+    soup = BeautifulSoup(html, 'html.parser')
+    pos = 0
+    for node in soup.find_all(string=True):
+        text = str(node)
+        node_len = len(text)
+        node_start = pos
+        node_end = pos + node_len
+        pos = node_end
+        if node_end <= raw_start:
+            continue
+        if node_start >= raw_end:
+            break
+        cut_start = max(raw_start - node_start, 0)
+        cut_end = min(raw_end - node_start, node_len)
+        new_text = text[:cut_start] + text[cut_end:]
+        node.replace_with(new_text)
+    return str(soup)
+
+
+def _prune_empty_inline_tags(html):
+    """Удалить пустые inline-теги (a/span/b/i/...) оставшиеся после вырезания текста.
+
+    Например: вырезали «№ 185-ЗС» из <a href="...">№ 185-ЗС</a> — ссылка стала
+    пустой, её нужно удалить целиком.
+    """
+    soup = BeautifulSoup(html, 'html.parser')
+    _EMPTYABLE = ('a', 'span', 'b', 'i', 'em', 'strong', 'u', 's', 'sup', 'sub', 'small', 'font', 'abbr', 'cite')
+    changed = True
+    while changed:
+        changed = False
+        for tag in soup.find_all(_EMPTYABLE):
+            inner = tag.decode_contents().strip()
+            if inner:
+                continue
+            text = tag.get_text('', strip=True)
+            if not text:
+                tag.decompose()
+                changed = True
+    return str(soup)
+
+
+def _apply_deletion_instruction(current_html, description):
+    """Детерминированно применить инструкцию «слова «X» исключить» к HTML.
+
+    Возвращает исправленный HTML или None, если инструкция не является
+    простым исключением фразы или фраза не найдена в тексте.
+    """
+    if not description or 'исключить' not in description:
+        return None
+    phrase = _extract_quoted_phrase(description)
+    if not phrase:
+        return None
+    raw = _raw_text_of_html(current_html)
+    span = _find_phrase_raw_range(raw, phrase)
+    if span is None:
+        return None
+    corrected = _remove_raw_range_from_html(current_html, *span)
+    # Чистим пустые inline-теги, оставшиеся от вырезанного фрагмента
+    corrected = _prune_empty_inline_tags(corrected)
+    # Если после удаления текст не изменился — считаем, что применить не удалось
+    if _norm_for_match(corrected) == _norm_for_match(current_html):
+        return None
+    return corrected
 
 
 def _norm_for_match(text):
@@ -903,10 +1064,23 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                 active_rev = get_active_revision(element)
                 if active_rev:
                     current_html = _revision_body_html(active_rev)
+                    # Пытаемся детерминированно применить инструкцию «слова ... исключить»,
+                    # чтобы новая ревизия содержала реальную правку, а не копию текста.
+                    new_value = current_html
+                    description = gap.get('description')
+                    if description:
+                        deleted_html = _apply_deletion_instruction(current_html, description)
+                        if deleted_html:
+                            new_value = deleted_html
+                            _log(
+                                f'Пост-анализ: для {gap.get("revision_number")} '
+                                f'детерминированно удалена фраза из инструкции',
+                                'info',
+                            )
                     issue_entry['corrections'] = [{
                         'item_id': target_item_id,
                         'field': 'element_html_new_rev',
-                        'value': current_html,
+                        'value': new_value,
                     }]
                     _log(
                         f'Пост-анализ: для {gap.get("revision_number")} '

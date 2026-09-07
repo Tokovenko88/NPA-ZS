@@ -138,6 +138,7 @@ def check_tracker_coverage(
                     "reason": reason,
                     "revision_id": change.get("revision_id"),
                     "target_item_id": change.get("target_item_id"),
+                    "description": change.get("description"),
                 }
             )
     return gaps
@@ -194,10 +195,21 @@ def serialize_tracker_changes(tracker: Any) -> list[dict]:
     for item in values:
         if isinstance(item, dict):
             record = {key: item.get(key) for key in keys}
+            source = item.get("source_change")
+            description = source.get("description") if isinstance(source, dict) else None
+            if description is None:
+                description = item.get("description")
         else:
             record = {key: getattr(item, key, None) for key in keys}
+            source = getattr(item, "source_change", None)
+            description = getattr(source, "description", None) if source is not None else None
+            if description is None:
+                description = getattr(item, "description", None)
         # Нормализуем status: enum -> строковое значение
         record["status"] = _normalize_status(record.get("status"))
+        # Текст инструкции (description из stage 3) — нужен пост-анализу,
+        # чтобы детерминированно применить правку (например «слова ... исключить»).
+        record["description"] = description
         snapshot.append(record)
     return snapshot
 
