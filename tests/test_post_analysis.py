@@ -263,7 +263,13 @@ def test_run_post_analysis_skips_when_no_changes(tmp_path, monkeypatch):
 def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     """Баг 516-ЗС: foreign_revision должна автоматически создавать новую ревизию
     от изменяющего НПА через element_html_new_rev.
+
+    Реальный сценарий: трекер закрыл норму чужой ревизией (9982) от 2016 года,
+    а ревизии от изменяющего НПА (516/59121) не существует. Пост-анализ должен
+    детерминированно найти foreign_revision и создать новую ревизию от 59121.
     """
+    from npazs.revision.change_tracker import ChangeTracker
+
     result = _make_result()
     # Симулируем foreign_revision: ревизия от чужого НПА (9982)
     result['npa_items_revision'][0]['revisions'][-1]['modified_by_id'] = '9982_law_1_art_2'
@@ -271,24 +277,16 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
 
     orig_file, change = _write_result_file(tmp_path, result)
 
-    # Симулируем coverage_gap для foreign_revision
-    coverage_gap = {
-        'change_id': 'test-gap-001',
+    # Реальный ChangeTracker: норма закрыта чужой ревизией 9982
+    tracker = ChangeTracker()
+    cid = tracker.register_change({
         'revision_number': '6)->б)',
         'structural_element': 'Статья 6 часть 3',
         'type': 'change',
-        'status': 'verified',
-        'reason': 'foreign_revision',
-        'revision_id': 'foreign-rev-001',
-        'target_item_id': '127_law_1_art_5',
-    }
-
-    # Монтируем check_coverage в модуле post_analysis, чтобы она вернула наш gap
-    import npazs.revision.post_analysis as pa_module
-    monkeypatch.setattr(
-        pa_module, 'check_coverage',
-        lambda *a, **k: [coverage_gap],
-    )
+    })
+    tracker.mark_applying(cid, '127_law_1_art_5')
+    tracker.mark_applied(cid, 'foreign-rev-001', '127_law_1_art_5')
+    tracker.mark_verified(cid)
 
     verdict = {'status': 'correct', 'summary': 'LLM не видит coverage gaps'}
     monkeypatch.setattr(
@@ -297,7 +295,7 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
 
     res = pa.run_post_analysis(str(orig_file), result, change,
                                model='stub', backend='kilo_gateway',
-                               tracker_snapshot=True)  # чтобы check_coverage вызвалась
+                               tracker_snapshot=tracker)
 
     # Статус должен быть incorrect из-за foreign_revision
     assert res['status'] == 'incorrect'
@@ -309,6 +307,7 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     # Должна появиться новая ревизия от изменяющего НПА (516)
     assert len(art['revisions']) == 3, f"Ожидалось 3 ревизии, получено {len(art['revisions'])}"
     new_rev = art['revisions'][-1]
+    # modified_by_id = change_npa_id ('516' из _make_change_law)
     assert new_rev['modified_by_id'] == '516', (
         f"Ожидался modified_by_id='516', получено '{new_rev['modified_by_id']}'")
     assert new_rev['valid_to'] == '', "Новая ревизия должна быть активной"
@@ -316,3 +315,4 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     # Предыдущая ревизия должна быть закрыта
     prev_rev = art['revisions'][-2]
     assert prev_rev['valid_to'] != '', "Предыдущая ревизия должна быть закрыта"
+

@@ -808,7 +808,9 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                 tracker_snapshot, work, change_npa_id
             )
         except Exception as gap_exc:  # noqa: BLE001 — дыра покрытия не должна ломать пост-анализ
+            import traceback
             _log(f'Ошибка детерминированной проверки покрытия: {gap_exc}', 'error')
+            _log(f'Traceback: {traceback.format_exc()}', 'error')
             coverage_gaps = []
 
     if not changes and not coverage_gaps:
@@ -824,9 +826,13 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
             _log(
                 f"ПРОБЕЛ ПОКРЫТИЯ: change_id={gap.get('change_id')} "
                 f"norma={gap.get('revision_number')} status={gap.get('status')} "
-                f"reason={gap.get('reason')}",
+                f"reason={gap.get('reason')} "
+                f"target_item_id={gap.get('target_item_id')} "
+                f"revision_id={gap.get('revision_id')}",
                 'warning',
             )
+    else:
+        _log('Пост-анализ: coverage_gaps пусты', 'info')
     # ────────────────────────────────────────────────────────────────────────
 
     _log(f"Пост-анализ: найдено изменений, внесённых изменяющим НПА: {len(changes)}", 'info')
