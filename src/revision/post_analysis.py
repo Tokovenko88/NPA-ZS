@@ -21,6 +21,7 @@
 """
 
 import copy
+import difflib
 import json
 import os
 import re
@@ -655,6 +656,66 @@ def _sanitize_highlights(highlights, old_html, new_html, log_callback=None):
     return cleaned
 
 
+def _diff_text_chunks(old_text, new_text):
+    """Пары (удалённые, добавленные) фрагментов между двумя текстами."""
+    sm = difflib.SequenceMatcher(None, old_text or '', new_text or '', autojunk=False)
+    deletions, additions = [], []
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag in ('delete', 'replace') and i2 > i1:
+            deletions.append((old_text or '')[i1:i2])
+        if tag in ('insert', 'replace') and j2 > j1:
+            additions.append((new_text or '')[j1:j2])
+    return deletions, additions
+
+
+def _highlight_entries(chunks, paragraphs):
+    """Записи подсветки ``[фрагмент, "M-N"]`` (абзац-вхождение), как в change_applier."""
+    entries = []
+    for chunk in chunks:
+        if not chunk.strip():
+            continue
+        norm_chunk = _norm_for_match(chunk)
+        para_idx, occurrence = 1, 1
+        if norm_chunk:
+            for idx, para in enumerate(paragraphs, 1):
+                norm_para = _norm_for_match(para)
+                pos = norm_para.find(norm_chunk)
+                if pos >= 0:
+                    para_idx = idx
+                    occurrence = norm_para[:pos].count(norm_chunk) + 1
+                    break
+        entries.append([chunk, f'{para_idx}-{occurrence}'])
+    return entries
+
+
+def _build_highlights_for_html_change(old_html, new_html):
+    """Подсветка правки «старый HTML → новый HTML» для коррекций пост-анализа.
+
+    Возвращает словарь формата ``highlights`` (``previous_edition.deletion`` /
+    ``current_edition.addition`` записями ``[фрагмент, "M-N"]``) или None,
+    если текст не изменился. Сначала diff строится по HTML (фрагменты с тегами,
+    как у change_applier); если фрагмент режет тег посередине — fallback на
+    diff по чистому тексту.
+    """
+    if _norm_for_match(old_html or '') == _norm_for_match(new_html or ''):
+        return None
+    old_html, new_html = old_html or '', new_html or ''
+    deletions, additions = _diff_text_chunks(old_html, new_html)
+    if any(f.count('<') != f.count('>') for f in deletions + additions):
+        deletions, additions = _diff_text_chunks(
+            _strip_html(old_html), _strip_html(new_html))
+    old_paras = split_html_to_paragraphs(old_html) or ([old_html] if old_html.strip() else [])
+    new_paras = split_html_to_paragraphs(new_html) or ([new_html] if new_html.strip() else [])
+    del_entries = _highlight_entries(deletions, old_paras)
+    add_entries = _highlight_entries(additions, new_paras)
+    if not del_entries and not add_entries:
+        return None
+    return {
+        'previous_edition': {'deletion': del_entries, 'addition': [], 'difference': []},
+        'current_edition': {'deletion': [], 'addition': add_entries, 'difference': []},
+    }
+
+
 def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callback=None):
     """Применить одну коррекцию из вердикта ИИ. Возвращает (успех, ошибка)."""
     field = str(corr.get('field', ''))
@@ -662,13 +723,37 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
     value = '' if value is None else str(value)
     item_id = str(corr.get('item_id', ''))
 
+    if field in ('element_html', 'element_html_new_rev'):
+        # Защита от плейсхолдеров: ИИ иногда возвращает «[текст части 3 без
+        # указанных слов]» вместо полного исправленного HTML (баг 516-ЗС,
+        # прогон 07.09.2026). Такая «правка» затирает реальный текст элемента.
+        plain_value = _strip_html(value).strip()
+        if plain_value.startswith('[') and plain_value.endswith(']'):
+            return False, ('ИИ вернул плейсхолдер вместо исправленного HTML — '
+                           'коррекция отклонена')
+
     if field == 'element_html':
         element = find_item_by_id(result, item_id)
         if not element:
             return False, f"элемент {item_id} не найден"
-        rev = _find_rev_created_by(element, change_npa_id) or get_active_revision(element)
+        rev = _find_rev_created_by(element, change_npa_id)
         if rev is None:
-            return False, f"у элемента {item_id} нет ревизий"
+            if not (element.get('revisions') or []):
+                return False, f"у элемента {item_id} нет ревизий"
+            # Своей ревизии от изменяющего НПА нет. Активная ревизия принадлежит
+            # другому (часто историческому) закону — править её нельзя, иначе
+            # уничтожается история редакций (баг 516-ЗС: правка «с 19.07.2019»
+            # затёрла редакцию 05.01.2016). Создаём новую ревизию от изменяющего НПА.
+            if log_callback:
+                log_callback(
+                    f"  Пост-анализ: у элемента {item_id} нет ревизии от изменяющего "
+                    f"НПА — коррекция element_html применена как новая ревизия "
+                    f"(element_html_new_rev)", 'info',
+                )
+            new_corr = dict(corr)
+            new_corr['field'] = 'element_html_new_rev'
+            return _apply_correction(
+                result, new_corr, change_npa_id, change_valid_from, log_callback)
         old_html = _revision_body_html(rev)
         new_body = _build_body_preserving_structure(rev, value)
         if not new_body:
@@ -694,6 +779,7 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         # Закрываем предыдущую активную ревизию (valid_to = за день до,
         # чтобы не было перекрытия с valid_from новой ревизии)
         active_rev = get_active_revision(element)
+        old_body_html = _revision_body_html(active_rev) if active_rev else ''
         if active_rev and active_rev.get('valid_to') in (None, ''):
             active_rev['valid_to'] = _prev_day(change_valid_from)
         new_rev = {
@@ -712,10 +798,36 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         if not new_body:
             return False, 'пустой исправленный HTML'
         new_rev['body'] = new_body
+        # Подсветка правки: что удалено из прежней редакции / что добавлено
+        # в новую (иначе ревизия пост-анализа остаётся без подсветки).
+        change_highlights = _build_highlights_for_html_change(old_body_html, value)
+        if change_highlights:
+            new_rev['highlights'] = change_highlights
         element.setdefault('revisions', []).append(new_rev)
         if element.get('item_children'):
             from npazs.revision.revision_builder import sync_parent_body_with_children
             sync_parent_body_with_children(element, log_callback)
+        return True, ''
+
+    if field == 'element_not_valid':
+        """Пометить активную ревизию элемента утратившей силу (для not_marked_invalid).
+
+        Конвенция change_applier (ветка delete): valid_to активной ревизии =
+        день перед valid_from изменяющего закона, not_valid = норма изменяющего
+        закона (modified_by_id коррекции или сам npa_id).
+        """
+        import uuid
+        element = find_item_by_id(result, item_id)
+        if not element:
+            return False, f"элемент {item_id} не найден"
+        rev = get_active_revision(element)
+        if rev is None:
+            return False, f"у элемента {item_id} нет активной ревизии"
+        if change_valid_from:
+            rev['valid_to'] = _prev_day(change_valid_from)
+        rev['not_valid'] = str(corr.get('modified_by_id') or change_npa_id)
+        if not rev.get('revision_id'):
+            rev['revision_id'] = str(uuid.uuid4())
         return True, ''
 
     if field == 'element_head':
@@ -1132,6 +1244,20 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     # Детерминированные пробелы покрытия норм (правка не применена, но трекер
     # закрыл чужой ревизией) добавляются принудительно — LLM их не видит,
     # но они являются реальными ошибками прогона.
+    change_valid_from = (change_data.get('valid_from')
+                         or change_data.get('date_signed') or '')
+
+    def _resolve_norm_for_gap(gap):
+        """Резолвинг нормы изменяющего НПА для коррекции по gap."""
+        try:
+            return _resolve_norm_id_for_gap(change_data, gap, _log)
+        except Exception as exc:  # noqa: BLE001 — fallback на npa_id
+            _log(f'Пост-анализ: не удалось резолвить норму для '
+                 f'{gap.get("revision_number")}: {exc}', 'warning')
+            return None
+
+    auto_new_rev_items = set()
+
     for gap in coverage_gaps:
         issue_entry = {
             'path': gap.get('structural_element', ''),
@@ -1144,9 +1270,16 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                 f'Проверить применение изменения в пайплайне Revizor.'
             ),
         }
-        # Для foreign_revision автоматически создаём новую ревизию от изменяющего НПА
+        # Для foreign_revision автоматически создаём новую ревизию от изменяющего НПА.
+        # ТОЛЬКО для правок, создающих редакцию текста (change/new_redaction/add):
+        # «признать утратившим силу» (delete) новой ревизии не создаёт, а
+        # авто-создание ревизии на repel-элементе порождало ложную редакцию
+        # (баг 516-ЗС: пункты 8/9 части 2 статьи 10, части 7/9 статьи 6).
         target_item_id = gap.get('target_item_id')
-        if gap.get('reason') == 'foreign_revision' and target_item_id:
+        gap_reason = str(gap.get('reason') or '')
+        gap_type = str(gap.get('type') or '')
+
+        if gap_reason == 'foreign_revision' and target_item_id and gap_type != 'delete':
             element = find_item_by_id(work, target_item_id)
             if element:
                 active_rev = get_active_revision(element)
@@ -1174,12 +1307,7 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                     # новая ревизия ссылалась на конкретный пункт/подпункт
                     # закона, а не на голый npa_id (иначе DB-импортёр не
                     # сможет разрешить автора ревизии).
-                    try:
-                        norm_id = _resolve_norm_id_for_gap(change_data, gap, _log)
-                    except Exception as exc:  # noqa: BLE001 — fallback на npa_id
-                        norm_id = None
-                        _log(f'Пост-анализ: не удалось резолвить норму для '
-                             f'{gap.get("revision_number")}: {exc}', 'warning')
+                    norm_id = _resolve_norm_for_gap(gap)
                     if norm_id:
                         correction['modified_by_id'] = norm_id
                     else:
@@ -1192,14 +1320,87 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                         'new_redaction' if gap.get('type') == 'new_redaction' else 'change'
                     )
                     issue_entry['corrections'] = [correction]
+                    auto_new_rev_items.add(target_item_id)
                     _log(
                         f'Пост-анализ: для {gap.get("revision_number")} '
                         f'({gap.get("reason")}) сформирована коррекция '
                         f'element_html_new_rev → {target_item_id}',
                         'info',
                     )
+        elif gap_reason == 'not_marked_invalid' and target_item_id:
+            # Правка «признать утратившим силу» не доведена до результата.
+            # Детерминированные доверенные исправления:
+            # 1) «слова … исключить» → новая ревизия с удалённой фразой;
+            # 2) собственно repel → пометить активную ревизию not_valid
+            #    (та же конвенция, что change_applier.apply_change, ветка delete).
+            element = find_item_by_id(work, target_item_id)
+            if element:
+                description = gap.get('description') or ''
+                active_rev = get_active_revision(element)
+                current_html = _revision_body_html(active_rev) if active_rev else ''
+                deleted_html = (
+                    _apply_deletion_instruction(current_html, description)
+                    if current_html and description else None
+                )
+                if deleted_html:
+                    correction = {
+                        'item_id': target_item_id,
+                        'field': 'element_html_new_rev',
+                        'value': deleted_html,
+                        'mod_type': 'new_redaction' if gap_type == 'new_redaction' else 'change',
+                    }
+                    norm_id = _resolve_norm_for_gap(gap)
+                    if norm_id:
+                        correction['modified_by_id'] = norm_id
+                    issue_entry['corrections'] = [correction]
+                    _log(
+                        f'Пост-анализ: для {gap.get("revision_number")} '
+                        f'(not_marked_invalid) детерминированно исключена фраза — '
+                        f'коррекция element_html_new_rev → {target_item_id}',
+                        'info',
+                    )
+                elif 'утрат' in description.lower():
+                    correction = {
+                        'item_id': target_item_id,
+                        'field': 'element_not_valid',
+                        'value': change_valid_from,
+                    }
+                    norm_id = _resolve_norm_for_gap(gap)
+                    if norm_id:
+                        correction['modified_by_id'] = norm_id
+                    issue_entry['corrections'] = [correction]
+                    _log(
+                        f'Пост-анализ: для {gap.get("revision_number")} '
+                        f'(not_marked_invalid) сформирована коррекция '
+                        f'element_not_valid → {target_item_id}',
+                        'info',
+                    )
         issues.append(issue_entry)
     # ────────────────────────────────────────────────────────────────────────
+
+    # Защита истории ревизий: если детерминированная ветка сама создаёт новую
+    # ревизию (element_html_new_rev), ИИ-коррекции element_html по этому же
+    # элементу отклоняются — иначе они успевают затереть историческую ревизию
+    # (баг 516-ЗС: плейсхолдер «[текст части 3…]» попал в редакцию 05.01.2016).
+    if auto_new_rev_items:
+        for issue in issues:
+            corrections = issue.get('corrections') or []
+            if not corrections:
+                continue
+            kept = []
+            for corr in corrections:
+                if (str(corr.get('field', '')) == 'element_html'
+                        and str(corr.get('item_id', '')) in auto_new_rev_items):
+                    _log(
+                        f'Пост-анализ: ИИ-коррекция element_html для '
+                        f'{corr.get("item_id")} отклонена — элемент уже '
+                        f'исправляется детерминированной коррекцией '
+                        f'element_html_new_rev (защита истории ревизий)',
+                        'warning',
+                    )
+                    continue
+                kept.append(corr)
+            issue['corrections'] = kept
 
     # Детерминированные пробелы покрытия делают вердикт incorrect независимо
     # от ответа LLM (правка не применена — это ошибка прогона).
@@ -1216,8 +1417,6 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     applied = []
     if status == 'incorrect':
         _log(f"Пост-анализ: выявлены проблемы ({len(issues)}). Применяются исправления…", 'warning')
-        change_valid_from = (change_data.get('valid_from')
-                             or change_data.get('date_signed') or '')
         # Передаём полный список issues (включая coverage_gaps), а не только verdict
         applied = apply_corrections(work, {'issues': issues}, change_npa_id, change_valid_from, _log)
         if any(a.get('ok') for a in applied):

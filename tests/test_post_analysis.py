@@ -1,6 +1,8 @@
 """Тесты модуля пост-анализа внесения изменений (src/revision/post_analysis.py)."""
+import copy
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -407,4 +409,203 @@ def test_foreign_revision_creates_new_revision(tmp_path, monkeypatch):
     # Предыдущая ревизия должна быть закрыта
     prev_rev = art['revisions'][-2]
     assert prev_rev['valid_to'] != '', "Предыдущая ревизия должна быть закрыта"
+
+
+def test_delete_repel_not_marked_gets_not_valid(tmp_path, monkeypatch):
+    """Баг 516-ЗС: delete-пробел покрытия («признать утратившим силу») должен
+    исправляться детерминированной коррекцией element_not_valid, а НЕ созданием
+    ложной текстовой ревизии (element_html_new_rev).
+    """
+    from npazs.revision.change_tracker import ChangeTracker
+
+    result = _make_result()
+    # Активная ревизия, repel НЕ применён (нет not_valid/valid_to)
+    result['npa_items_revision'][0]['revisions'][-1]['modified_by_id'] = '127'
+    result['npa_items_revision'][0]['revisions'][-1].pop('highlights', None)
+
+    orig_file, change = _write_result_file(tmp_path, result)
+
+    tracker = ChangeTracker()
+    cid = tracker.register_change({
+        'revision_number': '10)->б)',
+        'structural_element': 'Статья 5',
+        'type': 'delete',
+        'description': '<p>часть 1 статьи 5 признать утратившей силу;</p>',
+    })
+    tracker.mark_applying(cid, '127_law_1_art_5')
+    tracker.mark_applied(cid, 'foreign-rev-002', '127_law_1_art_5')
+    tracker.mark_verified(cid)
+
+    verdict = {'status': 'correct', 'summary': 'LLM не видит coverage gaps'}
+    monkeypatch.setattr(
+        pa, 'ask_ollama',
+        lambda *a, **k: json.dumps(verdict, ensure_ascii=False))
+
+    res = pa.run_post_analysis(str(orig_file), result, change,
+                               model='stub', backend='kilo_gateway',
+                               tracker_snapshot=tracker)
+
+    assert res['status'] == 'incorrect'
+    assert res['corrected_path'] and Path(res['corrected_path']).exists()
+
+    fixed = json.loads(Path(res['corrected_path']).read_text(encoding='utf-8'))
+    art = fixed['npa_items_revision'][0]
+    # Ложной текстовой ревизии НЕ создано
+    assert len(art['revisions']) == 2, (
+        f"Ревизия не должна создаваться для repel, получено {len(art['revisions'])}")
+    rev = art['revisions'][-1]
+    # Активная ревизия помечена утратившей силу (конвенция change_applier)
+    assert rev['valid_to'] == '07.07.2019', (
+        f"Ожидался valid_to='07.07.2019' (день до 08.07.2019), получено '{rev['valid_to']}'")
+    assert rev.get('not_valid'), "not_valid должен быть проставлен"
+    assert str(rev['not_valid']).startswith('516'), (
+        f"not_valid должен ссылаться на изменяющий НПА, получено '{rev['not_valid']}'")
+    assert rev.get('revision_id'), "revision_id должен быть проставлен"
+
+
+def test_delete_repel_correctly_marked_no_gap(tmp_path, monkeypatch):
+    """Баг 516-ЗС: корректно применённый repel (not_valid проставлен изменяющим
+    НПА) НЕ должен порождать coverage gap и переводить вердикт в incorrect.
+    """
+    from npazs.revision.change_tracker import ChangeTracker
+
+    result = _make_result()
+    rev = result['npa_items_revision'][0]['revisions'][-1]
+    rev['valid_to'] = '18.07.2019'
+    rev['not_valid'] = '516_law_1_art_1_point_10_subpoint_b'
+    rev['revision_id'] = 'repel-rev-001'
+    rev.pop('highlights', None)
+
+    orig_file, change = _write_result_file(tmp_path, result)
+
+    tracker = ChangeTracker()
+    cid = tracker.register_change({
+        'revision_number': '10)->б)',
+        'structural_element': 'Статья 5',
+        'type': 'delete',
+        'description': '<p>часть 1 статьи 5 признать утратившей силу;</p>',
+    })
+    tracker.mark_applying(cid, '127_law_1_art_5')
+    tracker.mark_applied(cid, 'repel-rev-001', '127_law_1_art_5')
+    tracker.mark_verified(cid)
+
+    verdict = {'status': 'correct', 'summary': 'всё применено корректно'}
+    monkeypatch.setattr(
+        pa, 'ask_ollama',
+        lambda *a, **k: json.dumps(verdict, ensure_ascii=False))
+
+    res = pa.run_post_analysis(str(orig_file), result, change,
+                               model='stub', backend='kilo_gateway',
+                               tracker_snapshot=tracker)
+
+    assert res['status'] == 'correct', (
+        f"Корректный repel не должен давать incorrect, получено: {res}")
+    assert res['corrected_path'] is None
+
+
+def test_foreign_revision_new_rev_has_highlights_and_preserves_history(tmp_path, monkeypatch):
+    """Баг 516-ЗС (ст. 6 часть 3): ревизия, созданная пост-анализом для
+    foreign_revision, должна получать подсветку удалённой фразы, а историческая
+    чужая ревизия не должна быть затёрта плейсхолдером ИИ‑агента."""
+    from npazs.revision.change_tracker import ChangeTracker
+
+    result = _make_result()
+    art = result['npa_items_revision'][0]
+    active = art['revisions'][1]
+    active['valid_from'] = '08.07.2019'
+    active['valid_to'] = ''
+    active['modified_by_id'] = '9982_law_1_art_2'
+    active['revision_id'] = 'foreign-rev-003'
+    active['body'][0]['html_text'] = (
+        '<p class="justifyfull">Предложения о кандидатах на должность '
+        'Уполномоченного вносятся в Законодательное Собрание города Севастополя '
+        'субъектами права законодательной инициативы, указанных в статье 3 '
+        'Закона города Севастополя от 29 сентября 2015 года '
+        '<a href="view/laws/bank/09_2015/x/">№ 185-ЗС</a> '
+        '«О правовых актах города Севастополя».</p>'
+    )
+    hist_body_before = copy.deepcopy(art['revisions'][1]['body'])
+
+    orig_file, change = _write_result_file(tmp_path, result)
+
+    tracker = ChangeTracker()
+    cid = tracker.register_change({
+        'revision_number': '6)->б)',
+        'structural_element': 'Статья 5',
+        'type': 'change',
+        'description': '<p>в части 3 слова «, указанных в статье 3» исключить;</p>',
+    })
+    tracker.mark_applying(cid, '127_law_1_art_5')
+    tracker.mark_applied(cid, 'foreign-rev-003', '127_law_1_art_5')
+    tracker.mark_verified(cid)
+
+    # LLM не видит проблемы, но «исправляет» активную ревизию плейсхолдером
+    verdict = {
+        'status': 'correct',
+        'summary': 'LLM не видит coverage gaps',
+        'issues': [{
+            'index': 0,
+            'path': 'Статья 5',
+            'issue': 'правка не применена',
+            'expected': 'Текст без указанных слов',
+            'actual': 'Текст без изменений',
+            'fix': 'Исключить слова',
+            'corrections': [{
+                'item_id': '127_law_1_art_5',
+                'field': 'element_html',
+                'value': '<p class="justifyfull">[текст части 3 без указанных слов]</p>',
+            }],
+        }],
+    }
+    monkeypatch.setattr(pa, 'ask_ollama',
+                        lambda *a, **k: json.dumps(verdict, ensure_ascii=False))
+
+    res = pa.run_post_analysis(str(orig_file), result, change,
+                               model='stub', backend='kilo_gateway',
+                               tracker_snapshot=tracker)
+    assert res['status'] == 'incorrect'
+    assert res['corrected_path'] and Path(res['corrected_path']).exists()
+
+    fixed = json.loads(Path(res['corrected_path']).read_text(encoding='utf-8'))
+    revs = fixed['npa_items_revision'][0]['revisions']
+    assert len(revs) == 3, f"Ожидалось 3 ревизии, получено {len(revs)}"
+    new_rev = revs[-1]
+    assert new_rev['valid_to'] == ''
+    assert new_rev['valid_from'] == '08.07.2019'
+    assert str(new_rev.get('modified_by_id', '')).startswith('516')
+
+    new_body_text = ' '.join(
+        pa._strip_html(b.get('html_text', ''))
+        for b in new_rev.get('body', []) if b.get('type') == 'paragraph')
+    assert 'указанных в статье 3' not in new_body_text, \
+        f"Фраза должна быть удалена, но осталась: {new_body_text}"
+    assert 'Предложения о кандидатах' in new_body_text
+
+    # Подсветка правки: удалённая фраза отмечена в previous_edition.deletion
+    hl = new_rev.get('highlights')
+    assert hl, 'Подсветка правки не создана — это баг 516-ЗС (подсветка пропала)!'
+    del_entries = (hl.get('previous_edition', {}) or {}).get('deletion') or []
+    assert del_entries, 'deletion в подсветке пуст — это баг 516-ЗС (подсветка пропала)'
+    deleted_text = ' '.join(
+        e[0] if isinstance(e, list) else e.get('text', '') for e in del_entries)
+    assert 'указанных в статье 3' in deleted_text, \
+        f"Фраза в подсветке не найдена: {deleted_text}"
+    for e in del_entries:
+        pos = e[1] if isinstance(e, list) else e.get('positions', '')
+        assert re.match(r'^\d+-\d+$', pos), f'Формат позиции не "M-N": {pos}'
+
+    # Историческая ревизия НЕ затерта плейсхолдером и сохранила фразу
+    hist_text = ' '.join(
+        pa._strip_html(b.get('html_text', ''))
+        for b in revs[1].get('body', []) if b.get('type') == 'paragraph')
+    assert '[текст' not in hist_text, 'Плейсхолдер попал в историю ревизий!'
+    assert 'указанных в статье 3' in hist_text, 'История потеряла фразу!'
+    assert revs[1]['body'] == hist_body_before, 'Историческая ревизия изменена!'
+
+    # Ни в одной ревизии не должно быть плейсхолдера
+    for r in revs:
+        t = ' '.join(
+            pa._strip_html(b.get('html_text', ''))
+            for b in r.get('body', []) if b.get('type') == 'paragraph')
+        assert '[текст' not in t, 'Плейсхолдер в тексте ревизии!'
 

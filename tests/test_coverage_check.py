@@ -206,10 +206,12 @@ def test_change_status_enum_normalized():
 
 
 def test_delete_type_checked_for_coverage():
-    """Правка типа 'delete' (исключение слов) должна проверяться на покрытие.
+    """Правка типа 'delete' («слова ... исключить») должна проверяться на покрытие.
 
     Баг 127/516: правка 'в части 3 слова ... исключить' не проверялась,
-    потому что 'delete' отсутствовал в _STRICT_TYPES.
+    потому что 'delete' отсутствовал в _STRICT_TYPES. Теперь delete проверяется
+    отдельно: если на элементе нет ни ревизии изменяющего НПА, ни его
+    not_valid-метки — фиксируется пробел not_marked_invalid.
     """
     result = {
         "npa_items_revision": [
@@ -240,5 +242,152 @@ def test_delete_type_checked_for_coverage():
     ]
     gaps = check_tracker_coverage(result, changes, "59121")
     assert len(gaps) == 1, f"Ожидался 1 gap, получено: {gaps}"
-    assert gaps[0]["reason"] == "foreign_revision"
+    assert gaps[0]["reason"] == "not_marked_invalid"
     assert gaps[0]["type"] == "delete"
+
+
+def test_delete_repel_marked_by_own_law_no_gap():
+    """Баг 516-ЗС (ложные foreign_revision на утративших силу): «признать
+    утратившим силу» НЕ создаёт новой ревизии — корректное применение это
+    not_valid на существующей ревизии (часто чужого закона). Пробела быть
+    не должно.
+    """
+    result = {
+        "npa_items_revision": [
+            {
+                "item_id": "60050_article_10_part_2_point_8",
+                "revisions": [
+                    {
+                        "revision_id": "6f712edf-f287-47da-aa2a-d2c9745c45df",
+                        "modified_by_id": "",  # ревизия исходной редакции, автора нет
+                        "valid_from": None,
+                        "valid_to": "18.07.2019",
+                        "not_valid": "59121_article_1_point_10_subpoint_б",
+                        "body": [{"type": "paragraph", "html_text": "<p>текст пункта</p>", "order": 1}],
+                    },
+                ],
+            },
+        ],
+    }
+    changes = [
+        {
+            "change_id": "del-8",
+            "revision_number": "10)->б)",
+            "structural_element": "Статья 10 часть 2 пункт 8",
+            "type": "delete",
+            "status": "verified",
+            "target_item_id": "60050_article_10_part_2_point_8",
+            "revision_id": "6f712edf-f287-47da-aa2a-d2c9745c45df",
+        },
+    ]
+    assert check_tracker_coverage(result, changes, "59121") == []
+
+
+def test_delete_repel_marked_by_foreign_law_gap():
+    """Элемент помечен not_valid ЧУЖИМ законом — правка изменяющего НПА не применена."""
+    result = {
+        "npa_items_revision": [
+            {
+                "item_id": "60050_article_10_part_2_point_8",
+                "revisions": [
+                    {
+                        "revision_id": "rev-x",
+                        "modified_by_id": "",
+                        "valid_to": "31.12.2016",
+                        "not_valid": "9982_article_1_point_2",  # чужой закон
+                        "body": [],
+                    },
+                ],
+            },
+        ],
+    }
+    changes = [
+        {
+            "change_id": "del-9",
+            "revision_number": "10)->б)",
+            "structural_element": "Статья 10 часть 2 пункт 8",
+            "type": "delete",
+            "status": "applied",
+            "target_item_id": "60050_article_10_part_2_point_8",
+            "revision_id": "rev-x",
+        },
+    ]
+    gaps = check_tracker_coverage(result, changes, "59121")
+    assert len(gaps) == 1
+    assert gaps[0]["reason"] == "not_marked_invalid"
+
+
+def test_delete_word_exclusion_own_revision_no_gap():
+    """«Слова ... исключить»: изменяющий НПА создал собственную ревизию на
+    элементе — delete применён, пробела нет (даже если not_valid не стоит)."""
+    result = {
+        "npa_items_revision": [
+            {
+                "item_id": "60050_article_6_part_3",
+                "revisions": [
+                    {
+                        "revision_id": "rev-old",
+                        "modified_by_id": "9982_article_1_point_2",
+                        "valid_to": "18.07.2019",
+                        "body": [],
+                    },
+                    {
+                        "revision_id": "rev-new",
+                        "modified_by_id": "59121_article_1_point_6_subpoint_б",
+                        "valid_from": "19.07.2019",
+                        "valid_to": "",
+                        "body": [],
+                    },
+                ],
+            },
+        ],
+    }
+    changes = [
+        {
+            "change_id": "del-exc",
+            "revision_number": "6)->б)",
+            "structural_element": "Статья 6 часть 3",
+            "type": "delete",
+            "status": "applied",
+            "target_item_id": "60050_article_6_part_3",
+            "revision_id": "rev-new",
+        },
+    ]
+    assert check_tracker_coverage(result, changes, "59121") == []
+
+
+def test_head_revision_resolves_no_gap():
+    """Баг 516-ЗС (ложный revision_missing_in_result на наименовании статьи 13):
+    head-правка хранится в трекере как type=change, а её revision_id указывает
+    на запись в head_revisions. collect_result_revisions обязан индексировать
+    head_revisions — тогда пробела нет.
+    """
+    result = {
+        "npa_items_revision": [
+            {
+                "item_id": "60050_article_13",
+                "revisions": [{"revision_id": "body-rev", "modified_by_id": "127", "body": []}],
+                "head_revisions": [
+                    {"head_text": "Старое наименование", "valid_to": "18.07.2019"},
+                    {
+                        "head_text": "Новое наименование",
+                        "valid_to": "",
+                        "modified_by_id": "59121_article_1_point_13_subpoint_а",
+                        "revision_id": "32d775c5-0683-4734-ba84-eea7ca06c096",
+                    },
+                ],
+            },
+        ],
+    }
+    changes = [
+        {
+            "change_id": "head-13",
+            "revision_number": "13)->а)",
+            "structural_element": "Статья 13 (наименование)",
+            "type": "change",
+            "status": "verified",
+            "target_item_id": "60050_article_13",
+            "revision_id": "32d775c5-0683-4734-ba84-eea7ca06c096",
+        },
+    ]
+    assert check_tracker_coverage(result, changes, "59121") == []

@@ -12,7 +12,18 @@
 - ``no_revision_id``            — норма применена, но без ссылки на ревизию;
 - ``revision_missing_in_result``— указанной ревизии нет в дереве результата;
 - ``foreign_revision``          — ревизия существует, но создана НЕ изменяющим НПА;
-- ``wrong_target``              — ревизия найдена, но на другом элементе.
+- ``wrong_target``              — ревизия найдена, но на другом элементе;
+- ``not_marked_invalid``        — правка «признать утратившим силу» (delete), но
+  ревизия элемента не помечена ``not_valid`` изменяющим НПА.
+
+Важно про ``delete``: признание элемента утратившим силу НЕ создаёт новую
+ревизию от изменяющего НПА — корректное применение означает, что существующая
+ревизия элемента помечена ``not_valid`` нормой изменяющего закона (см. ветку
+``delete`` в ``change_applier.apply_change``). Вариант «слова … исключить»
+наоборот создаёт собственную ревизию изменяющего НПА на элементе. Поэтому
+``delete`` исключён из строгой проверки по автору ревизии: трекер ссылается на
+существующую ревизию (обычно чужого закона), и сверка ``modified_by_id``
+давала ложные ``foreign_revision`` на корректно утративших силу элементах.
 """
 
 from __future__ import annotations
@@ -26,8 +37,17 @@ from typing import Any
 _APPLIED_STATUSES = {"applied", "verified", "APPLIED", "VERIFIED"}
 
 #: Типы правок, для которых применима строгая проверка по ревизии.
-#: Для ``delete``/аннулирований отсутствие новой ревизии в результате — норма.
-_STRICT_TYPES = {"change", "new_redaction", "add", "delete"}
+#: Для ``delete`` проверка отдельная: «признать утратившим силу» не создаёт
+#: ревизию от изменяющего НПА, а помечает существующую ревизию элемента
+#: полем ``not_valid`` (см. change_applier.apply_change, ветка delete).
+_STRICT_TYPES = {"change", "new_redaction", "add"}
+
+#: Списки ревизий элемента, которые могут нести ``revision_id`` и учитываются
+#: при резолвинге. head-ревизии создаются с собственным ``revision_id``
+#: (см. change_applier, ветка наименования), поэтому head-правки, которые
+#: трекер хранит как обычные изменения, обязаны резолвиться через
+#: ``head_revisions`` — иначе ложный ``revision_missing_in_result``.
+_REVISION_LIST_KEYS = ("revisions", "head_revisions", "number_revisions", "item_prefix_revisions")
 
 #: Описание пробела покрытия одной нормы (словарь с ключами reason, change_id, …).
 CoverageGap = dict
@@ -43,14 +63,84 @@ def _iter_elements(items: list[dict] | None) -> Iterable[dict]:
 
 
 def collect_result_revisions(result: dict) -> dict[str, tuple[str | None, Any]]:
-    """Карта ``revision_id -> (item_id, modified_by_id)`` по всему дереву результата."""
+    """Карта ``revision_id -> (item_id, modified_by_id)`` по всему дереву результата.
+
+    Индексируются не только ``revisions``, но и ``head_revisions`` /
+    ``number_revisions`` / ``item_prefix_revisions``: созданные изменяющим НПА
+    записи этих списков несут собственный ``revision_id``, по которому трекер
+    закрывает соответствующие правки (например head-правки наименований).
+    """
     revisions: dict[str, tuple[str | None, Any]] = {}
     for element in _iter_elements(result.get("npa_items_revision")):
-        for rev in element.get("revisions") or []:
-            rev_id = rev.get("revision_id")
-            if rev_id:
-                revisions[str(rev_id)] = (element.get("item_id"), rev.get("modified_by_id"))
+        for key in _REVISION_LIST_KEYS:
+            for rev in element.get(key) or []:
+                if not isinstance(rev, dict):
+                    continue
+                rev_id = rev.get("revision_id")
+                if rev_id:
+                    revisions[str(rev_id)] = (element.get("item_id"), rev.get("modified_by_id"))
     return revisions
+
+
+def _is_own_mark(mark_value: Any, change_npa_id: Any) -> bool:
+    """True, если метка (``not_valid`` ревизии) проставлена изменяющим НПА.
+
+    ``not_valid`` ревизии хранит item_id нормы изменяющего закона (возможно,
+    несколько id через запятую) — сравнение по префиксу с разделителем,
+    как ``_ids_match`` в ``post_analysis`` (исключает 516 vs 5162).
+    """
+    own_id = str(change_npa_id or "")
+    if not own_id:
+        return False
+    for part in str(mark_value or "").split(","):
+        part = part.strip()
+        if part and (part == own_id or part.startswith(own_id + "_")):
+            return True
+    return False
+
+
+def _find_element(result: dict, item_id: Any) -> dict | None:
+    """Найти элемент дерева по ``item_id``."""
+    if not item_id:
+        return None
+    wanted = str(item_id)
+    for element in _iter_elements(result.get("npa_items_revision")):
+        if element.get("item_id") == wanted:
+            return element
+    return None
+
+
+def _delete_applied(result: dict, change: dict, change_npa_id: Any,
+                    result_revisions: dict) -> bool:
+    """Проверка корректного применения правки типа ``delete``.
+
+    Корректные исходы:
+    - правка целикового НПА: ``result['not_valid']`` + ``not_valid_npa`` от
+      изменяющего НПА;
+    - repel элемента: какая-либо ревизия элемента помечена ``not_valid``
+      нормой изменяющего закона;
+    - «слова … исключить»: на элементе есть ревизия, созданная изменяющим НПА.
+    """
+    target = str(change.get("target_item_id") or "")
+    if target == "__npa__":
+        return bool(result.get("not_valid")) and _is_own_mark(
+            result.get("not_valid_npa"), change_npa_id
+        )
+    element = _find_element(result, target)
+    if element is None:
+        mapped = result_revisions.get(str(change.get("revision_id") or ""))
+        if mapped and mapped[0]:
+            element = _find_element(result, mapped[0])
+    if element is None:
+        return False
+    for rev in element.get("revisions") or []:
+        if not isinstance(rev, dict):
+            continue
+        if _is_own_mark(rev.get("not_valid"), change_npa_id):
+            return True
+        if _is_own_revision(rev.get("modified_by_id"), change_npa_id):
+            return True
+    return False
 
 
 def _is_own_revision(modified_by_id: Any, change_npa_id: Any) -> bool:
@@ -123,6 +213,13 @@ def check_tracker_coverage(
                     reason = "foreign_revision"
                 elif item_id and change.get("target_item_id") and item_id != change.get("target_item_id"):
                     reason = "wrong_target"
+        elif change_type == "delete":
+            # «Признать утратившим силу» не порождает новой ревизии от
+            # изменяющего НПА: корректное применение — существующая ревизия
+            # элемента помечена not_valid нормой изменяющего закона (либо
+            # создана собственная ревизия — вариант «слова … исключить»).
+            if not _delete_applied(result, change, change_npa_id, result_revisions):
+                reason = "not_marked_invalid"
         if reason:
             key = (change_id, reason)
             if key in seen:
