@@ -62,6 +62,16 @@ function npaNormalizeDateToSql(v) {
     if (m) return m[3] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[1]).padStart(2, '0');
     return s.slice(0, 10);
 }
+function isItemExpired(itemId, context) {
+  if (!itemId || !context) return false;
+  const row = context.expiredItems && context.expiredItems[itemId];
+  if (row) {
+    const v = row.valid_to;
+    if (v && v !== '0000-00-00' && v !== '1970-01-01') return true;
+  }
+  return false;
+}
+
 function npaIsRevExpiredForView(validTo) {
     const v = npaNormalizeDateToSql(validTo);
     if (!v) return false;
@@ -580,16 +590,25 @@ function applyChildBlockHighlights(container, side, rootItemId, otherContainer, 
             continue;
         }
         if (childModType === 'delete' && side === 'old') {
+            if (block.classList.contains('npa-expired-block')) {
+                continue;
+            }
             const wrapper = document.createElement('del');
             wrapper.className = 'npa-diff-delete npa-diff-block';
             while (block.firstChild) wrapper.appendChild(block.firstChild);
             block.appendChild(wrapper);
         } else if (childModType === 'add' && side === 'new') {
+            if (block.classList.contains('npa-expired-block')) {
+                continue;
+            }
             const wrapper = document.createElement('ins');
             wrapper.className = 'npa-diff-insert npa-diff-block';
             while (block.firstChild) wrapper.appendChild(block.firstChild);
             block.appendChild(wrapper);
         } else if (childModType === 'new_redaction') {
+            if (block.classList.contains('npa-expired-block')) {
+                continue;
+            }
             const wrapper = document.createElement(side === 'old' ? 'del' : 'ins');
             wrapper.className = side === 'old' ? 'npa-diff-delete npa-diff-block' : 'npa-diff-insert npa-diff-block';
             while (block.firstChild) wrapper.appendChild(block.firstChild);
@@ -643,8 +662,29 @@ function applyPreciseHighlights(oldHtml, newHtml, highlights, modType, rootItemI
         const prevWrapper = document.createElement('del');
         prevWrapper.className = 'npa-diff-delete npa-diff-block';
         const prevTarget = prevRootBlock || prevContainer;
+        // Извлекаем просроченные блоки перед обёртыванием в <del>
+        // и запоминаем их оригинальные позиции относительно других блоков
+        const expiredBlocks = [];
+        const children = Array.from(prevTarget.children);
+        children.forEach((child, index) => {
+            if (child.classList.contains('npa-expired-block')) {
+                expiredBlocks.push({ element: child, originalIndex: index });
+                child.remove();
+            }
+        });
         while (prevTarget.firstChild) prevWrapper.appendChild(prevTarget.firstChild);
         prevTarget.appendChild(prevWrapper);
+        // Вставляем просроченные блоки ПЕРЕД <del> на оригинальные позиции
+        // originalIndex считается относительно оставшихся (не просроченных) блоков
+        expiredBlocks.forEach(({ element, originalIndex }) => {
+            const insertBeforeIndex = Math.min(originalIndex, prevTarget.children.length - 1);
+            const referenceNode = prevTarget.children[insertBeforeIndex];
+            if (referenceNode) {
+                prevTarget.insertBefore(element, referenceNode);
+            } else {
+                prevTarget.appendChild(element);
+            }
+        });
     }
     applyChildBlockHighlights(prevContainer, 'old', rootItemId, currContainer, parentCompareData);
     applyChildBlockHighlights(currContainer, 'new', rootItemId, prevContainer, parentCompareData);

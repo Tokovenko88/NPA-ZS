@@ -59,6 +59,12 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
             continue;
         }
         $isExpired = $revision['is_expired'];
+        // Примечание: не переопределяем is_expired по полю not_valid.
+        // getRevisionForDate / getRevisionForSelectedEdition уже корректно
+        // определяют статус на основе valid_to и даты просмотра.
+        // Поле not_valid — информационное (причина утраты силы),
+        // но не должно влиять на статус: если НПА из not_valid ещё не
+        // вступил в силу на asOfDate, элемент всё ещё действует.
         if (!$includeExpired && $isExpired) {
             continue;
         }
@@ -217,15 +223,22 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
                 $notValidIds = array_filter(array_map('trim', explode(',', (string)$itemData['not_valid'])));
                 foreach ($notValidIds as $notValidId) {
                     if (isset($bodyReferenceSources[$internalId][$notValidId])) {
-                        $itemData['is_expired'] = true;
-                        $itemData['expired_valid_to'] = $itemData['valid_to'];
+                        // Помечаем как утративший силу только если НПА из not_valid
+                        // действительно вступил в силу на дату просмотра (valid_to
+                        // установлена и раньше asOfDate). Иначе это будущее изменение.
+                        if (!empty($itemData['valid_to']) && $itemData['valid_to'] < $asOfDate) {
+                            $itemData['is_expired'] = true;
+                            $itemData['expired_valid_to'] = $itemData['valid_to'];
+                        }
                         break;
                     }
                 }
             }
-            if (!empty($itemData['is_expired']) && !$isBodyChild) {
-                unset($itemsById[$internalId]);
-            }
+            // Не удаляем элемент из дерева: в колонке сравнения он должен
+            // отобразиться компактно («номер + Утратил(а/о) силу»), как в
+            // обычном HTML-просмотре — см. компактную ветку renderElement.
+            // Если бы мы удалили его здесь, он исчез бы из текущей колонки,
+            // а JS обернул бы текст предыдущей колонки в <del>.
             unset($itemData);
         }
     }

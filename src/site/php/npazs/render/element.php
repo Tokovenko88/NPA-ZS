@@ -172,26 +172,57 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
         $showTableButtons = true;
     }
     if ($isExpired && $forComparison) {
-        $expiredHtml = $itemData['expired_content_html'] ?? '';
-        if (empty($expiredHtml)) {
-            $lastContentRev = getLastContentRevision($pdo, $internal_id, $itemData['valid_from']);
-            if ($lastContentRev) {
-                $content = getItemRevisionContent($pdo, $lastContentRev['rev_id'], $internal_id, 0, null, false, true);
-                $expiredHtml = $content ? $content['html'] : '';
-            }
-        }
-        // Серая подпись «Утратил(а/о) силу» появляется только если в БД у
-        // ребёнка выставлен not_valid. Дочерние элементы, удалённые из body
-        // родителя без явного not_valid, помечаются истёкшими только ради
-        // зачёркивания и подписи не получают.
         $notValid = trim((string)($itemData['not_valid'] ?? ''));
         $hasNotValid = ($notValid !== '' && $notValid !== 'base');
-        $html = '<div class="npa-item-block npa-expired-block" data-item-type="' . htmlspecialchars($itemType) . '">';
-        $html .= '<div class="npa-diff-delete">' . $expiredHtml . '</div>';
-        if ($hasNotValid) {
+        $html = '<div class="npa-item-block npa-expired-block" data-item-type="' . htmlspecialchars($itemType) . '"'
+              . ($external_item_id ? ' data-npa-item-id="' . htmlspecialchars($external_item_id) . '"' : '') . '>';
+        if (in_array($itemType, ['part', 'point', 'subpoint'])) {
+            // Короткая форма для колонки сравнения: вместо полного текста
+            // утратившего силу пункта/части показываем только номер и пометку,
+            // например «7) утратил силу». Полный текст остаётся в предыдущей
+            // колонке, где клиентский JS зачёркивает его как удалённый
+            // (ветка new_redaction в applyChildBlockHighlights).
+            $numberText = trim((string)$displayNumber);
+            if ($numberText !== '') {
+                $lastChar = substr($numberText, -1);
+                if ($lastChar !== ')' && $lastChar !== '.') {
+                    $numberText .= '.';
+                }
+            }
             $genderSuffix = getExpiryGenderSuffix($itemType);
-            $expiryWord = 'Утратил' . $genderSuffix . ' силу';
-            $html .= '<div class="npa-expired-label" style="color:#999; font-style:italic;">(' . htmlspecialchars($expiryWord) . ')</div>';
+            $html .= '<p class="justifyfull">'
+                  . '<span class="npa-struct-num">' . htmlspecialchars($numberText) . '</span>'
+                  . 'утратил' . htmlspecialchars($genderSuffix) . ' силу</p>';
+        } else {
+            // Прочие типы (статьи, главы, разделы, приложения...): полный текст
+            // утратившего силу элемента + серая подпись.
+            $expiredHtml = $itemData['expired_content_html'] ?? '';
+            if (empty($expiredHtml)) {
+                $lastContentRev = getLastContentRevision($pdo, $internal_id, $itemData['valid_from']);
+                if ($lastContentRev) {
+                    $content = getItemRevisionContent($pdo, $lastContentRev['rev_id'], $internal_id, 0, null, false, true);
+                    $expiredHtml = $content ? $content['html'] : '';
+                }
+            }
+            // Содержимое $expiredHtml — это HTML с собственной обёрткой
+            // <div class="npa-item-block" ... data-npa-item-id="...">...</div>.
+            // Снимаем обёртку, чтобы не получить двойной вложенный блок с тем же
+            // data-npa-item-id (клиентский JS ищет блоки по этому атрибуту).
+            $innerContent = $expiredHtml;
+            $openTag = '<div class="npa-item-block"';
+            $closeTag = '</div>';
+            if (strpos($expiredHtml, $openTag) === 0 && substr($expiredHtml, strlen($expiredHtml) - strlen($closeTag)) == $closeTag) {
+                $gtPos = strpos($expiredHtml, '>');
+                if ($gtPos !== false) {
+                    $innerContent = substr($expiredHtml, $gtPos + 1, strlen($expiredHtml) - $gtPos - 1 - strlen($closeTag));
+                }
+            }
+            $html .= $innerContent;
+            if ($hasNotValid) {
+                $genderSuffix = getExpiryGenderSuffix($itemType);
+                $expiryWord = 'Утратил' . $genderSuffix . ' силу';
+                $html .= '<div class="npa-expired-label" style="color:#6c757d; font-style:italic;">(' . htmlspecialchars($expiryWord) . ')</div>';
+            }
         }
         $html .= '</div>';
         return $html;
@@ -449,13 +480,12 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
         } elseif ($blockType === 'child_ref') {
             $refInternalId = $block['ref_item_internal_id'];
             if ($refInternalId && isset($itemsById[$refInternalId])) {
-                $refChild = $itemsById[$refInternalId];
-                // При сравнении редакций утратившие силу дети не должны попадать
-                // в текущую колонку — их тело больше не входит в ревизию структурного
-                // элемента на выбранную дату.
-                if ($forComparison && !empty($refChild['is_expired'])) {
-                    // пропускаем
-                } else {
+                // В режиме сравнения все дети (включая утративших силу) рендерятся
+                // в renderSubtree для правильного порядка по sort_order.
+                // Иначе утратившие силу дети оказываются в конце, а не между
+                // неутратившими (например, пункт 7 между 6 и 8).
+                if (!$forComparison) {
+                    $refChild = $itemsById[$refInternalId];
                     $html .= renderElement($refChild, $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
                     $html .= '<div class="npa-para-sep"></div>';
                 }
@@ -478,6 +508,7 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
     // Если родитель устаревший и рендерится в режиме сравнения, его дети уже включены
     // в expired_content_html через getItemRevisionContent — не дублируем их здесь.
     $isExpired = !empty($item['is_expired']);
+    $hasChildren = false;
     if ($item['item_type'] !== 'structured_table' && !($isExpired && $forComparison)) {
         // Тело (body) родителя — единственный источник истины о его дочерних
         // элементах. В режиме сравнения рекурсивно рендерим только тех детей,
@@ -518,9 +549,21 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
             }
             return $a['id'] - $b['id'];
         });
+        if (!empty($children)) {
+            // Убираем закрывающий </div> родителя чтобы вставить детей перед ним
+            $html = preg_replace('/<\/div>\s*$/', '', $html);
+            // Добавляем разделитель перед первым ребёнком если его нет
+            if (substr(rtrim($html), -29) !== '<div class="npa-para-sep"></div>') {
+                $html .= '<div class="npa-para-sep"></div>';
+            }
+            $hasChildren = true;
+        }
         foreach ($children as $child) {
             $html .= renderSubtree($child, $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
         }
+    }
+    if ($hasChildren) {
+        $html .= '</div>';
     }
     return $html;
 }

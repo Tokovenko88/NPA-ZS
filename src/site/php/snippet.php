@@ -227,7 +227,7 @@ function getStaticFilePath($npaData, $viewDateSql, $npa_id) {
     if (!is_dir($staticBaseDir)) {
         mkdir($staticBaseDir, 0777, true);
     }
-    return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v14.html';
+    return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v15.html';
 }
 
 function generateFilename($npaData, $revisions = []) {
@@ -319,8 +319,9 @@ function getRevisionForSelectedEdition(PDO $pdo, $itemInternalId, $asOfDate, arr
                     BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')
                 ) > 0
           )
-          AND EXISTS (
-              SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id
+          AND (
+              EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)
+              OR (r.not_valid IS NOT NULL AND r.not_valid != '' AND r.not_valid != 'base')
           )
         ORDER BY r.valid_from DESC, r.rev_id DESC
         LIMIT 1
@@ -1962,10 +1963,10 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
             $selRevIds = [];
         }
         
-        $includeExpired = !$useEditionContext;
+        $includeExpired = true;
         $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, $includeExpired, $selRevIds);
         if (!isset($itemsById[$internal_item_id])) return null;
-        if ($includeExpired) {
+        if (!$useEditionContext) {
             
             foreach ($itemsById as $fid => &$fitem) {
                 if (!empty($fitem['is_expired'])) {
@@ -2212,10 +2213,141 @@ function getRevisionBodyChildRefIds(PDO $pdo, $revId) {
     return $ids;
 }
 
+function getSelectedEditionSourceIds(PDO $pdo, array $selectedRevisionNpaIds) {
+    static $cache = [];
+    if (empty($selectedRevisionNpaIds)) return [];
+    $cacheKey = '';
+    foreach ($selectedRevisionNpaIds as $revisionNpaId) {
+        $cacheKey .= (int)$revisionNpaId . ',';
+    }
+    $cacheKey = rtrim($cacheKey, ',');
+    if ($cacheKey !== '' && isset($cache[$cacheKey])) {
+        return $cache[$cacheKey];
+    }
+    $selectedSources = [];
+    $placeholders = buildRevisionNpaIdPlaceholders($selectedRevisionNpaIds);
+    $stmt = $pdo->prepare("SELECT id, item_id FROM npa_item WHERE npa_id IN ($placeholders)");
+    $stmt->execute(array_values($selectedRevisionNpaIds));
+    foreach ($stmt->fetchAll() as $row) {
+        if (!empty($row['id'])) $selectedSources[(string)$row['id']] = true;
+        if (!empty($row['item_id'])) $selectedSources[(string)$row['item_id']] = true;
+    }
+    $cache[$cacheKey] = $selectedSources;
+    return $selectedSources;
+}
+
+function isRevisionIntroducedBySelectedEdition(PDO $pdo, array $revision, array $selectedRevisionNpaIds = []) {
+    if (empty($selectedRevisionNpaIds) || empty($revision)) {
+        return false;
+    }
+    if (empty($revision['modified_by_id']) || $revision['modified_by_id'] === 'base') {
+        return false;
+    }
+    $selectedSources = getSelectedEditionSourceIds($pdo, $selectedRevisionNpaIds);
+    if (empty($selectedSources)) return false;
+    foreach (array_filter(array_map('trim', explode(',', (string)$revision['modified_by_id']))) as $changerId) {
+        if ($changerId === 'base') continue;
+        if (isset($selectedSources[$changerId])) return true;
+        if (ctype_digit($changerId)) {
+            $stmtItem = $pdo->prepare('SELECT item_id FROM npa_item WHERE id = ? LIMIT 1');
+            $stmtItem->execute([(int)$changerId]);
+            $itemId = $stmtItem->fetchColumn();
+            if ($itemId && isset($selectedSources[(string)$itemId])) return true;
+        }
+    }
+    return false;
+}
+
+function getChildrenExpiryBySelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = [], $parentRevisionId = null) {
+    if (empty($selectedRevisionNpaIds) || empty($parentRevisionId)) {
+        return [];
+    }
+    $selectedSources = getSelectedEditionSourceIds($pdo, $selectedRevisionNpaIds);
+    if (empty($selectedSources)) return [];
+
+    $stmtRefs = $pdo->prepare("
+        SELECT ref_item_internal_id
+        FROM npa_paragraph
+        WHERE rev_id = ?
+          AND block_type = 'child_ref'
+          AND ref_item_internal_id IS NOT NULL
+        ORDER BY sort_order
+    ");
+    $stmtRefs->execute([$parentRevisionId]);
+    $refs = $stmtRefs->fetchAll();
+    if (empty($refs)) {
+        
+        $stmtParent = $pdo->prepare('SELECT valid_from FROM npa_item_revision WHERE rev_id = ? LIMIT 1');
+        $stmtParent->execute([$parentRevisionId]);
+        $parentValidFrom = $stmtParent->fetchColumn();
+        if ($parentValidFrom) {
+            $contentRev = getLastContentRevision($pdo, $internal_item_id, $parentValidFrom);
+            if ($contentRev) {
+                $stmtRefs->execute([$contentRev['rev_id']]);
+                $refs = $stmtRefs->fetchAll();
+            }
+        }
+    }
+
+    $result = [];
+    foreach ($refs as $row) {
+        $childInternalId = (int)$row['ref_item_internal_id'];
+        if ($childInternalId <= 0) continue;
+
+        $stmtChild = $pdo->prepare('SELECT id, item_id, parent_id FROM npa_item WHERE id = ? LIMIT 1');
+        $stmtChild->execute([$childInternalId]);
+        $child = $stmtChild->fetch();
+        if (!$child || (string)$child['parent_id'] !== (string)$internal_item_id) {
+            continue;
+        }
+
+        $stmtRevs = $pdo->prepare('
+            SELECT rev_id, valid_from, valid_to, not_valid
+            FROM npa_item_revision
+            WHERE item_internal_id = ?
+            ORDER BY valid_from DESC, rev_id DESC
+        ');
+        $stmtRevs->execute([$childInternalId]);
+        $matchedExpiryDate = null;
+        foreach ($stmtRevs->fetchAll() as $candidate) {
+            $notValidIds = array_filter(array_map('trim', explode(',', (string)($candidate['not_valid'] ?? ''))));
+            foreach ($notValidIds as $nvid) {
+                if (isset($selectedSources[$nvid])) {
+                    $dtExp = parseDate($candidate['valid_to']);
+                    if ($dtExp) {
+                        $matchedExpiryDate = $dtExp->format('Y-m-d');
+                    }
+                    break 2;
+                }
+            }
+        }
+        if (!$matchedExpiryDate) continue;
+
+        $childRevForDate = getRevisionForDate($pdo, $childInternalId, $asOfDate);
+        if (!$childRevForDate || empty($childRevForDate['is_expired'])) {
+            continue;
+        }
+
+        $result[(string)$childInternalId] = $matchedExpiryDate;
+    }
+
+    return $result;
+}
+
 function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate, array $selectedRevisionNpaIds = []) {
     $current = getRevisionForSelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds);
     if (!$current) return null;
-    $prev = getPreviousItemRevision($pdo, $internal_item_id, $current['rev_id']);
+
+    $parentModifiedBySelected = isRevisionIntroducedBySelectedEdition($pdo, $current, $selectedRevisionNpaIds);
+
+    $childExpiryDates = [];
+    $isChildOnlyEdition = false;
+    if (!$parentModifiedBySelected) {
+        $childExpiryDates = getChildrenExpiryBySelectedEdition($pdo, $internal_item_id, $asOfDate, $selectedRevisionNpaIds, $current['rev_id']);
+        $isChildOnlyEdition = !empty($childExpiryDates);
+    }
+
+    $prev = $isChildOnlyEdition ? $current : getPreviousItemRevision($pdo, $internal_item_id, $current['rev_id']);
     if (!$prev) {
         return [
             'prev_valid_from' => '',
@@ -2228,13 +2360,31 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
             'mod_type' => $current['mod_type'] ?? ''
         ];
     }
+
+    $earliestChildExpiry = null;
     $prevAsOfDate = $current['valid_from'];
-    $dtPrev = parseDate($prevAsOfDate);
-    if ($dtPrev) {
-        $dtPrev->modify('-1 day');
-        $prevAsOfDate = $dtPrev->format('Y-m-d');
+    if ($isChildOnlyEdition) {
+        
+        foreach ($childExpiryDates as $expDate) {
+            if ($earliestChildExpiry === null || $expDate < $earliestChildExpiry) {
+                $earliestChildExpiry = $expDate;
+            }
+        }
+        $dtPrev = parseDate($earliestChildExpiry);
+        if ($dtPrev) {
+            $dtPrev->modify('-1 day');
+            $prevAsOfDate = $dtPrev->format('Y-m-d');
+        } else {
+            $prevAsOfDate = $asOfDate;
+        }
     } else {
-        $prevAsOfDate = $asOfDate;
+        $dtPrev = parseDate($prevAsOfDate);
+        if ($dtPrev) {
+            $dtPrev->modify('-1 day');
+            $prevAsOfDate = $dtPrev->format('Y-m-d');
+        } else {
+            $prevAsOfDate = $asOfDate;
+        }
     }
     
     $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $prev['rev_id']);
@@ -2247,7 +2397,8 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
     $currHtml = $currContent ? ensureTableWrapperForComparison($currContent['html'], $internal_item_id, $pdo, $asOfDate) : '';
     $changingElements = [];
     $changerIds = [];
-    if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
+    
+    if (!$isChildOnlyEdition && !empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
         foreach (array_filter(array_map('trim', explode(',', $current['modified_by_id']))) as $changerStr) {
             if ($changerStr === 'base') continue;
             $changerIds[] = $changerStr;
@@ -2270,19 +2421,21 @@ function getItemCompareForSelectedEdition(PDO $pdo, $internal_item_id, $asOfDate
         collectExpiredChildChanges($pdo, $internal_item_id, $asOfDate, $changerIds, $selectedRevisionNpaIds, $current['rev_id'], $prev['rev_id'])
     );
     $highlightsForClient = null;
-    if (!empty($current['highlights'])) {
+    if (!$isChildOnlyEdition && !empty($current['highlights'])) {
         $decoded = json_decode($current['highlights'], true);
         if (is_array($decoded)) $highlightsForClient = $decoded;
     }
     return [
         'prev_valid_from' => formatDateToRus($prev['valid_from']),
-        'current_valid_from' => formatDateToRus($current['valid_from']),
+        
+        'current_valid_from' => $isChildOnlyEdition ? formatDateToRus($earliestChildExpiry) : formatDateToRus($current['valid_from']),
         'prev_html_raw' => $prevHtml,
         'current_html_raw' => $currHtml,
         'element_human_path' => getElementHumanPath($internal_item_id, $pdo, 'genitive'),
         'changing_elements' => $changingElements,
         'highlights' => normalizeHighlights($highlightsForClient),
-        'mod_type' => $current['mod_type']
+        
+        'mod_type' => $isChildOnlyEdition ? 'change' : ($current['mod_type'] ?? '')
     ];
 }
 
@@ -2957,6 +3110,7 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
             continue;
         }
         $isExpired = $revision['is_expired'];
+        
         if (!$includeExpired && $isExpired) {
             continue;
         }
@@ -3096,15 +3250,16 @@ function getItemTree(PDO $pdo, $npa_id, $asOfDate, $npaData = null, $includeExpi
                 $notValidIds = array_filter(array_map('trim', explode(',', (string)$itemData['not_valid'])));
                 foreach ($notValidIds as $notValidId) {
                     if (isset($bodyReferenceSources[$internalId][$notValidId])) {
-                        $itemData['is_expired'] = true;
-                        $itemData['expired_valid_to'] = $itemData['valid_to'];
+                        
+                        if (!empty($itemData['valid_to']) && $itemData['valid_to'] < $asOfDate) {
+                            $itemData['is_expired'] = true;
+                            $itemData['expired_valid_to'] = $itemData['valid_to'];
+                        }
                         break;
                     }
                 }
             }
-            if (!empty($itemData['is_expired']) && !$isBodyChild) {
-                unset($itemsById[$internalId]);
-            }
+            
             unset($itemData);
         }
     }
@@ -3297,23 +3452,49 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
         $showTableButtons = true;
     }
     if ($isExpired && $forComparison) {
-        $expiredHtml = $itemData['expired_content_html'] ?? '';
-        if (empty($expiredHtml)) {
-            $lastContentRev = getLastContentRevision($pdo, $internal_id, $itemData['valid_from']);
-            if ($lastContentRev) {
-                $content = getItemRevisionContent($pdo, $lastContentRev['rev_id'], $internal_id, 0, null, false, true);
-                $expiredHtml = $content ? $content['html'] : '';
-            }
-        }
-        
         $notValid = trim((string)($itemData['not_valid'] ?? ''));
         $hasNotValid = ($notValid !== '' && $notValid !== 'base');
-        $html = '<div class="npa-item-block npa-expired-block" data-item-type="' . htmlspecialchars($itemType) . '">';
-        $html .= '<div class="npa-diff-delete">' . $expiredHtml . '</div>';
-        if ($hasNotValid) {
+        $html = '<div class="npa-item-block npa-expired-block" data-item-type="' . htmlspecialchars($itemType) . '"'
+              . ($external_item_id ? ' data-npa-item-id="' . htmlspecialchars($external_item_id) . '"' : '') . '>';
+        if (in_array($itemType, ['part', 'point', 'subpoint'])) {
+            
+            $numberText = trim((string)$displayNumber);
+            if ($numberText !== '') {
+                $lastChar = substr($numberText, -1);
+                if ($lastChar !== ')' && $lastChar !== '.') {
+                    $numberText .= '.';
+                }
+            }
             $genderSuffix = getExpiryGenderSuffix($itemType);
-            $expiryWord = 'Утратил' . $genderSuffix . ' силу';
-            $html .= '<div class="npa-expired-label" style="color:#999; font-style:italic;">(' . htmlspecialchars($expiryWord) . ')</div>';
+            $html .= '<p class="justifyfull">'
+                  . '<span class="npa-struct-num">' . htmlspecialchars($numberText) . '</span>'
+                  . 'утратил' . htmlspecialchars($genderSuffix) . ' силу</p>';
+        } else {
+            
+            $expiredHtml = $itemData['expired_content_html'] ?? '';
+            if (empty($expiredHtml)) {
+                $lastContentRev = getLastContentRevision($pdo, $internal_id, $itemData['valid_from']);
+                if ($lastContentRev) {
+                    $content = getItemRevisionContent($pdo, $lastContentRev['rev_id'], $internal_id, 0, null, false, true);
+                    $expiredHtml = $content ? $content['html'] : '';
+                }
+            }
+            
+            $innerContent = $expiredHtml;
+            $openTag = '<div class="npa-item-block"';
+            $closeTag = '</div>';
+            if (strpos($expiredHtml, $openTag) === 0 && substr($expiredHtml, strlen($expiredHtml) - strlen($closeTag)) == $closeTag) {
+                $gtPos = strpos($expiredHtml, '>');
+                if ($gtPos !== false) {
+                    $innerContent = substr($expiredHtml, $gtPos + 1, strlen($expiredHtml) - $gtPos - 1 - strlen($closeTag));
+                }
+            }
+            $html .= $innerContent;
+            if ($hasNotValid) {
+                $genderSuffix = getExpiryGenderSuffix($itemType);
+                $expiryWord = 'Утратил' . $genderSuffix . ' силу';
+                $html .= '<div class="npa-expired-label" style="color:#6c757d; font-style:italic;">(' . htmlspecialchars($expiryWord) . ')</div>';
+            }
         }
         $html .= '</div>';
         return $html;
@@ -3569,11 +3750,9 @@ function renderElement($itemData, $itemsById, $pdo, $viewDate, $npaData, &$rende
         } elseif ($blockType === 'child_ref') {
             $refInternalId = $block['ref_item_internal_id'];
             if ($refInternalId && isset($itemsById[$refInternalId])) {
-                $refChild = $itemsById[$refInternalId];
                 
-                if ($forComparison && !empty($refChild['is_expired'])) {
-                    
-                } else {
+                if (!$forComparison) {
+                    $refChild = $itemsById[$refInternalId];
                     $html .= renderElement($refChild, $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
                     $html .= '<div class="npa-para-sep"></div>';
                 }
@@ -3595,6 +3774,7 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
     $html = renderElement($item, $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
     
     $isExpired = !empty($item['is_expired']);
+    $hasChildren = false;
     if ($item['item_type'] !== 'structured_table' && !($isExpired && $forComparison)) {
         
         $bodyChildRefIds = [];
@@ -3627,9 +3807,21 @@ function renderSubtree($item, $itemsById, $pdo, $viewDate, $npaData, &$renderedI
             }
             return $a['id'] - $b['id'];
         });
+        if (!empty($children)) {
+            
+            $html = preg_replace('/<\/div>\s*$/', '', $html);
+            
+            if (substr(rtrim($html), -29) !== '<div class="npa-para-sep"></div>') {
+                $html .= '<div class="npa-para-sep"></div>';
+            }
+            $hasChildren = true;
+        }
         foreach ($children as $child) {
             $html .= renderSubtree($child, $itemsById, $pdo, $viewDate, $npaData, $renderedItems, $skipInteractive, $noNameIds, $forComparison);
         }
+    }
+    if ($hasChildren) {
+        $html .= '</div>';
     }
     return $html;
 }
@@ -4966,67 +5158,18 @@ foreach ($itemsById as $item) {
         }
         $precomputedHistories[$externalId] = $historyResult;
     }
-    $current = getRevisionForSelectedEdition($pdo, $internalId, $viewDateSql, $selectedRevisionNpaIds);
-    if ($current) {
-        $prev = getPreviousItemRevision($pdo, $internalId, $current['rev_id']);
-        $prevHtml = '';
-        $currHtml = '';
-        if ($prev) {
-            $prevAsOfDate = $current['valid_from'];
-            $dtPrev = parseDate($prevAsOfDate);
-            if ($dtPrev) {
-                $dtPrev->modify('-1 day');
-                $prevAsOfDate = $dtPrev->format('Y-m-d');
-            } else {
-                $prevAsOfDate = $viewDateSql;
-            }
-            
-            $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $prev['rev_id']);
-            $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $current['rev_id']);
-            $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
-            $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internalId, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
-            
-            $currContent = getItemRevisionContent($pdo, $current['rev_id'], $internalId, 0, null, false, true, $viewDateSql);
-            $prevHtml = $prevContent ? ensureTableWrapperForComparison($prevContent['html'], $internalId, $pdo, $prevAsOfDate) : '';
-            $currHtml = $currContent ? ensureTableWrapperForComparison($currContent['html'], $internalId, $pdo, $viewDateSql) : '';
-        }
-        $changingElements = [];
-        $changerIds = [];
-        if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
-            $changerIds = array_filter(array_map('trim', explode(',', $current['modified_by_id'])));
-            foreach ($changerIds as $changerStr) {
-                if ($changerStr === 'base') continue;
-                $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
-                if (!$npaInfo) continue;
-                $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
-                $changerNpaId = $npaInfo['npa_id'];
-                $changerNpaType = $npaInfo['npa_type'];
-                $changerHtml = getElementHtmlById($changerStr, $viewDateSql, $pdo, $changerNpaId, $changerNpaType);
-                $note = getRevisionSourceNote($changerStr, $pdo, true);
-                $changingElements[] = [
-                    'note' => $note,
-                    'html' => $changerHtml,
-                    'date' => formatDateToRus($changerDate)
-                ];
-                        }
-        }
-        
-        $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internalId, $viewDateSql, $changerIds, $selectedRevisionNpaIds, null, $prev ? $prev['rev_id'] : null));
-        $highlightsForClient = null;
-        if (!empty($current['highlights'])) {
-            $decoded = json_decode($current['highlights'], true);
-            if (is_array($decoded)) $highlightsForClient = $decoded;
-        }
+    $itemCompare = getItemCompareForSelectedEdition($pdo, $internalId, $viewDateSql, $selectedRevisionNpaIds);
+    if ($itemCompare) {
         $precomputedCompares[$externalId] = [
             'success' => true,
-            'prev_valid_from' => $prev ? formatDateToRus($prev['valid_from']) : '',
-            'current_valid_from' => formatDateToRus($current['valid_from']),
-            'prev_html_raw' => $prevHtml,
-            'current_html_raw' => $currHtml,
-            'element_human_path' => getElementHumanPath($internalId, $pdo, 'genitive'),
-            'changing_elements' => $changingElements,
-            'highlights' => normalizeHighlights($highlightsForClient),
-            'mod_type' => $current['mod_type']
+            'prev_valid_from' => $itemCompare['prev_valid_from'],
+            'current_valid_from' => $itemCompare['current_valid_from'],
+            'prev_html_raw' => $itemCompare['prev_html_raw'],
+            'current_html_raw' => $itemCompare['current_html_raw'],
+            'element_human_path' => $itemCompare['element_human_path'],
+            'changing_elements' => $itemCompare['changing_elements'] ?? [],
+            'highlights' => $itemCompare['highlights'],
+            'mod_type' => $itemCompare['mod_type']
         ];
     }
     $selectedCurrentHeadRev = getItemHeadRevisionForSelectedEdition($pdo, $internalId, $viewDateSql, $selectedRevisionNpaIds);

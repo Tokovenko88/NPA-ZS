@@ -80,8 +80,9 @@ function getRevisionForSelectedEdition(PDO $pdo, $itemInternalId, $asOfDate, arr
                     BINARY CONCAT(',', CAST(changer.id AS CHAR), ',')
                 ) > 0
           )
-          AND EXISTS (
-              SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id
+          AND (
+              EXISTS (SELECT 1 FROM npa_paragraph p WHERE p.rev_id = r.rev_id)
+              OR (r.not_valid IS NOT NULL AND r.not_valid != '' AND r.not_valid != 'base')
           )
         ORDER BY r.valid_from DESC, r.rev_id DESC
         LIMIT 1

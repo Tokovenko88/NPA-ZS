@@ -17,7 +17,7 @@ function getStaticFilePath($npaData, $viewDateSql, $npa_id) {
     if (!is_dir($staticBaseDir)) {
         mkdir($staticBaseDir, 0777, true);
     }
-    return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v14.html';
+    return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v15.html';
 }
 
 function generateFilename($npaData, $revisions = []) {

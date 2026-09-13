@@ -199,18 +199,19 @@ function getItemRevisionContent(PDO $pdo, $rev_id, $internal_item_id, $depth = 0
         } else {
             $selRevIds = [];
         }
-        // Текущая колонка ($useEditionContext === true): утратившие силу дочерние
-        // элементы НЕ должны отображаться вовсе. Предыдущая колонка
-        // ($useEditionContext === false): утратившие силу дочерние элементы
-        // отображаются как обычный контент (не как блоки «Утратил силу») —
-        // клиентский JS сам обернёт их в <del class="npa-diff-delete">, увидев,
-        // что элемента нет в текущей колонке.
-        $includeExpired = !$useEditionContext;
+        // Обе колонки: утратившие силу дочерние элементы ВКЛЮЧАЕМ в дерево.
+        // Предыдущая колонка ($useEditionContext === false): флаг is_expired
+        // снимается ниже — элемент рендерится как обычный контент.
+        // Текущая колонка ($useEditionContext === true): флаг сохраняется —
+        // renderElement выводит элемент компактно («номер + Утратил(а/о) силу»),
+        // как в обычном HTML-просмотре.
+        $includeExpired = true;
         $itemsById = getItemTree($pdo, $npa_id, $valid_from, null, $includeExpired, $selRevIds);
         if (!isset($itemsById[$internal_item_id])) return null;
-        if ($includeExpired) {
-            // Предыдущая колонка: снимаем флаг is_expired с элементов, чтобы они
+        if (!$useEditionContext) {
+            // Только предыдущая колонка: снимаем флаг is_expired с элементов, чтобы они
             // рендерились как обычный контент (не как блоки «Утратил силу»).
+            // Текущая колонка сохраняет флаг — renderElement выведет компактно.
             foreach ($itemsById as $fid => &$fitem) {
                 if (!empty($fitem['is_expired'])) {
                     $fitem['is_expired'] = false;

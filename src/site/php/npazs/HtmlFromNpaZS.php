@@ -657,72 +657,18 @@ foreach ($itemsById as $item) {
         }
         $precomputedHistories[$externalId] = $historyResult;
     }
-    $current = getRevisionForSelectedEdition($pdo, $internalId, $viewDateSql, $selectedRevisionNpaIds);
-    if ($current) {
-        $prev = getPreviousItemRevision($pdo, $internalId, $current['rev_id']);
-        $prevHtml = '';
-        $currHtml = '';
-        if ($prev) {
-            $prevAsOfDate = $current['valid_from'];
-            $dtPrev = parseDate($prevAsOfDate);
-            if ($dtPrev) {
-                $dtPrev->modify('-1 day');
-                $prevAsOfDate = $dtPrev->format('Y-m-d');
-            } else {
-                $prevAsOfDate = $viewDateSql;
-            }
-            // Дочерние элементы, на которые ссылалось body предыдущей редакции,
-            // но которых нет в body текущей, должны отображаться в колонке
-            // предыдущей редакции зачёркнутыми (с серой подписью «Утратил(а/о)
-            // силу», если в npa_item_revision.not_valid стоит пометка).
-            $prevBodyChildIds = getRevisionBodyChildRefIds($pdo, $prev['rev_id']);
-            $currBodyChildIds = getRevisionBodyChildRefIds($pdo, $current['rev_id']);
-            $removedChildIds = array_values(array_diff(array_keys($prevBodyChildIds), array_keys($currBodyChildIds)));
-            $prevContent = getItemRevisionContent($pdo, $prev['rev_id'], $internalId, 0, null, false, true, $prevAsOfDate, false, false, $removedChildIds);
-            // Текущую колонку сравнения рендерим на актуальную дату просмотра ($viewDateSql),
-            // чтобы изменения, внесённые в дочерние элементы после последней редакции
-            // родителя, тоже попадали в сравнение.
-            $currContent = getItemRevisionContent($pdo, $current['rev_id'], $internalId, 0, null, false, true, $viewDateSql);
-            $prevHtml = $prevContent ? ensureTableWrapperForComparison($prevContent['html'], $internalId, $pdo, $prevAsOfDate) : '';
-            $currHtml = $currContent ? ensureTableWrapperForComparison($currContent['html'], $internalId, $pdo, $viewDateSql) : '';
-        }
-        $changingElements = [];
-        $changerIds = [];
-        if (!empty($current['modified_by_id']) && $current['modified_by_id'] !== 'base') {
-            $changerIds = array_filter(array_map('trim', explode(',', $current['modified_by_id'])));
-            foreach ($changerIds as $changerStr) {
-                if ($changerStr === 'base') continue;
-                $npaInfo = getNpaInfoByItemId($changerStr, $pdo);
-                if (!$npaInfo) continue;
-                $changerDate = $npaInfo['date_signed'] ?? $npaInfo['date_passed'] ?? $current['valid_from'];
-                $changerNpaId = $npaInfo['npa_id'];
-                $changerNpaType = $npaInfo['npa_type'];
-                $changerHtml = getElementHtmlById($changerStr, $viewDateSql, $pdo, $changerNpaId, $changerNpaType);
-                $note = getRevisionSourceNote($changerStr, $pdo, true);
-                $changingElements[] = [
-                    'note' => $note,
-                    'html' => $changerHtml,
-                    'date' => formatDateToRus($changerDate)
-                ];
-                        }
-        }
-        // Дочерние элементы, утратившие силу той же НПА, тоже показываем в «Изменения внесены:».
-        $changingElements = array_merge($changingElements, collectExpiredChildChanges($pdo, $internalId, $viewDateSql, $changerIds, $selectedRevisionNpaIds, null, $prev ? $prev['rev_id'] : null));
-        $highlightsForClient = null;
-        if (!empty($current['highlights'])) {
-            $decoded = json_decode($current['highlights'], true);
-            if (is_array($decoded)) $highlightsForClient = $decoded;
-        }
+    $itemCompare = getItemCompareForSelectedEdition($pdo, $internalId, $viewDateSql, $selectedRevisionNpaIds);
+    if ($itemCompare) {
         $precomputedCompares[$externalId] = [
             'success' => true,
-            'prev_valid_from' => $prev ? formatDateToRus($prev['valid_from']) : '',
-            'current_valid_from' => formatDateToRus($current['valid_from']),
-            'prev_html_raw' => $prevHtml,
-            'current_html_raw' => $currHtml,
-            'element_human_path' => getElementHumanPath($internalId, $pdo, 'genitive'),
-            'changing_elements' => $changingElements,
-            'highlights' => normalizeHighlights($highlightsForClient),
-            'mod_type' => $current['mod_type']
+            'prev_valid_from' => $itemCompare['prev_valid_from'],
+            'current_valid_from' => $itemCompare['current_valid_from'],
+            'prev_html_raw' => $itemCompare['prev_html_raw'],
+            'current_html_raw' => $itemCompare['current_html_raw'],
+            'element_human_path' => $itemCompare['element_human_path'],
+            'changing_elements' => $itemCompare['changing_elements'] ?? [],
+            'highlights' => $itemCompare['highlights'],
+            'mod_type' => $itemCompare['mod_type']
         ];
     }
     $selectedCurrentHeadRev = getItemHeadRevisionForSelectedEdition($pdo, $internalId, $viewDateSql, $selectedRevisionNpaIds);
