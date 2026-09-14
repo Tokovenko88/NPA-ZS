@@ -319,6 +319,68 @@ def _prev_day(date_str):
         return (dt - timedelta(days=1)).strftime('%d.%m.%Y')
     except (ValueError, TypeError):
         return date_str
+def _element_inline_after(element, change_npa_id):
+    """Inline-текст активной ревизии элемента.
+
+    Если у элемента есть ``item_children`` (структура: части/пункты/подпункты),
+    текст детей рекурсивно подставляется в порядке ``order``, заменяя ``child_ref``.
+    """
+    revisions = element.get('revisions', []) or []
+    active_rev = None
+    for rev in reversed(revisions):
+        if rev.get('not_valid'):
+            continue
+        if _ids_match(rev.get('modified_by_id'), change_npa_id):
+            active_rev = rev
+            break
+    if active_rev is None:
+        for rev in reversed(revisions):
+            if rev.get('valid_to') in (None, ''):
+                active_rev = rev
+                break
+    if active_rev is None:
+        return None
+
+    children_map = {}
+    for child in element.get('item_children', []) or []:
+        cid = child.get('item_id')
+        if cid:
+            children_map[cid] = child
+
+    parts = []
+    for block in sorted(active_rev.get('body', []) or [], key=lambda b: b.get('order', 0)):
+        bt = block.get('type')
+        if bt == 'child_ref':
+            cid = block.get('item_id')
+            child = children_map.get(cid)
+            if child:
+                child_inline = _element_inline_after(child, change_npa_id)
+                if child_inline:
+                    parts.append(child_inline)
+        elif bt in ('paragraph', 'table', 'table_header', 'table_fragment'):
+            html = block.get('html_text', '')
+            if html:
+                parts.append(html)
+    if parts:
+        return '\n'.join(parts)
+    return _revision_body_html(active_rev)
+
+
+def _element_children_inline(element, change_npa_id):
+    """Inline-текст из потомков ``item_children`` (без собственного body элемента).
+
+    Используется для проверки «пустого элемента с детьми» (например статья 4,
+    у которой body активной ревизии = child_ref, а текст живёт в part- детей).
+    """
+    parts = []
+    for child in element.get('item_children', []) or []:
+        inline = _element_inline_after(child, change_npa_id)
+        if inline:
+            parts.append(inline)
+    return '\n'.join(parts) if parts else None
+
+
+
 
 def _resolve_norm_id_for_gap(change_data, gap, log_callback=None):
     """Резолвинг id нормы изменяющего НПА для пробела покрытия.
@@ -443,7 +505,9 @@ def _collect_element_changes(element, change_npa_id, chain, out):
         else:
             kind, before = 'change', _revision_body_html(revisions[idx - 1])
         out.append(_change_entry(
-            kind, item_id, path, _cap(before), _cap(_revision_body_html(rev)),
+            kind, item_id, path, _cap(before),
+            _cap(_element_inline_after(element, change_npa_id)
+                 or _revision_body_html(rev)),
             _highlights_summary(rev.get('highlights')), item_number,
         ))
     head_revs = element.get('head_revisions', []) or []

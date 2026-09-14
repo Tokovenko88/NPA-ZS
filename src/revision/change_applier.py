@@ -994,6 +994,26 @@ def _apply_change_to_head(change, data, change_data, valid_from, rev_number,
         new_rev['highlights'] = highlights
     head_rev.append(new_rev)
     data['head_revision'] = head_rev
+    # План D: дописываем в revision_info запись о ревизии наименования НПА
+    if not isinstance(data.get('revision_info'), list):
+        data['revision_info'] = []
+    rev_number_str = str(rev_number or '')
+    if rev_number_str:
+        existing = [
+            e for e in data['revision_info']
+            if str(e.get('revision_number', '')) == rev_number_str
+            and e.get('structural_element') == 'НПА'
+        ]
+        if not existing:
+            data['revision_info'].append({
+                'revision_number': rev_number_str,
+                'structural_element': 'НПА',
+                'type': ch_type,
+                'description': (change.get('description', '') or ''),
+                'revision_id': new_rev['revision_id'],
+                'modified_by_id': modified_by_id_str,
+                'valid_from': (valid_from.strftime('%d.%m.%Y') if valid_from else ''),
+            })
     if log_callback:
         log_callback(f"  Заголовок обновлён: {new_head}", 'result')
     return _make_success_result(change.get('change_id') or _get_change_id(change), revision=new_rev)
