@@ -17,6 +17,8 @@ class PostAnalysisOptions:
     model: str = ''
     backend: str = ''
     extra_options: str = ''
+    kilo_gateway_url: str = ''
+    kilo_gateway_api_key: str = ''
 
 
 @dataclass

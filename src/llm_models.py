@@ -14,6 +14,7 @@ from collections.abc import Iterable
 
 import requests
 from npazs.constants import (
+    HTTP_BACKEND_DEFS,
     KILO_GATEWAY_FREE_MODELS,
     OLLAMA_MODELS_WHITELIST,
     _ollama_base_url,
@@ -93,3 +94,101 @@ def fetch_ollama_models(base_url: str = _ollama_base_url) -> list:
         if name and name in OLLAMA_MODELS_WHITELIST:
             models.append(name)
     return sorted(models)
+
+
+# ---------------------------------------------------------------------------
+# Generic OpenAI-compatible model fetching (OpenRouter, Cline, DeepSeek, Gemini)
+# ---------------------------------------------------------------------------
+
+def _fetch_openai_compat_models(
+    base_url: str,
+    api_key: str = '',
+    free_marker: str = 'free',
+) -> list:
+    """Получить список моделей из OpenAI-compatible ``GET /models``.
+
+    Возвращает модели, содержащие ``free`` в id или названии (регистронезависимо).
+    Если API недоступен или не возвращает free-модели, выбрасывается
+    ``RuntimeError`` — вызывающий код решает, как использовать fallback-список.
+    """
+    base = (base_url or '').rstrip('/')
+    if not base:
+        raise RuntimeError('Base URL is not configured')
+    headers = {'Content-Type': 'application/json'}
+    if api_key:
+        headers['Authorization'] = f'Bearer {api_key}'
+    response = requests.get(f'{base}/models', headers=headers, timeout=15)
+    if response.status_code != 200:
+        raise RuntimeError(
+            f'HTTP {response.status_code}: {response.text[:200]}'
+        )
+    data = response.json()
+    selected = []
+    for m in data.get('data', []):
+        if not isinstance(m, dict):
+            continue
+        model_id = str(m.get('id') or '').strip()
+        name = str(m.get('name') or str(m.get('id') or '')).strip()
+        if model_id and free_marker in f'{model_id} {name}'.lower():
+            selected.append(model_id)
+    return sorted(set(selected))
+
+
+def fetch_openrouter_free_models(api_key: str = '') -> list:
+    """Получить free-модели OpenRouter через ``GET /models``."""
+    return _fetch_openai_compat_models(
+        'https://openrouter.ai/api/v1', api_key, 'free'
+    )
+
+
+def fetch_cline_models(api_key: str = '') -> list:
+    """Получить список моделей Cline API через ``GET /models``.
+
+    Если API не возвращает free-модели, используется fallback из констант.
+    """
+    try:
+        return _fetch_openai_compat_models(
+            'https://api.cline.bot/api/v1', api_key, 'free'
+        )
+    except RuntimeError:
+        return sorted(HTTP_BACKEND_DEFS['cline']['free_models'])
+
+
+def fetch_deepseek_models(api_key: str = '') -> list:
+    """Получить список моделей DeepSeek через ``GET /models``.
+
+    Если API не доступен, используется fallback из констант.
+    """
+    try:
+        return _fetch_openai_compat_models(
+            'https://api.deepseek.com/v1', api_key
+        )
+    except RuntimeError:
+        return sorted(HTTP_BACKEND_DEFS['deepseek']['free_models'])
+
+
+def fetch_gemini_models(api_key: str = '') -> list:
+    """Получить список free-моделей Gemini через ``GET /models``.
+
+    Если API не доступен, используется fallback из констант.
+    """
+    try:
+        return _fetch_openai_compat_models(
+            'https://generativelanguage.googleapis.com/v1beta/openai',
+            api_key, 'flash'
+        )
+    except RuntimeError:
+        return sorted(HTTP_BACKEND_DEFS['gemini']['free_models'])
+
+
+def get_free_models_for_backend(backend: str) -> list:
+    """Вернуть fallback-список free-моделей для любого бэкенда.
+
+    Используется как запасной вариант, когда API недоступен.
+    """
+    if backend == 'kilo_gateway':
+        return sorted(KILO_GATEWAY_FREE_MODELS)
+    defn = HTTP_BACKEND_DEFS.get(backend)
+    if defn:
+        return sorted(defn['free_models'])
+    return sorted(KILO_GATEWAY_FREE_MODELS)

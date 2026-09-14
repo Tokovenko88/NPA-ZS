@@ -1,42 +1,30 @@
 """Mixin для создания графического интерфейса приложения."""
 
+import json
 import os
-import sys
-import copy
 import threading
-import queue
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from datetime import datetime, timedelta
-import traceback
-import json
-import json
+from tkinter import filedialog, messagebox, ttk
 
 from npazs._bootstrap import _bootstrap_project_root
 
 _bootstrap_project_root()
 
 from npazs.constants import (
-    settings,
-    _ollama_base_url,
-    BASE_LAW_DIR,
-    DEFAULT_EXTRA_OPTIONS,
-    DEFAULT_OLLAMA_MODEL,
-    LAST_PATHS_FILE,
-    PRODUCTION_BASE_DIR,
-    PRODUCTION_BASE_LAW_DIR,
-    STAGE_ANSWERS_FILE,
-    PROMPT_1,
-    PROMPT_2,
-    PROMPT_3,
-    PROMPT_4,
-    TYPE_TO_RUSSIAN,
+        BASE_LAW_DIR,
+        DEFAULT_EXTRA_OPTIONS,
+        HTTP_BACKEND_DEFS,
+        HTTP_BACKENDS,
+        LAST_PATHS_FILE,
+        PRODUCTION_BASE_DIR,
+        PRODUCTION_BASE_LAW_DIR,
+        STAGE_ANSWERS_FILE,
+        settings,
 )
-from npazs.revision.ui_utils import add_context_menu, add_hotkeys
-from npazs.revision.json_utils import load_json, save_json
 from npazs.revision.engine import *
-from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
-from npazs.ui.dialogs.source_mapping import SourceMappingDialog
+from npazs.revision.json_utils import save_json
+from npazs.revision.ui_utils import add_context_menu, add_hotkeys
+
 
 class GuiBuilderMixin:
         def create_widgets(self):
@@ -103,10 +91,14 @@ class GuiBuilderMixin:
             tk.Label(backend_frame, text="Бэкенд:").pack(side=tk.LEFT, padx=(0,10))
             tk.Radiobutton(backend_frame, text="Ollama", variable=self.backend, value="ollama", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Kilo Gateway", variable=self.backend, value="kilo_gateway", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="Cline", variable=self.backend, value="cline", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="OpenRouter", variable=self.backend, value="openrouter", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="DeepSeek", variable=self.backend, value="deepseek", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="Gemini", variable=self.backend, value="gemini", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             row += 1
             kilo_frame = tk.Frame(self.left_frame)
             kilo_frame.grid(row=row, column=0, columnspan=3, sticky='ew', padx=10, pady=5)
-            tk.Label(kilo_frame, text="Kilo Gateway URL:").pack(side=tk.LEFT, padx=(0,5))
+            tk.Label(kilo_frame, text="API URL:").pack(side=tk.LEFT, padx=(0,5))
             self.kilo_gateway_url_entry = tk.Entry(kilo_frame, textvariable=self.kilo_gateway_url, width=40)
             self.kilo_gateway_url_entry.pack(side=tk.LEFT, padx=(0,10))
             tk.Label(kilo_frame, text="API Key:").pack(side=tk.LEFT, padx=(0,5))
@@ -247,8 +239,18 @@ class GuiBuilderMixin:
             threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
         def on_backend_changed(self):
-            if self.backend.get() == "kilo_gateway":
-                self.log("Переключено на Kilo Gateway", 'info')
+            backend = self.backend.get()
+            if backend in HTTP_BACKENDS:
+                self.log(f"Переключено на {backend}", 'info')
+                # Автоподстановка URL по умолчанию.
+                defn = HTTP_BACKEND_DEFS.get(backend)
+                if defn:
+                    current_url = self.kilo_gateway_url.get().strip()
+                    default_url = defn['base_url']
+                    default_key = getattr(settings, backend + '_api_key', '') or defn.get('api_key', '')
+                    if not current_url or current_url != default_url:
+                        self.kilo_gateway_url.set(default_url)
+                        self.kilo_gateway_api_key.set(str(default_key or ''))
             else:
                 self.log("Переключено на Ollama", 'info')
             threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()

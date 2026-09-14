@@ -108,6 +108,9 @@ PLURAL_TO_SINGULAR = {
 }
 
 # --- Бэкенды ИИ -------------------------------------------------------------
+# Поддерживаемые HTTP-бэкенды (все используют OpenAI-compatible /chat/completions)
+# и локальный Ollama. Список здесь — единственный источник истины для
+# SUPPORTED_BACKENDS / DEFAULT_BACKEND / метаданных бэкендов.
 DEFAULT_OLLAMA_MODEL = "gpt-oss:20b-cloud"
 _ollama_base_url = settings.ollama_base_url
 OLLAMA_MODELS_WHITELIST = {
@@ -119,16 +122,64 @@ OLLAMA_MODELS_WHITELIST = {
     "nemotron-3-super",
     "nemotron-3-ultra",
 }
-DEFAULT_KILO_GATEWAY_URL = settings.kilo_gateway_base_url
-DEFAULT_KILO_GATEWAY_MODEL = "Tencent: Hy3 (free)"
-KILO_GATEWAY_FREE_MODELS = {
-    "StepFun: Step 3.7 Flash (free)",
-    "Tencent: Hy3 (free)",
-    "Poolside: Laguna S 2.1 (free)",
-    "Meituan: LongCat 2.0 (free)",
-    "Auto Free",
+
+# --- HTTP-бэкенды -----------------------------------------------------------
+# Каждая запись: (default_base_url, settings_переменные, free-модели, default_model)
+HTTP_BACKEND_DEFS = {
+    'kilo_gateway': {
+        'base_url': settings.kilo_gateway_base_url,
+        'api_key': settings.kilo_gateway_api_key,
+        'default_model': settings.kilo_gateway_default_model or 'Tencent: Hy3 (free)',
+        'free_models': {
+            "StepFun: Step 3.7 Flash (free)",
+            "Tencent: Hy3 (free)",
+            "Poolside: Laguna S 2.1 (free)",
+            "Meituan: LongCat 2.0 (free)",
+            "Auto Free",
+        },
+    },
+    'cline': {
+        'base_url': settings.cline_base_url or 'https://api.cline.bot/api/v1',
+        'api_key': settings.cline_api_key,
+        'default_model': settings.cline_default_model or 'minimax/minimax-m2.5',
+        'free_models': {'minimax/minimax-m2.5'},
+    },
+    'openrouter': {
+        'base_url': settings.openrouter_base_url or 'https://openrouter.ai/api/v1',
+        'api_key': settings.openrouter_api_key,
+        'default_model': settings.openrouter_default_model or 'openrouter/free',
+        'free_models': {
+            'google/gemini-2.5-flash:free',
+            'google/gemini-2.5-pro:free',
+            'meta-llama/llama-4-maverick:free',
+            'meta-llama/llama-4-scout:free',
+            'nvidia/nemotron-3-ultra-550b-a55b:free',
+            'minimax/minimax-m3:free',
+            'openrouter/free',
+        },
+    },
+    'deepseek': {
+        'base_url': settings.deepseek_base_url or 'https://api.deepseek.com/v1',
+        'api_key': settings.deepseek_api_key,
+        'default_model': settings.deepseek_default_model or 'deepseek-chat',
+        'free_models': {'deepseek-chat', 'deepseek-coder'},
+    },
+    'gemini': {
+        'base_url': settings.gemini_base_url or 'https://generativelanguage.googleapis.com/v1beta/openai',
+        'api_key': settings.gemini_api_key,
+        'default_model': settings.gemini_default_model or 'gemini-2.0-flash',
+        'free_models': {'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-2.5-pro'},
+    },
 }
+
+# Backward-compatible aliases (old code и тесты ссылаются на эти имена).
+DEFAULT_KILO_GATEWAY_URL = HTTP_BACKEND_DEFS['kilo_gateway']['base_url']
+DEFAULT_KILO_GATEWAY_MODEL = HTTP_BACKEND_DEFS['kilo_gateway']['default_model']
+KILO_GATEWAY_FREE_MODELS = HTTP_BACKEND_DEFS['kilo_gateway']['free_models']
 DEFAULT_BACKEND = "kilo_gateway"
+
+# Набор всех HTTP-бэкендов (все, кроме ollama).
+HTTP_BACKENDS = frozenset(HTTP_BACKEND_DEFS.keys())
 _user_retry_callback = None
 
 # --- Промпты ----------------------------------------------------------------

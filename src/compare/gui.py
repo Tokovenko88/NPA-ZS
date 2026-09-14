@@ -17,12 +17,19 @@ from tkinter import filedialog, messagebox, ttk
 from npazs.constants import (
     DEFAULT_BACKEND,
     DEFAULT_KILO_GATEWAY_URL,
+    HTTP_BACKEND_DEFS,
+    HTTP_BACKENDS,
     KILO_GATEWAY_FREE_MODELS,
     settings,
 )
 from npazs.llm_models import (
+    fetch_cline_models,
+    fetch_deepseek_models,
+    fetch_gemini_models,
     fetch_kilo_gateway_free_models,
     fetch_ollama_models,
+    fetch_openrouter_free_models,
+    get_free_models_for_backend,
 )
 
 from .runner import CompareOptions, run_compare
@@ -145,6 +152,7 @@ class CompareApp:
         backend_frame = tk.Frame(frame)
         backend_frame.grid(row=6, column=0, columnspan=3, sticky='w', **pad)
         tk.Label(backend_frame, text='Бэкенд:').pack(side=tk.LEFT, padx=(0, 8))
+        # Radio buttons for all supported backends
         tk.Radiobutton(
             backend_frame, text='Kilo Gateway', variable=self.backend,
             value='kilo_gateway', command=self._on_backend_changed,
@@ -153,11 +161,27 @@ class CompareApp:
             backend_frame, text='Ollama', variable=self.backend, value='ollama',
             command=self._on_backend_changed,
         ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='Cline API', variable=self.backend,
+            value='cline', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='OpenRouter', variable=self.backend,
+            value='openrouter', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='DeepSeek', variable=self.backend,
+            value='deepseek', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='Gemini', variable=self.backend,
+            value='gemini', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
 
-        self.kg_url_label = tk.Label(backend_frame, text='Kilo Gateway URL:')
+        self.kg_url_label = tk.Label(backend_frame, text='API URL:')
         self.kg_url_label.pack(side=tk.LEFT, padx=(16, 4))
         self.kg_url_entry = tk.Entry(
-            backend_frame, textvariable=self.kilo_gateway_url, width=30
+            backend_frame, textvariable=self.kilo_gateway_url, width=40
         )
         self.kg_url_entry.pack(side=tk.LEFT)
 
@@ -305,17 +329,30 @@ class CompareApp:
         return 'break'
 
     def _on_backend_changed(self) -> None:
-        if self.backend.get() == 'kilo_gateway':
+        # Для HTTP-бэкендов (kilo_gateway, cline, openrouter, deepseek, gemini)
+        # показываем URL/API Key поля. Для ollama скрываем и используем локальный сервер.
+        backend = self.backend.get()
+        if backend in HTTP_BACKENDS:
             self.kg_url_label.config(state=tk.NORMAL)
             self.kg_url_entry.config(state=tk.NORMAL)
             self.kg_key_label.config(state=tk.NORMAL)
             self.kg_key_entry.config(state=tk.NORMAL)
+            # Автоподстановка URL по умолчанию, если поле пусто или совпадает
+            # с URL другого бэкенда.
+            defn = HTTP_BACKEND_DEFS.get(backend)
+            if defn:
+                current_url = self.kilo_gateway_url.get().strip()
+                default_url = defn['base_url']
+                default_key = settings.__dict__.get(backend + '_api_key', '') or defn.get('api_key', '')
+                if not current_url or current_url != default_url:
+                    self.kilo_gateway_url.set(default_url)
+                    self.kilo_gateway_api_key.set(str(default_key or ''))
         else:
             self.kg_url_label.config(state=tk.DISABLED)
             self.kg_url_entry.config(state=tk.DISABLED)
             self.kg_key_label.config(state=tk.DISABLED)
             self.kg_key_entry.config(state=tk.DISABLED)
-        if getattr(self, '_models_backend', None) != self.backend.get():
+        if getattr(self, '_models_backend', None) != backend:
             self._fetch_models()
         self._update_model_combo()
 
@@ -349,14 +386,70 @@ class CompareApp:
         ).start()
 
     def _fetch_models_worker(self, backend, kilo_gateway_url, kilo_gateway_api_key) -> None:
+        """Фоновый поток: получить модели для выбранного бэкенда."""
         try:
-            if backend == 'kilo_gateway':
+            if backend == 'ollama':
+                self._fetch_ollama_models()
+            elif backend == 'kilo_gateway':
                 self._fetch_kilo_gateway_models(kilo_gateway_url, kilo_gateway_api_key)
+            elif backend == 'openrouter':
+                self._fetch_openrouter_models(kilo_gateway_api_key)
+            elif backend == 'cline':
+                self._fetch_cline_models(kilo_gateway_api_key)
+            elif backend == 'deepseek':
+                self._fetch_deepseek_models(kilo_gateway_api_key)
+            elif backend == 'gemini':
+                self._fetch_gemini_models(kilo_gateway_api_key)
             else:
                 self._fetch_ollama_models()
         finally:
             self._models_fetching = False
             self.log_queue.put(('button', 'Обновить модели'))
+
+    def _fetch_openrouter_models(self, api_key: str) -> None:
+        """Загрузить free-модели OpenRouter."""
+        try:
+            models = fetch_openrouter_free_models(api_key)
+            self.log_queue.put(('info', f"OpenRouter: получено {len(models)} free-моделей"))
+            self.log_queue.put(('models', ('openrouter', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к OpenRouter: {e}"))
+            fallback = get_free_models_for_backend('openrouter')
+            self.log_queue.put(('warning', 'OpenRouter недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('openrouter', fallback)))
+
+    def _fetch_cline_models(self, api_key: str) -> None:
+        """Загрузить модели Cline API."""
+        try:
+            models = fetch_cline_models(api_key)
+            self.log_queue.put(('models', ('cline', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к Cline API: {e}"))
+            fallback = get_free_models_for_backend('cline')
+            self.log_queue.put(('warning', 'Cline API недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('cline', fallback)))
+
+    def _fetch_deepseek_models(self, api_key: str) -> None:
+        """Загрузить модели DeepSeek."""
+        try:
+            models = fetch_deepseek_models(api_key)
+            self.log_queue.put(('models', ('deepseek', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к DeepSeek: {e}"))
+            fallback = get_free_models_for_backend('deepseek')
+            self.log_queue.put(('warning', 'DeepSeek недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('deepseek', fallback)))
+
+    def _fetch_gemini_models(self, api_key: str) -> None:
+        """Загрузить модели Gemini."""
+        try:
+            models = fetch_gemini_models(api_key)
+            self.log_queue.put(('models', ('gemini', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к Gemini: {e}"))
+            fallback = get_free_models_for_backend('gemini')
+            self.log_queue.put(('warning', 'Gemini недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('gemini', fallback)))
 
     def _fetch_ollama_models(self) -> None:
         try:

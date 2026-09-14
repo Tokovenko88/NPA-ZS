@@ -1158,6 +1158,7 @@ def _load_tracker_snapshot_from_work(orig_file, change_data, log):
 
 def run_post_analysis(orig_file, result_data, change_data, model=None, extra_options=None,
                       stop_event=None, log_callback=None, backend=None,
+                      kilo_gateway_url=None, api_key=None,
                       extracted_instructions=None, tracker_snapshot=None):
     """Пост-анализ внесённых изменений (автоматический ИИ-контроль).
 
@@ -1265,20 +1266,22 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     prompt = build_prompt(work, change_data, changes, extracted_instructions,
                           coverage_section=coverage_section)
 
-    from npazs.config.settings import get_settings
-    settings = get_settings()
-    backend = backend or getattr(settings, 'llm_backend', None) or 'kilo_gateway'
+    from npazs.config.ollama import get_active_llm_config
+    # backend/model/url/key могут быть переданы из GUI или остаться пустыми.
+    if not backend:
+        backend = get_active_llm_config().get('backend', 'kilo_gateway')
     if not model:
-        model = (settings.kilo_gateway_default_model if backend == 'kilo_gateway'
-                 else settings.default_ollama_model)
+        active_config = get_active_llm_config()
+        model = active_config.get('model', '')
     if extra_options is None:
         extra_options = {'temperature': 0.0, 'top_p': 0.1}
 
     _log(f"Запрос к ИИ-агенту пост-анализа (бэкенд: {backend}, модель: {model})", 'info')
 
     try:
-        answer = ask_ollama(prompt, model, _log, extra_options=extra_options,
-                            stop_event=stop_event, backend=backend)
+                answer = ask_ollama(prompt, model, _log, extra_options=extra_options,
+                            stop_event=stop_event, backend=backend,
+                            kilo_gateway_url=kilo_gateway_url, api_key=api_key)
     except Exception as exc:  # noqa: BLE001 — сбой пост-анализа не должен ломать прогон
         _log(f"Ошибка запроса к ИИ-агенту пост-анализа: {exc}", 'error')
         return _finish_run(orig_file, started, result_data, change_data,

@@ -1,56 +1,56 @@
 """Главный класс приложения для внесения изменений в НПА."""
 
-import os
-import sys
-import copy
-import threading
-import queue
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from datetime import datetime, timedelta
-import traceback
-import re
 import json
+import os
+import queue
+import re
+import threading
+import tkinter as tk
+from tkinter import messagebox, ttk
+
 import requests
 from bs4 import BeautifulSoup
-
 from npazs._bootstrap import _bootstrap_project_root
 
 _bootstrap_project_root()
 
 import npazs.constants as _constants
-
 from npazs.constants import (
-    settings,
-    _ollama_base_url,
-    DEFAULT_EXTRA_OPTIONS,
-    DEFAULT_OLLAMA_MODEL,
-    DEFAULT_KILO_GATEWAY_URL,
-    DEFAULT_BACKEND,
-    LAST_PATHS_FILE,
-    STAGE_ANSWERS_FILE,
-    LAST_RUN_LOG_FILE,
-    PROMPT_1,
-    PROMPT_2,
-    PROMPT_3,
-    PROMPT_4,
-    TYPE_TO_RUSSIAN,
-    save_last_run_log,
+        DEFAULT_BACKEND,
+        DEFAULT_EXTRA_OPTIONS,
+        DEFAULT_KILO_GATEWAY_URL,
+        DEFAULT_OLLAMA_MODEL,
+        LAST_PATHS_FILE,
+        PROMPT_1,
+        PROMPT_2,
+        PROMPT_3,
+        PROMPT_4,
+        STAGE_ANSWERS_FILE,
+        TYPE_TO_RUSSIAN,
+        _ollama_base_url,
+        save_last_run_log,
+        settings,
 )
 from npazs.llm_models import (
-    fetch_kilo_gateway_free_models,
-    fetch_ollama_models,
+        fetch_cline_models,
+        fetch_deepseek_models,
+        fetch_gemini_models,
+        fetch_kilo_gateway_free_models,
+        fetch_ollama_models,
+        fetch_openrouter_free_models,
+        get_free_models_for_backend,
 )
-from npazs.revision.text_utils import safe_re_sub
-from npazs.revision.html_utils import get_full_element_html, get_clean_text_from_block
-from npazs.revision.json_utils import extract_html_from_json_response, load_json
-from npazs.revision.tree_utils import find_item_by_id
+from npazs.pipeline.orchestrator import AiPipelineMixin
 from npazs.revision.engine import *
+from npazs.revision.file_ops import FileOpsMixin
+from npazs.revision.html_utils import get_clean_text_from_block, get_full_element_html
+from npazs.revision.json_utils import extract_html_from_json_response, load_json
+from npazs.revision.text_utils import safe_re_sub
+from npazs.revision.tree_utils import find_item_by_id
 from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
 from npazs.ui.dialogs.source_mapping import SourceMappingDialog
 from npazs.ui.gui_builder import GuiBuilderMixin
-from npazs.pipeline.orchestrator import AiPipelineMixin
-from npazs.revision.file_ops import FileOpsMixin
+
 
 class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
         def __init__(self, root):
@@ -144,10 +144,63 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             return choice['value']
 
         def _fetch_models(self, try_api=True):
-            if self.backend.get() == "kilo_gateway":
+            backend = self.backend.get()
+            if backend == "ollama":
+                self._fetch_ollama_models()
+            elif backend == "kilo_gateway":
                 self._fetch_kilo_gateway_models(try_api=try_api)
+            elif backend == "openrouter":
+                self._fetch_http_models('openrouter', fetch_openrouter_free_models,
+                                        self.kilo_gateway_api_key.get().strip(), try_api)
+            elif backend == "cline":
+                self._fetch_http_models('cline', fetch_cline_models,
+                                        self.kilo_gateway_api_key.get().strip(), try_api)
+            elif backend == "deepseek":
+                self._fetch_http_models('deepseek', fetch_deepseek_models,
+                                        self.kilo_gateway_api_key.get().strip(), try_api)
+            elif backend == "gemini":
+                self._fetch_http_models('gemini', fetch_gemini_models,
+                                        self.kilo_gateway_api_key.get().strip(), try_api)
             else:
                 self._fetch_ollama_models()
+
+        def _fetch_http_models(self, backend_name, fetcher, api_key, try_api=True):
+            """Загрузить модели для HTTP-бэкенда (openrouter/cline/deepseek/gemini)."""
+            if not try_api:
+                models = get_free_models_for_backend(backend_name)
+                self.ollama_models = models
+                self.post_analysis_models = models
+                current = self.ollama_model.get()
+                if current not in self.ollama_models:
+                    self.ollama_model.set(self.ollama_models[0])
+                if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
+                    self.post_analysis_model.set(self.ollama_models[0])
+                self.root.after(0, self.log, f"Установлены модели {backend_name} по умолчанию: {models}", 'info')
+                return
+            try:
+                models = fetcher(api_key)
+                self.ollama_models = models
+                self.post_analysis_models = models
+                if self.ollama_models:
+                    current = self.ollama_model.get()
+                    if current not in self.ollama_models:
+                        self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
+                    if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
+                        self.root.after(0, lambda: self.post_analysis_model.set(self.ollama_models[0]))
+                    self.root.after(0, self.log, f"Выбрано моделей {backend_name}: {models}", 'info')
+                else:
+                    self.root.after(0, self.log, f"Нет доступных free-моделей в {backend_name}. Проверьте API ключ или URL.", 'warning')
+            except Exception as e:
+                self.root.after(0, self.log, f"Ошибка подключения к {backend_name}: {e}. Проверьте URL и API ключ.", 'error')
+                self.root.after(0, self.log, f'{backend_name} недоступен — показан запасной список моделей.', 'warning')
+                models = get_free_models_for_backend(backend_name)
+                self.ollama_models = models
+                self.post_analysis_models = models
+                current = self.ollama_model.get()
+                if current not in self.ollama_models:
+                    self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
+                if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
+                    self.root.after(0, lambda: self.post_analysis_model.set(self.ollama_models[0]))
 
         def _fetch_ollama_models(self):
             try:
@@ -267,8 +320,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             if not item_number:
                 return html, True
             expected_marker = str(item_number).strip()
-            if expected_marker.endswith(')'):
-                expected_marker = expected_marker[:-1]
+            expected_marker = expected_marker.removesuffix(')')
             soup = BeautifulSoup(html, 'html.parser')
             first_text = soup.get_text(strip=True)
             if not first_text:
@@ -477,8 +529,9 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
         def _split_ai_answer_into_paragraphs(self, ai_answer_text):
             if not ai_answer_text:
                 return []
-            from bs4 import BeautifulSoup
             import re
+
+            from bs4 import BeautifulSoup
             soup = BeautifulSoup(ai_answer_text, 'html.parser')
             paragraphs = soup.find_all('p')
             if paragraphs:
@@ -514,7 +567,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             ai_paragraphs = self._split_ai_answer_into_paragraphs(ai_answer_text)
             if not ai_paragraphs:
                 if log_callback:
-                    log_callback(f"  Ответ ИИ не содержит текста, используем как есть", 'warning')
+                    log_callback("  Ответ ИИ не содержит текста, используем как есть", 'warning')
                     return ai_answer_text
             n = len(ai_paragraphs)
             src_count = len(source_paragraphs)
@@ -535,7 +588,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                     break
             if start_idx == -1:
                 if log_callback:
-                    log_callback(f"  Не найден абзац, начинающийся с '«' в элементе-источнике", 'error')
+                    log_callback("  Не найден абзац, начинающийся с '«' в элементе-источнике", 'error')
                 return None
             if start_idx + n > src_count:
                 if log_callback:
@@ -560,7 +613,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
 
         def resolve_change_manually(self, change, original_data, stop_event=None):
             if stop_event and stop_event.is_set():
-                self.log(f"resolve_change_manually: процесс остановлен, диалог не открывается", 'warning')
+                self.log("resolve_change_manually: процесс остановлен, диалог не открывается", 'warning')
                 return None, None, None, None
             evt = threading.Event()
             result = {'target_id': None, 'structural': None, 'description': None, 'type': None}

@@ -14,9 +14,16 @@ _bootstrap = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_bootstrap)
 _bootstrap.bootstrap()
 
+from npazs.constants import HTTP_BACKEND_DEFS, HTTP_BACKENDS
 from npazs.llm_models import (
+    _fetch_openai_compat_models,
+    fetch_cline_models,
+    fetch_deepseek_models,
+    fetch_gemini_models,
     fetch_kilo_gateway_free_models,
     fetch_ollama_models,
+    fetch_openrouter_free_models,
+    get_free_models_for_backend,
 )
 
 
@@ -79,3 +86,89 @@ def test_fetch_ollama_raises_on_http_error(monkeypatch):
     monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
     with pytest.raises(RuntimeError, match='503'):
         fetch_ollama_models('http://localhost:11434')
+
+
+# ---------------------------------------------------------------------------
+# HTTP-бэкенды: OpenRouter, Cline, DeepSeek, Gemini
+# ---------------------------------------------------------------------------
+
+def test_fetch_openai_compat_filters_free(monkeypatch):
+    payload = {'data': [
+        {'id': 'provider:paid-model', 'name': 'Paid'},
+        {'id': 'openai/gpt-4o:free', 'name': 'GPT-4o (free)'},
+        {'id': 'google/gemini-2.5-flash:free', 'name': 'Gemini Flash'},
+        None,
+        'not-a-dict',
+    ]}
+    calls = []
+
+    def fake_get(url, headers=None, timeout=None):
+        calls.append((url, headers, timeout))
+        return _FakeResponse(data=payload)
+
+    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    result = _fetch_openai_compat_models('https://fake.example', 'key', 'free')
+    assert result == ['google/gemini-2.5-flash:free', 'openai/gpt-4o:free']
+    url, headers, _ = calls[0]
+    assert url == 'https://fake.example/models'
+    assert headers == {'Content-Type': 'application/json', 'Authorization': 'Bearer key'}
+
+
+def test_fetch_openrouter_free_models(monkeypatch):
+    def fake_get(url, headers=None, timeout=None):
+        assert url == 'https://openrouter.ai/api/v1/models'
+        return _FakeResponse(data={'data': [
+            {'id': 'openai/gpt-4o:free', 'name': 'Free'},
+            {'id': 'openai/gpt-4o', 'name': 'Paid'},
+        ]})
+
+    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    result = fetch_openrouter_free_models('secret')
+    assert result == ['openai/gpt-4o:free']
+
+
+def test_fetch_cline_models_fallback_on_error(monkeypatch):
+    def fake_get(url, headers=None, timeout=None):
+        return _FakeResponse(status_code=401, text='no auth')
+
+    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    # На 401 _fetch_openai_compat_models бросает RuntimeError,
+    # fetch_cline_models перехватывает и возвращает fallback из констант.
+    result = fetch_cline_models('')
+    assert result == sorted(HTTP_BACKEND_DEFS['cline']['free_models'])
+
+
+def test_fetch_deepseek_models_fallback_on_error(monkeypatch):
+    def fake_get(url, headers=None, timeout=None):
+        raise RuntimeError('network down')
+
+    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    result = fetch_deepseek_models('')
+    assert result == sorted(HTTP_BACKEND_DEFS['deepseek']['free_models'])
+
+
+def test_fetch_gemini_models_fallback_on_error(monkeypatch):
+    def fake_get(url, headers=None, timeout=None):
+        return _FakeResponse(status_code=500, text='boom')
+
+    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    result = fetch_gemini_models('')
+    assert result == sorted(HTTP_BACKEND_DEFS['gemini']['free_models'])
+
+
+def test_get_free_models_for_backend_all_backends():
+    """Каждый HTTP-бэкенд из констант имеет непустой fallback-список."""
+    for backend in HTTP_BACKENDS:
+        models = get_free_models_for_backend(backend)
+        assert len(models) > 0, f"Бэкенд {backend} не имеет free-моделей"
+
+
+def test_get_free_models_for_backend_unknown():
+    assert get_free_models_for_backend('nonexistent') == sorted(
+        HTTP_BACKEND_DEFS['kilo_gateway']['free_models']
+    )
+
+
+def test_get_free_models_for_backend_kilo_gateway():
+    result = get_free_models_for_backend('kilo_gateway')
+    assert result == sorted(HTTP_BACKEND_DEFS['kilo_gateway']['free_models'])

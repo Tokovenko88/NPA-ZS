@@ -23,7 +23,7 @@ report     Собрать отчёт о последнем прогоне
 from __future__ import annotations
 
 import argparse
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 __all__ = ['COMMANDS', 'build_parser', 'parse_args']
 
@@ -117,7 +117,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     compare_parser.add_argument(
         '--backend',
-        choices=('ollama', 'kilo_gateway'),
+        choices=('ollama', 'kilo_gateway', 'cline', 'openrouter', 'deepseek', 'gemini'),
         help='LLM-бэкенд (по умолчанию из LLM_BACKEND)',
     )
     compare_parser.add_argument('--model', help='Имя модели')
@@ -155,7 +155,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     verify_parser.add_argument(
         '--backend',
-        choices=('ollama', 'kilo_gateway'),
+        choices=('ollama', 'kilo_gateway', 'cline', 'openrouter', 'deepseek', 'gemini'),
         help='LLM-бэкенд (по умолчанию из LLM_BACKEND)',
     )
     verify_parser.add_argument('--model', help='Имя модели')
@@ -216,6 +216,6 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Разобрать аргументы; при отсутствии команды вернуть ``command=None``."""
     return build_parser().parse_args(argv)

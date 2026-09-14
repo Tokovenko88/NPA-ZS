@@ -1,42 +1,22 @@
 """Утилиты для взаимодействия с Ollama API."""
 
-import os
-import sys
-import re
 import json
+import re
 import time
-import requests
-import threading
-import copy
-from datetime import datetime, timedelta, date
-import traceback
-from collections import defaultdict
-from bs4 import BeautifulSoup
-import json5
-import queue
-import difflib
-from json_repair import repair_json
 
 import npazs.constants as _constants
-
-from npazs.constants import (
-    PROMPTS_DIR,
-    LAST_PATHS_FILE,
-    STAGE_ANSWERS_FILE,
-    DEFAULT_EXTRA_OPTIONS,
+import requests
+from json_repair import repair_json
+from npazs.constants import (  # noqa: F401  (TYPE_TO_RUSSIAN/PLURAL_TO_SINGULAR — ре-экспорт)
     DEFAULT_KILO_GATEWAY_MODEL,
     DEFAULT_KILO_GATEWAY_URL,
-    TYPE_TO_RUSSIAN,
-    PLURAL_TO_SINGULAR,
     DEFAULT_OLLAMA_MODEL,
+    HTTP_BACKEND_DEFS,
+    HTTP_BACKENDS,
+    PLURAL_TO_SINGULAR,
+    TYPE_TO_RUSSIAN,
     _ollama_base_url,
-    load_prompt_from_file,
-    PROMPT_1,
-    PROMPT_2,
-    PROMPT_3,
-    PROMPT_4,
 )
-
 from npazs.revision.text_utils import strip_thinking_tags
 
 
@@ -110,7 +90,7 @@ def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event
         if input_content:
             log_callback(f"<environment_details>\n  ВХОДНЫЕ ДАННЫЕ (полностью):\n{input_content}\n</environment_details>", 'input')
         else:
-            log_callback(f"  (Входные данные не найдены в промпте)", 'warning')
+            log_callback("  (Входные данные не найдены в промпте)", 'warning')
         log_callback(f"  Параметры: temperature={extra_options.get('temperature', 0.0) if extra_options else 0.0}, top_p={extra_options.get('top_p', 0.1) if extra_options else 0.1}", 'info')
     temperature = extra_options.get("temperature", 0.0) if extra_options else 0.0
     top_p = extra_options.get("top_p", 0.1) if extra_options else 0.1
@@ -200,8 +180,38 @@ def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event
                     return None
 
 
+def _resolve_http_credentials(backend: str) -> dict:
+    """Разрешить base_url и api_key для HTTP-бэкенда из констант.
+
+    Используется как fallback, когда GUI не передаёт URL/key явно
+    (например, вызов из verify/runner.py или post_analysis.py).
+    """
+    defn = HTTP_BACKEND_DEFS.get(backend)
+    if defn is None:
+        from npazs.config.ollama import get_active_llm_config
+        config = get_active_llm_config()
+        return {
+            'base_url': config.get('base_url', DEFAULT_KILO_GATEWAY_URL),
+            'api_key': config.get('api_key', ''),
+        }
+    return {
+        'base_url': defn['base_url'],
+        'api_key': defn['api_key'],
+    }
+
+
 def ask_ollama(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=5, retry_delay=15, backoff_factor=2, change_info=None, backend="ollama", kilo_gateway_url=None, api_key=None):
-    if backend == "kilo_gateway":
+    # --- HTTP-бэкенды: kilo_gateway, cline, openrouter, deepseek, gemini ---
+    # Все они используют OpenAI-compatible /chat/completions, поэтому
+    # маршрутизируются через ask_kilo_gateway с соответствующим base_url/api_key.
+    if backend in HTTP_BACKENDS:
+        # Если URL/api_key не переданы явно, подставляем из настроек.
+        if not kilo_gateway_url or not api_key:
+            resolved = _resolve_http_credentials(backend)
+            if not kilo_gateway_url:
+                kilo_gateway_url = resolved['base_url']
+            if not api_key:
+                api_key = resolved['api_key']
         return ask_kilo_gateway(prompt, model, log_callback, extra_options, stop_event, max_retries, retry_delay, backoff_factor, change_info, kilo_gateway_url, api_key)
     if stop_event and stop_event.is_set():
         if log_callback:
@@ -236,7 +246,7 @@ def ask_ollama(prompt, model, log_callback, extra_options=None, stop_event=None,
             input_content = '\n'.join(input_parts).strip()
             log_callback(f"<environment_details>\n  ВХОДНЫЕ ДАННЫЕ (полностью):\n{input_content}\n</environment_details>", 'input')
         else:
-            log_callback(f"  (Входные данные не найдены в промпте)", 'warning')
+            log_callback("  (Входные данные не найдены в промпте)", 'warning')
         log_callback(f"  Параметры: temperature={extra_options.get('temperature', 0.0) if extra_options else 0.0}, top_p={extra_options.get('top_p', 0.1) if extra_options else 0.1}", 'info')
     temperature = extra_options.get("temperature", 0.0) if extra_options else 0.0
     top_p = extra_options.get("top_p", 0.1) if extra_options else 0.1

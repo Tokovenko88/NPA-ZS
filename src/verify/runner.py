@@ -214,6 +214,8 @@ def run_post_analysis_standalone(
             stop_event=stop_event,
             log_callback=_log,
             backend=options.backend.strip() or None,
+            kilo_gateway_url=options.kilo_gateway_url.strip() or None,
+            api_key=options.kilo_gateway_api_key.strip() or None,
             extracted_instructions=extracted_instructions,
             tracker_snapshot=tracker_snapshot,
         )

@@ -24,10 +24,10 @@ import hashlib
 import json
 import os
 import re
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
 
 from npazs.constants import LOGS_DIR, OUTPUT_DIR, PROMPTS_DIR
 
@@ -81,9 +81,10 @@ class CompareOptions:
     backend: str = ''
     #: Имя модели (пусто — из конфигурации).
     model: str = ''
-    #: URL Kilo Gateway (пусто — из конфигурации).
+    #: URL HTTP-бэкенда (kilo_gateway/cline/openrouter/deepseek/gemini).
+    #: Пусто — из конфигурации.
     kilo_gateway_url: str = ''
-    #: API ключ Kilo Gateway (пусто — из конфигурации).
+    #: API ключ HTTP-бэкенда. Пусто — из конфигурации.
     kilo_gateway_api_key: str = ''
     #: Сколько различий отправлять модели за один запрос.
     batch_size: int = 1
@@ -99,7 +100,7 @@ class CompareResult:
     log_path: str = ''
     diffs_count: int = 0
     notes_count: int = 0
-    diff_stats: Dict[str, int] = field(default_factory=dict)
+    diff_stats: dict[str, int] = field(default_factory=dict)
     stopped: bool = False
     resumed: bool = False
 
@@ -130,7 +131,7 @@ def _guess_target_number(
     return f'{m.group(1)}-ЗС' if m else ''
 
 
-def _wrap_logger(user_log: Optional[Callable], log_path: str) -> Callable:
+def _wrap_logger(user_log: Callable | None, log_path: str) -> Callable:
     """Обернуть пользовательский лог записью в файл ``data/logs``."""
 
     def log(msg: str, level: str = 'info') -> None:
@@ -146,7 +147,7 @@ def _wrap_logger(user_log: Optional[Callable], log_path: str) -> Callable:
     return log
 
 
-def _collect_notes_by_path(elements) -> Dict[str, List[dict]]:
+def _collect_notes_by_path(elements) -> dict[str, list[dict]]:
     """Собрать примечания по структурным элементам (контекст для агента).
 
     Принимает элементы, построенные из ПОЛНЫХ блоков документа (до
@@ -163,7 +164,7 @@ def _collect_notes_by_path(elements) -> Dict[str, List[dict]]:
         'примечан', 'в ред.', 'в редакции', 'последние изменения',
         'с изменениями', 'список изменяющих', 'введен', 'вступили в силу',
     )
-    notes_by_path: Dict[str, List[dict]] = {}
+    notes_by_path: dict[str, list[dict]] = {}
     for el in elements:
         text = el.text or ''
         if not any(hint in text.lower() for hint in hints):
@@ -229,7 +230,7 @@ def _fingerprint(options: CompareOptions, target_number: str) -> str:
     return digest.hexdigest()[:16]
 
 
-def _diffs_to_json(diffs: List[DiffRecord]) -> List[dict]:
+def _diffs_to_json(diffs: list[DiffRecord]) -> list[dict]:
     payload = []
     for diff in diffs:
         data = asdict(diff)
@@ -238,9 +239,9 @@ def _diffs_to_json(diffs: List[DiffRecord]) -> List[dict]:
     return payload
 
 
-def _diffs_from_json(items) -> List[DiffRecord]:
+def _diffs_from_json(items) -> list[DiffRecord]:
     allowed = set(DiffRecord.__dataclass_fields__)
-    diffs: List[DiffRecord] = []
+    diffs: list[DiffRecord] = []
     for item in items or []:
         if not isinstance(item, dict):
             continue
@@ -257,7 +258,7 @@ def _diffs_from_json(items) -> List[DiffRecord]:
 def _save_checkpoint(
     path: str,
     fingerprint: str,
-    diffs: List[DiffRecord],
+    diffs: list[DiffRecord],
     processed: int,
     started_at: str,
 ) -> None:
@@ -275,7 +276,7 @@ def _save_checkpoint(
     os.replace(tmp, path)
 
 
-def _load_checkpoint(path: str) -> Optional[dict]:
+def _load_checkpoint(path: str) -> dict | None:
     try:
         with open(path, 'r', encoding='utf-8') as fh:
             data = json.load(fh)
@@ -286,7 +287,7 @@ def _load_checkpoint(path: str) -> Optional[dict]:
 
 def run_compare(
     options: CompareOptions,
-    log: Optional[Callable] = None,
+    log: Callable | None = None,
     stop_event=None,
 ) -> CompareResult:
     """Выполнить полное сравнение и сохранить отчёт.
