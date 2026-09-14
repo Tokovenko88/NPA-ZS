@@ -4,6 +4,9 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk
 
+#: Вариант, выбранный в диалоге по умолчанию (программный кандидат).
+DEFAULT_EXTRACTION_CHOICE = "program"
+
 
 class ExtractionConflictDialog:
     """Editable comparison dialog with normal OS decorations and native-like editing."""
@@ -84,7 +87,7 @@ class ExtractionConflictDialog:
 
         choice = ttk.Frame(outer)
         choice.pack(fill="x", pady=8)
-        self.choice = tk.StringVar(value="ai")
+        self.choice = tk.StringVar(value=DEFAULT_EXTRACTION_CHOICE)
         ttk.Radiobutton(choice, text="Выбрать вариант программы", variable=self.choice, value="program").pack(side="left", padx=(0, 16))
         ttk.Radiobutton(choice, text="Выбрать вариант ИИ", variable=self.choice, value="ai").pack(side="left")
 

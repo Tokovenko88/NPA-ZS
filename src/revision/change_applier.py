@@ -527,6 +527,10 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
                     except ValueError:
                         valid_from_date = general_valid_from
                 new_id = _add_new_element(parent_element, sys_type, child_num, cleaned_html, modified_by_id_str, valid_from_date, data, log_callback, rebuild_ids, ambiguous_callback, change_id=change.get('change_id'), skip_chapter_section_heuristic=True)
+                if new_id:
+                    # Запоминаем созданный элемент для post-apply верификации
+                    # (иначе verify add не находит элемент для root-add 'НПА').
+                    change['_created_item_id'] = new_id
                 return new_id is not None
             else:
                 log_callback(f"  Не поддерживается изменение типа '{ch_type}' для НПА", 'error')
@@ -659,6 +663,10 @@ def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, l
             except ValueError:
                 valid_from_date = general_valid_from
         new_id = _add_new_element(parent_element, sys_type, child_num, cleaned_html, modified_by_id_str, valid_from_date, data, log_callback, rebuild_ids, ambiguous_callback, change_id=change.get('change_id'), skip_chapter_section_heuristic=True)
+        if new_id:
+            # Запоминаем созданный элемент для post-apply верификации
+            # (иначе verify add не находит элемент для root-add 'НПА').
+            change['_created_item_id'] = new_id
         return new_id is not None
     target_element = _find_existing_element_flexible(data, structural, log_callback, ambiguous_callback)
     if target_element is None:

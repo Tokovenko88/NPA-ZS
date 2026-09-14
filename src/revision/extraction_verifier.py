@@ -259,6 +259,16 @@ def _verify_one(change, change_data, source_context_root, log_callback):
     if change.get("type") not in ("add", "new_redaction"):
         return True
 
+    # Кандидат уже подтверждён ранее (программный == ИИ либо выбор пользователя
+    # в диалоге). Повторная проверка здесь опасна: к моменту применения ADD
+    # описание изменения мутирует в "all" (_store_verified_candidate), а
+    # _quoted_html переустанавливается полным исходником при повторном
+    # извлечении — в результате вместо подтверждённого блока извлекался весь
+    # цитируемый диапазон (например, обе статьи 5.1 и 5.2) и открывался
+    # ложный диалог конфликта. Доверяем сохранённому результату.
+    if change.get("_verified_extracted_html"):
+        return True
+
     ai_raw = change.get("content", "")
     _log_extraction_block(log_callback, "AI RAW content", ai_raw)
     ai_html = _clean_ai_content(ai_raw)

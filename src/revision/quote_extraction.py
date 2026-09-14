@@ -146,13 +146,23 @@ def _strip_attributes(html):
 
 
 def normalize_html_for_extraction_compare(html):
+    """Нормализация HTML только для сравнения извлечений (программа ↔ ИИ).
+
+    Сравнение должно игнорировать различия, не влияющие на смысл текста:
+    атрибуты тегов, неразрывные пробелы (\\xa0), переводы строк и пробелы
+    по краям текста внутри блоков («учет </p>» ≡ «учет</p>»). Иначе
+    визуально идентичные варианты объявлялись «расхождением» и зря
+    открывался диалог выбора.
+    """
     if not html:
         return ()
-    html = _strip_attributes(html)
-    html = html.replace("\n", " ").replace("\r", " ")
-    html = re.sub(r">\s+<", "><", html)
-    html = re.sub(r"\s+", " ", html)
     soup = BeautifulSoup(html, "html.parser")
+    for tag in soup.find_all(True):
+        tag.attrs = {}
+    for node in soup.find_all(string=True):
+        text = re.sub(r"\s+", " ", str(node).replace("\xa0", " ")).strip()
+        if str(node) != text:
+            node.replace_with(text)
     blocks = [c for c in soup.children if getattr(c, "name", None) in _BLOCK_TAGS]
     if not blocks:
         blocks = soup.find_all(list(_BLOCK_TAGS))

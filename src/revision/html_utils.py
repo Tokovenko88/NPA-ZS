@@ -525,12 +525,13 @@ def _classify_structural_marker(text):
         return None
     clean = safe_re_sub(r'<[^>]+>', '', text)
     clean = safe_re_sub(r'&nbsp;', ' ', clean)
+    clean = safe_re_sub(r'[\s\u00a0]+', ' ', clean)
     clean = safe_re_sub(r'^[«»"\'‘’“”\s]+', '', clean).strip()
     if not clean:
         return None
 
-    # Article/chapter/section - level 0
-    m = re.match(r'^(Статья|Глава|Раздел)\s+(\d+)', clean, re.IGNORECASE)
+    # Article/chapter/section - level 0 (номер может быть дробным: 5.1, 5.2)
+    m = re.match(r'^(Статья|Глава|Раздел)\s+(\d+(?:\.\d+)?)', clean, re.IGNORECASE)
     if m:
         return (0, m.group(2))
 

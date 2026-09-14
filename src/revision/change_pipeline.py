@@ -285,6 +285,29 @@ def _verify_delete(change: Dict[str, Any], data: Dict[str, Any], log_callback: C
     return False
 
 
+def _find_element_by_pending_change_id(data: Dict[str, Any], change_id: str) -> Optional[Dict[str, Any]]:
+    """Ищет в дереве элемент, созданный изменением (метка _pending_change_id).
+
+    Элементы, созданные при применении add-изменения, несут метку
+    ``_pending_change_id`` (она сохраняется и после перестройки), что
+    позволяет надёжно связать изменение с созданным элементом даже для
+    root-add (structural_element == 'НПА'), где структурный путь отсутствует.
+    """
+    if not change_id:
+        return None
+
+    def walk(items):
+        for item in items or []:
+            if str(item.get('_pending_change_id') or '') == str(change_id):
+                return item
+            found = walk(item.get('item_children', []))
+            if found:
+                return found
+        return None
+
+    return walk(data.get('npa_items_revision', []))
+
+
 def _verify_add(change: Dict[str, Any], data: Dict[str, Any], log_callback: Callable = None, expected_revision_id: str = None) -> bool:
     """Проверяет, что элемент добавлен (существует в дереве) и имеет ожидаемую revision."""
     structural = change.get('structural_element', '')
@@ -322,6 +345,12 @@ def _verify_add(change: Dict[str, Any], data: Dict[str, Any], log_callback: Call
                 elif not element and log_callback:
                     log_callback(f"  verify add: элемент не найден по структурному пути '{structural}'", 'warning')
 
+    if not element:
+        change_id = change.get('change_id')
+        if change_id:
+            element = _find_element_by_pending_change_id(data, change_id)
+            if element and log_callback:
+                log_callback(f"  verify add: элемент найден по _pending_change_id {change_id} (ID {element.get('item_id')})", 'info')
     if not element:
         if log_callback:
             log_callback(f"  verify add: элемент не найден для '{structural}'", 'error')
