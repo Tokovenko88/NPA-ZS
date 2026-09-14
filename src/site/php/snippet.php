@@ -230,6 +230,24 @@ function getStaticFilePath($npaData, $viewDateSql, $npa_id) {
     return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v15.html';
 }
 
+function getRenderedCacheHtml($pdo, $npa_id, $viewDateSql) {
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT html_full FROM npa_rendered_cache
+             WHERE npa_id = ? AND as_of_date = ?
+             LIMIT 1"
+        );
+        $stmt->execute([$npa_id, $viewDateSql]);
+        $row = $stmt->fetch();
+        if ($row && $row['html_full'] !== null && $row['html_full'] !== '') {
+            return $row['html_full'];
+        }
+    } catch (PDOException $e) {
+        
+    }
+    return null;
+}
+
 function generateFilename($npaData, $revisions = []) {
     $isLaw = ($npaData['npa_type'] === 'law');
     $prefix = $isLaw ? 'zakon' : 'postanovlenie';
@@ -4666,6 +4684,14 @@ if ($viewDateObj === null) {
  $forceRegenerate = isset($_GET['regenerate']) || isset($_GET['force']) || isset($_GET['nocache']);
 if (file_exists($staticFile) && !$forceRegenerate) {
     return file_get_contents($staticFile);
+}
+
+if (!$forceRegenerate) {
+    $renderedCacheHtml = getRenderedCacheHtml($pdo, $npa_id, $viewDateSql);
+    if ($renderedCacheHtml !== null) {
+        @file_put_contents($staticFile, $renderedCacheHtml);
+        return $renderedCacheHtml;
+    }
 }
 
 if ($npaData['npa_type'] === 'law') {

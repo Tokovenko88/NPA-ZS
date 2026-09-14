@@ -1,11 +1,19 @@
 """Dialog for resolving deterministic extraction versus AI content."""
 from __future__ import annotations
 
+import difflib
 import tkinter as tk
 from tkinter import ttk
 
 #: Вариант, выбранный в диалоге по умолчанию (программный кандидат).
 DEFAULT_EXTRACTION_CHOICE = "program"
+
+#: Цвета для подсветки различий
+_TAG_COLORS = {
+    "same": "#e8e8e8",        # серый фон для совпадающих частей
+    "program_diff": "#ffcccc",  # красный фон для отличающейся части программы
+    "ai_diff": "#ccffcc",       # зелёный фон для отличающейся части ИИ
+}
 
 
 class ExtractionConflictDialog:
@@ -85,6 +93,17 @@ class ExtractionConflictDialog:
         self._install_text_editing(self.program_text)
         self._install_text_editing(self.ai_text)
 
+        # Синхронизировать прокрутку между виджетами
+        self.program_text.bind("<MouseWheel>", self._sync_scroll, add="+")
+        self.ai_text.bind("<MouseWheel>", self._sync_scroll, add="+")
+        self.program_text.bind("<Button-4>", self._sync_scroll, add="+")  # Linux scroll up
+        self.ai_text.bind("<Button-4>", self._sync_scroll, add="+")
+        self.program_text.bind("<Button-5>", self._sync_scroll, add="+")  # Linux scroll down
+        self.ai_text.bind("<Button-5>", self._sync_scroll, add="+")
+
+        # Применяем подсветку различий между вариантами
+        self._apply_diff_highlight()
+
         choice = ttk.Frame(outer)
         choice.pack(fill="x", pady=8)
         self.choice = tk.StringVar(value=DEFAULT_EXTRACTION_CHOICE)
@@ -123,6 +142,72 @@ class ExtractionConflictDialog:
         widget.bind("<Button-3>", popup)
         widget.bind("<Button-2>", popup)
         widget.bind("<Control-KeyPress>", lambda event: self._text_control(widget, event), add="+")
+
+    def _sync_scroll(self, event=None):
+        """Синхронизировать прокрутку между двумя текстовыми виджетами."""
+        if event is None:
+            return
+        # Определяем источник события и синхронизируем другой виджет
+        if event.widget == self.program_text:
+            target = self.ai_text
+        else:
+            target = self.program_text
+        
+        # Получаем позицию прокрутки из источника
+        first, last = event.widget.yview()
+        target.yview_moveto(first)
+
+    def _apply_diff_highlight(self):
+        """Применить подсветку различий между программным и ИИ вариантами.
+        
+        Совпадающие части подсвечиваются серым фоном, различающиеся —
+        красным (программа) / зелёным (ИИ).
+        """
+        prog_text = self.program_text.get("1.0", "end-1c") or ""
+        ai_text = self.ai_text.get("1.0", "end-1c") or ""
+        
+        if not prog_text or not ai_text:
+            return
+        
+        # Настроить теги для подсветки
+        for tag_name, color in _TAG_COLORS.items():
+            self.program_text.tag_configure(tag_name, background=color)
+            self.ai_text.tag_configure(tag_name, background=color)
+        
+        # Удалить старые теги перед применением новых
+        self._clear_diff_tags(self.program_text)
+        self._clear_diff_tags(self.ai_text)
+        
+        # Вычислить различия
+        matcher = difflib.SequenceMatcher(None, prog_text, ai_text, autojunk=False)
+        
+        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+            if tag == 'equal':
+                # Совпадающие части — серый фон
+                self.program_text.tag_add("same", f"1.{i1}", f"1.{i2}")
+                self.ai_text.tag_add("same", f"1.{j1}", f"1.{j2}")
+            elif tag == 'replace':
+                # Различающиеся части — красный фон (программа), зелёный (ИИ)
+                if i2 > i1:
+                    self.program_text.tag_add("program_diff", f"1.{i1}", f"1.{i2}")
+                if j2 > j1:
+                    self.ai_text.tag_add("ai_diff", f"1.{j1}", f"1.{j2}")
+            elif tag == 'delete':
+                # Удалено в ИИ (есть только в программе) — красный фон программы
+                if i2 > i1:
+                    self.program_text.tag_add("program_diff", f"1.{i1}", f"1.{i2}")
+            elif tag == 'insert':
+                # Вставлено в ИИ (нет в программе) — зелёный фон ИИ
+                if j2 > j1:
+                    self.ai_text.tag_add("ai_diff", f"1.{j1}", f"1.{j2}")
+
+    def _clear_diff_tags(self, text_widget):
+        """Удалить все теги подсветки из виджета."""
+        for tag_name in _TAG_COLORS.keys():
+            try:
+                text_widget.tag_remove(tag_name, "1.0", "end")
+            except tk.TclError:
+                pass
 
     @staticmethod
     def _generate(widget, virtual_event):

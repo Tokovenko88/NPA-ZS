@@ -2,7 +2,7 @@
 /**
  * NPA-ZS | cache/static.php — статический HTML-кеш страниц НПА.
  *
- * Функции: getStaticFilePath, generateFilename.
+ * Функции: getStaticFilePath, generateFilename, getRenderedCacheHtml.
  * Путь кеша: /assets/npa/{тип}/{год}/{npa_id}/{npa_id}_{дата}.html
  * Инвалидация: GET-параметры regenerate | force | nocache.
  * Источник: строки 530-541, 2023-2044 монолита snippet.php.
@@ -18,6 +18,31 @@ function getStaticFilePath($npaData, $viewDateSql, $npa_id) {
         mkdir($staticBaseDir, 0777, true);
     }
     return $staticBaseDir . $npa_id . '_' . $viewDateSql . '_v15.html';
+}
+
+/**
+ * Резервный слой кеша: готовый HTML из npa_rendered_cache.
+ * Таблица заполняется Python-импортёром (npazs.db.html_renderer) сразу после
+ * импорта НПА — для каждой уникальной даты valid_from ревизий элементов.
+ * Возвращает HTML или null (нет записи / таблица ещё не создана на хостинге —
+ * тогда сайт тихо переходит к обычной генерации «на лету»).
+ */
+function getRenderedCacheHtml($pdo, $npa_id, $viewDateSql) {
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT html_full FROM npa_rendered_cache
+             WHERE npa_id = ? AND as_of_date = ?
+             LIMIT 1"
+        );
+        $stmt->execute([$npa_id, $viewDateSql]);
+        $row = $stmt->fetch();
+        if ($row && $row['html_full'] !== null && $row['html_full'] !== '') {
+            return $row['html_full'];
+        }
+    } catch (PDOException $e) {
+        // Таблицы нет / БД недоступна — fallback на генерацию.
+    }
+    return null;
 }
 
 function generateFilename($npaData, $revisions = []) {

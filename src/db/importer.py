@@ -769,12 +769,14 @@ class NpaImporter:
             raise
 
     def _insert_items_revisions(self, items, npa_id, root_valid_from, mapping):
+        """Optimized: bulk-insert revisions and paragraphs instead of per-item INSERTs."""
         head_data = []
         prefix_data = []
+        all_revisions = []
+        all_paragraphs = []
 
-        def process_item(item, internal_id):
+        def collect_item_data(item, internal_id):
             self._process_number_revisions(item, internal_id, npa_id)
-
             add_date_by_mod = {}
             for rev in item.get('revisions', []):
                 if rev.get('mod_type') == 'add':
@@ -805,7 +807,6 @@ class NpaImporter:
                 hvf = parse_date(hrev.get('valid_from'))
                 hvto = parse_date(hrev.get('valid_to'))
                 if hvf and hvto and hvf > hvto:
-                    self.log('WARN', f'Пропущена head_revision с невалидными датами: valid_from={hvf} > valid_to={hvto} для {item.get("item_id")}')
                     continue
                 vfrom = get_vf(hrev, prev_vto)
                 vto = hvto
@@ -820,7 +821,6 @@ class NpaImporter:
                 pvf = parse_date(pref.get('valid_from'))
                 pvto = parse_date(pref.get('valid_to'))
                 if pvf and pvto and pvf > pvto:
-                    self.log('WARN', f'Пропущена prefix_revision с невалидными датами: valid_from={pvf} > valid_to={pvto} для {item.get("item_id")}')
                     continue
                 vfrom = get_vf(pref, prev_vto)
                 vto = pvto
@@ -829,38 +829,20 @@ class NpaImporter:
                 not_valid_id = self._resolve_not_valid(pref.get('not_valid'), mapping)
                 prefix_data.append((internal_id, npa_id, pref.get('prefix_text', ''), vfrom, vto, pref.get('mod_type') or None, mod_by, highlights_json, not_valid_id))
                 prev_vto = vto
-
             prev_vto = None
             for rev in item.get('revisions', []):
                 explicit_vf = parse_date(rev.get('valid_from'))
                 vto = parse_date(rev.get('valid_to'))
-                
                 if explicit_vf and vto and explicit_vf > vto:
-                    self.log('WARN', f'Пропущена ревизия с невалидными датами: valid_from={explicit_vf} > valid_to={vto} для {item.get("item_id")}')
+                    prev_vto = vto
                     continue
-
-                if explicit_vf is not None:
-                    vfrom = explicit_vf
-                else:
-                    vfrom = compute_valid_from(prev_vto, root_valid_from)
-                
+                vfrom = explicit_vf if explicit_vf is not None else compute_valid_from(prev_vto, root_valid_from)
                 mod_by = self._resolve_modified_by(rev.get('modified_by_id'), mapping)
                 highlights_json = self._normalize_highlights(rev.get('highlights'))
                 mod_type = rev.get('mod_type') or None
                 not_valid_id = self._resolve_not_valid(rev.get('not_valid'), mapping)
-
-                rev_id = self._exec_and_get_id(
-                    'INSERT INTO npa_item_revision '
-                    '(item_internal_id, npa_id, valid_from, valid_to, mod_type, modified_by_id, highlights, not_valid) '
-                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-                    (internal_id, npa_id, vfrom, vto, mod_type, mod_by, highlights_json, not_valid_id),
-                    table='npa_item_revision'
-                )
-                if rev_id is None:
-                    prev_vto = vto
-                    continue
-
-                paras = []
+                rev_index = len(all_revisions)
+                all_revisions.append((internal_id, npa_id, vfrom, vto, mod_type, mod_by, highlights_json, not_valid_id))
                 for block in rev.get('body', []):
                     btype = block.get('type') or block.get('block_type', 'paragraph')
                     if btype not in ('paragraph', 'table', 'child_ref', 'table_header', 'table_fragment'):
@@ -870,42 +852,51 @@ class NpaImporter:
                     ref_id = block.get('item_id')
                     ref_internal = mapping.get(ref_id) if ref_id else None
                     order = block.get('order', 0)
-                    paras.append((rev_id, internal_id, btype, order, html_txt or None, plain or None, ref_internal))
-
-                if paras and self._require_table('npa_paragraph'):
-                    self._insert_batch_executemany(
-                        'npa_paragraph',
-                        ['rev_id', 'item_internal_id', 'block_type', 'sort_order', 'html_text', 'plain_text', 'ref_item_internal_id'],
-                        paras
-                    )
+                    all_paragraphs.append((rev_index, internal_id, btype, order, html_txt or None, plain or None, ref_internal))
                 prev_vto = vto
-
-            for child in item.get('item_children', []):
-                child_internal = mapping.get(child.get('item_id'))
-                if child_internal:
-                    process_item(child, child_internal)
 
         for item in items:
             internal_id = mapping.get(item.get('item_id'))
             if internal_id is None:
-                self.log('ERROR', f'Не найден internal_id для {item.get("item_id")}, пропуск ревизий')
+                self.log('ERROR', f'Не найден internal_id для {item.get("item_id")}')
                 continue
-            process_item(item, internal_id)
+            for child in item.get('item_children', []):
+                child_internal = mapping.get(child.get('item_id'))
+                if child_internal:
+                    collect_item_data(child, child_internal)
+            collect_item_data(item, internal_id)
+
+        if all_revisions and self._require_table('npa_item_revision'):
+            self.db.bulk_insert('npa_item_revision',
+                ['item_internal_id', 'npa_id', 'valid_from', 'valid_to', 'mod_type', 'modified_by_id', 'highlights', 'not_valid'],
+                all_revisions)
+            self.log('OK', f'Вставлено {len(all_revisions)} ревизий (bulk)')
+
+        if all_paragraphs and self._require_table('npa_paragraph'):
+            rev_mapping = self.db.fetch_revision_ids(npa_id)
+            rev_keys = [(r[0], r[2]) for r in all_revisions]
+            paras_with_rev = []
+            for (rev_index, internal_id, btype, order, html, plain, ref_internal) in all_paragraphs:
+                if rev_index < len(rev_keys):
+                    actual_rev_id = rev_mapping.get(rev_keys[rev_index])
+                    if actual_rev_id:
+                        paras_with_rev.append((actual_rev_id, internal_id, btype, order, html, plain, ref_internal))
+            if paras_with_rev:
+                self.db.bulk_insert('npa_paragraph',
+                    ['rev_id', 'item_internal_id', 'block_type', 'sort_order', 'html_text', 'plain_text', 'ref_item_internal_id'],
+                    paras_with_rev)
+                self.log('OK', f'Вставлено {len(paras_with_rev)} параграфов (bulk)')
 
         if head_data and self._require_table('npa_item_head_revision'):
-            self._insert_batch_executemany(
-                'npa_item_head_revision',
+            self._insert_batch_executemany('npa_item_head_revision',
                 ['item_internal_id', 'npa_id', 'head_text', 'valid_from', 'valid_to', 'mod_type', 'modified_by_id', 'highlights', 'not_valid'],
-                head_data
-            )
+                head_data)
             self.log('OK', f'Вставлено {len(head_data)} head_revision')
 
         if prefix_data and self._require_table('npa_item_prefix_revision'):
-            self._insert_batch_executemany(
-                'npa_item_prefix_revision',
+            self._insert_batch_executemany('npa_item_prefix_revision',
                 ['item_internal_id', 'npa_id', 'prefix_text', 'valid_from', 'valid_to', 'mod_type', 'modified_by_id', 'highlights', 'not_valid'],
-                prefix_data
-            )
+                prefix_data)
             self.log('OK', f'Вставлено {len(prefix_data)} prefix_revision')
 
     def _insert_head_revisions(self, npa_id: int, revisions: list, root_valid_from: date, local_mapping: Dict[str, int]):
@@ -1000,6 +991,7 @@ class NpaImporter:
             self._process_notes(npa_id, d, items, mapping)
             self.db.commit()
             self.log('OK', 'Транзакция зафиксирована')
+            self._render_static_cache(npa_id, npa_type, d)
             self.log('SECTION', f'═══ Импорт завершён: npa_id={npa_id} ═══')
             return True
         except Exception as e:
@@ -1015,6 +1007,20 @@ class NpaImporter:
                 self.db.enable_checks()
             except Exception:
                 pass
+
+    def _render_static_cache(self, npa_id: int, npa_type: str, d: dict) -> None:
+        """Генерирует статический HTML-кеш для всех дат просмотра НПА (Этап 2).
+
+        Вызывается после успешного коммита импорта. Сбой рендеринга не должен
+        откатывать импорт — ошибки логируются и поглощаются.
+        """
+        try:
+            from npazs.db.html_renderer import NpaHtmlRenderer
+            renderer = NpaHtmlRenderer(self.db)
+            count = renderer.render_and_cache_all_dates(npa_id)
+            self.log('OK', f'Статический HTML-кеш: {count} дат(ы) сгенерировано')
+        except Exception as e:
+            self.log('WARN', f'Статический рендеринг пропущен: {e}')
 
 class ImporterApp(tk.Tk):
     def __init__(self):

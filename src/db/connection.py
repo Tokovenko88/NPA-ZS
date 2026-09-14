@@ -281,3 +281,42 @@ class DBConnection:
         finally:
             os.unlink(path)
 
+    def bulk_insert(self, table: str, columns: List[str], rows: List[Tuple], chunk_size: int = 1000) -> None:
+        """Пакетная вставка через executemany с разбивкой на чанки.
+        
+        Быстрее одиночных INSERT-ов, но медленнее bulk_load_csv.
+        Используется когда нужна совместимость или bulk_load_csv недоступен.
+        """
+        if not rows:
+            return
+        placeholders = ','.join(['%s'] * len(columns))
+        sql = f"INSERT INTO {table} ({','.join(columns)}) VALUES ({placeholders})"
+        for i in range(0, len(rows), chunk_size):
+            chunk = rows[i:i + chunk_size]
+            self.exec_many(sql, chunk)
+
+    def fetch_revision_ids(self, npa_id: int) -> Dict[Tuple[int, object], int]:
+        """Маппинг (item_internal_id, valid_from) -> id ревизии npa_item_revision.
+
+        Используется после bulk-вставки ревизий, когда одиночные lastrowid
+        недоступны: получаем реальные PK одним SELECT-ом по всему НПА.
+        """
+        rows = self.fetch_all(
+            "SELECT id, item_internal_id, valid_from "
+            "FROM npa_item_revision WHERE npa_id = %s",
+            (npa_id,)
+        )
+        return {(r['item_internal_id'], r['valid_from']): r['id'] for r in rows}
+
+    def fetch_revision_ids(self, npa_id: int) -> Dict[Tuple[int, str], int]:
+        """Возвращает маппинг (item_internal_id, valid_from) -> rev_id для быстрого поиска.
+        
+        Используется после bulk-вставки ревизий для получения внешних ключей.
+        """
+        rows = self.fetch_all(
+            "SELECT id, item_internal_id, valid_from FROM npa_item_revision WHERE npa_id = %s",
+            (npa_id,)
+        )
+        return {(r['item_internal_id'], r['valid_from']): r['id'] for r in rows}
+
+

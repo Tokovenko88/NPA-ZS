@@ -68,7 +68,7 @@ src/site/php/snippet.php  (ЕДИНЫЙ скрипт, генерируется �
 | `bootstrap.php` | Загрузка `.env` (константы `NPA_DB_*`) | — |
 | `helpers/dates.php` | Даты; эталон «действующей редакции» | `parseDate`, `isRevisionCurrent`, `formatDateToRus`, `formatRusDate` |
 | `helpers/text.php` | Текст/падежи, канонизация highlights | `normalizeHighlightText`, `getDisplayText`, `getExpiryGenderSuffix`, `getLocalElementGenitive`, `normalizeHighlights` |
-| `cache/static.php` | Статический HTML-кеш | `getStaticFilePath`, `generateFilename` |
+| `cache/static.php` | Статический HTML-кеш (файл + таблица `npa_rendered_cache` от импортёра) | `getStaticFilePath`, `generateFilename`, `getRenderedCacheHtml` |
 | `revisions/edition.php` | Контекст выбранной редакции (`npa_revision_info`) | `getSelectedRevisionNpaIds`, `buildRevisionNpaIdPlaceholders`, `getSelectedEditionRegistrationDate`, `getRevisionForSelectedEdition`, `getItem*ForSelectedEdition` (4 шт.), таймлайны (2 шт.), `isDeferredSelectedEditionRevision` |
 | `revisions/item.php` | Редакции содержимого элементов | `getPreviousItemRevision`, `getRevisionForDate`, `getActiveRecord`, `getLastContentRevision` |
 | `revisions/head.php` | Редакции заголовков и наименования | `getPreviousItemHeadRevision`, `getItemHeadRevisionForDate`, `getHeadRevisionForDate` |

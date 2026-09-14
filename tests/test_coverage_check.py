@@ -391,3 +391,106 @@ def test_head_revision_resolves_no_gap():
         },
     ]
     assert check_tracker_coverage(result, changes, "59121") == []
+
+    assert check_tracker_coverage(result, changes, "59121") == []
+
+
+def test_npa_head_revision_resolves_no_gap():
+    """Наименование НПА (не отдельной статьи, а головной ревизии целого закона):
+    трекер хранит target_item_id=__наименование__, ревизия с revision_id лежит в
+    корневом head_revision результата. Раньше collect_result_revisions индексировал
+    только npa_items_revision, поэтому возникал revision_missing_in_result.
+    """
+    head_rev_id = "9f1e0c22-3a7c-4f91-b6e1-6aa7e0c1c5a0"
+    result = {
+        "head_revision": [
+            {"npa_head": "Старое наименование", "valid_to": "10.10.2020"},
+            {
+                "npa_head": "Новое наименование НПА",
+                "mod_type": "new_redaction",
+                "valid_to": "",
+                "valid_from": "11.10.2020",
+                "modified_by_id": "33699",
+                "revision_id": head_rev_id,
+            },
+        ],
+        "npa_items_revision": [],
+    }
+    changes = [
+        {
+            "change_id": "npa-head-01",
+            "revision_number": "1",
+            "structural_element": "Наименование",
+            "type": "new_redaction",
+            "status": "applied",
+            "target_item_id": "__наименование__",
+            "revision_id": head_rev_id,
+        },
+    ]
+    gaps = check_tracker_coverage(result, changes, "33699")
+    assert len(gaps) == 0, gaps
+
+
+def test_npa_head_revision_foreign_detection():
+    """Если ревизия наименования НПА принадлежит чужому изменяющему НПА,
+    должна детектиться foreign_revision (как для остальных правок)."""
+    head_rev_id = "a0b1c2d3-e4f5-6789-abcd-ef0123456789"
+    result = {
+        "head_revision": [
+            {
+                "npa_head": "Новое наименование НПА",
+                "mod_type": "new_redaction",
+                "valid_to": "",
+                "modified_by_id": "99999_other_law",
+                "revision_id": head_rev_id,
+            },
+        ],
+        "npa_items_revision": [],
+    }
+    changes = [
+        {
+            "change_id": "npa-head-foreign",
+            "revision_number": "1",
+            "structural_element": "Наименование",
+            "type": "new_redaction",
+            "status": "applied",
+            "target_item_id": "__наименование__",
+            "revision_id": head_rev_id,
+        },
+    ]
+    gaps = check_tracker_coverage(result, changes, "33699")
+    assert len(gaps) == 1
+    assert gaps[0]["reason"] == "foreign_revision"
+
+
+def test_preamble_revision_resolves_no_gap():
+    """Преамбула закона хранится в корневом preamble_revision, аналогично
+    наименованию. Ревизия преамбулы должна резолвиться по revision_id."""
+    rev_id = "b1c2d3e4-f5a6-7890-bcde-f01234567890"
+    result = {
+        "preamble_revision": [
+            {"preamble_text": "Старая преамбула", "valid_to": "01.01.2021"},
+            {
+                "preamble_text": "Новая преамбула",
+                "mod_type": "new_redaction",
+                "valid_to": "",
+                "valid_from": "02.01.2021",
+                "modified_by_id": "33699_article_1_point_1",
+                "revision_id": rev_id,
+            },
+        ],
+        "npa_items_revision": [],
+    }
+    changes = [
+        {
+            "change_id": "preamble-01",
+            "revision_number": "1",
+            "structural_element": "Преамбула",
+            "type": "new_redaction",
+            "status": "verified",
+            "target_item_id": "__преамбула__",
+            "revision_id": rev_id,
+        },
+    ]
+    assert check_tracker_coverage(result, changes, "33699") == []
+

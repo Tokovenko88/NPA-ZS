@@ -62,13 +62,28 @@ def _iter_elements(items: list[dict] | None) -> Iterable[dict]:
         stack.extend(element.get("item_children") or [])
 
 
+#: Sentinel-идентификаторы корневых объектов, которые хранятся вне
+#: ``npa_items_revision``. Ревизии из этих списков не индексируются в
+#: ``_REVISION_LIST_KEYS`` (там работает обход ``_iter_elements``), поэтому
+#: их обрабатываем отдельно в ``collect_result_revisions``.
+_CORE_HEAD_LIST_KEYS = (
+    ("head_revision", "__наименование__"),
+    ("preamble_revision", "__преамбула__"),
+)
+
 def collect_result_revisions(result: dict) -> dict[str, tuple[str | None, Any]]:
     """Карта ``revision_id -> (item_id, modified_by_id)`` по всему дереву результата.
 
-    Индексируются не только ``revisions``, но и ``head_revisions`` /
-    ``number_revisions`` / ``item_prefix_revisions``: созданные изменяющим НПА
-    записи этих списков несут собственный ``revision_id``, по которому трекер
-    закрывает соответствующие правки (например head-правки наименований).
+    Индексируются:
+    - ревизии элементов (``revisions``, ``head_revisions``,
+      ``number_revisions``, ``item_prefix_revisions``) — созданные изменяющим НПА
+      записи этих списков несут собственный ``revision_id``, по которому трекер
+      закрывает соответствующие правки (например head-правки наименований
+      конкретных статей/разделов);
+    - корневые списки документа: ``head_revision`` (наименование НПА) и
+      ``preamble_revision`` (преамбула) — они хранятся вне ``npa_items_revision``
+      в корне результата, но тем не менее несут ``revision_id`` и могут закрывать
+      правки трекера с ``target_item_id`` ``__наименование__`` / ``__преамбула__``.
     """
     revisions: dict[str, tuple[str | None, Any]] = {}
     for element in _iter_elements(result.get("npa_items_revision")):
@@ -79,6 +94,17 @@ def collect_result_revisions(result: dict) -> dict[str, tuple[str | None, Any]]:
                 rev_id = rev.get("revision_id")
                 if rev_id:
                     revisions[str(rev_id)] = (element.get("item_id"), rev.get("modified_by_id"))
+
+    # Корневые ревизии документа (наименование НПА, преамбула), которые живут
+    # вне дерева элементов.
+    for list_key, item_id in _CORE_HEAD_LIST_KEYS:
+        for rev in result.get(list_key) or []:
+            if not isinstance(rev, dict):
+                continue
+            rev_id = rev.get("revision_id")
+            if rev_id:
+                revisions[str(rev_id)] = (item_id, rev.get("modified_by_id"))
+
     return revisions
 
 

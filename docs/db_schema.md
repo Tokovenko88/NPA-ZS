@@ -344,6 +344,8 @@ valid_to       = NULL
 | `html_full` | LONGTEXT | Полный HTML‑код документа |
 | `generated_at` | TIMESTAMP | Временная метка создания кэша |
 
+Таблица заполняется **автоматически при импорте** (`ImporterApp` → `_render_static_cache` → `NpaHtmlRenderer.render_and_cache_all_dates`): для каждой уникальной даты `valid_from` ревизий элементов генерируется HTML состояния документа на эту дату. На сайте читается функцией `getRenderedCacheHtml()` (`src/site/php/npazs/cache/static.php`) как резервный слой кэша, когда статический файл ещё не создан. PK `(npa_id, as_of_date)` обеспечивает `ON DUPLICATE KEY UPDATE` при повторном импорте.
+
 ---
 
 ## 9. Представления (VIEW)

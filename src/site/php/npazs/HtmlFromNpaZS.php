@@ -167,6 +167,16 @@ if (file_exists($staticFile) && !$forceRegenerate) {
     return file_get_contents($staticFile);
 }
 
+// Слой 2: HTML, предрендеренный импортёром в npa_rendered_cache.
+// Минуя тяжёлые запросы по дереву элементов; попутно прогреваем файловый кеш.
+if (!$forceRegenerate) {
+    $renderedCacheHtml = getRenderedCacheHtml($pdo, $npa_id, $viewDateSql);
+    if ($renderedCacheHtml !== null) {
+        @file_put_contents($staticFile, $renderedCacheHtml);
+        return $renderedCacheHtml;
+    }
+}
+
 if ($npaData['npa_type'] === 'law') {
     $stmt = $pdo->prepare("SELECT * FROM npa_law WHERE npa_id = ?");
     $stmt->execute([$npa_id]);

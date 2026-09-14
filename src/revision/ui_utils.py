@@ -454,29 +454,41 @@ def sync_structural_element_recursive(old_element, new_element, change_date, mod
                                 active_grand_rev = rev
                                 break
                         if active_grand_rev is not None and active_rev is not None:
-                            active_grand_rev['body'] = copy.deepcopy(active_rev.get('body', []))
+                            # BUG FIX: For new_redaction (full replacement), do NOT
+                            # overwrite the new body with the old body. The new body
+                            # from NpaToJsonGenerator must be preserved.
+                            if not is_full_replacement:
+                                active_grand_rev['body'] = copy.deepcopy(active_rev.get('body', []))
                         elif active_rev is not None:
-                            new_rev = copy.deepcopy(active_rev)
-                            new_rev.pop('valid_to', None)
-                            new_rev.pop('not_valid', None)
-                            new_rev.pop('mod_type', None)
-                            new_rev.pop('modified_by_id', None)
-                            if 'valid_from' in new_rev:
-                                del new_rev['valid_from']
-                            grand_source['revisions'] = [new_rev]
-                            if log_callback:
-                                log_callback(f"  Создана активная ревизия для {grand_source.get('item_id')} на основе старой ревизии {old_child.get('item_id')}", 'result')
+                            # BUG FIX: For new_redaction (full replacement), do NOT
+                            # create a new revision from the old revision. The new body
+                            # from NpaToJsonGenerator must be preserved.
+                            if not is_full_replacement:
+                                new_rev = copy.deepcopy(active_rev)
+                                new_rev.pop('valid_to', None)
+                                new_rev.pop('not_valid', None)
+                                new_rev.pop('mod_type', None)
+                                new_rev.pop('modified_by_id', None)
+                                if 'valid_from' in new_rev:
+                                    del new_rev['valid_from']
+                                grand_source['revisions'] = [new_rev]
+                                if log_callback:
+                                    log_callback(f"  Создана активная ревизия для {grand_source.get('item_id')} на основе старой ревизии {old_child.get('item_id')}", 'result')
                         elif active_rev is not None:
-                            new_rev = copy.deepcopy(active_rev)
-                            new_rev.pop('valid_to', None)
-                            new_rev.pop('not_valid', None)
-                            new_rev.pop('mod_type', None)
-                            new_rev.pop('modified_by_id', None)
-                            if 'valid_from' in new_rev:
-                                del new_rev['valid_from']
-                            grand_source['revisions'] = [new_rev]
-                            if log_callback:
-                                log_callback(f"  Создана активная ревизия для {grand_source.get('item_id')} на основе старой ревизии {old_child.get('item_id')}", 'result')
+                            # BUG FIX: For new_redaction (full replacement), do NOT
+                            # create a new revision from the old revision. The new body
+                            # from NpaToJsonGenerator must be preserved.
+                            if not is_full_replacement:
+                                new_rev = copy.deepcopy(active_rev)
+                                new_rev.pop('valid_to', None)
+                                new_rev.pop('not_valid', None)
+                                new_rev.pop('mod_type', None)
+                                new_rev.pop('modified_by_id', None)
+                                if 'valid_from' in new_rev:
+                                    del new_rev['valid_from']
+                                grand_source['revisions'] = [new_rev]
+                                if log_callback:
+                                    log_callback(f"  Создана активная ревизия для {grand_source.get('item_id')} на основе старой ревизии {old_child.get('item_id')}", 'result')
                         if old_child.get('head_revisions'):
                             old_head_revs = old_child['head_revisions']
                             active_hr = None
