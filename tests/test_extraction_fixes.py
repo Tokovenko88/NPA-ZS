@@ -152,3 +152,42 @@ def test_verify_add_finds_element_by_created_item_id():
         "_created_item_id": "16012_article_5_2",
     }
     assert _verify_add(change, data, None, "rev-add-2") is True
+
+
+def test_first_difference_hint_points_to_single_word_typo():
+    """Реальный случай из лога (Статья 5): ИИ потерял «ин» в «гражданина»."""
+    from npazs.revision.extraction_verifier import _first_difference_hint
+
+    program = (
+        '<p class="justifyfull">Статья 5. Порядок постановки граждан на учет </p>'
+        '<p class="justifyfull">5. В случае смерти … постановке на учет с '
+        "сохранением очередности такого гражданина подлежит второй родитель.</p>"
+    )
+    ai = (
+        '<p class="justifyfull">Статья 5. Порядок постановки граждан на учет </p>'
+        '<p class="justifyfull">5. В случае смерти … постановке на учет с '
+        "сохранением очередности такого граждана подлежит второй родитель.</p>"
+    )
+    hint = _first_difference_hint(program, ai)
+    assert hint.startswith("блок 2")
+    prog_part = hint.split("программа «", 1)[1].split("»", 1)[0]
+    ai_part = hint.split("ИИ «", 1)[1].split("»", 1)[0]
+    assert "гражданина" in prog_part
+    assert "гражданина" not in ai_part and "граждана" in ai_part
+
+
+def test_first_difference_hint_extra_block_and_equal():
+    from npazs.revision.extraction_verifier import _first_difference_hint
+
+    two = "<p>один</p><p>два</p>"
+    one = "<p>один</p>"
+    hint_prog_extra = _first_difference_hint(two, one)
+    assert "лишний блок 2" in hint_prog_extra and "у программы" in hint_prog_extra
+    hint_ai_extra = _first_difference_hint(one, two)
+    assert "у ИИ" in hint_ai_extra
+    # Атрибуты/пробелы не считаются различием — подсказки нет.
+    assert _first_difference_hint('<p class="x">учет </p>', "<p>учет</p>") == ""
+    # Разные теги при равном тексте — подсказка показывает оба HTML-варианта.
+    hint_tags = _first_difference_hint("<div>текст</div>", "<p>текст</p>")
+    assert "<div>текст</div>" in hint_tags and "<p>текст</p>" in hint_tags
+

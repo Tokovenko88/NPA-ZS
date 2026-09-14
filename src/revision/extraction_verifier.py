@@ -12,6 +12,7 @@ from npazs.revision.quote_extraction import (
     extraction_results_equal,
     extract_quoted_html_robust,
     extract_paragraphs_by_indices_robust,
+    normalize_html_for_extraction_compare,
     _find_final_outer_quote,
     _strip_trailing_empty_inline,
 )
@@ -200,6 +201,42 @@ def _owner_stop_event(log_callback):
     return getattr(owner, "stop_event", None)
 
 
+def _first_difference_hint(program_html, ai_html, window=60):
+    """Показать пользователю, ГДЕ именно расходятся программа и ИИ.
+
+    Диалог открывается и на смысловых расхождениях в одно слово, которые
+    легко пропустить глазами (например, «гражданина» против «граждана»).
+    Подсказка называет первый различающийся блок и показывает фрагменты
+    обеих версий вокруг первого различающегося символа.
+    """
+    prog_blocks = normalize_html_for_extraction_compare(program_html)
+    ai_blocks = normalize_html_for_extraction_compare(ai_html)
+    if prog_blocks == ai_blocks:
+        return ""
+    n = min(len(prog_blocks), len(ai_blocks))
+    if prog_blocks[:n] == ai_blocks[:n]:
+        # Все общие блоки равны — различие в количестве блоков.
+        extra = prog_blocks[n] if len(prog_blocks) > len(ai_blocks) else ai_blocks[n]
+        side = "у программы" if len(prog_blocks) > len(ai_blocks) else "у ИИ"
+        return f"{side} лишний блок {n + 1}: «{extra[1][:120]}»"
+    for idx, (prog, ai) in enumerate(zip(prog_blocks, ai_blocks)):
+        if prog == ai:
+            continue
+        prog_text = prog[1]
+        ai_text = ai[1]
+        i = 0
+        limit = min(len(prog_text), len(ai_text))
+        while i < limit and prog_text[i] == ai_text[i]:
+            i += 1
+        start = max(0, i - window)
+        return (
+            f"блок {idx + 1}, символ {i + 1}: "
+            f"программа «…{prog_text[start:i + window]}…» / "
+            f"ИИ «…{ai_text[start:i + window]}…»"
+        )
+    return ""
+
+
 def _ask_user(log_callback, change, program_html, ai_html):
     root = _owner_root(log_callback)
     stop_event = _owner_stop_event(log_callback)
@@ -220,6 +257,9 @@ def _ask_user(log_callback, change, program_html, ai_html):
         f"new: {change.get('new', '')}\n\n"
         "Варианты ниже редактируемые. Выберите итоговый вариант после проверки."
     )
+    hint = _first_difference_hint(program_html, ai_html)
+    if hint:
+        context += f"\n\nПервое различие — {hint}"
 
     def show():
         try:
