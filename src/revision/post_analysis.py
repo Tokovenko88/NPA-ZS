@@ -977,6 +977,25 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         return True, ''
 
     if field == 'not_valid':
+        # Отмена целого НПА (result['not_valid'] + not_valid_npa). Но если ИИ
+        # указал item_id конкретного элемента, он имел в виду repel ОДНОЙ
+        # нормы (element_not_valid), а не отмену всего закона: эта ветка
+        # игнорирует item_id и молча помечает утратившим силу весь НПА
+        # (кейс 380-ЗС -> 269-ЗС: corrected-файл получил not_valid='15.12.2017'
+        # на весь закон из-за коррекции по части 7 статьи 7 — после импорта
+        # закон исчез с сайта целиком). Рерайтим в element_not_valid — с той
+        # же защитой от отмены норм, перенесённых новой редакцией родителя.
+        if item_id and item_id != '__npa__':
+            if log_callback:
+                log_callback(
+                    f"  Пост-анализ: коррекция not_valid с item_id={item_id} "
+                    f"перенаправлена в element_not_valid — отмена целого НПА "
+                    f"по коррекции с конкретным элементом запрещена",
+                    'warning',
+                )
+            element_corr = dict(corr, field='element_not_valid')
+            return _apply_correction(
+                result, element_corr, change_npa_id, change_valid_from, log_callback)
         result['not_valid'] = value
         result['not_valid_npa'] = str(change_npa_id)
         return True, ''

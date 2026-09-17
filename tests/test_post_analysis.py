@@ -720,3 +720,146 @@ def test_element_not_valid_allowed_for_unreferenced_element():
     rev = result['npa_items_revision'][0]['item_children'][0]['revisions'][0]
     assert rev.get('not_valid') == '33699_article_1_point_9'
     assert rev.get('valid_to') == '14.12.2017'
+
+
+def test_not_valid_with_item_id_does_not_revoke_whole_npa():
+    """Кейс 380-ЗС -> 269-ЗС: LLM вернул коррекцию field='not_valid' С item_id
+    конкретного элемента. Ветка not_valid игнорировала item_id и помечала
+    утратившим силу ВЕСЬ закон (corrected JSON: not_valid='15.12.2017',
+    not_valid_npa='33699' на корне) — после импорта закон 269-ЗС исчез с
+    сайта целиком. Коррекция с item_id должна применяться на уровне
+    элемента (element_not_valid), а не корня."""
+    result = {
+        'npa_items_revision': [
+            {
+                'item_id': '16012_article_8',
+                'item_type': 'article',
+                'item_number': '8',
+                'revisions': [
+                    {'valid_from': '15.12.2017', 'valid_to': None,
+                     'modified_by_id': '33699_article_1_point_9', 'body': []},
+                ],
+                'item_children': [
+                    {
+                        'item_id': '16012_article_8_part_1',
+                        'item_type': 'part',
+                        'item_number': '1',
+                        'revisions': [
+                            {'body': [
+                                {'type': 'paragraph',
+                                 'html_text': '<p>Отменяемая норма</p>',
+                                 'order': 1},
+                            ]},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+    verdict = {
+        'issues': [
+            {
+                'path': 'Статья 8 > Часть 1',
+                'corrections': [
+                    {
+                        'item_id': '16012_article_8_part_1',
+                        'field': 'not_valid',
+                        'value': '15.12.2017',
+                        'modified_by_id': '33699_article_1_point_9',
+                    },
+                ],
+            },
+        ],
+    }
+    applied = pa.apply_corrections(result, verdict, '33699', '15.12.2017')
+    assert applied and applied[0]['ok'] is True, applied
+    # Целый закон НЕ должен быть отменён
+    assert not result.get('not_valid'), (
+        'коррекция not_valid с item_id не должна отменять весь НПА')
+    # А элемент — должен быть помечен утратившим силу
+    rev = result['npa_items_revision'][0]['item_children'][0]['revisions'][0]
+    assert rev.get('not_valid') == '33699_article_1_point_9'
+    assert rev.get('valid_to') == '14.12.2017'
+
+
+def test_not_valid_with_item_id_referenced_by_parent_rejected():
+    """Коррекция not_valid с item_id элемента, который всё ещё входит в
+    действующую редакцию родителя (child_ref), отклоняется целиком —
+    и, главное, не отменяет весь НПА (кейс: часть 7 статьи 7 перенесена
+    новой редакцией 380-ЗС без изменений)."""
+    result = {
+        'npa_items_revision': [
+            {
+                'item_id': '16012_article_7',
+                'item_type': 'article',
+                'item_number': '7',
+                'revisions': [
+                    {
+                        'valid_from': '15.12.2017',
+                        'valid_to': None,
+                        'mod_type': 'new_redaction',
+                        'modified_by_id': '33699_article_1_point_9',
+                        'body': [
+                            {'type': 'child_ref',
+                             'item_id': '16012_article_7_part_7', 'order': 1},
+                        ],
+                    },
+                ],
+                'item_children': [
+                    {
+                        'item_id': '16012_article_7_part_7',
+                        'item_type': 'part',
+                        'item_number': '7',
+                        'revisions': [
+                            {'body': [
+                                {'type': 'paragraph',
+                                 'html_text': '<p>Решение о предоставлении…</p>',
+                                 'order': 1},
+                            ]},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+    verdict = {
+        'issues': [
+            {
+                'corrections': [
+                    {
+                        'item_id': '16012_article_7_part_7',
+                        'field': 'not_valid',
+                        'value': '15.12.2017',
+                    },
+                ],
+            },
+        ],
+    }
+    applied = pa.apply_corrections(result, verdict, '33699', '15.12.2017')
+    assert applied and applied[0]['ok'] is False, applied
+    # Ни элемент, ни весь закон не должны быть отменены
+    rev = result['npa_items_revision'][0]['item_children'][0]['revisions'][0]
+    assert not rev.get('not_valid')
+    assert rev.get('valid_to') in (None, '')
+    assert not result.get('not_valid'), (
+        'отклонённая коррекция не должна отменять весь НПА')
+
+
+def test_not_valid_without_item_id_still_revokes_whole_npa():
+    """Штатный случай: not_valid без item_id (или __npa__) — отмена целого
+    НПА — продолжает работать."""
+    result = {'npa_items_revision': []}
+    verdict = {
+        'issues': [
+            {
+                'corrections': [
+                    {'item_id': '__npa__', 'field': 'not_valid',
+                     'value': '01.01.2021'},
+                ],
+            },
+        ],
+    }
+    applied = pa.apply_corrections(result, verdict, '33699', '01.01.2021')
+    assert applied and applied[0]['ok'] is True, applied
+    assert result['not_valid'] == '01.01.2021'
+    assert result['not_valid_npa'] == '33699'
