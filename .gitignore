@@ -37,6 +37,16 @@ data/work_tools/*
 !data/work_tools/build_snippet.py
 !data/work_tools/verify_build.py
 
+# Diagnostic / one-off artifacts (ad-hoc debugging dumps, not for the repo)
+data/output/_*
+data/output/*_out.txt
+data/output/*_backup*/
+data/output/multitv_*/
+data/logs/*.txt
+/fix_*.py
+/diag_*.py
+/test_fragment*.py
+
 # OS
 Thumbs.db
 .DS_Store
