@@ -3,17 +3,144 @@ from __future__ import annotations
 
 import difflib
 import tkinter as tk
+from tkinter import font as tkfont
 from tkinter import ttk
 
 #: Вариант, выбранный в диалоге по умолчанию (программный кандидат).
 DEFAULT_EXTRACTION_CHOICE = "program"
 
-#: Цвета для подсветки различий
-_TAG_COLORS = {
-    "same": "#e8e8e8",        # серый фон для совпадающих частей
-    "program_diff": "#ffcccc",  # красный фон для отличающейся части программы
-    "ai_diff": "#ccffcc",       # зелёный фон для отличающейся части ИИ
+#: Стили подсветки различий между вариантами.
+#:
+#: Совпадающие фрагменты НЕ закрашиваются: сплошной серый фон на всём тексте
+#: маскировал единственное реальное расхождение (например, пропущенную точку),
+#: и различие приходилось искать глазами. Теперь подсветка трёхуровневая:
+#:   * ``diff_block_*`` — светлый фон абзаца/предложения, в котором есть различие;
+#:   * ``diff_exact_*`` — насыщенный фон ровно различающихся символов;
+#:   * ``diff_marker``  — место, где у одной стороны символа нет вовсе.
+_TAG_STYLES = {
+    "diff_block_program": {"background": "#ffe4e4"},
+    "diff_block_ai": {"background": "#e4ffe4"},
+    "diff_exact_program": {"background": "#ff5f5f", "foreground": "#000000", "underline": True},
+    "diff_exact_ai": {"background": "#5fd85f", "foreground": "#000000", "underline": True},
+    "diff_marker": {"background": "#ffd24d", "foreground": "#000000", "underline": True},
 }
+
+#: Сколько различий перечислять в сводке над панелями.
+_DIFF_SUMMARY_LIMIT = 5
+
+#: Поиск края предложения при расширении одиночного различия.
+_DIFF_SENTENCE_WINDOW = 90
+
+#: Максимальная длина абзаца, который целиком подсвечивается как «блок различия».
+_DIFF_BLOCK_LIMIT = 4000
+
+#: Автоматический пересчёт подсветки после ручной правки поля — только для
+#: небольших текстов, чтобы правка не тормозила.
+_LIVE_HIGHLIGHT_LIMIT = 60000
+
+
+def _quote_fragment(text, limit=60):
+    """Однострочное представление фрагмента для сводки различий."""
+    value = (text or "").replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n")
+    return value if len(value) <= limit else value[:limit] + "…"
+
+
+def _expand_range(text, start, end, *, block_limit=_DIFF_BLOCK_LIMIT, window=_DIFF_SENTENCE_WINDOW):
+    """Расширить диапазон [start, end) до абзаца, а если он огромный — до предложения.
+
+    Одиночный отличающийся символ (например, пропущенная в конце абзаца точка)
+    слишком мал, чтобы заметить его на фоне длинного текста. Поэтому вместе с
+    точным различием подсвечивается весь содержащий его ``<p>…</p>``.
+    """
+    if not text or start >= end:
+        return None
+    para_start = text.rfind("<p", 0, start + 1)
+    # Ищем закрывающий тег от начала диапазона: у стороны без собственных
+    # символов точка вставки может стоять прямо перед «</p>».
+    para_end = text.find("</p>", start)
+    if para_start != -1 and para_end != -1:
+        para_end += len("</p>")
+        if para_end - para_start <= block_limit:
+            return (para_start, para_end)
+    sentence_start = start
+    floor = max(0, start - window)
+    while sentence_start > floor and text[sentence_start - 1] not in ".!?;:\n":
+        sentence_start -= 1
+    sentence_end = end
+    ceiling = min(len(text), end + window)
+    while sentence_end < ceiling and text[sentence_end - 1] not in ".!?;:\n":
+        sentence_end += 1
+    return (sentence_start, min(sentence_end, len(text)))
+
+
+def _side_block(text, start, end):
+    """Блок подсветки для одной стороны: точный диапазон либо окно в точке вставки.
+
+    Если у стороны нет собственных символов в этом различии (например, ИИ
+    потерял точку), блок считается вокруг точки вставки — иначе один и тот же
+    абзац был бы закрашен только в одной панели, и связь между вариантами
+    приходилось бы устанавливать глазами.
+    """
+    if not text:
+        return None
+    if end > start:
+        return _expand_range(text, start, end)
+    point = min(start, len(text) - 1)
+    return _expand_range(text, point, point + 1)
+
+
+def _diff_fragments(prog_text, ai_text):
+    """Различия между вариантами: точные диапазоны плюс расширенные «блоки».
+
+    Возвращает список словарей с ключами ``op`` (``replace``/``delete``/``insert``),
+    ``prog``/``ai`` (точные диапазоны), ``prog_vis``/``ai_vis`` (расширенные
+    диапазоны для закраски фона) и ``position`` (смещение различия).
+    """
+    matcher = difflib.SequenceMatcher(None, prog_text or "", ai_text or "", autojunk=False)
+    fragments = []
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == "equal":
+            continue
+        fragments.append({
+            "op": tag,
+            "prog": (i1, i2),
+            "ai": (j1, j2),
+            "prog_vis": _side_block(prog_text, i1, i2),
+            "ai_vis": _side_block(ai_text, j1, j2),
+            "position": i1 if i2 > i1 else j1,
+        })
+    return fragments
+
+
+def _describe_fragment(prog_text, ai_text, fragment):
+    """Текстовая расшифровка одного различия для сводки."""
+    i1, i2 = fragment["prog"]
+    j1, j2 = fragment["ai"]
+    position = fragment["position"] + 1
+    op = fragment["op"]
+    if op == "delete":
+        return (f"поз. {position}: в программе лишнее «{_quote_fragment(prog_text[i1:i2])}» — "
+                "в варианте ИИ на этом месте символа нет")
+    if op == "insert":
+        return (f"поз. {position}: в варианте ИИ лишнее «{_quote_fragment(ai_text[j1:j2])}» — "
+                "в программе на этом месте символа нет")
+    return (f"поз. {position}: программа «{_quote_fragment(prog_text[i1:i2])}» / "
+            f"ИИ «{_quote_fragment(ai_text[j1:j2])}»")
+
+
+def _diff_summary_lines(prog_text, ai_text, fragments, limit=_DIFF_SUMMARY_LIMIT):
+    """Строки сводки различий для панели над полями."""
+    lines = [
+        (
+            f"Различий: {len(fragments)}. Красным выделен фрагмент программы, "
+            "зелёным — ИИ, жёлтым — место, где у одной стороны символа нет."
+        )
+    ]
+    for index, fragment in enumerate(fragments[:limit], start=1):
+        lines.append(f"{index}) {_describe_fragment(prog_text, ai_text, fragment)}")
+    if len(fragments) > limit:
+        lines.append(f"… и ещё различий: {len(fragments) - limit}")
+    return lines
 
 
 class ExtractionConflictDialog:
@@ -41,20 +168,20 @@ class ExtractionConflictDialog:
         except tk.TclError:
             pass
 
-        # Always start as a normal, decorated window rather than a screen-sized
-        # window. This keeps the OS title bar and its minimize/maximize/close
-        # controls visible on laptops. The user can maximize it manually.
+        # Окно comparison-диалога открываем на весь экран: на ноутбуках
+        # стандартная ширина 800–900 px оставляла кнопки узными, и приходилось
+        # либо жать стрелку, либо расширять вручную. Теперь окно сразу
+        # разворачивается на весь экран, сохраняя при этом заголовок ОС и
+        # кнопки сворачивания/закрытия (state('zoomed') / attributes('-fullscreen')).
         self.dialog.update_idletasks()
         sw, sh = self.dialog.winfo_screenwidth(), self.dialog.winfo_screenheight()
-        width = min(1280, max(1000, int(sw * 0.88)))
-        height = min(820, max(680, int(sh * 0.82)))
-        x = max(0, (sw - width) // 2)
-        y = max(0, (sh - height) // 2)
-        self.dialog.geometry(f"{width}x{height}+{x}+{y}")
         try:
-            self.dialog.state("normal")
+            self.dialog.state("zoomed")
         except tk.TclError:
-            pass
+            try:
+                self.dialog.attributes("-fullscreen", True)
+            except tk.TclError:
+                self.dialog.geometry(f"{sw}x{sh}+0+0")
 
         self.dialog.grab_set()
         parent._extraction_conflict_dialog = self.dialog
@@ -64,14 +191,22 @@ class ExtractionConflictDialog:
         ttk.Label(
             outer,
             text=("Программа и ИИ извлекли разные блоки. Проверьте оба варианта. "
-                  "Оба поля можно редактировать. Выберите вариант или отредактируйте его."),
-            wraplength=max(700, width - 80),
+                  "Оба поля можно редактировать. Выберите вариант или отредактируйте его. "
+                  "Различия подсвечены: красный фон — фрагмент программы, зелёный — ИИ, "
+                  "жёлтый — место, где у одной стороны символа нет."),
+            wraplength=max(700, sw - 80),
         ).pack(fill="x", pady=(0, 8))
 
-        info = tk.Text(outer, height=8, wrap="word", undo=False)
+        info = tk.Text(outer, height=6, wrap="word", undo=False)
         info.insert("1.0", context or "")
         info.configure(state="disabled")
         info.pack(fill="x", pady=(0, 8))
+
+        # Сводка различий: перечисляет каждое расхождение словами, чтобы его не
+        # приходилось искать глазами по тексту.
+        self.diff_summary = tk.Text(outer, height=3, wrap="word", undo=False, background="#fffbe6")
+        self.diff_summary.configure(state="disabled")
+        self.diff_summary.pack(fill="x", pady=(0, 8))
 
         panes = ttk.Panedwindow(outer, orient="horizontal")
         panes.pack(fill="both", expand=True)
@@ -102,7 +237,14 @@ class ExtractionConflictDialog:
         self.ai_text.bind("<Button-5>", self._sync_scroll, add="+")
 
         # Применяем подсветку различий между вариантами
+        self._highlight_job = None
         self._apply_diff_highlight()
+
+        # После ручной правки разметку и сводку нужно пересчитать: иначе
+        # пользователь правит поле по устаревшим отметкам различий.
+        for widget in (self.program_text, self.ai_text):
+            widget.bind("<<Modified>>", self._on_text_modified, add="+")
+            widget.edit_modified(False)
 
         choice = ttk.Frame(outer)
         choice.pack(fill="x", pady=8)
@@ -111,9 +253,18 @@ class ExtractionConflictDialog:
         ttk.Radiobutton(choice, text="Выбрать вариант ИИ", variable=self.choice, value="ai").pack(side="left")
 
         buttons = ttk.Frame(outer)
-        buttons.pack(fill="x")
-        ttk.Button(buttons, text="Использовать выбранный", command=self._accept).pack(side="right", padx=(8, 0))
-        ttk.Button(buttons, text="Остановить обработку", command=self._cancel).pack(side="right")
+        buttons.pack(fill="x", pady=8)
+        # Кнопки на ноутбуке по умолчанию были узкими — приходилось либо
+        # расширять вручную, либо пользоваться прокруткой. Делаем их
+        # просторными: каждый занимает ~1/3 ширины, с отступами.
+        for col in range(3):
+            buttons.columnconfigure(col, weight=1)
+        self._accept_btn = ttk.Button(buttons, text="Использовать выбранный", command=self._accept)
+        self._accept_btn.grid(row=0, column=0, padx=8, sticky="ew")
+        self._cancel_btn = ttk.Button(buttons, text="Остановить обработку", command=self._cancel)
+        self._cancel_btn.grid(row=0, column=1, padx=8, sticky="ew")
+        # Пустая ячейка для баланса ширины.
+        ttk.Frame(buttons).grid(row=0, column=2, padx=8, sticky="ew")
 
         self.dialog.protocol("WM_DELETE_WINDOW", self._cancel)
         self.dialog.bind("<Escape>", self._shortcut_cancel)
@@ -157,53 +308,155 @@ class ExtractionConflictDialog:
         first, last = event.widget.yview()
         target.yview_moveto(first)
 
-    def _apply_diff_highlight(self):
-        """Применить подсветку различий между программным и ИИ вариантами.
-        
-        Совпадающие части подсвечиваются серым фоном, различающиеся —
-        красным (программа) / зелёным (ИИ).
+    def _apply_diff_highlight(self, *, scroll=True):
+        """Подсветить различия между программным и ИИ вариантами.
+
+        Совпадающие фрагменты не закрашиваются. Различие подсвечивается в три
+        уровня: ``diff_block_*`` (абзац или предложение, где оно находится),
+        ``diff_exact_*`` (точные различающиеся символы) и ``diff_marker``
+        (место, где у одной стороны символа нет). Плюс сводка различий над
+        панелями и прокрутка к первому из них.
         """
         prog_text = self.program_text.get("1.0", "end-1c") or ""
         ai_text = self.ai_text.get("1.0", "end-1c") or ""
-        
-        if not prog_text or not ai_text:
-            return
-        
-        # Настроить теги для подсветки
-        for tag_name, color in _TAG_COLORS.items():
-            self.program_text.tag_configure(tag_name, background=color)
-            self.ai_text.tag_configure(tag_name, background=color)
-        
-        # Удалить старые теги перед применением новых
+
+        self._configure_diff_tags()
         self._clear_diff_tags(self.program_text)
         self._clear_diff_tags(self.ai_text)
-        
-        # Вычислить различия
-        matcher = difflib.SequenceMatcher(None, prog_text, ai_text, autojunk=False)
-        
-        for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-            if tag == 'equal':
-                # Совпадающие части — серый фон
-                self.program_text.tag_add("same", f"1.{i1}", f"1.{i2}")
-                self.ai_text.tag_add("same", f"1.{j1}", f"1.{j2}")
-            elif tag == 'replace':
-                # Различающиеся части — красный фон (программа), зелёный (ИИ)
-                if i2 > i1:
-                    self.program_text.tag_add("program_diff", f"1.{i1}", f"1.{i2}")
-                if j2 > j1:
-                    self.ai_text.tag_add("ai_diff", f"1.{j1}", f"1.{j2}")
-            elif tag == 'delete':
-                # Удалено в ИИ (есть только в программе) — красный фон программы
-                if i2 > i1:
-                    self.program_text.tag_add("program_diff", f"1.{i1}", f"1.{i2}")
-            elif tag == 'insert':
-                # Вставлено в ИИ (нет в программе) — зелёный фон ИИ
-                if j2 > j1:
-                    self.ai_text.tag_add("ai_diff", f"1.{j1}", f"1.{j2}")
+
+        if not prog_text or not ai_text:
+            self._set_diff_summary("Один из вариантов пуст: различия не подсвечены.")
+            return
+
+        fragments = _diff_fragments(prog_text, ai_text)
+        if not fragments:
+            self._set_diff_summary("Различий нет: варианты совпадают посимвольно.")
+            return
+
+        for fragment in fragments:
+            self._tag_fragment(fragment, prog_text, ai_text)
+
+        self._set_diff_summary("\n".join(_diff_summary_lines(prog_text, ai_text, fragments)))
+        if scroll:
+            self._scroll_to_first_difference(fragments)
+
+    def _configure_diff_tags(self):
+        """Настроить теги подсветки в обоих полях."""
+        bold = tkfont.nametofont("TkDefaultFont").copy()
+        bold.configure(weight="bold")
+        for widget in (self.program_text, self.ai_text):
+            for tag_name, options in _TAG_STYLES.items():
+                widget.tag_configure(tag_name, **options)
+            for tag_name in ("diff_exact_program", "diff_exact_ai", "diff_marker"):
+                widget.tag_configure(tag_name, font=bold)
+            # Яркие теги должны перекрывать фоновый блок различия.
+            widget.tag_raise("diff_block_program")
+            widget.tag_raise("diff_block_ai")
+            widget.tag_raise("diff_exact_program")
+            widget.tag_raise("diff_exact_ai")
+            widget.tag_raise("diff_marker")
+
+    def _tag_fragment(self, fragment, prog_text, ai_text):
+        """Отметить одно различие в обоих полях."""
+        i1, i2 = fragment["prog"]
+        j1, j2 = fragment["ai"]
+        prog_vis = fragment["prog_vis"]
+        ai_vis = fragment["ai_vis"]
+        if prog_vis:
+            self._tag_range(self.program_text, "diff_block_program", prog_vis[0], prog_vis[1])
+        if ai_vis:
+            self._tag_range(self.ai_text, "diff_block_ai", ai_vis[0], ai_vis[1])
+        if i2 > i1:
+            self._tag_range(self.program_text, "diff_exact_program", i1, i2)
+        if j2 > j1:
+            self._tag_range(self.ai_text, "diff_exact_ai", j1, j2)
+        if fragment["op"] == "delete":
+            # Символ есть только у программы — отмечаем место пропуска у ИИ.
+            self._tag_range(self.ai_text, "diff_marker", *self._marker_range(ai_text, j1))
+        elif fragment["op"] == "insert":
+            # Символ есть только у ИИ — отмечаем место пропуска у программы.
+            self._tag_range(self.program_text, "diff_marker", *self._marker_range(prog_text, i1))
+
+    @staticmethod
+    def _marker_range(text, point):
+        """Два символа вокруг места, где у варианта символа нет.
+
+        Пустой диапазон в Tk невидим, поэтому отмечаем соседей точки пропуска.
+        """
+        if not text:
+            return (0, 0)
+        return (max(0, point - 1), min(len(text), point + 1))
+
+    def _scroll_to_first_difference(self, fragments):
+        """Прокрутить оба поля к первому различию, чтобы оно было на виду."""
+        first = fragments[0]
+        prog_pos = first["prog_vis"] or first["prog"]
+        ai_pos = first["ai_vis"] or first["ai"]
+        try:
+            self.program_text.see(self._index(prog_pos[0]))
+            self.ai_text.see(self._index(ai_pos[0]))
+        except tk.TclError:
+            pass
+
+    def _set_diff_summary(self, text):
+        """Показать сводку различий над панелями."""
+        try:
+            self.diff_summary.configure(state="normal")
+            self.diff_summary.delete("1.0", "end")
+            self.diff_summary.insert("1.0", text or "")
+            self.diff_summary.configure(state="disabled")
+        except tk.TclError:
+            pass
+
+    def _on_text_modified(self, event=None):
+        """Пересчитать подсветку после ручной правки поля (с задержкой)."""
+        widget = event.widget if event is not None else None
+        if widget is not None:
+            try:
+                widget.edit_modified(False)
+            except tk.TclError:
+                return
+        prog_len = len(self.program_text.get("1.0", "end-1c"))
+        ai_len = len(self.ai_text.get("1.0", "end-1c"))
+        if prog_len + ai_len > _LIVE_HIGHLIGHT_LIMIT:
+            return
+        if self._highlight_job is not None:
+            try:
+                self.dialog.after_cancel(self._highlight_job)
+            except tk.TclError:
+                pass
+        self._highlight_job = self.dialog.after(400, self._refresh_highlight)
+
+    def _refresh_highlight(self):
+        """Обновить разметку без прокрутки — пользователь правит текст руками."""
+        self._highlight_job = None
+        try:
+            self._apply_diff_highlight(scroll=False)
+        except tk.TclError:
+            pass
+
+    @staticmethod
+    def _index(offset):
+        """Индекс Tk по абсолютному смещению символов.
+
+        ``1.<N>`` работает только внутри первой строки: после первого перевода
+        строки такой индекс схлопывается в пустой диапазон, и подсветка молча
+        пропадала. ``1.0+<N>c`` считает смещение по всему тексту.
+        """
+        return f"1.0+{max(0, int(offset))}c"
+
+    def _tag_range(self, widget, tag_name, start, end):
+        """Добавить тег по абсолютным смещениям символов."""
+        if end <= start:
+            return
+        try:
+            widget.tag_add(tag_name, self._index(start), self._index(end))
+        except tk.TclError:
+            pass
 
     def _clear_diff_tags(self, text_widget):
         """Удалить все теги подсветки из виджета."""
-        for tag_name in _TAG_COLORS.keys():
+        for tag_name in _TAG_STYLES:
             try:
                 text_widget.tag_remove(tag_name, "1.0", "end")
             except tk.TclError:
@@ -304,6 +557,12 @@ class ExtractionConflictDialog:
         self.dialog.destroy()
 
     def _clear(self):
+        if self._highlight_job is not None:
+            try:
+                self.dialog.after_cancel(self._highlight_job)
+            except tk.TclError:
+                pass
+            self._highlight_job = None
         if getattr(self.parent, "_extraction_conflict_dialog", None) is self.dialog:
             self.parent._extraction_conflict_dialog = None
 

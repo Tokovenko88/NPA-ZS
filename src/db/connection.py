@@ -6,20 +6,16 @@
 
 Класс ``NpaImporter`` и GUI-приложение вынесены в ``npazs.db.importer``.
 """
-import json
+import functools
+import os
 import re
 import sys
-import threading
-import traceback
-import functools
 import tempfile
-import os
-import queue
 import time
-from dotenv import load_dotenv
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set, Union
+
+from dotenv import load_dotenv
 
 try:
     import pymysql
@@ -114,7 +110,7 @@ def normalize_fio(fio: str) -> str:
         return f"{match3.group(1)}.{match3.group(2)}. {match3.group(3)}"
     return fio
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def parse_date_cached(s: str) -> date | None:
     if not s:
         return None
@@ -129,7 +125,7 @@ def parse_date_cached(s: str) -> date | None:
 parse_date = parse_date_cached
 
 
-def parse_note_payload(note: Optional[dict]) -> Tuple[str, Optional[date], Optional[date]]:
+def parse_note_payload(note: dict | None) -> tuple[str, date | None, date | None]:
     if not isinstance(note, dict):
         return '', None, None
     text = str(note.get('text') or '').strip()
@@ -153,6 +149,9 @@ class DBConnection:
     def __init__(self, cfg: dict):
         self.cfg = cfg
         self.conn = None
+        #: Фактическое имя PK-колонки npa_item_revision (канон — ``rev_id``).
+        #: Определяется однократно при первом обращении к fetch_revision_ids.
+        self._revision_pk_column: str | None = None
 
     def connect(self):
         self.conn = pymysql.connect(
@@ -233,7 +232,7 @@ class DBConnection:
         except Exception:
             return False
 
-    def fetch_one(self, sql: str, params=()) -> Optional[dict]:
+    def fetch_one(self, sql: str, params=()) -> dict | None:
         self._ensure_connection()
         with self.conn.cursor(pymysql.cursors.DictCursor) as cur:
             cur.execute(sql, params)
@@ -259,7 +258,7 @@ class DBConnection:
     def rollback(self):
         self.conn.rollback()
 
-    def bulk_load_csv(self, table: str, columns: List[str], rows: List[Tuple], sep: str = '\t') -> int:
+    def bulk_load_csv(self, table: str, columns: list[str], rows: list[tuple], sep: str = '\t') -> int:
         if not rows:
             return 0
         fd, path = tempfile.mkstemp(suffix='.csv', text=True)
@@ -281,7 +280,7 @@ class DBConnection:
         finally:
             os.unlink(path)
 
-    def bulk_insert(self, table: str, columns: List[str], rows: List[Tuple], chunk_size: int = 1000) -> None:
+    def bulk_insert(self, table: str, columns: list[str], rows: list[tuple], chunk_size: int = 1000) -> None:
         """Пакетная вставка через executemany с разбивкой на чанки.
         
         Быстрее одиночных INSERT-ов, но медленнее bulk_load_csv.
@@ -295,28 +294,40 @@ class DBConnection:
             chunk = rows[i:i + chunk_size]
             self.exec_many(sql, chunk)
 
-    def fetch_revision_ids(self, npa_id: int) -> Dict[Tuple[int, object], int]:
-        """Маппинг (item_internal_id, valid_from) -> id ревизии npa_item_revision.
+    def fetch_revision_ids(self, npa_id: int) -> dict[tuple[int, object], int]:
+        """Маппинг (item_internal_id, valid_from) -> rev_id ревизии npa_item_revision.
 
         Используется после bulk-вставки ревизий, когда одиночные lastrowid
         недоступны: получаем реальные PK одним SELECT-ом по всему НПА.
-        """
-        rows = self.fetch_all(
-            "SELECT id, item_internal_id, valid_from "
-            "FROM npa_item_revision WHERE npa_id = %s",
-            (npa_id,)
-        )
-        return {(r['item_internal_id'], r['valid_from']): r['id'] for r in rows}
 
-    def fetch_revision_ids(self, npa_id: int) -> Dict[Tuple[int, str], int]:
-        """Возвращает маппинг (item_internal_id, valid_from) -> rev_id для быстрого поиска.
-        
-        Используется после bulk-вставки ревизий для получения внешних ключей.
+        Канонический PK — ``rev_id`` (он же FK у ``npa_paragraph.rev_id``, и его
+        читает весь продовый PHP). Ранее метод был объявлен дважды и оба
+        варианта выбирали несуществующую колонку ``id``: привязка параграфов к
+        ревизиям падала, и содержимое элементов не доезжало до сайта. Для
+        совместимости с legacy-дрейфом схемы допускается ``id``, но ``rev_id``
+        имеет приоритет.
         """
-        rows = self.fetch_all(
-            "SELECT id, item_internal_id, valid_from FROM npa_item_revision WHERE npa_id = %s",
-            (npa_id,)
+        candidates = (
+            (self._revision_pk_column,)
+            if getattr(self, '_revision_pk_column', None)
+            else ('rev_id', 'id')
         )
-        return {(r['item_internal_id'], r['valid_from']): r['id'] for r in rows}
+        last_error: Exception | None = None
+        for column in candidates:
+            try:
+                rows = self.fetch_all(
+                    f"SELECT {column}, item_internal_id, valid_from "
+                    "FROM npa_item_revision WHERE npa_id = %s",
+                    (npa_id,)
+                )
+            except pymysql.err.ProgrammingError as e:
+                # Неизвестная колонка в текущей схеме — пробуем следующий вариант.
+                last_error = e
+                continue
+            self._revision_pk_column = column
+            return {(r['item_internal_id'], r['valid_from']): r[column] for r in rows}
+        raise last_error
+
+
 
 

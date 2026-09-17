@@ -884,6 +884,17 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         element = find_item_by_id(result, item_id)
         if not element:
             return False, f"элемент {item_id} не найден"
+        # Защита от вредной автоправки: нельзя пометить утратившей силу норму,
+        # которая по-прежнему входит в действующую редакцию родителя
+        # (child_ref в открытой ревизии) — норма перенесена новой редакцией
+        # без изменений, и её отмена удалит действующий текст
+        # (кейс 380-ЗС -> 269-ЗС: часть 7 статьи 7).
+        if _parent_still_references(result, item_id):
+            return False, (
+                f"элемент {item_id} по-прежнему входит в действующую редакцию "
+                f"родителя (child_ref) — пометка not_valid запрещена: норма "
+                f"перенесена новой редакцией без изменений"
+            )
         rev = get_active_revision(element)
         if rev is None:
             return False, f"у элемента {item_id} нет активной ревизии"
@@ -971,6 +982,31 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         return True, ''
 
     return False, f"неизвестное поле коррекции: {field}"
+
+
+def _parent_still_references(result, item_id):
+    """True, если открытая ревизия родителя всё ещё содержит ``child_ref`` на элемент.
+
+    Пометка ``not_valid`` у нормы, которая по-прежнему входит в действующую
+    редакцию родителя, оставила бы «висячую» ссылку и скрыла действующий
+    текст (кейс 380-ЗС -> 269-ЗС: часть 7 статьи 7 перенесена новой
+    редакцией без изменений — LLM-агент предлагал отменить её ошибочно).
+    """
+    wanted = str(item_id or '')
+    if not wanted:
+        return False
+    stack = list(result.get('npa_items_revision') or [])
+    while stack:
+        parent = stack.pop()
+        stack.extend(parent.get('item_children') or [])
+        for rev in parent.get('revisions') or []:
+            if rev.get('valid_to') not in (None, '') or rev.get('not_valid'):
+                continue
+            for block in rev.get('body') or []:
+                if (isinstance(block, dict) and block.get('type') == 'child_ref'
+                        and str(block.get('item_id') or '') == wanted):
+                    return True
+    return False
 
 
 def apply_corrections(result, verdict, change_npa_id, change_valid_from, log_callback=None):

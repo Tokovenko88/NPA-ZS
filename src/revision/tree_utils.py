@@ -404,3 +404,47 @@ def find_appendix_by_number(data, app_number):
     return _search(data.get('npa_items_revision', []))
 
 
+def verify_element_path(data, structural, element_id):
+    """Проверить, что element_id соответствует структурному пути structural.
+    
+    Args:
+        data: JSON документа (с npa_items_revision)
+        structural: строка вида "Статья 7 часть 7"
+        element_id: item_id элемента для проверки
+    
+    Returns:
+        bool: True если элемент находится по указанному пути от корня
+    """
+    from npazs.revision.html_utils import parse_structural_tokens
+    from npazs.revision.text_utils import clean_number
+    
+    tokens = parse_structural_tokens(structural)
+    if not tokens:
+        return False
+    
+    # Для корневых элементов (article, chapter, section, appendix) не требуем строгую проверку пути,
+    # так как _find_existing_element_flexible уже нашёл их правильно.
+    # Строгая проверка нужна только для вложенных элементов (part, point, subpoint, paragraph).
+    if len(tokens) == 1:
+        etype = tokens[0][0]
+        if etype in ('article', 'chapter', 'section', 'appendix', 'preamble', 'structured_table'):
+            return True
+    
+    def _search(items, idx):
+        if idx >= len(tokens):
+            return False
+        etype, num = tokens[idx]
+        for item in items:
+            if item.get('item_type') == etype:
+                item_num = clean_number(str(item.get('item_number', '')))
+                target_num = clean_number(str(num)) if num else None
+                if (target_num is None and not item.get('item_number', '')) or item_num == target_num:
+                    if item.get('item_id') == element_id:
+                        return idx == len(tokens) - 1
+                    if _search(item.get('item_children', []), idx + 1):
+                        return True
+        return False
+    
+    return _search(data.get('npa_items_revision', []), 0)
+
+

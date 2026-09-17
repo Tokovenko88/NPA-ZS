@@ -141,8 +141,34 @@ HTTP_BACKEND_DEFS = {
     'cline': {
         'base_url': settings.cline_base_url or 'https://api.cline.bot/api/v1',
         'api_key': settings.cline_api_key,
-        'default_model': settings.cline_default_model or 'minimax/minimax-m2.5',
-        'free_models': {'minimax/minimax-m2.5'},
+        'default_model': settings.cline_default_model or 'openrouter/free',
+        # Fallback-снимок актуальных free-моделей Cline API (GET /models отдаёт
+        # их с суффиксом ':free'; 'openrouter/free' — авто-роутер по free).
+        # Основной источник списка — сам API (npazs.llm_models.fetch_cline_models),
+        # этот набор используется только если API недоступен.
+        'free_models': {
+            'cohere/north-mini-code:free',
+            'dots-studio/dots-3-note-preview:free',
+            'google/gemma-4-26b-a4b-it:free',
+            'google/gemma-4-31b-it:free',
+            'inclusionai/ling-3.0-flash-fin:free',
+            'inclusionai/ling-3.0-flash-sante:free',
+            'inclusionai/ling-3.0-flash-vl:free',
+            'liquid/lfm-2.5-2.6b:free',
+            'nex-agi/nex-n2.5-mini:free',
+            'nex-agi/nex-n2.5-pro:free',
+            'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+            'nvidia/nemotron-3-super-120b-a12b:free',
+            'nvidia/nemotron-3-ultra-550b-a55b:free',
+            'nvidia/nemotron-3.5-content-safety:free',
+            'nvidia/nemotron-3.5-lightning:free',
+            'openrouter/free',
+            'poolside/laguna-s-2.1:free',
+            'poolside/laguna-xs-2.1:free',
+            'thinkingmachines/inkling-small:free',
+            'thinkingmachines/inkling:free',
+            'z-ai/glm-5.2:free',
+        },
     },
     'openrouter': {
         'base_url': settings.openrouter_base_url or 'https://openrouter.ai/api/v1',
@@ -158,17 +184,69 @@ HTTP_BACKEND_DEFS = {
             'openrouter/free',
         },
     },
-    'deepseek': {
-        'base_url': settings.deepseek_base_url or 'https://api.deepseek.com/v1',
-        'api_key': settings.deepseek_api_key,
-        'default_model': settings.deepseek_default_model or 'deepseek-chat',
-        'free_models': {'deepseek-chat', 'deepseek-coder'},
+    'cerebras': {
+        'base_url': settings.cerebras_base_url or 'https://api.cerebras.ai/v1',
+        'api_key': settings.cerebras_api_key,
+        # Cerebras — платный pay-per-token, но с generous free tier'ом при
+        # регистрации (без карты), контекст до 128K. Fallback-список —
+        # популярные модели Cerebras (Llama 3.x, Qwen, Gemma).
+        'default_model': settings.cerebras_default_model or 'llama3.1-8b',
+        'free_models': {
+            'llama3.1-8b',
+            'llama3.1-70b',
+            'llama3.3-70b',
+            'qwen-3-32b',
+            'qwen-3-235b-a22b-instruct-2507',
+            'gemma-3-12b-it',
+        },
+    },
+    'together': {
+        'base_url': settings.together_base_url or 'https://api.together.xyz/v1',
+        'api_key': settings.together_api_key,
+        # Together AI — платный pay-per-token, но с free tier'ом при регистрации
+        # (без карты), контекст до 128K. Fallback-список — популярные модели.
+        'default_model': settings.together_default_model or 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+        'free_models': {
+            'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+            'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+            'Qwen/Qwen2.5-7B-Instruct-Turbo',
+            'Qwen/Qwen2.5-72B-Instruct-Turbo',
+            'mistralai/Mistral-7B-Instruct-v0.3',
+            'mistralai/Mixtral-8x7B-Instruct-v0.1',
+        },
+    },
+    'mistral': {
+        'base_url': settings.mistral_base_url or 'https://api.mistral.ai/v1',
+        'api_key': settings.mistral_api_key,
+        # Mistral AI — платный pay-per-token, но с free tier'ом при регистрации
+        # (без карты), контекст до 128K. Fallback-список — популярные модели.
+        'default_model': settings.mistral_default_model or 'mistral-large-latest',
+        'free_models': {
+            'mistral-large-latest',
+            'mistral-small-latest',
+            'mistral-medium-latest',
+            'pixtral-large-latest',
+            'ministral-8b-latest',
+        },
     },
     'gemini': {
         'base_url': settings.gemini_base_url or 'https://generativelanguage.googleapis.com/v1beta/openai',
         'api_key': settings.gemini_api_key,
-        'default_model': settings.gemini_default_model or 'gemini-2.0-flash',
-        'free_models': {'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-2.5-pro'},
+        # Gemini имеет бесплатный тариф (1500 запросов/день, 15/минуту без карты).
+        # Fallback-список — актуальные text-модели (image/audio/TTS/ embeddings
+        # не нужны пайплайну, поэтому они в список не входят).
+        'default_model': settings.gemini_default_model or 'gemini-2.5-flash',
+        'free_models': {
+            'gemini-2.0-flash',
+            'gemini-2.5-flash',
+            'gemini-2.5-pro',
+            'gemini-3.5-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-3.6-flash',
+            'gemini-3.7-flash',
+            'gemini-3.1-flash-lite',
+            'gemini-3-flash-preview',
+        },
     },
 }
 

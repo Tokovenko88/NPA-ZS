@@ -859,6 +859,11 @@ class NpaToJsonGenerator:
                 i += 1
                 continue
 
+            # В fragment_mode сбрасываем quote_level для каждого абзаца,
+            # так как кавычки не должны переноситься между абзацами
+            if self.fragment_mode:
+                self.quote_level = 0
+
             text = self.extract_text(tag).strip()
             has_img = tag.find('img') is not None
             has_content = bool(text) or has_img or bool(tag.find_all(['img', 'table', 'figure']))

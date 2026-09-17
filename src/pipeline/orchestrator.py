@@ -76,7 +76,7 @@ from npazs.revision.retroactive_notes import (
     normalize_amending_note_text,
 )
 from npazs.revision.text_utils import strip_thinking_tags
-from npazs.revision.tree_utils import _find_target_element, find_item_by_id
+from npazs.revision.tree_utils import _find_target_element, find_item_by_id, find_target_element_via_ai
 from npazs.revision.ui_utils import (
     _add_new_element,
     _correct_change_description,
@@ -1919,12 +1919,44 @@ class AiPipelineMixin:
                         if target_element:
                             self.log(f"✅ Пользователь выбрал элемент ID {target_element.get('item_id')}, тип {target_element.get('item_type')} {target_element.get('item_number')}", 'result')
                         else:
-                            self.log("⚠️ Ручной выбор пропущен. Запрос к ИИ...", 'warning')
-                            target_element = find_target_element_via_ai(change_data, original_data, self.log, model, extra_options, self.stop_event, doc_type_change, backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+                            self.log("⚠️ Ручной выбор пропущен (headless). Используем эвристику...", 'warning')
+                            # Headless фоллбэк: ищем в последних элементах изменяющего закона
+                            # Сначала пробуем по номеру изменяющего закона из revision_info
+                            revision_infos = change_data.get('revision_info', [])
+                            amending_law_number = None
+                            if revision_infos:
+                                amending_law_number = revision_infos[0].get('revision_number', '')
+                            
+                            items = change_data.get('npa_items_revision', [])
+                            # Ищем упоминание номера изменяющего закона
+                            search_numbers = []
+                            if amending_law_number:
+                                search_numbers.append(amending_law_number)
+                            if original_law_number:
+                                search_numbers.append(original_law_number)
+                            
+                            for item in reversed(items):
+                                text = extract_text_from_element(item)
+                                for snum in search_numbers:
+                                    if snum and snum in text:
+                                        target_element = item
+                                        self.log(f"✅ Целевой элемент найден эвристически по '{snum}': {item.get('item_id')}", 'result')
+                                        break
+                                if target_element:
+                                    break
+                            
                             if not target_element:
-                                self.log("❌ Элемент с номером исходного закона не найден ни вручную, ни через ИИ. Дальнейшая обработка невозможна.", 'error')
+                                # В крайнем случае пробуем ИИ с таймаутом
+                                try:
+                                    target_element = find_target_element_via_ai(change_data, original_data, self.log, model, extra_options, self.stop_event, doc_type_change, backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+                                except Exception as ai_err:
+                                    self.log(f"⚠️ ИИ запрос упал: {ai_err}", 'warning')
+                                    target_element = None
+                            
+                            if not target_element:
+                                self.log("❌ Элемент с номером исходного закона не найден. Дальнейшая обработка невозможна.", 'error')
                                 return
-                            self.log("✅ Элемент найден через ИИ.", 'result')
+                            self.log("✅ Элемент найден.", 'result')
                         
                     items = change_data.get('npa_items_revision', [])
                     if not items:

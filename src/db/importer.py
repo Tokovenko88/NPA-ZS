@@ -6,42 +6,31 @@
 """
 
 import json
-import re
-import sys
-import threading
-import traceback
-import functools
-import tempfile
 import os
 import queue
-import time
-from datetime import datetime, date, timedelta
-from pathlib import Path
+import re
+import threading
 import tkinter as tk
-from tkinter import filedialog, ttk, messagebox
+import traceback
+from datetime import date, datetime
+from pathlib import Path
+from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
-from typing import Dict, List, Tuple, Optional, Set, Union
-
-import pymysql
-import pymysql.cursors
 
 from npazs.db.connection import (
-    DB_DEFAULTS,
-    DB_CONFIG,
     COLOR,
+    ITEM_TYPE_MAP,
     LOG_TAGS,
     ROMAN_RE,
-    ITEM_TYPE_MAP,
     SERVICE_POSITIONS,
-    RETRYABLE_ERRCODES,
     DBConnection,
+    compute_valid_from,
     normalize_fio,
     parse_date,
-    parse_date_cached,
     parse_note_payload,
-    date_plus_one,
-    compute_valid_from,
 )
+
+
 class NpaImporter:
     CHUNK_SIZE = 5000
 
@@ -49,12 +38,12 @@ class NpaImporter:
         self.db = db
         self.log = log_cb
         self._tables_cache = {}
-        self._item_id_cache: Dict[str, int] = {}
-        self._person_cache: Dict[str, int] = {}
-        self._post_cache: Dict[Tuple[str, Optional[int], int], int] = {}
-        self._conv_cache: Dict[str, int] = {}
-        self._committee_cache: Dict[str, int] = {}
-        self._revision_exists_cache: Dict[int, bool] = {}
+        self._item_id_cache: dict[str, int] = {}
+        self._person_cache: dict[str, int] = {}
+        self._post_cache: dict[tuple[str, int | None, int], int] = {}
+        self._conv_cache: dict[str, int] = {}
+        self._committee_cache: dict[str, int] = {}
+        self._revision_exists_cache: dict[int, bool] = {}
         self._load_lookup_tables()
 
     def _normalize_highlights(self, val):
@@ -440,6 +429,12 @@ class NpaImporter:
             rev_id = rev.get('revision_id')
             if rev_id is None:
                 continue
+            # Служебная запись плана D (ревизия наименования НПА, structural_element='НПА'):
+            # её revision_id — UUID конкретной ревизии, а не npa_id изменяющего документа.
+            # В npa_revision_info (revision_id INT UNSIGNED = npa_base.npa_id) она не переносится.
+            if 'structural_element' in rev:
+                self.log('DIM', f'revision_info: служебная запись ревизии «{rev.get("revision_number", "")}» (structural_element) пропущена')
+                continue
             try:
                 rev_id = int(rev_id)
             except (ValueError, TypeError):
@@ -476,7 +471,7 @@ class NpaImporter:
         except Exception as e:
             self.log('ERROR', f'Ошибка при вставке npa_revision_info: {e}')
 
-    def _gather_orders_from_body(self, items: List[dict]) -> Dict[str, int]:
+    def _gather_orders_from_body(self, items: list[dict]) -> dict[str, int]:
         order_map = {}
         for item in items:
             revisions = item.get('revisions', [])
@@ -502,7 +497,7 @@ class NpaImporter:
                 order_map.update(child_orders)
         return order_map
 
-    def _flatten_items(self, items: List[dict], parent_item_id: str = None, order_map: Dict[str, int] = None) -> List[dict]:
+    def _flatten_items(self, items: list[dict], parent_item_id: str = None, order_map: dict[str, int] = None) -> list[dict]:
         flat = []
         for idx, item in enumerate(items):
             item_id = item.get('item_id', '')
@@ -519,7 +514,7 @@ class NpaImporter:
                 flat.extend(self._flatten_items([child], parent_item_id=item_id, order_map=order_map))
         return flat
 
-    def _insert_items_structure_bulk(self, items: List[dict], npa_id: int, mapping: Dict[str, int]):
+    def _insert_items_structure_bulk(self, items: list[dict], npa_id: int, mapping: dict[str, int]):
         order_map = self._gather_orders_from_body(items)
         flat_items = self._flatten_items(items, order_map=order_map)
         if not flat_items:
@@ -558,7 +553,6 @@ class NpaImporter:
             for i in range(0, len(update_data), chunk_size):
                 chunk = update_data[i:i + chunk_size]
                 self.db.exec_many('UPDATE npa_item SET parent_id = %s WHERE item_id = %s', chunk)
-        self.log('OK', f'Вставлено {len(mapping)} элементов в npa_item')
 
     def _exec_and_get_id(self, sql: str, params, table: str = '') -> int | None:
         if table and not self._require_table(table):
@@ -571,7 +565,7 @@ class NpaImporter:
             self.log('ERROR', f'DB error ({table}): {e}')
             return None
 
-    def _resolve_modified_by(self, raw_mod, local_mapping: Dict[str, int]) -> Union[str, None]:
+    def _resolve_modified_by(self, raw_mod, local_mapping: dict[str, int]) -> str | None:
         if raw_mod is None:
             return None
         numeric_ids = []
@@ -597,7 +591,7 @@ class NpaImporter:
             self.log('WARN', f'Несколько modified_by_id преобразованы в строку: "{result}". Убедитесь, что поле modified_by_id в БД имеет тип VARCHAR или TEXT.')
         return result
 
-    def _resolve_not_valid(self, raw_not_valid: Optional[str], local_mapping: Dict[str, int]) -> Optional[int]:
+    def _resolve_not_valid(self, raw_not_valid: str | None, local_mapping: dict[str, int]) -> int | None:
         if not raw_not_valid:
             return None
         resolved = local_mapping.get(raw_not_valid)
@@ -607,7 +601,23 @@ class NpaImporter:
             self.log('WARN', f'Не найден id для not_valid "{raw_not_valid}"')
         return resolved
 
-    def _insert_batch_executemany(self, table: str, columns: List[str], rows: List[tuple]):
+    @staticmethod
+    def _amending_valid_from(revisions_info: list) -> date | None:
+        """Возвращает дату вступления в силу изменяющего НПА (наиболее поздняя
+        среди записей revision_info, где есть revision_date_valid).
+
+        Используется импортёром как дефолтная дата для вложенных элементов,
+        чьи ревизии не имеют собственного valid_from/mod_type.
+        """
+        best = None
+        for rev in revisions_info or []:
+            for key in ('revision_date_valid', 'valid_from', 'revision_date_pub'):
+                d = parse_date(rev.get(key))
+                if d and (best is None or d > best):
+                    best = d
+        return best
+
+    def _insert_batch_executemany(self, table: str, columns: list[str], rows: list[tuple]):
         if not rows:
             return
         chunk_size = 1000
@@ -673,12 +683,12 @@ class NpaImporter:
             )
             self.log('OK', f'Вставлено {len(rows)} записей в npa_item_number_revision для {item["item_id"]}')
 
-    def _process_notes(self, npa_id: int, root_data: dict, items: list, mapping: Dict[str, int]):
+    def _process_notes(self, npa_id: int, root_data: dict, items: list, mapping: dict[str, int]):
         if not self._require_table('npa_note_unified'):
             return
         notes_to_insert = []
 
-        def resolve_source_item_id(source_item_id_str: Optional[str]) -> Optional[int]:
+        def resolve_source_item_id(source_item_id_str: str | None) -> int | None:
             if not source_item_id_str:
                 return None
             resolved = mapping.get(source_item_id_str)
@@ -768,14 +778,19 @@ class NpaImporter:
             self.log('ERROR', f'Ошибка при вставке заметок: {e}')
             raise
 
-    def _insert_items_revisions(self, items, npa_id, root_valid_from, mapping):
+    def _insert_items_revisions(self, items, npa_id, root_valid_from, mapping, is_amended=False, amend_valid_from=None):
         """Optimized: bulk-insert revisions and paragraphs instead of per-item INSERTs."""
         head_data = []
         prefix_data = []
         all_revisions = []
         all_paragraphs = []
+        # Вложенные элементы исправленного документа, чьи активные ревизии не
+        # имеют ни valid_from, ни mod_type: импортёр подставит дату корневой
+        # редакции, и элемент не будет привязан к изменяющему НПА (кейс
+        # 269-ЗС <- 380-ЗС: часть 1 статьи 4 «внесена без пунктов»).
+        no_provenance_ids = []
 
-        def collect_item_data(item, internal_id):
+        def collect_item_data(item, internal_id, is_nested=False):
             self._process_number_revisions(item, internal_id, npa_id)
             add_date_by_mod = {}
             for rev in item.get('revisions', []):
@@ -837,6 +852,30 @@ class NpaImporter:
                     prev_vto = vto
                     continue
                 vfrom = explicit_vf if explicit_vf is not None else compute_valid_from(prev_vto, root_valid_from)
+                # Голая ревизия вложенного элемента в режиме амендмента (JSON,
+                # сгенерированный без учёта истории ревизий): подставляем дату
+                # изменяющего НПА (amend_valid_from), а не корневой редакции,
+                # чтобы элемент привязался к изменяющему НПА и не потерялся в
+                # режиме «выбранная редакция» на сайте.
+                if (
+                    is_nested and is_amended and amend_valid_from is not None
+                    and explicit_vf is None
+                    and not rev.get('mod_type')
+                    and not rev.get('modified_by_id')
+                    and not rev.get('not_valid')
+                    and rev.get('body')
+                ):
+                    vfrom = amend_valid_from
+                    no_provenance_ids.append(item.get('item_id'))
+                elif (
+                    is_nested and is_amended
+                    and explicit_vf is None
+                    and not rev.get('mod_type')
+                    and not rev.get('modified_by_id')
+                    and not rev.get('not_valid')
+                    and rev.get('body')
+                ):
+                    no_provenance_ids.append(item.get('item_id'))
                 mod_by = self._resolve_modified_by(rev.get('modified_by_id'), mapping)
                 highlights_json = self._normalize_highlights(rev.get('highlights'))
                 mod_type = rev.get('mod_type') or None
@@ -855,16 +894,44 @@ class NpaImporter:
                     all_paragraphs.append((rev_index, internal_id, btype, order, html_txt or None, plain or None, ref_internal))
                 prev_vto = vto
 
-        for item in items:
+        def walk_items(item, is_nested):
+            # ОБХОД ВСЕГО ДЕРЕВА, а не только одного уровня: ранее собирались
+            # ревизии верхнего уровня и прямых детей, а внуки (например, пункты
+            # 3-го уровня внутри части) получали строку в npa_item без ревизий и
+            # молча исчезали с сайта (кейс 269-ЗС <- 380-ЗС: часть 1 статьи 4
+            # «внесена без пунктов»).
             internal_id = mapping.get(item.get('item_id'))
             if internal_id is None:
                 self.log('ERROR', f'Не найден internal_id для {item.get("item_id")}')
-                continue
+            else:
+                collect_item_data(item, internal_id, is_nested=is_nested)
             for child in item.get('item_children', []):
-                child_internal = mapping.get(child.get('item_id'))
-                if child_internal:
-                    collect_item_data(child, child_internal)
-            collect_item_data(item, internal_id)
+                if isinstance(child, dict):
+                    walk_items(child, True)
+
+        for item in items:
+            if isinstance(item, dict):
+                walk_items(item, is_nested=False)
+
+        if no_provenance_ids:
+            unique_ids = list(dict.fromkeys(no_provenance_ids))
+            shown = ', '.join(unique_ids)
+            if len(shown) > 300:
+                shown = shown[:300] + '…'
+            if amend_valid_from is not None:
+                self.log('INFO', (
+                    f'Ревизии вложенных элементов без valid_from/mod_type '
+                    f'({len(unique_ids)} шт.): {shown} — подставлена дата '
+                    f'изменяющего НПА ({amend_valid_from}); элементы привязаны '
+                    f'к изменяющему НПА'
+                ))
+            else:
+                self.log('WARN', (
+                    f'Ревизии вложенных элементов без valid_from/mod_type '
+                    f'({len(unique_ids)} шт.): {shown} — подставлена дата корневой '
+                    f'редакции ({root_valid_from}); элемент не привязан к изменяющему '
+                    f'НПА и будет потерян в режиме «выбранная редакция»'
+                ))
 
         if all_revisions and self._require_table('npa_item_revision'):
             self.db.bulk_insert('npa_item_revision',
@@ -899,7 +966,7 @@ class NpaImporter:
                 prefix_data)
             self.log('OK', f'Вставлено {len(prefix_data)} prefix_revision')
 
-    def _insert_head_revisions(self, npa_id: int, revisions: list, root_valid_from: date, local_mapping: Dict[str, int]):
+    def _insert_head_revisions(self, npa_id: int, revisions: list, root_valid_from: date, local_mapping: dict[str, int]):
         if not self._require_table('npa_head_revision'):
             return
         data = []
@@ -962,6 +1029,15 @@ class NpaImporter:
             revisions_info = d.get('revision_info', []) or d.get('revisions_info', [])
             if revisions_info:
                 self._insert_revision_info(npa_id, revisions_info, npa_type)
+            # Дата вступления в силу изменяющего НПА (последняя/наиболее поздняя
+            # среди revision_info). Используется как «дефолтная» дата для
+            # вложенных элементов, чьи ревизии не имеют собственного
+            # valid_from/mod_type (кейс 269-ЗС <- 380-ЗС: часть 1 статьи 2
+            # «внесена без пунктов» — без неё импортёр подставляет дату
+            # корневой редакции 2016-08-08, и элемент теряется в режиме
+            # «выбранная редакция»).
+            amend_vf = self._amending_valid_from(revisions_info)
+            self.log('INFO', f'Дата изменяющего НПА (amend_vf) = {amend_vf}')
             self.log('SECTION', '── Специфичные поля ──')
             self._insert_specific_fields(npa_id, npa_type, d, conv_id)
             self.log('SECTION', '── Авторы и подписанты ──')
@@ -984,7 +1060,7 @@ class NpaImporter:
             self._insert_items_structure_bulk(items, npa_id, mapping)
             self.log('OK', f'Вставлено {len(mapping)} элементов в npa_item')
             self.log('SECTION', '── Фаза 2: вставка ревизий и параграфов с правильной привязкой ──')
-            self._insert_items_revisions(items, npa_id, root_vf, mapping)
+            self._insert_items_revisions(items, npa_id, root_vf, mapping, is_amended=bool(revisions_info), amend_valid_from=amend_vf)
             self.log('SECTION', '── Заголовки НПА ──')
             self._insert_head_revisions(npa_id, d.get('head_revision', []), root_vf, mapping)
             self.log('SECTION', '── Примечания (npa_notes / item_notes) ──')
@@ -1018,7 +1094,7 @@ class NpaImporter:
             from npazs.db.html_renderer import NpaHtmlRenderer
             renderer = NpaHtmlRenderer(self.db)
             count = renderer.render_and_cache_all_dates(npa_id)
-            self.log('OK', f'Статический HTML-кеш: {count} дат(ы) сгенерировано')
+            self.log('OK', f'Статический HTML-кеш: {count} дат(ы) сгенерировано (текущая и предыдущая редакция включены)')
         except Exception as e:
             self.log('WARN', f'Статический рендеринг пропущен: {e}')
 
@@ -1063,9 +1139,7 @@ class ImporterApp(tk.Tk):
             self._on_browse()
         elif event.keycode == 73:
             self._on_import()
-        elif event.keycode == 81:
-            self.destroy()
-        elif event.keycode == 87:
+        elif event.keycode == 81 or event.keycode == 87:
             self.destroy()
 
     def _build_ui(self):

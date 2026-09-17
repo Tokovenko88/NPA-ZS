@@ -351,6 +351,63 @@ def _already_revised_this_run(element, change_date):
     return False
 
 
+def _stamp_new_subtree_provenance(element, change_date, modified_by_id, mod_type='change'):
+    """Проставить привязку к изменяющему НПА во впервые созданном поддереве.
+
+    Парсер отдаёт ревизии новых элементов с «голым» body — без ``valid_from``,
+    ``mod_type`` и ``modified_by_id``. Без штампа импортёр молча подставляет
+    дату корневой редакции (элемент «существовал» с исходной публикации), а
+    сайт в режиме «выбранная редакция» не находит ревизию по
+    ``modified_by_id`` и показывает её без содержимого (кейс 380-ЗС -> 269-ЗС:
+    часть 1 статьи 4 отображалась без пунктов).
+
+    Штампуются только АКТИВНЫЕ ревизии без ``valid_from`` — существующая
+    история элементов (базовые и уже закрытые ревизии) не переписывается.
+    """
+    for rev in element.get('revisions') or []:
+        if not isinstance(rev, dict) or rev.get('valid_to') not in (None, ''):
+            continue
+        if rev.get('valid_from'):
+            continue
+        rev['valid_from'] = change_date
+        if not rev.get('mod_type'):
+            rev['mod_type'] = mod_type
+        if not rev.get('modified_by_id'):
+            rev['modified_by_id'] = modified_by_id
+    for child in element.get('item_children') or []:
+        if isinstance(child, dict):
+            _stamp_new_subtree_provenance(child, change_date, modified_by_id, mod_type)
+
+
+def _close_excluded_subtree(element, valid_to, modified_by_id):
+    """Закрыть активные ревизии элемента и всех его потомков как утратившие силу.
+
+    Вызывается для детей, ИСКЛЮЧЁННЫХ новой редакцией родителя
+    (``new_redaction``): норма больше не входит в текст, поэтому её активная
+    ревизия закрывается ``valid_to`` (день до вступления поправки в силу) и
+    помечается ``not_valid=modified_by_id`` — той же конвенцией, которой
+    change_applier помечает прямую утрату силы (см. ``_apply_revoke``).
+    Ревизии с уже проставленным ``not_valid`` и закрытые ревизии не трогаются.
+
+    Returns:
+        bool: True, если хотя бы одна ревизия была закрыта.
+    """
+    closed_any = False
+    for rev in element.get('revisions') or []:
+        if not isinstance(rev, dict):
+            continue
+        if rev.get('valid_to') in (None, '') and not rev.get('not_valid'):
+            rev['valid_to'] = valid_to
+            rev['not_valid'] = modified_by_id
+            if not rev.get('revision_id'):
+                rev['revision_id'] = str(uuid.uuid4())
+            closed_any = True
+    for child in element.get('item_children') or []:
+        if isinstance(child, dict) and _close_excluded_subtree(child, valid_to, modified_by_id):
+            closed_any = True
+    return closed_any
+
+
 def sync_structural_element_recursive(old_element, new_element, change_date, modified_by_id, data_context, log_callback, is_top_level=True, override_mod_type=None, highlights=None, is_table_child=False):
     valid_from_dt = datetime.strptime(change_date, '%d.%m.%Y')
     valid_to_prev = (valid_from_dt - timedelta(days=1)).strftime('%d.%m.%Y')
@@ -528,6 +585,15 @@ def sync_structural_element_recursive(old_element, new_element, change_date, mod
             for attr in ['_pending_new_redaction_html', '_pending_mod_type', '_pending_modified_by_id', '_pending_valid_from']:
                 new_child_source.pop(attr, None)
             old_children.append(new_child_source)
+            # Впервые созданное поддерево (например, часть 1 статьи 4 с пунктами
+            # при «новой редакции») получает привязку к изменяющему НПА: без
+            # штампа ревизии остаются без valid_from/modified_by_id (см.
+            # _stamp_new_subtree_provenance). Покрывает и «перенесённых» детей,
+            # чья активная ревизия создана выше без valid_from.
+            _stamp_new_subtree_provenance(
+                new_child_source, change_date, modified_by_id,
+                override_mod_type or 'change',
+            )
             # ИСПРАВЛЕНИЕ: синхронизируем тело родителя, чтобы добавить child_ref на нового ребёнка
             sync_parent_body_with_children(old_element, log_callback)
             if log_callback:
@@ -695,10 +761,26 @@ def sync_structural_element_recursive(old_element, new_element, change_date, mod
         if is_full_replacement:
             # new_redaction заменяет тело целиком телом, полученным от парсера:
             # child_ref добавляем только для детей, которые реально присутствуют в
-            # новом дереве. Старые дети, отсутствующие в новой редакции, не попадают
-            # в тело (их ревизии сохраняются без изменений — ничего не удаляется).
+            # новом дереве. Старые дети, отсутствующие в новой редакции, теряют
+            # child_ref, а их активные ревизии закрываются как утратившие силу
+            # (valid_to + not_valid=modified_by_id) — иначе норма «висит» активной,
+            # сайт показывает отменённый текст как действующий, а пост-анализ
+            # поднимает orphan_child_not_closed (кейс 380-ЗС -> 269-ЗС).
             if in_new_tree:
                 new_body.append({'type': 'child_ref', 'item_id': child_id, 'order': len(new_body) + 1})
+            elif _already_revised_this_run(child, change_date):
+                if log_callback:
+                    log_callback(
+                        f"  ⚠️ Дочерний элемент {child_id} исключён новой редакцией, "
+                        f"но уже получил ревизию этого прогона — ревизию не закрываем.",
+                        'warning',
+                    )
+            elif _close_excluded_subtree(child, valid_to_prev, modified_by_id) and log_callback:
+                log_callback(
+                    f"  Дочерний элемент {child_id} исключён новой редакцией: "
+                    f"ревизии закрыты до {valid_to_prev}, not_valid={modified_by_id}.",
+                    'result',
+                )
         else:
             if not in_new_tree:
                 new_body.append({'type': 'child_ref', 'item_id': child_id, 'order': len(new_body) + 1})
@@ -1163,6 +1245,16 @@ def _find_existing_element_flexible(data, structural, log_callback=None, ambiguo
             elif item.get('item_type') in ('appendix', 'structured_table', 'section', 'chapter'):
                 _collect_candidates(item.get('item_children', []), token_idx, path_so_far)
     _collect_candidates(data.get('npa_items_revision', []), 0)
+    
+    # СТРОГАЯ ПРОВЕРКА: отфильтровать кандидатов, у которых путь от корня не совпадает с tokens
+    if candidates and len(tokens) > 1:
+        from npazs.revision.tree_utils import verify_element_path
+        verified = [c for c in candidates if verify_element_path(data, structural, c.get('item_id'))]
+        if len(verified) != len(candidates):
+            if log_callback:
+                log_callback(f"  Отсеяно {len(candidates) - len(verified)} кандидатов: путь не совпадает с '{structural}'", 'info')
+            candidates = verified
+    
     if not candidates:
         return None
     if len(candidates) == 1:

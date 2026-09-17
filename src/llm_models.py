@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+import os
 
 import requests
 from npazs.constants import (
@@ -65,7 +66,11 @@ def fetch_kilo_gateway_free_models(url: str, api_key: str = '') -> list:
     headers = {}
     if api_key:
         headers['Authorization'] = f'Bearer {api_key}'
-    response = requests.get(f'{base}/models', headers=headers, timeout=10)
+    session = _ssl_session()
+    try:
+        response = session.get(f'{base}/models', headers=headers, timeout=10)
+    finally:
+        session.close()
     if response.status_code != 200:
         raise RuntimeError(
             f'HTTP {response.status_code}: {response.text}'
@@ -82,7 +87,11 @@ def fetch_ollama_models(base_url: str = _ollama_base_url) -> list:
     ``RuntimeError`` при HTTP-ошибке.
     """
     base = base_url.rstrip('/') if base_url else ''
-    response = requests.get(f'{base}/api/tags', timeout=5)
+    session = _ssl_session()
+    try:
+        response = session.get(f'{base}/api/tags', timeout=5)
+    finally:
+        session.close()
     if response.status_code != 200:
         raise RuntimeError(f'HTTP {response.status_code}')
     data = response.json()
@@ -100,15 +109,32 @@ def fetch_ollama_models(base_url: str = _ollama_base_url) -> list:
 # Generic OpenAI-compatible model fetching (OpenRouter, Cline, DeepSeek, Gemini)
 # ---------------------------------------------------------------------------
 
+def _ssl_session() -> requests.Session:
+    """Вернуть ``requests.Session`` с учётом настроек SSL.
+
+    При ``NPAZ_DISABLE_SSL_VERIFY=1`` проверка сертификата отключается —
+    нужно для корпоративных прокси с самоподписанными сертификатами.
+    Переменная ``REQUESTS_CA_BUNDLE`` (стандартная для ``requests``)
+    позволяет указать путь к кастомному CA-бандлу.
+    """
+    session = requests.Session()
+    if os.environ.get('NPAZ_DISABLE_SSL_VERIFY', '0').strip() in ('1', 'true', 'yes'):
+        session.verify = False
+    return session
+
+
 def _fetch_openai_compat_models(
     base_url: str,
     api_key: str = '',
-    free_marker: str = 'free',
+    free_marker: str | None = 'free',
 ) -> list:
     """Получить список моделей из OpenAI-compatible ``GET /models``.
 
-    Возвращает модели, содержащие ``free`` в id или названии (регистронезависимо).
-    Если API недоступен или не возвращает free-модели, выбрасывается
+    ``free_marker`` — маркер, по которому отбираются free-модели
+    (например, ``free`` для OpenRouter/Cline или ``flash`` для Gemini).
+    При ``free_marker=None`` фильтр отключается и возвращаются все модели
+    (используется для бэкендов без free-тарифа, например DeepSeek).
+    Если API недоступен или не возвращает моделей, выбрасывается
     ``RuntimeError`` — вызывающий код решает, как использовать fallback-список.
     """
     base = (base_url or '').rstrip('/')
@@ -117,7 +143,11 @@ def _fetch_openai_compat_models(
     headers = {'Content-Type': 'application/json'}
     if api_key:
         headers['Authorization'] = f'Bearer {api_key}'
-    response = requests.get(f'{base}/models', headers=headers, timeout=15)
+    session = _ssl_session()
+    try:
+        response = session.get(f'{base}/models', headers=headers, timeout=15)
+    finally:
+        session.close()
     if response.status_code != 200:
         raise RuntimeError(
             f'HTTP {response.status_code}: {response.text[:200]}'
@@ -129,22 +159,34 @@ def _fetch_openai_compat_models(
             continue
         model_id = str(m.get('id') or '').strip()
         name = str(m.get('name') or str(m.get('id') or '')).strip()
-        if model_id and free_marker in f'{model_id} {name}'.lower():
+        if not model_id:
+            continue
+        if free_marker is None or free_marker in f'{model_id} {name}'.lower():
             selected.append(model_id)
     return sorted(set(selected))
 
 
 def fetch_openrouter_free_models(api_key: str = '') -> list:
-    """Получить free-модели OpenRouter через ``GET /models``."""
-    return _fetch_openai_compat_models(
-        'https://openrouter.ai/api/v1', api_key, 'free'
-    )
+    """Получить free-модели OpenRouter через ``GET /models``.
+
+    Если API недоступен (SSL, сеть, ключ), используется fallback из констант
+    (``HTTP_BACKEND_DEFS['openrouter']['free_models']``) — как у остальных
+    HTTP-бэкендов.
+    """
+    try:
+        return _fetch_openai_compat_models(
+            'https://openrouter.ai/api/v1', api_key, 'free'
+        )
+    except RuntimeError:
+        return sorted(HTTP_BACKEND_DEFS['openrouter']['free_models'])
 
 
 def fetch_cline_models(api_key: str = '') -> list:
-    """Получить список моделей Cline API через ``GET /models``.
+    """Получить только и только free-модели Cline API через ``GET /models``.
 
-    Если API не возвращает free-модели, используется fallback из констант.
+    Отбираются модели с признаком ``free`` (у Cline это суффикс ``:free``).
+    Если API недоступен, используется fallback из констант
+    (``HTTP_BACKEND_DEFS['cline']['free_models']``).
     """
     try:
         return _fetch_openai_compat_models(
@@ -154,17 +196,49 @@ def fetch_cline_models(api_key: str = '') -> list:
         return sorted(HTTP_BACKEND_DEFS['cline']['free_models'])
 
 
-def fetch_deepseek_models(api_key: str = '') -> list:
-    """Получить список моделей DeepSeek через ``GET /models``.
+def fetch_cerebras_models(api_key: str = '') -> list:
+    """Получить список моделей Cerebras через ``GET /models``.
 
-    Если API не доступен, используется fallback из констант.
+    Cerebras — платный pay-per-token, но с generous free tier'ом при регистрации
+    (без карты), контекст до 128K. Если API недоступен, используется fallback
+    из констант.
     """
     try:
         return _fetch_openai_compat_models(
-            'https://api.deepseek.com/v1', api_key
+            'https://api.cerebras.ai/v1', api_key, free_marker=None
         )
     except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['deepseek']['free_models'])
+        return sorted(HTTP_BACKEND_DEFS['cerebras']['free_models'])
+
+
+def fetch_together_models(api_key: str = '') -> list:
+    """Получить список моделей Together AI через ``GET /models``.
+
+    Together AI — платный pay-per-token, но с free tier'ом при регистрации
+    (без карты), контекст до 128K. Если API недоступен, используется fallback
+    из констант.
+    """
+    try:
+        return _fetch_openai_compat_models(
+            'https://api.together.xyz/v1', api_key, free_marker=None
+        )
+    except RuntimeError:
+        return sorted(HTTP_BACKEND_DEFS['together']['free_models'])
+
+
+def fetch_mistral_models(api_key: str = '') -> list:
+    """Получить список моделей Mistral AI через ``GET /models``.
+
+    Mistral AI — платный pay-per-token, но с free tier'ом при регистрации
+    (без карты), контекст до 128K. Если API недоступен, используется fallback
+    из констант.
+    """
+    try:
+        return _fetch_openai_compat_models(
+            'https://api.mistral.ai/v1', api_key, free_marker=None
+        )
+    except RuntimeError:
+        return sorted(HTTP_BACKEND_DEFS['mistral']['free_models'])
 
 
 def fetch_gemini_models(api_key: str = '') -> list:

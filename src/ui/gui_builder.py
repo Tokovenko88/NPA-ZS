@@ -10,6 +10,7 @@ from npazs._bootstrap import _bootstrap_project_root
 
 _bootstrap_project_root()
 
+from npazs.config.env_store import load_backend_settings, save_backend_settings
 from npazs.constants import (
         BASE_LAW_DIR,
         DEFAULT_EXTRA_OPTIONS,
@@ -19,7 +20,6 @@ from npazs.constants import (
         PRODUCTION_BASE_DIR,
         PRODUCTION_BASE_LAW_DIR,
         STAGE_ANSWERS_FILE,
-        settings,
 )
 from npazs.revision.engine import *
 from npazs.revision.json_utils import save_json
@@ -93,7 +93,9 @@ class GuiBuilderMixin:
             tk.Radiobutton(backend_frame, text="Kilo Gateway", variable=self.backend, value="kilo_gateway", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Cline", variable=self.backend, value="cline", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="OpenRouter", variable=self.backend, value="openrouter", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
-            tk.Radiobutton(backend_frame, text="DeepSeek", variable=self.backend, value="deepseek", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="Cerebras", variable=self.backend, value="cerebras", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="Together", variable=self.backend, value="together", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="Mistral", variable=self.backend, value="mistral", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Gemini", variable=self.backend, value="gemini", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             row += 1
             kilo_frame = tk.Frame(self.left_frame)
@@ -104,6 +106,9 @@ class GuiBuilderMixin:
             tk.Label(kilo_frame, text="API Key:").pack(side=tk.LEFT, padx=(0,5))
             self.kilo_gateway_api_key_entry = tk.Entry(kilo_frame, textvariable=self.kilo_gateway_api_key, width=25, show="*")
             self.kilo_gateway_api_key_entry.pack(side=tk.LEFT, padx=(0,5))
+            self.save_env_btn = tk.Button(
+                kilo_frame, text="Сохранить в .env", command=self.save_env_settings)
+            self.save_env_btn.pack(side=tk.LEFT, padx=(0,5))
             row += 1
             tk.Label(self.left_frame, text="Дополнительные параметры (JSON):").grid(row=row, column=0, padx=10, pady=8, sticky='e')
             frame_params = tk.Frame(self.left_frame)
@@ -231,10 +236,12 @@ class GuiBuilderMixin:
             self.post_analysis_model.set(model)
 
         def refresh_post_models(self):
+            self.save_env_settings(quiet=True)
             self.log("Обновление списка моделей...", 'info')
             threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
         def refresh_models(self):
+            self.save_env_settings(quiet=True)
             self.log("Обновление списка моделей...", 'info')
             threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
@@ -242,17 +249,23 @@ class GuiBuilderMixin:
             backend = self.backend.get()
             if backend in HTTP_BACKENDS:
                 self.log(f"Переключено на {backend}", 'info')
-                # Автоподстановка URL по умолчанию.
+                # Автоподстановка URL/ключа выбранного бэкенда: сначала
+                # сохранённые в .env значения, затем константы HTTP_BACKEND_DEFS.
                 defn = HTTP_BACKEND_DEFS.get(backend)
                 if defn:
+                    saved = load_backend_settings(backend)
                     current_url = self.kilo_gateway_url.get().strip()
                     default_url = defn['base_url']
-                    default_key = getattr(settings, backend + '_api_key', '') or defn.get('api_key', '')
+                    default_key = saved.get('api_key') or defn.get('api_key', '')
                     if not current_url or current_url != default_url:
-                        self.kilo_gateway_url.set(default_url)
+                        self.kilo_gateway_url.set(saved.get('base_url') or default_url)
                         self.kilo_gateway_api_key.set(str(default_key or ''))
+                    if saved.get('model'):
+                        self.ollama_model.set(saved['model'])
             else:
                 self.log("Переключено на Ollama", 'info')
+            # Выбранный бэкенд и его ключ сразу уходят в .env (LLM_BACKEND).
+            self.save_env_settings(quiet=True)
             threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
 
         def _dialog_initial_dir(self, current_value=''):

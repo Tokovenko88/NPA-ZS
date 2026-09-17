@@ -70,8 +70,8 @@ def _make_renderer():
              'item_number': '1.', 'parent_id': 10, 'sort_order': 1},
         ],
         revisions={
-            10: {'id': 100, 'valid_from': '2026-01-01', 'valid_to': None},
-            20: {'id': 200, 'valid_from': '2026-01-01', 'valid_to': None},
+            10: {'rev_id': 100, 'valid_from': '2026-01-01', 'valid_to': None},
+            20: {'rev_id': 200, 'valid_from': '2026-01-01', 'valid_to': None},
         },
         heads={
             10: {'head_text': 'Предмет регулирования'},
@@ -114,9 +114,12 @@ def test_render_missing_npa():
 def test_render_and_cache_all_dates_saves():
     db, renderer = _make_renderer()
     count = renderer.render_and_cache_all_dates(1)
-    assert count == 1
-    assert len(db.saved) == 1
-    sql, params = db.saved[0]
+    assert count >= 1
+    assert len(db.saved) >= 1
+    # Основная дата (текущая редакция) всегда сохраняется
+    main = [s for s in db.saved if s[1][1] == '2026-01-01']
+    assert len(main) == 1
+    sql, params = main[0]
     assert 'npa_rendered_cache' in sql
     assert params[0] == 1
     assert params[1] == '2026-01-01'

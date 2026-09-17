@@ -81,7 +81,7 @@ class NpaHtmlRenderer:
 
             paragraphs = self.db.fetch_all(
                 "SELECT * FROM npa_paragraph WHERE rev_id = %s ORDER BY sort_order",
-                (rev['id'],)
+                (rev['rev_id'],)
             )
 
             item_data = {
@@ -177,7 +177,18 @@ class NpaHtmlRenderer:
         )
 
     def render_and_cache_all_dates(self, npa_id: int) -> int:
-        """Render HTML for all unique valid_from dates of an NPA."""
+        """Render HTML for all unique valid_from dates of an NPA.
+
+        При импорте/переимпорте НПА (в т.ч. амендмента) старые строки кэша
+        удаляются (_clear_npa_data), поэтому здесь мы генерируем HTML для каждой
+        даты valid_from новой редакции. Явно выделяем:
+          - текущую редакцию — максимальную дату valid_from (или дату
+            изменяющего НПА из revision_info, если она позже);
+          - предыдущую редакцию — день до неё.
+        Это гарантирует, что на хостинге (через npa_rendered_cache) для
+        текущей и предыдущей редакций всегда есть свежий HTML, а не
+        устаревший, в котором новая редакция ещё не отражена.
+        """
         rows = self.db.fetch_all(
             "SELECT DISTINCT r.valid_from "
             "FROM npa_item_revision r "
@@ -186,16 +197,56 @@ class NpaHtmlRenderer:
             (npa_id,)
         )
 
-        count = 0
+        dates = []
         for row in rows:
             valid_from = row['valid_from']
             if isinstance(valid_from, date):
                 date_str = valid_from.strftime('%Y-%m-%d')
             else:
                 date_str = str(valid_from)
+            dates.append(date_str)
 
+        # Дополнительно: дата изменяющего НПА (последняя/наиболее поздняя
+        # среди revision_info) — она может быть позже, чем максимальный
+        # valid_from элементов (редкость, но бывает).
+        amend_row = self.db.fetch_one(
+            "SELECT MAX(revision_date_valid) AS vd "
+            "FROM npa_revision_info WHERE base_npa_id = %s",
+            (npa_id,)
+        )
+        if amend_row and amend_row.get('vd'):
+            amend_str = str(amend_row['vd'])[:10]
+            if amend_str not in dates:
+                dates.append(amend_str)
+
+        count = 0
+        rendered = []
+        for date_str in dates:
             html_content = self.render_npa_html(npa_id, date_str)
             self.save_to_cache(npa_id, date_str, html_content)
+            rendered.append(date_str)
             count += 1
+
+        if rendered:
+            current = max(rendered)
+            try:
+                from datetime import datetime, timedelta
+                cur_dt = datetime.strptime(current, '%Y-%m-%d').date()
+                prev_dt = cur_dt - timedelta(days=1)
+                prev_str = prev_dt.strftime('%Y-%m-%d')
+                # Прогоняем предыдущую редакцию, если её дата есть в кэше
+                # (или генерируем на лету — без вреда).
+                if prev_str not in rendered:
+                    try:
+                        self.save_to_cache(
+                            npa_id, prev_str,
+                            self.render_npa_html(npa_id, prev_str)
+                        )
+                        rendered.append(prev_str)
+                        count += 1
+                    except Exception:
+                        pass
+            except Exception:
+                pass
 
         return count

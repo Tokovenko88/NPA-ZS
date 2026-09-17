@@ -2,6 +2,8 @@
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 _ROOT = Path(__file__).resolve().parents[1]
 _spec = importlib.util.spec_from_file_location(
     "npazs_bootstrap", _ROOT / "src" / "bootstrap.py"
@@ -190,4 +192,145 @@ def test_first_difference_hint_extra_block_and_equal():
     # Разные теги при равном тексте — подсказка показывает оба HTML-варианта.
     hint_tags = _first_difference_hint("<div>текст</div>", "<p>текст</p>")
     assert "<div>текст</div>" in hint_tags and "<p>текст</p>" in hint_tags
+
+
+def _statya_8_variants():
+    """Реальный случай: ИИ потерял точку в конце второго абзаца статьи 8."""
+    program = (
+        '<p class="justifyfull">Статья 8. Максимальные и минимальные размеры '
+        'земельных участков, предоставляемых гражданам в собственность бесплатно</p>\n'
+        '<p class="justifyfull">Для земельных участков, предоставляемых в '
+        'соответствии с настоящим Законом для индивидуального жилищного строительства '
+        'в собственность бесплатно, устанавливаются следующие предельные (минимальные '
+        'и максимальные) размеры – от 0,04 до 0,10 гектара.</p>'
+    )
+    return program, program.replace("гектара.</p>", "гектара</p>")
+
+
+def test_diff_fragments_expand_single_char_difference_to_paragraph():
+    """Различие в один символ должно подсвечивать абзац, а не теряться в тексте."""
+    from npazs.ui.dialogs.extraction_conflict import _diff_fragments
+
+    program, ai = _statya_8_variants()
+    fragments = _diff_fragments(program, ai)
+    assert len(fragments) == 1
+
+    fragment = fragments[0]
+    assert fragment["op"] == "delete"
+    assert program[fragment["prog"][0]:fragment["prog"][1]] == "."
+
+    # Фоном закрывается весь абзац с различием, а не один символ.
+    block_start, block_end = fragment["prog_vis"]
+    assert program[block_start:block_end].startswith('<p class="justifyfull">Для земельных')
+    assert program[block_start:block_end].endswith("гектара.</p>")
+
+    # У варианта ИИ самого символа нет: точного диапазона нет, но тот же абзац
+    # тоже закрашивается — чтобы различие было видно в обеих панелях.
+    assert fragment["ai"][0] == fragment["ai"][1]
+    ai_block_start, ai_block_end = fragment["ai_vis"]
+    assert ai[ai_block_start:ai_block_end].startswith('<p class="justifyfull">Для земельных')
+    assert ai[ai_block_start:ai_block_end].endswith("гектара</p>")
+    assert fragment["position"] == fragment["ai"][0]
+
+
+def test_diff_fragments_detect_insert_and_replace():
+    from npazs.ui.dialogs.extraction_conflict import _diff_fragments
+
+    # Лишние символы у ИИ — вставки, у программы в этих местах ничего не подсвечивается.
+    program = "<p>учет граждан</p>"
+    ai = "<p>снятие с учета граждан!</p>"
+    fragments = _diff_fragments(program, ai)
+    assert fragments, "различия должны находиться"
+    assert any(ai[f["ai"][0]:f["ai"][1]].endswith("!") for f in fragments), (
+        "лишний символ «!» в варианте ИИ должен быть найден"
+    )
+    assert all(f["op"] == "insert" for f in fragments)
+    assert all(f["prog_vis"] is not None for f in fragments), (
+        "в панели программы тоже должен закрашиваться абзац с различием"
+    )
+
+    # Вставка в самый конец текста не должна выходить за его границы.
+    tail_program, tail_ai = "<p>учет</p>", "<p>учет</p>!"
+    tail = _diff_fragments(tail_program, tail_ai)
+    assert tail and all(f["prog_vis"][1] <= len(tail_program) for f in tail)
+    assert all(f["ai_vis"][1] <= len(tail_ai) for f in tail)
+
+    # Замена символа той же длины отмечается с обеих сторон.
+    program_yo, ai_yo = "<p>учет</p>", "<p>учёт</p>"
+    replaced = _diff_fragments(program_yo, ai_yo)
+    assert [f["op"] for f in replaced] == ["replace"]
+    assert program_yo[replaced[0]["prog"][0]:replaced[0]["prog"][1]] == "е"
+    assert ai_yo[replaced[0]["ai"][0]:replaced[0]["ai"][1]] == "ё"
+
+    assert _diff_fragments(program, program) == []
+
+
+def test_diff_summary_names_the_missing_symbol():
+    from npazs.ui.dialogs.extraction_conflict import _diff_fragments, _diff_summary_lines
+
+    program, ai = _statya_8_variants()
+    summary = _diff_summary_lines(program, ai, _diff_fragments(program, ai))
+    assert summary[0].startswith("Различий: 1")
+    assert "в программе лишнее «.»" in summary[1]
+    assert "в варианте ИИ на этом месте символа нет" in summary[1]
+
+
+def test_expand_range_falls_back_to_sentence():
+    from npazs.ui.dialogs.extraction_conflict import _expand_range
+
+    text = "Первое предложение. Второе предложение с различием. Третье предложение."
+    start = text.index("различием")
+    expanded = _expand_range(text, start, start + len("различием"))
+    assert expanded is not None
+    assert text[expanded[0]:expanded[1]].strip() == "Второе предложение с различием."
+
+
+def test_expand_range_falls_back_to_window_for_huge_paragraph():
+    from npazs.ui.dialogs.extraction_conflict import (
+        _DIFF_SENTENCE_WINDOW,
+        _expand_range,
+    )
+
+    text = ("слово " * 200) + "конец.</p>"
+    start = text.index("конец")
+    end = start + len("конец")
+    expanded = _expand_range(text, start, end, block_limit=50)
+    assert expanded is not None
+    # Абзац больше лимита — блоком становится предложение вместе с точкой.
+    assert expanded == (start - _DIFF_SENTENCE_WINDOW, end + 1)
+    text_small = "без разделителей " * 20
+    middle = len(text_small) // 2
+    assert _expand_range(text_small, middle, middle + 1) == (
+        middle - _DIFF_SENTENCE_WINDOW,
+        middle + 1 + _DIFF_SENTENCE_WINDOW,
+    )
+
+
+def test_highlight_index_survives_newlines():
+    """Регресс: индексы вида ``1.N`` обнулялись после первого перевода строки."""
+    import tkinter as tk
+
+    from npazs.ui.dialogs.extraction_conflict import ExtractionConflictDialog, _diff_fragments
+
+    try:
+        root = tk.Tk()
+    except tk.TclError:  # pragma: no cover - среда без графического дисплея
+        pytest.skip("нет графического дисплея для Tk")
+    root.withdraw()
+    try:
+        program = '<p>Статья 8</p>\n<p>гектара.</p>'
+        ai = '<p>Статья 8</p>\n<p>гектара</p>'
+        widget = tk.Text(root)
+        widget.insert("1.0", program)
+        start, end = _diff_fragments(program, ai)[0]["prog"]
+        widget.tag_add(
+            "diff_exact_program",
+            ExtractionConflictDialog._index(start),
+            ExtractionConflictDialog._index(end),
+        )
+        ranges = widget.tag_ranges("diff_exact_program")
+        assert ranges, "подсветка после перевода строки не должна теряться"
+        assert widget.get(ranges[0], ranges[1]) == "."
+    finally:
+        root.destroy()
 

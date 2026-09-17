@@ -9,6 +9,12 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+from npazs.config.env_store import (
+    BACKEND_ENV_KEYS,
+    load_active_backend,
+    load_backend_settings,
+    save_backend_settings,
+)
 from npazs.constants import (
     DEFAULT_BACKEND,
     DEFAULT_KILO_GATEWAY_MODEL,
@@ -16,16 +22,17 @@ from npazs.constants import (
     HTTP_BACKEND_DEFS,
     HTTP_BACKENDS,
     KILO_GATEWAY_FREE_MODELS,
-    settings,
 )
 from npazs.llm_models import (
-    fetch_cline_models,
-    fetch_deepseek_models,
-    fetch_gemini_models,
-    fetch_kilo_gateway_free_models,
-    fetch_ollama_models,
-    fetch_openrouter_free_models,
-    get_free_models_for_backend,
+        fetch_cline_models,
+        fetch_cerebras_models,
+        fetch_gemini_models,
+        fetch_kilo_gateway_free_models,
+        fetch_mistral_models,
+        fetch_ollama_models,
+        fetch_openrouter_free_models,
+        fetch_together_models,
+        get_free_models_for_backend,
 )
 
 from .runner import PostAnalysisOptions, run_post_analysis_standalone
@@ -36,6 +43,26 @@ FILETYPES = [
     ('JSON НПА', '*.json'),
     ('Все файлы', '*.*'),
 ]
+
+
+def _initial_backend_settings() -> dict[str, str]:
+    """Настройки бэкенда при старте окна: из ``.env``, с fallback на константы.
+
+    Возвращает ``backend`` (сохранённый ``LLM_BACKEND`` или ``DEFAULT_BACKEND``)
+    и его ``api_key`` / ``base_url`` / ``model``; отсутствующие в ``.env``
+    значения подставляются из :data:`HTTP_BACKEND_DEFS`.
+    """
+    backend = load_active_backend()
+    if backend not in BACKEND_ENV_KEYS:
+        backend = DEFAULT_BACKEND
+    saved = load_backend_settings(backend)
+    defn = HTTP_BACKEND_DEFS.get(backend) or {}
+    return {
+        'backend': backend,
+        'api_key': saved.get('api_key') or defn.get('api_key', ''),
+        'base_url': saved.get('base_url') or defn.get('base_url') or DEFAULT_KILO_GATEWAY_URL,
+        'model': saved.get('model', ''),
+    }
 
 
 class VerifyApp:
@@ -50,12 +77,18 @@ class VerifyApp:
         self.work_json_path = tk.StringVar()
         self.output_path = tk.StringVar()
         self.mode = tk.StringVar(value='full')
-        self.backend = tk.StringVar(value=DEFAULT_BACKEND)
-        self.kilo_gateway_url = tk.StringVar(value=DEFAULT_KILO_GATEWAY_URL)
-        self.kilo_gateway_api_key = tk.StringVar(value=settings.kilo_gateway_api_key or "")
+        # Автозагрузка сохранённых настроек бэкенда из .env: активный бэкенд,
+        # его URL, API-ключ и модель — как при последнем сохранении.
+        saved = _initial_backend_settings()
+        self.backend = tk.StringVar(value=saved['backend'])
+        self.kilo_gateway_url = tk.StringVar(value=saved['base_url'])
+        self.kilo_gateway_api_key = tk.StringVar(value=saved['api_key'])
         self.available_models = []
         self._models_backend = None
-        self.model = tk.StringVar(value=DEFAULT_KILO_GATEWAY_MODEL if DEFAULT_BACKEND == 'kilo_gateway' else '')
+        self.model = tk.StringVar(
+            value=saved['model']
+            or (DEFAULT_KILO_GATEWAY_MODEL if saved['backend'] == 'kilo_gateway' else '')
+        )
         self.extra_options = tk.StringVar(value=json.dumps({'temperature': 0.0, 'top_p': 0.1}))
 
         self.log_queue: queue.Queue = queue.Queue()
@@ -143,8 +176,16 @@ class VerifyApp:
             value='openrouter', command=self._on_backend_changed,
         ).pack(side=tk.LEFT, padx=4)
         tk.Radiobutton(
-            backend_frame, text='DeepSeek', variable=self.backend,
-            value='deepseek', command=self._on_backend_changed,
+            backend_frame, text='Cerebras', variable=self.backend,
+            value='cerebras', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='Together', variable=self.backend,
+            value='together', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='Mistral', variable=self.backend,
+            value='mistral', command=self._on_backend_changed,
         ).pack(side=tk.LEFT, padx=4)
         tk.Radiobutton(
             backend_frame, text='Gemini', variable=self.backend,
@@ -166,8 +207,13 @@ class VerifyApp:
         )
         self.kg_key_entry.pack(side=tk.LEFT)
 
+        self.save_env_btn = tk.Button(
+            backend_frame, text='Сохранить в .env', command=self._save_env_settings,
+        )
+        self.save_env_btn.pack(side=tk.LEFT, padx=(8, 0))
+
         self.fetch_models_btn = tk.Button(
-            backend_frame, text='Обновить модели', command=self._fetch_models
+            backend_frame, text='Обновить модели', command=self._refresh_models
         )
         self.fetch_models_btn.pack(side=tk.LEFT, padx=(16, 0))
 
@@ -329,12 +375,15 @@ class VerifyApp:
             # с URL другого бэкенда.
             defn = HTTP_BACKEND_DEFS.get(backend)
             if defn:
+                saved = load_backend_settings(backend)
                 current_url = self.kilo_gateway_url.get().strip()
                 default_url = defn['base_url']
-                default_key = settings.__dict__.get(backend + '_api_key', '') or defn.get('api_key', '')
+                default_key = saved.get('api_key') or defn.get('api_key', '')
                 if not current_url or current_url != default_url:
-                    self.kilo_gateway_url.set(default_url)
+                    self.kilo_gateway_url.set(saved.get('base_url') or default_url)
                     self.kilo_gateway_api_key.set(str(default_key or ''))
+                if saved.get('model'):
+                    self.model.set(saved['model'])
         else:
             self.kg_url_label.config(state=tk.DISABLED)
             self.kg_url_entry.config(state=tk.DISABLED)
@@ -352,6 +401,37 @@ class VerifyApp:
                 self.model.set(self.available_models[0])
         else:
             self.model.set('')
+
+    def _refresh_models(self) -> None:
+        """Кнопка «Обновить модели»: сначала сохранить ключ в ``.env``."""
+        self._save_env_settings()
+        self._fetch_models()
+
+    def _save_env_settings(self) -> bool:
+        """Сохранить параметры текущего бэкенда (ключ, URL, модель) в ``.env``.
+
+        Вызывается кнопкой «Сохранить в .env», кнопкой «Обновить модели» и
+        автоматически при запуске пост-анализа — API-ключ моделей не нужно
+        вводить заново после перезапуска окна.
+        """
+        backend = self.backend.get().strip() or DEFAULT_BACKEND
+        if backend not in BACKEND_ENV_KEYS:
+            return False
+        try:
+            written = save_backend_settings(
+                backend,
+                api_key=self.kilo_gateway_api_key.get().strip(),
+                base_url=self.kilo_gateway_url.get().strip(),
+                model=self.model.get().strip(),
+            )
+        except (OSError, ValueError) as e:
+            self.log_queue.put(('error', f'Не удалось сохранить настройки в .env: {e}'))
+            return False
+        self.log_queue.put((
+            'info',
+            'Настройки бэкенда сохранены в .env: ' + ', '.join(sorted(written)),
+        ))
+        return bool(written)
 
     def _fetch_models(self) -> None:
         if getattr(self, '_models_fetching', False):
@@ -378,8 +458,12 @@ class VerifyApp:
                 self._fetch_openrouter_models(kilo_gateway_api_key)
             elif backend == 'cline':
                 self._fetch_cline_models(kilo_gateway_api_key)
-            elif backend == 'deepseek':
-                self._fetch_deepseek_models(kilo_gateway_api_key)
+            elif backend == 'cerebras':
+                self._fetch_cerebras_models(kilo_gateway_api_key)
+            elif backend == 'together':
+                self._fetch_together_models(kilo_gateway_api_key)
+            elif backend == 'mistral':
+                self._fetch_mistral_models(kilo_gateway_api_key)
             elif backend == 'gemini':
                 self._fetch_gemini_models(kilo_gateway_api_key)
             else:
@@ -411,16 +495,38 @@ class VerifyApp:
             self.log_queue.put(('warning', 'Cline API недоступен — показан запасной список моделей.'))
             self.log_queue.put(('models', ('cline', fallback)))
 
-    def _fetch_deepseek_models(self, api_key: str) -> None:
-        """Загрузить модели DeepSeek."""
+    def _fetch_cerebras_models(self, api_key: str) -> None:
+        """Загрузить модели Cerebras."""
         try:
-            models = fetch_deepseek_models(api_key)
-            self.log_queue.put(('models', ('deepseek', models)))
+            models = fetch_cerebras_models(api_key)
+            self.log_queue.put(('models', ('cerebras', models)))
         except Exception as e:  # noqa: BLE001
-            self.log_queue.put(('error', f"Ошибка подключения к DeepSeek: {e}"))
-            fallback = get_free_models_for_backend('deepseek')
-            self.log_queue.put(('warning', 'DeepSeek недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('deepseek', fallback)))
+            self.log_queue.put(('error', f"Ошибка подключения к Cerebras: {e}"))
+            fallback = get_free_models_for_backend('cerebras')
+            self.log_queue.put(('warning', 'Cerebras недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('cerebras', fallback)))
+
+    def _fetch_together_models(self, api_key: str) -> None:
+        """Загрузить модели Together AI."""
+        try:
+            models = fetch_together_models(api_key)
+            self.log_queue.put(('models', ('together', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к Together AI: {e}"))
+            fallback = get_free_models_for_backend('together')
+            self.log_queue.put(('warning', 'Together AI недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('together', fallback)))
+
+    def _fetch_mistral_models(self, api_key: str) -> None:
+        """Загрузить модели Mistral AI."""
+        try:
+            models = fetch_mistral_models(api_key)
+            self.log_queue.put(('models', ('mistral', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к Mistral AI: {e}"))
+            fallback = get_free_models_for_backend('mistral')
+            self.log_queue.put(('warning', 'Mistral AI недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('mistral', fallback)))
 
     def _fetch_gemini_models(self, api_key: str) -> None:
         """Загрузить модели Gemini."""
@@ -468,6 +574,10 @@ class VerifyApp:
         if not change or not os.path.isfile(change):
             messagebox.showwarning('Пост-анализ', 'Выберите НПА с изменениями.')
             return
+
+        # Ключ и параметры бэкенда фиксируем в .env, чтобы следующий запуск
+        # поднял их из настроек, а не требовал повторного ввода.
+        self._save_env_settings()
 
         options = PostAnalysisOptions(
             result_path=result,

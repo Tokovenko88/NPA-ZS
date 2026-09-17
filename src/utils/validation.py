@@ -24,15 +24,18 @@
     * у элемента максимум одна активная ревизия (``valid_to`` пусто);
     * даты в формате ``ДД.ММ.ГГГГ``;
     * ``valid_to`` не раньше ``valid_from``;
-    * периоды ревизий не пересекаются и идут хронологически.
+    * периоды ревизий не пересекаются и идут хронологически;
+    * активная ревизия вложенного элемента исправленного документа должна
+      иметь ``valid_from`` и ``mod_type`` (привязка к редакции).
 """
 
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any
 
 __all__ = [
     'DATE_FORMAT',
@@ -40,13 +43,14 @@ __all__ = [
     'MOD_TYPES',
     'Issue',
     'ValidationReport',
-    'validate_document',
+    'find_new_items_without_provenance',
+    'iter_items',
+    'parse_date',
     'validate_dates',
+    'validate_document',
     'validate_ids',
     'validate_refs',
     'validate_revisions',
-    'iter_items',
-    'parse_date',
 ]
 
 DATE_FORMAT = '%d.%m.%Y'
@@ -83,7 +87,7 @@ class Issue:
     severity: str
     code: str
     message: str
-    item_id: Optional[str] = None
+    item_id: str | None = None
 
     def __str__(self) -> str:
         where = f' [{self.item_id}]' if self.item_id else ''
@@ -94,7 +98,7 @@ class Issue:
 class ValidationReport:
     """Результат валидации документа."""
 
-    issues: List[Issue] = field(default_factory=list)
+    issues: list[Issue] = field(default_factory=list)
     items_checked: int = 0
     revisions_checked: int = 0
 
@@ -103,22 +107,22 @@ class ValidationReport:
         severity: str,
         code: str,
         message: str,
-        item_id: Optional[str] = None,
+        item_id: str | None = None,
     ) -> None:
         self.issues.append(Issue(severity, code, message, item_id))
 
-    def error(self, code: str, message: str, item_id: Optional[str] = None) -> None:
+    def error(self, code: str, message: str, item_id: str | None = None) -> None:
         self.add(SEVERITY_ERROR, code, message, item_id)
 
-    def warning(self, code: str, message: str, item_id: Optional[str] = None) -> None:
+    def warning(self, code: str, message: str, item_id: str | None = None) -> None:
         self.add(SEVERITY_WARNING, code, message, item_id)
 
     @property
-    def errors(self) -> List[Issue]:
+    def errors(self) -> list[Issue]:
         return [i for i in self.issues if i.severity == SEVERITY_ERROR]
 
     @property
-    def warnings(self) -> List[Issue]:
+    def warnings(self) -> list[Issue]:
         return [i for i in self.issues if i.severity == SEVERITY_WARNING]
 
     @property
@@ -126,7 +130,7 @@ class ValidationReport:
         """True, если ошибок нет (предупреждения допустимы)."""
         return not self.errors
 
-    def extend(self, other: 'ValidationReport') -> 'ValidationReport':
+    def extend(self, other: ValidationReport) -> ValidationReport:
         self.issues.extend(other.issues)
         self.items_checked += other.items_checked
         self.revisions_checked += other.revisions_checked
@@ -156,10 +160,17 @@ def _is_empty(value: Any) -> bool:
     return value is None or (isinstance(value, str) and not value.strip())
 
 
-def iter_items(document: Dict[str, Any]) -> Iterable[Tuple[Dict[str, Any], Optional[Dict[str, Any]]]]:
-    """Рекурсивно перебрать элементы документа: ``(элемент, родитель)``."""
-    stack: List[Tuple[Dict[str, Any], Optional[Dict[str, Any]]]] = [
-        (child, None) for child in reversed(document.get('item_children') or [])
+def iter_items(document: dict[str, Any]) -> Iterable[tuple[dict[str, Any], dict[str, Any] | None]]:
+    """Рекурсивно перебрать элементы документа: ``(элемент, родитель)``.
+
+    Поддерживает обе формы хранения дерева: ``item_children`` (плоское
+    дерево-обёртка) и ``npa_items_revision`` (корневой список реального файла
+    НПА). Ранее поддерживалась только первая форма, из-за чего валидация
+    реальных файлов молча проверяла 0 элементов.
+    """
+    roots = document.get('item_children') or document.get('npa_items_revision') or []
+    stack: list[tuple[dict[str, Any], dict[str, Any] | None]] = [
+        (child, None) for child in reversed(roots)
     ]
     while stack:
         item, parent = stack.pop()
@@ -171,12 +182,12 @@ def iter_items(document: Dict[str, Any]) -> Iterable[Tuple[Dict[str, Any], Optio
                 stack.append((child, item))
 
 
-def _revisions(item: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _revisions(item: dict[str, Any]) -> list[dict[str, Any]]:
     return [r for r in (item.get('revisions') or []) if isinstance(r, dict)]
 
 
-def _child_refs(revision: Dict[str, Any]) -> List[str]:
-    refs: List[str] = []
+def _child_refs(revision: dict[str, Any]) -> list[str]:
+    refs: list[str] = []
     for block in revision.get('body') or []:
         if isinstance(block, dict):
             ref = block.get('child_ref')
@@ -186,10 +197,10 @@ def _child_refs(revision: Dict[str, Any]) -> List[str]:
 
 
 # ------------------------------------------------------------------- проверки
-def validate_ids(document: Dict[str, Any]) -> ValidationReport:
+def validate_ids(document: dict[str, Any]) -> ValidationReport:
     """Уникальность ``item_id``, допустимость типов и корректность уровней."""
     report = ValidationReport()
-    seen: Dict[str, int] = {}
+    seen: dict[str, int] = {}
 
     for item, parent in iter_items(document):
         report.items_checked += 1
@@ -249,7 +260,7 @@ def validate_ids(document: Dict[str, Any]) -> ValidationReport:
     return report
 
 
-def validate_refs(document: Dict[str, Any]) -> ValidationReport:
+def validate_refs(document: dict[str, Any]) -> ValidationReport:
     """Целостность ``child_ref`` и полнота упоминания детей в теле родителя."""
     report = ValidationReport()
 
@@ -293,11 +304,12 @@ def validate_refs(document: Dict[str, Any]) -> ValidationReport:
     return report
 
 
-def validate_revisions(document: Dict[str, Any]) -> ValidationReport:
+def validate_revisions(document: dict[str, Any]) -> ValidationReport:
     """Одна активная ревизия, корректный ``mod_type``, непересекающиеся периоды."""
     report = ValidationReport()
+    is_amended = bool(document.get('revision_info'))
 
-    for item, _ in iter_items(document):
+    for item, parent in iter_items(document):
         item_id = str(item.get('item_id') or '')
         revisions = _revisions(item)
         report.revisions_checked += len(revisions)
@@ -323,6 +335,41 @@ def validate_revisions(document: Dict[str, Any]) -> ValidationReport:
                     f'недопустимый mod_type={mod_type!r}; ожидается одно из {MOD_TYPES}',
                     item_id,
                 )
+
+        # Ревизия вложенного элемента без valid_from и без mod_type не
+        # привязана ни к одной редакции: импортёр молча подставит дату
+        # корневой редакции, а режим «выбранная редакция» на сайте не найдёт
+        # такую ревизию по modified_by_id (кейс 269-ЗС <- 380-ЗС: часть 1
+        # статьи 4 отображалась без внесённых пунктов).
+        #
+        # У нетронутых элементов базовой редакции отсутствие дат — принятая
+        # конвенция, поэтому сигнал подаётся только когда выполнены оба
+        # условия: документ исправленный (есть revision_info), элемент
+        # вложенный, а его родитель уже привязан к редакции (непустой
+        # valid_from). В дереве базовой редакции привязки нет ни у кого, так
+        # что ложных срабатываний не возникает.
+        if is_amended and parent is not None:
+            parent_active = [
+                r for r in _revisions(parent) if _is_empty(r.get('valid_to'))
+            ]
+            parent_has_provenance = any(
+                not _is_empty(r.get('valid_from')) for r in parent_active
+            )
+            if parent_has_provenance:
+                for revision in active:
+                    if (
+                        _is_empty(revision.get('valid_from'))
+                        and _is_empty(revision.get('mod_type'))
+                        and _is_empty(revision.get('not_valid'))
+                        and revision.get('body')
+                    ):
+                        report.warning(
+                            'revision_without_provenance',
+                            'активная ревизия вложенного элемента без valid_from и '
+                            'mod_type: элемент не привязан к изменяющему НПА '
+                            '(риск потери содержимого в выбранной редакции)',
+                            item_id,
+                        )
 
         periods = []
         for revision in revisions:
@@ -352,7 +399,7 @@ def validate_revisions(document: Dict[str, Any]) -> ValidationReport:
     return report
 
 
-def validate_dates(document: Dict[str, Any]) -> ValidationReport:
+def validate_dates(document: dict[str, Any]) -> ValidationReport:
     """Формат дат в ревизиях, примечаниях и паспорте документа."""
     report = ValidationReport()
 
@@ -364,7 +411,7 @@ def validate_dates(document: Dict[str, Any]) -> ValidationReport:
                 f'{field_name}="{value}" не в формате ДД.ММ.ГГГГ',
             )
 
-    def _check_notes(notes: Any, owner: Optional[str]) -> None:
+    def _check_notes(notes: Any, owner: str | None) -> None:
         for note in notes or []:
             if not isinstance(note, dict):
                 continue
@@ -413,7 +460,7 @@ def validate_dates(document: Dict[str, Any]) -> ValidationReport:
     return report
 
 
-def validate_document(document: Dict[str, Any]) -> ValidationReport:
+def validate_document(document: dict[str, Any]) -> ValidationReport:
     """Полная валидация документа НПА."""
     report = ValidationReport()
     if not isinstance(document, dict):
@@ -435,3 +482,41 @@ def validate_document(document: Dict[str, Any]) -> ValidationReport:
     report.issues.extend(dates_report.issues)
 
     return report
+
+
+def find_new_items_without_provenance(
+    original: dict[str, Any],
+    result: dict[str, Any],
+) -> list[dict[str, str]]:
+    """Найти элементы, впервые созданные при внесении изменений, чьи активные
+    ревизии не привязаны к изменяющему НПА.
+
+    Сравнивает наборы ``item_id`` исходного и результирующего документа; для
+    каждого нового элемента проверяет активную ревизию (``valid_to`` пусто).
+    Ревизия без ``valid_from`` и без ``mod_type`` не привязана к изменяющему
+    НПА: импортёр подставит дату корневой редакции, а режим «выбранная
+    редакция» на сайте не найдёт такую ревизию по ``modified_by_id`` —
+    содержимое элемента потеряется в редакции (кейс 269-ЗС <- 380-ЗС:
+    часть 1 статьи 4 «внесена без пунктов»).
+
+    Возвращает список ``{'item_id': ..., 'reason': ...}``.
+    """
+    original_ids = {
+        str(item.get('item_id') or '')
+        for item, _ in iter_items(original)
+        if not _is_empty(item.get('item_id'))
+    }
+    problems: list[dict[str, str]] = []
+    for item, _parent in iter_items(result):
+        item_id = str(item.get('item_id') or '')
+        if _is_empty(item_id) or item_id in original_ids:
+            continue
+        for revision in _revisions(item):
+            if not _is_empty(revision.get('valid_to')):
+                continue
+            if _is_empty(revision.get('valid_from')) and _is_empty(revision.get('mod_type')):
+                problems.append({
+                    'item_id': item_id,
+                    'reason': 'активная ревизия нового элемента без valid_from и mod_type',
+                })
+    return problems

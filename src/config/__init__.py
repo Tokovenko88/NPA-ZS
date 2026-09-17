@@ -6,6 +6,7 @@
 * :mod:`npazs.config.settings` — загрузка ``.env``, сводный объект настроек;
 * :mod:`npazs.config.db`       — параметры MySQL-базы НПА (``DB_*``);
 * :mod:`npazs.config.ollama`   — параметры LLM-бэкендов (Ollama / Kilo Gateway);
+* :mod:`npazs.config.env_store` — запись/чтение API-ключей и параметров бэкендов в ``.env``;
 * :mod:`npazs.config.modx`     — параметры MODX (SSH и БД сайта).
 
 Обратная совместимость: имена ``get_settings`` и ``get_modx_db_config``
@@ -19,6 +20,21 @@
    сохранён через реэкспорт в этом ``__init__``.
 """
 
+from npazs.config.db import DB_ENV_KEYS, get_db_config, get_db_config_dict
+from npazs.config.env_store import (
+    ACTIVE_BACKEND_ENV,
+    BACKEND_ENV_KEYS,
+    load_active_backend,
+    load_backend_settings,
+    save_backend_settings,
+    save_env_values,
+)
+from npazs.config.modx import get_modx_db_config, get_modx_ssh_config
+from npazs.config.ollama import (
+    get_kilo_gateway_config,
+    get_llm_backend,
+    get_ollama_config,
+)
 from npazs.config.settings import (
     ENV_PATH,
     PROJECT_ROOT,
@@ -27,27 +43,26 @@ from npazs.config.settings import (
     load_env,
     reload_settings,
 )
-from npazs.config.db import DB_ENV_KEYS, get_db_config, get_db_config_dict
-from npazs.config.modx import get_modx_db_config, get_modx_ssh_config
-from npazs.config.ollama import (
-    get_kilo_gateway_config,
-    get_llm_backend,
-    get_ollama_config,
-)
 
 __all__ = [
+    "ACTIVE_BACKEND_ENV",
+    "BACKEND_ENV_KEYS",
+    "DB_ENV_KEYS",
     "ENV_PATH",
     "PROJECT_ROOT",
     "Settings",
-    "get_settings",
-    "load_env",
-    "reload_settings",
-    "DB_ENV_KEYS",
     "get_db_config",
     "get_db_config_dict",
-    "get_modx_db_config",
-    "get_modx_ssh_config",
     "get_kilo_gateway_config",
     "get_llm_backend",
+    "get_modx_db_config",
+    "get_modx_ssh_config",
     "get_ollama_config",
+    "get_settings",
+    "load_active_backend",
+    "load_backend_settings",
+    "load_env",
+    "reload_settings",
+    "save_backend_settings",
+    "save_env_values",
 ]

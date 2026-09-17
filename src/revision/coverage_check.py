@@ -16,6 +16,15 @@
 - ``not_marked_invalid``        — правка «признать утратившим силу» (delete), но
   ревизия элемента не помечена ``not_valid`` изменяющим НПА.
 
+Особый случай ``orphan_child_not_closed``: ребёнок родителя, пересозданного
+изменяющим НПА через ``new_redaction``, должен либо иметь активную ревизию от
+изменяющего НПА, либо быть помечен ``not_valid``. Исключение — ребёнок,
+«перенесённый» новой редакцией без изменений: текст нормы в новой редакции
+не менялся, поэтому пайплайн сознательно не создаёт новую ревизию (кейс
+380-ЗС → 269-ЗС: часть 7 статьи 7) — родительская ревизия от изменяющего
+НПА продолжает ссылаться на него через ``child_ref``, а старая ревизия
+остаётся открытой. Такой ребёнок сиротой НЕ считается.
+
 Важно про ``delete``: признание элемента утратившим силу НЕ создаёт новую
 ревизию от изменяющего НПА — корректное применение означает, что существующая
 ревизия элемента помечена ``not_valid`` нормой изменяющего закона (см. ветку
@@ -136,8 +145,116 @@ def _find_element(result: dict, item_id: Any) -> dict | None:
     return None
 
 
+def _active_rev_is_own(element: dict, change_npa_id: Any) -> bool:
+    """True, если активная ревизия элемента создана изменяющим НПА
+    (``modified_by_id`` совпадает с ``change_npa_id`` по префиксу)."""
+    for rev in reversed(element.get("revisions") or []):
+        if rev.get("not_valid"):
+            continue
+        if rev.get("valid_to") in (None, ""):
+            return _is_own_revision(rev.get("modified_by_id"), change_npa_id)
+    return False
+
+
+def _has_own_not_valid(element: dict, change_npa_id: Any) -> bool:
+    """True, если какая-либо ревизия элемента помечена ``not_valid``
+    нормой изменяющего закона."""
+    for rev in element.get("revisions") or []:
+        if not isinstance(rev, dict):
+            continue
+        if _is_own_mark(rev.get("not_valid"), change_npa_id):
+            return True
+    return False
+
+
+def _collect_child_refs(element: dict) -> set[str]:
+    """Все ``item_id``, на которые ревизии элемента ссылаются через ``child_ref``."""
+    refs: set[str] = set()
+    for rev in element.get("revisions") or []:
+        if not isinstance(rev, dict):
+            continue
+        for block in rev.get("body") or []:
+            if (isinstance(block, dict) and block.get("type") == "child_ref"
+                    and block.get("item_id")):
+                refs.add(str(block["item_id"]))
+    return refs
+
+
+def check_orphan_children(result: dict, change_npa_id: Any) -> list[dict]:
+    """Детерминированная проверка: дети родителя, пересозданного через
+    ``new_redaction`` (модифицированного изменяющим НПА), должны либо
+    иметь активную ревизию от изменяющего НПА, либо быть помеченными
+    ``not_valid``. Иначе ребёнок остался «висеть» — его ревизия не
+    закрылась, а пост-анализ (собирающий изменения по ``modified_by_id``)
+    такую проблему не видит (кейс 380-ЗС -> 269-ЗС: части 8-11 статьи 5
+    исчезли из новой редакции, но остались активными).
+
+    Исключение: ребёнок, «перенесённый» новой редакцией без изменений —
+    родительская ревизия от изменяющего НПА по-прежнему ссылается на него
+    через ``child_ref``, а его старая ревизия осталась открытой, потому что
+    текст нормы в новой редакции не поменялся и новая ревизия не нужна
+    (кейс 380-ЗС -> 269-ЗС: часть 7 статьи 7). Такой ребёнок сиротой не
+    считается — иначе ложный пробел и вредная автоправка ``not_valid``,
+    удаляющая действующую норму.
+    """
+    gaps: list[dict] = []
+    for element in _iter_elements(result.get("npa_items_revision")):
+        # Родитель должен быть пересоздан изменяющим НПА (new_redaction/change).
+        if not _active_rev_is_own(element, change_npa_id):
+            continue
+        parent_refs = None
+        for child in element.get("item_children") or []:
+            if not isinstance(child, dict):
+                continue
+            if _active_rev_is_own(child, change_npa_id):
+                continue
+            if _has_own_not_valid(child, change_npa_id):
+                continue
+            # Ребёнок добавлен в этом же прогона (add) — его ревизия
+            # создана изменяющим НПА, просто без modified_by_id на активной
+            # ревизии (см. _stamp_new_subtree_provenance). Проверим, что
+            # активная ревизия датирована change_date — тогда это норма.
+            active_rev = None
+            for rev in reversed(child.get("revisions") or []):
+                if rev.get("not_valid"):
+                    continue
+                if rev.get("valid_to") in (None, ""):
+                    active_rev = rev
+                    break
+            if active_rev and active_rev.get("valid_from"):
+                continue
+            # Ребёнок «перенесён» новой редакцией без изменений: родительская
+            # ревизия от изменяющего НПА по-прежнему ссылается на него через
+            # child_ref, а его старая ревизия осталась открытой — текст нормы
+            # в новой редакции не менялся, новая ревизия не нужна. Не сирота
+            # (кейс 380-ЗС -> 269-ЗС: часть 7 статьи 7).
+            if active_rev is not None:
+                if parent_refs is None:
+                    parent_refs = _collect_child_refs(element)
+                if str(child.get("item_id") or "") in parent_refs:
+                    continue
+            gaps.append({
+                "change_id": None,
+                "revision_number": child.get("item_number"),
+                "structural_element": f"{child.get('item_type')} {child.get('item_number')}",
+                "type": "new_redaction",
+                "status": "applied",
+                "reason": "orphan_child_not_closed",
+                "revision_id": None,
+                "target_item_id": child.get("item_id"),
+                "description": (
+                    f"Родитель {element.get('item_id')} пересоздан изменяющим "
+                    f"НПА, но ребёнок {child.get('item_id')} "
+                    f"({child.get('item_type')} {child.get('item_number')}) "
+                    f"не имеет активной ревизии от изменяющего НПА и не "
+                    f"помечен not_valid — ревизия не закрылась."
+                ),
+            })
+    return gaps
+
+
 def _delete_applied(result: dict, change: dict, change_npa_id: Any,
-                    result_revisions: dict) -> bool:
+                     result_revisions: dict) -> bool:
     """Проверка корректного применения правки типа ``delete``.
 
     Корректные исходы:
@@ -264,6 +381,13 @@ def check_tracker_coverage(
                     "description": change.get("description"),
                 }
             )
+    # Детерминированная проверка «сирот»: дети родителя, пересозданного
+    # изменяющим НПА (new_redaction), должны либо иметь активную ревизию
+    # от изменяющего НПА, либо быть помеченными not_valid. Иначе их
+    # ревизия не закрылась, а пост-анализ (собирающий изменения по
+    # modified_by_id) такую проблему не видит (кейс 380-ЗС -> 269-ЗС:
+    # части 8-11 статьи 5 остались активными).
+    gaps.extend(check_orphan_children(result, change_npa_id))
     return gaps
 
 

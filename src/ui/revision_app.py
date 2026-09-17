@@ -15,11 +15,17 @@ from npazs._bootstrap import _bootstrap_project_root
 _bootstrap_project_root()
 
 import npazs.constants as _constants
+from npazs.config.env_store import (
+        BACKEND_ENV_KEYS,
+        load_active_backend,
+        load_backend_settings,
+        save_backend_settings,
+)
 from npazs.constants import (
         DEFAULT_BACKEND,
         DEFAULT_EXTRA_OPTIONS,
         DEFAULT_KILO_GATEWAY_URL,
-        DEFAULT_OLLAMA_MODEL,
+        HTTP_BACKEND_DEFS,
         LAST_PATHS_FILE,
         PROMPT_1,
         PROMPT_2,
@@ -33,11 +39,13 @@ from npazs.constants import (
 )
 from npazs.llm_models import (
         fetch_cline_models,
-        fetch_deepseek_models,
+        fetch_cerebras_models,
         fetch_gemini_models,
         fetch_kilo_gateway_free_models,
+        fetch_mistral_models,
         fetch_ollama_models,
         fetch_openrouter_free_models,
+        fetch_together_models,
         get_free_models_for_backend,
 )
 from npazs.pipeline.orchestrator import AiPipelineMixin
@@ -71,11 +79,28 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.change_path = tk.StringVar()
             self.law_ref = tk.StringVar(value="№ 0000-ЗС от 00.00.0000")
             self.original_law_ref = tk.StringVar(value="№ 0000-ЗС")
-            self.ollama_model = tk.StringVar(value="" if DEFAULT_BACKEND == "kilo_gateway" else DEFAULT_OLLAMA_MODEL)
-            self.post_analysis_model = tk.StringVar(value="")
-            self.backend = tk.StringVar(value=DEFAULT_BACKEND)
-            self.kilo_gateway_url = tk.StringVar(value=DEFAULT_KILO_GATEWAY_URL)
-            self.kilo_gateway_api_key = tk.StringVar(value=settings.kilo_gateway_api_key or "")
+            # Автозагрузка сохранённых настроек бэкенда из .env: активный бэкенд,
+            # его URL, API-ключ и модель — как при последнем сохранении. Это
+            # позволяет, например, переключиться на OpenRouter (с ключом в .env)
+            # и не вводить его заново после перезапуска окна.
+            _saved_backend = load_active_backend()
+            if _saved_backend not in BACKEND_ENV_KEYS:
+                _saved_backend = DEFAULT_BACKEND
+            _saved = load_backend_settings(_saved_backend)
+            _defn = HTTP_BACKEND_DEFS.get(_saved_backend) or {}
+            self.backend = tk.StringVar(value=_saved_backend)
+            self.kilo_gateway_url = tk.StringVar(
+                value=_saved.get('base_url') or _defn.get('base_url') or DEFAULT_KILO_GATEWAY_URL
+            )
+            self.kilo_gateway_api_key = tk.StringVar(
+                value=_saved.get('api_key') or _defn.get('api_key') or settings.kilo_gateway_api_key or ""
+            )
+            _saved_model = _saved.get('model') or _defn.get('default_model') or ''
+            self.ollama_model = tk.StringVar(value=_saved_model)
+            # Модель для пост-анализа по умолчанию — та же, что и основная модель,
+            # пока список моделей не загрузится из API. После загрузки
+            # _fetch_models переставит её на первый доступный free-модель.
+            self.post_analysis_model = tk.StringVar(value=_saved_model)
             self.extra_options = tk.StringVar(value=json.dumps(DEFAULT_EXTRA_OPTIONS))
             self.pub_date = tk.StringVar()
             self.last_paths = load_json(LAST_PATHS_FILE, {})
@@ -155,8 +180,14 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             elif backend == "cline":
                 self._fetch_http_models('cline', fetch_cline_models,
                                         self.kilo_gateway_api_key.get().strip(), try_api)
-            elif backend == "deepseek":
-                self._fetch_http_models('deepseek', fetch_deepseek_models,
+            elif backend == "cerebras":
+                self._fetch_http_models('cerebras', fetch_cerebras_models,
+                                        self.kilo_gateway_api_key.get().strip(), try_api)
+            elif backend == "together":
+                self._fetch_http_models('together', fetch_together_models,
+                                        self.kilo_gateway_api_key.get().strip(), try_api)
+            elif backend == "mistral":
+                self._fetch_http_models('mistral', fetch_mistral_models,
                                         self.kilo_gateway_api_key.get().strip(), try_api)
             elif backend == "gemini":
                 self._fetch_http_models('gemini', fetch_gemini_models,
@@ -165,7 +196,8 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                 self._fetch_ollama_models()
 
         def _fetch_http_models(self, backend_name, fetcher, api_key, try_api=True):
-            """Загрузить модели для HTTP-бэкенда (openrouter/cline/deepseek/gemini)."""
+            """Загрузить модели для HTTP-бэкенда (openrouter/cline/cerebras/
+            together/mistral/gemini)."""
             if not try_api:
                 models = get_free_models_for_backend(backend_name)
                 self.ollama_models = models
@@ -502,6 +534,36 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.use_stage1_answer.set(data.get('use_stage1_answer', False))
             self.use_stage2_answer.set(data.get('use_stage2_answer', False))
             self.use_stage3_answer.set(data.get('use_stage3_answer', False))
+
+        def save_env_settings(self, quiet=False) -> bool:
+            """Сохранить параметры текущего бэкенда (ключ, URL, модель) в ``.env``.
+
+            Вызывается кнопкой «Сохранить в .env», кнопками «Обновить модели» и
+            автоматически перед запуском пайплайна — API-ключ моделей не нужно
+            вводить заново после перезапуска окна.
+            """
+            backend = self.backend.get().strip() or DEFAULT_BACKEND
+            if backend not in BACKEND_ENV_KEYS:
+                if not quiet:
+                    self.log(f'Неизвестный бэкенд {backend!r}, сохранять нечего', 'warning')
+                return False
+            try:
+                written = save_backend_settings(
+                    backend,
+                    api_key=self.kilo_gateway_api_key.get().strip(),
+                    base_url=self.kilo_gateway_url.get().strip(),
+                    model=self.ollama_model.get().strip(),
+                )
+            except (OSError, ValueError) as e:
+                if not quiet:
+                    self.log(f'Не удалось сохранить настройки в .env: {e}', 'error')
+                return False
+            if not quiet:
+                self.log(
+                    'Настройки бэкенда сохранены в .env: ' + ', '.join(sorted(written)),
+                    'info',
+                )
+            return bool(written)
 
         def _normalize_text(self, text):
             if not text:

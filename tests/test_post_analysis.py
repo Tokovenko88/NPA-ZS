@@ -609,3 +609,114 @@ def test_foreign_revision_new_rev_has_highlights_and_preserves_history(tmp_path,
             for b in r.get('body', []) if b.get('type') == 'paragraph')
         assert '[текст' not in t, 'Плейсхолдер в тексте ревизии!'
 
+
+
+def test_element_not_valid_rejected_for_child_still_referenced():
+    """Защита от вредной автоправки: нельзя помечать not_valid норму, которая
+    по-прежнему входит в действующую редакцию родителя (child_ref в открытой
+    ревизии). Кейс 380-ЗС -> 269-ЗС: LLM-агент предлагал отменить часть 7
+    статьи 7, перенесённую новой редакцией без изменений."""
+    result = {
+        'npa_items_revision': [
+            {
+                'item_id': '16012_article_7',
+                'item_type': 'article',
+                'item_number': '7',
+                'revisions': [
+                    {
+                        'valid_from': '15.12.2017',
+                        'valid_to': None,
+                        'mod_type': 'new_redaction',
+                        'modified_by_id': '33699_article_1_point_9',
+                        'body': [
+                            {'type': 'child_ref',
+                             'item_id': '16012_article_7_part_7', 'order': 1},
+                        ],
+                    },
+                ],
+                'item_children': [
+                    {
+                        'item_id': '16012_article_7_part_7',
+                        'item_type': 'part',
+                        'item_number': '7',
+                        'revisions': [
+                            {'body': [
+                                {'type': 'paragraph',
+                                 'html_text': '<p>Решение о предоставлении…</p>',
+                                 'order': 1},
+                            ]},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+    verdict = {
+        'issues': [
+            {
+                'path': 'Статья 7 > Часть 7',
+                'corrections': [
+                    {
+                        'item_id': '16012_article_7_part_7',
+                        'field': 'element_not_valid',
+                        'value': '15.12.2017',
+                    },
+                ],
+            },
+        ],
+    }
+    applied = pa.apply_corrections(result, verdict, '33699', '15.12.2017')
+    assert applied and applied[0]['ok'] is False, applied
+    rev = result['npa_items_revision'][0]['item_children'][0]['revisions'][0]
+    assert not rev.get('not_valid'), 'ревизия не должна быть помечена not_valid'
+    assert rev.get('valid_to') in (None, ''), 'активная ревизия не должна закрываться'
+
+
+def test_element_not_valid_allowed_for_unreferenced_element():
+    """Обычный repel (родитель не ссылается на элемент) продолжает работать."""
+    result = {
+        'npa_items_revision': [
+            {
+                'item_id': '16012_article_8',
+                'item_type': 'article',
+                'item_number': '8',
+                'revisions': [
+                    {'valid_from': '15.12.2017', 'valid_to': None,
+                     'modified_by_id': '33699_article_1_point_9', 'body': []},
+                ],
+                'item_children': [
+                    {
+                        'item_id': '16012_article_8_part_1',
+                        'item_type': 'part',
+                        'item_number': '1',
+                        'revisions': [
+                            {'body': [
+                                {'type': 'paragraph',
+                                 'html_text': '<p>Отменяемая норма</p>',
+                                 'order': 1},
+                            ]},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+    verdict = {
+        'issues': [
+            {
+                'corrections': [
+                    {
+                        'item_id': '16012_article_8_part_1',
+                        'field': 'element_not_valid',
+                        'value': '15.12.2017',
+                        'modified_by_id': '33699_article_1_point_9',
+                    },
+                ],
+            },
+        ],
+    }
+    applied = pa.apply_corrections(result, verdict, '33699', '15.12.2017')
+    assert applied and applied[0]['ok'] is True, applied
+    rev = result['npa_items_revision'][0]['item_children'][0]['revisions'][0]
+    assert rev.get('not_valid') == '33699_article_1_point_9'
+    assert rev.get('valid_to') == '14.12.2017'

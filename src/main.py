@@ -295,6 +295,18 @@ def _revise_headless(args) -> int:
             self.answer_queue = None
             self.manual_mapping_cache = {}
             self.logs = []
+            # Stubs for GUI attributes accessed in run_all
+            class _BtnStub:
+                def config(self, **kw): pass
+            self.run_btn = _BtnStub()
+            self.cancel_btn = _BtnStub()
+            self.progress_var = _Var(0)
+            self.stage_var = _Var('')
+            class _LogStub:
+                def insert(self, *a, **kw): pass
+                def see(self, *a): pass
+                def delete(self, *a, **kw): pass
+            self.log_text = _LogStub()
 
         def log(self, message, tag=None):
             self.logs.append((tag, message))

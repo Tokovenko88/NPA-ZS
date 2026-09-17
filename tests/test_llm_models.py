@@ -16,14 +16,16 @@ _bootstrap.bootstrap()
 
 from npazs.constants import HTTP_BACKEND_DEFS, HTTP_BACKENDS
 from npazs.llm_models import (
-    _fetch_openai_compat_models,
-    fetch_cline_models,
-    fetch_deepseek_models,
-    fetch_gemini_models,
-    fetch_kilo_gateway_free_models,
-    fetch_ollama_models,
-    fetch_openrouter_free_models,
-    get_free_models_for_backend,
+        _fetch_openai_compat_models,
+        fetch_cline_models,
+        fetch_cerebras_models,
+        fetch_gemini_models,
+        fetch_kilo_gateway_free_models,
+        fetch_mistral_models,
+        fetch_ollama_models,
+        fetch_openrouter_free_models,
+        fetch_together_models,
+        get_free_models_for_backend,
 )
 
 
@@ -37,6 +39,17 @@ class _FakeResponse:
         return self._data
 
 
+def _fake_session(get_impl):
+    """Подделка requests.Session: Kilo перевёл fetch_* с requests.get на session.get."""
+    class _Session:
+        def get(self, url, headers=None, timeout=None):
+            return get_impl(url, headers=headers, timeout=timeout)
+
+        def close(self):
+            pass
+    return _Session()
+
+
 def test_fetch_kilo_gateway_filters_and_sends_auth(monkeypatch):
     calls = []
 
@@ -48,7 +61,7 @@ def test_fetch_kilo_gateway_filters_and_sends_auth(monkeypatch):
             {'id': 'openrouter/auto:free', 'name': 'Auto Free'},
         ]})
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
     result = fetch_kilo_gateway_free_models('https://kg.example/', 'secret')
     assert result == ['google/gemini-2.5-flash:free', 'openrouter/auto:free']
     url, headers, _timeout = calls[0]
@@ -60,7 +73,7 @@ def test_fetch_kilo_gateway_raises_on_http_error(monkeypatch):
     def fake_get(url, headers=None, timeout=None):
         return _FakeResponse(status_code=500, text='boom')
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
     with pytest.raises(RuntimeError, match='500'):
         fetch_kilo_gateway_free_models('https://kg.example', '')
 
@@ -74,7 +87,7 @@ def test_fetch_ollama_filters_whitelist(monkeypatch):
             {'name': 'gemma4:31b'},
         ]})
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
     result = fetch_ollama_models('http://localhost:11434')
     assert result == ['gemma4:31b', 'gpt-oss:20b-cloud']
 
@@ -83,7 +96,7 @@ def test_fetch_ollama_raises_on_http_error(monkeypatch):
     def fake_get(url, headers=None, timeout=None):
         return _FakeResponse(status_code=503, text='unavailable')
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
     with pytest.raises(RuntimeError, match='503'):
         fetch_ollama_models('http://localhost:11434')
 
@@ -106,7 +119,7 @@ def test_fetch_openai_compat_filters_free(monkeypatch):
         calls.append((url, headers, timeout))
         return _FakeResponse(data=payload)
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
     result = _fetch_openai_compat_models('https://fake.example', 'key', 'free')
     assert result == ['google/gemini-2.5-flash:free', 'openai/gpt-4o:free']
     url, headers, _ = calls[0]
@@ -122,7 +135,7 @@ def test_fetch_openrouter_free_models(monkeypatch):
             {'id': 'openai/gpt-4o', 'name': 'Paid'},
         ]})
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
     result = fetch_openrouter_free_models('secret')
     assert result == ['openai/gpt-4o:free']
 
@@ -131,29 +144,74 @@ def test_fetch_cline_models_fallback_on_error(monkeypatch):
     def fake_get(url, headers=None, timeout=None):
         return _FakeResponse(status_code=401, text='no auth')
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
     # На 401 _fetch_openai_compat_models бросает RuntimeError,
     # fetch_cline_models перехватывает и возвращает fallback из констант.
     result = fetch_cline_models('')
     assert result == sorted(HTTP_BACKEND_DEFS['cline']['free_models'])
 
 
-def test_fetch_deepseek_models_fallback_on_error(monkeypatch):
-    def fake_get(url, headers=None, timeout=None):
-        raise RuntimeError('network down')
+def test_cline_fallback_contains_only_free_models():
+    """Fallback cline, как и сам API, содержит только free-модели."""
+    for model in HTTP_BACKEND_DEFS['cline']['free_models']:
+        assert 'free' in model.lower(), f"Модель {model} без признака free"
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
-    result = fetch_deepseek_models('')
-    assert result == sorted(HTTP_BACKEND_DEFS['deepseek']['free_models'])
+
+def test_fetch_cline_models_returns_only_free(monkeypatch):
+    """Live-выборка cline: платные модели отбрасываются, URL и ключ корректны."""
+    calls = []
+
+    def fake_get(url, headers=None, timeout=None):
+        calls.append((url, headers))
+        return _FakeResponse(data={'data': [
+            {'id': 'openai/gpt-6-astra', 'name': None},
+            {'id': 'nex-agi/nex-n2.5-mini:free', 'name': None},
+            {'id': 'z-ai/glm-5.2:free', 'name': None},
+            {'id': 'openai/gpt-6-astra:batch', 'name': None},
+        ]})
+
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
+    result = fetch_cline_models('secret')
+    assert result == ['nex-agi/nex-n2.5-mini:free', 'z-ai/glm-5.2:free']
+    url, headers = calls[0]
+    assert url == 'https://api.cline.bot/api/v1/models'
+    assert headers['Authorization'] == 'Bearer secret'
+
+
+def test_fetch_cerebras_models_fallback_on_error(monkeypatch):
+        def fake_get(url, headers=None, timeout=None):
+            raise RuntimeError('network down')
+
+        monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
+        result = fetch_cerebras_models('')
+        assert result == sorted(HTTP_BACKEND_DEFS['cerebras']['free_models'])
+
+
+def test_fetch_together_models_fallback_on_error(monkeypatch):
+        def fake_get(url, headers=None, timeout=None):
+            raise RuntimeError('network down')
+
+        monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
+        result = fetch_together_models('')
+        assert result == sorted(HTTP_BACKEND_DEFS['together']['free_models'])
+
+
+def test_fetch_mistral_models_fallback_on_error(monkeypatch):
+        def fake_get(url, headers=None, timeout=None):
+            raise RuntimeError('network down')
+
+        monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
+        result = fetch_mistral_models('')
+        assert result == sorted(HTTP_BACKEND_DEFS['mistral']['free_models'])
 
 
 def test_fetch_gemini_models_fallback_on_error(monkeypatch):
-    def fake_get(url, headers=None, timeout=None):
-        return _FakeResponse(status_code=500, text='boom')
+        def fake_get(url, headers=None, timeout=None):
+            return _FakeResponse(status_code=500, text='boom')
 
-    monkeypatch.setattr('npazs.llm_models.requests.get', fake_get)
-    result = fetch_gemini_models('')
-    assert result == sorted(HTTP_BACKEND_DEFS['gemini']['free_models'])
+        monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
+        result = fetch_gemini_models('')
+        assert result == sorted(HTTP_BACKEND_DEFS['gemini']['free_models'])
 
 
 def test_get_free_models_for_backend_all_backends():
