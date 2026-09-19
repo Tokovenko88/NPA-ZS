@@ -32,6 +32,18 @@ function getElementRevisionButtons($itemData, $pdo, $npa_id, $viewDate, $pageUrl
         return '';
     }
 
+    // Потомок в наследованной new_redaction (примечание «В редакции — …»
+    // подавлено как избыточное): весь блок кнопок скрываем целиком —
+    // «Предыдущая редакция» / «История изменений» / «Сравнение редакций»
+    // раскрывали бы ту же дублирующую историю. Проверка та же, что гасит
+    // примечание (isNewRedactionNoteSuppressedByAncestor в ui/notes.php).
+    $stmtCur = $pdo->prepare("SELECT rev_id, mod_type, modified_by_id FROM npa_item_revision WHERE rev_id = ? LIMIT 1");
+    $stmtCur->execute([$currentRevId]);
+    $curRevRow = $stmtCur->fetch(PDO::FETCH_ASSOC);
+    if ($curRevRow && isNewRedactionNoteSuppressedByAncestor($pdo, $internal_id, $curRevRow, $currentRevId, 'rev_id')) {
+        return '';
+    }
+
     $style = 'display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px 0; align-items:center;';
     $buttons = '<div class="npa-item-buttons" style="' . $style . '"'
              . ' data-npa-item-id="' . htmlspecialchars($external_item_id, ENT_QUOTES, 'UTF-8') . '"'
@@ -120,6 +132,13 @@ function getItemHeadRevisionButtons($itemInternalId, $externalItemId, $npa_id, $
     $hasHistory = ((int)$stmtCount->fetchColumn() > 0);
 
     if (!$prevRev && !$hasHistory) {
+        return '';
+    }
+
+    // Потомок в наследованной new_redaction заголовка («Заголовок в редакции»
+    // подавлен как избыточный): блок кнопок заголовка скрываем целиком.
+    // Проверка та же, что гасит примечание (id-ключ головных ревизий).
+    if (isNewRedactionNoteSuppressedByAncestor($pdo, $itemInternalId, $currentRev, $currentRevId, 'id')) {
         return '';
     }
 

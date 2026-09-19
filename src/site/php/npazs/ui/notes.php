@@ -3,6 +3,8 @@
  * NPA-ZS | ui/notes.php — примечания к элементам и заголовкам.
  *
  * Функции: isOriginalRevision, splitChangerIds, isIntroductionInheritedFromAncestor,
+ *          hasAncestorNewRedactionByNpaId, hasStrictAncestorNewRedactionByNpaId,
+ *          isNewRedactionNoteSuppressedByAncestor,
  *          getItemHeadRevisionNotes, getElementRevisionNotes, filterNotesByValidTo.
  * Источник: строки 1039-1123, 2786-2875 монолита snippet.php.
  */
@@ -54,12 +56,37 @@ function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType,
 
         switch ($rev['mod_type']) {
             case 'add': if ($addNote === null) $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
-            case 'new_redaction': $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'new_redaction':
+                // Дочерний элемент в новой редакции того же НПА, что переписал
+                // предка: «Заголовок в редакции — …» избыточен, только если это
+                // последняя ревизия элемента И строгий предок имеет new_redaction
+                // этого же НПА (см. isNewRedactionNoteSuppressedByAncestor —
+                // та же проверка гасит и блок кнопок целиком). Другой НПА /
+                // не последняя ревизия / нет предка с new_redaction —
+                // показываем, как раньше.
+                $isLastRevNr = ((int)$rev['id'] === $currentRevId);
+                if ($isLastRevNr && isNewRedactionNoteSuppressedByAncestor($pdo, $internal_item_id, $rev, $currentRevId, 'id')) {
+                    // Подавляем: примечание избыточно (покрыто предком).
+                    $newRedactionNote = null;
+                } else {
+                    $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative');
+                }
+                break;
             case 'change':
                 $npaInfo = getNpaInfoByItemId($rev['modified_by_id'], $pdo);
+                // Для заголовков: подавляем «Заголовок изменен: …» на дочернем
+                // элементе, если его последняя ревизия закрыта тем же НПА, что
+                // переписал предка в новой редакции (new_redaction) — заголовок
+                // изменен тем же НПА, что и весь предок, дублировать в
+                // примечании дочернего элемента избыточно.
+                $isLastRev = ((int)$rev['id'] === $currentRevId);
                 if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
-                    $seenChangeNpaIds[] = $npaInfo['npa_id'];
-                    $changeNotes[] = $shortDesc;
+                    if ($isLastRev && hasAncestorNewRedactionByNpaId($pdo, $internal_item_id, $npaInfo['npa_id'])) {
+                        // Подавляем: примечание избыточно.
+                    } else {
+                        $seenChangeNpaIds[] = $npaInfo['npa_id'];
+                        $changeNotes[] = $shortDesc;
+                    }
                 }
                 break;
         }
@@ -138,6 +165,156 @@ function splitChangerIds($modifiedById) {
  * @param array $addRevision    Ревизия с mod_type='add' (valid_from, modified_by_id).
  * @return bool true — примечание «Введён …» избыточно и выводиться не должно.
  */
+
+/**
+ * Есть ли у элемента или любого из его предков (цепочка npa_item.parent_id,
+ * глубина ≤ 20) ревизия new_redaction от НПА с переданным npa_base.npa_id?
+ *
+ * Используется для подавления избыточных примечаний «С изменениями» на
+ * дочерних элементах: если дочерний элемент был закрыт тем же НПА, что
+ * переписал его предка в новой редакции (new_redaction), примечание
+ * «С изменениями: …» на дочернем избыточно — из примечания «В редакции: …»
+ * на предке уже следует, что весь состав предка (включая дочерний) изложен
+ * этой редакцией. Легитимный кейс сохраняется: если дочерний элемент
+ * закрыт/изменён ДРУГИМ НПА (не тем, что переписал предка), примечание
+ * выводится — это отдельная реальная правка, а не следствие новой редакции
+ * родителя.
+ *
+ * Сравнение идёт по npa_base.npa_id (а не по npa_item.id), т.к. один и тот же
+ * НПА может фигурировать в ревизиях под разными npa_item.id (разные элементы
+ * НПА в разных контекстаX), и нам важна именно «один НПА-база» semantics.
+ *
+ * @param PDO   $pdo            Соединение с БД.
+ * @param int   $itemInternalId npa_item.id элемента для проверки (и его предков).
+ * @param int   $npaId          npa_base.npa_id изменяющего НПА.
+ * @return bool true — предок (или сам элемент) имеет new_redaction от этого НПА.
+ */
+function hasAncestorNewRedactionByNpaId($pdo, $itemInternalId, $npaId): bool {
+    static $parentByItemId = [];
+    static $revisionsByItemId = [];
+    static $itemIdToNpaId = [];
+
+    $itemId = (int)$itemInternalId;
+    $depth = 0;
+    while ($itemId > 0 && $depth < 20) {
+        // Ревизии new_redaction предка (если есть).
+        if (!array_key_exists($itemId, $revisionsByItemId)) {
+            $stmt = $pdo->prepare(
+                "SELECT modified_by_id FROM npa_item_revision
+                 WHERE item_internal_id = ? AND mod_type = 'new_redaction'"
+            );
+            $stmt->execute([$itemId]);
+            $revisionsByItemId[$itemId] = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        }
+        foreach ($revisionsByItemId[$itemId] as $modifierItemId) {
+            // npa_item.id → npa_base.npa_id (кэш).
+            if (!array_key_exists($modifierItemId, $itemIdToNpaId)) {
+                $stmt = $pdo->prepare("SELECT npa_id FROM npa_item WHERE id = ?");
+                $stmt->execute([$modifierItemId]);
+                $row = $stmt->fetch();
+                $itemIdToNpaId[$modifierItemId] = $row ? (int)$row['npa_id'] : 0;
+            }
+            if ($itemIdToNpaId[$modifierItemId] === (int)$npaId) {
+                return true;
+            }
+        }
+
+        // Переход к родителю.
+        if (!array_key_exists($itemId, $parentByItemId)) {
+            $stmt = $pdo->prepare("SELECT parent_id FROM npa_item WHERE id = ?");
+            $stmt->execute([$itemId]);
+            $row = $stmt->fetch();
+            $parentByItemId[$itemId] = $row ? (int)$row['parent_id'] : 0;
+        }
+        $itemId = $parentByItemId[$itemId];
+        $depth++;
+    }
+    return false;
+}
+
+/**
+ * Есть ли у СТРОГИХ предков элемента (цепочка npa_item.parent_id от родителя,
+ * глубина ≤ 20) ревизия new_redaction от НПА с переданным npa_base.npa_id?
+ * Сам элемент НЕ проверяется — только предки.
+ *
+ * Нужна для подавления избыточного «В редакции — …» у дочернего элемента:
+ * если вся ветка переписана тем же НПА, примечание предка уже покрывает весь
+ * его состав. Использовать здесь hasAncestorNewRedactionByNpaId() нельзя —
+ * она проверяет и сам элемент, т.е. для new_redaction всегда даст совпадение
+ * и скроет ВСЕ примечания «В редакции». Семантика в остальном та же:
+ * сравнение по npa_base.npa_id, легитимные правки других НПА показываются.
+ *
+ * @param PDO $pdo            Соединение с БД.
+ * @param int $itemInternalId npa_item.id проверяемого элемента.
+ * @param int $npaId          npa_base.npa_id изменяющего НПА.
+ * @return bool true — строгий предок имеет new_redaction от этого НПА.
+ */
+function hasStrictAncestorNewRedactionByNpaId($pdo, $itemInternalId, $npaId): bool {
+    static $parentByItemId = [];
+    static $revisionsByItemId = [];
+    static $itemIdToNpaId = [];
+
+    $stmt = $pdo->prepare("SELECT parent_id FROM npa_item WHERE id = ?");
+    $stmt->execute([(int)$itemInternalId]);
+    $row = $stmt->fetch();
+    $itemId = $row ? (int)$row['parent_id'] : 0;
+    $depth = 0;
+    while ($itemId > 0 && $depth < 20) {
+        if (!array_key_exists($itemId, $revisionsByItemId)) {
+            $stmt = $pdo->prepare(
+                "SELECT modified_by_id FROM npa_item_revision
+                 WHERE item_internal_id = ? AND mod_type = 'new_redaction'"
+            );
+            $stmt->execute([$itemId]);
+            $revisionsByItemId[$itemId] = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        }
+        foreach ($revisionsByItemId[$itemId] as $modifierItemId) {
+            if (!array_key_exists($modifierItemId, $itemIdToNpaId)) {
+                $stmt = $pdo->prepare("SELECT npa_id FROM npa_item WHERE id = ?");
+                $stmt->execute([$modifierItemId]);
+                $row = $stmt->fetch();
+                $itemIdToNpaId[$modifierItemId] = $row ? (int)$row['npa_id'] : 0;
+            }
+            if ($itemIdToNpaId[$modifierItemId] === (int)$npaId) {
+                return true;
+            }
+        }
+        if (!array_key_exists($itemId, $parentByItemId)) {
+            $stmt = $pdo->prepare("SELECT parent_id FROM npa_item WHERE id = ?");
+            $stmt->execute([$itemId]);
+            $row = $stmt->fetch();
+            $parentByItemId[$itemId] = $row ? (int)$row['parent_id'] : 0;
+        }
+        $itemId = $parentByItemId[$itemId];
+        $depth++;
+    }
+    return false;
+}
+
+/**
+ * Подавляется ли примечание «В редакции — …» элемента как избыточное
+ * (последняя ревизия new_redaction того же НПА, что переписал строгого предка)?
+ *
+ * Единая точка истины для примечаний (ui/notes.php) и кнопок (ui/buttons.php):
+ * если здесь true — примечание скрыто, значит и блок кнопок
+ * («Предыдущая редакция» / «История изменений» / «Сравнение редакций»)
+ * у такого дочернего элемента тоже не выводится целиком.
+ *
+ * @param PDO   $pdo            Соединение с БД.
+ * @param int   $itemInternalId npa_item.id проверяемого элемента.
+ * @param array $currentRev     Текущая ревизия (rev_id/rev['id'], mod_type, modified_by_id).
+ * @param int   $currentRevId   npa_item_revision.rev_id текущей ревизии.
+ * @param string $idKey         Ключ id в $currentRev ('rev_id' для тела, 'id' для заголовков).
+ * @return bool true — элемент-потомок в наследованной new_redaction, UI скрыть.
+ */
+function isNewRedactionNoteSuppressedByAncestor($pdo, $itemInternalId, array $currentRev, $currentRevId, $idKey = 'rev_id'): bool {
+    if (($currentRev['mod_type'] ?? null) !== 'new_redaction') return false;
+    if ((int)($currentRev[$idKey] ?? 0) !== (int)$currentRevId) return false;
+    $npaInfo = getNpaInfoByItemId($currentRev['modified_by_id'] ?? '', $pdo);
+    if (!$npaInfo) return false;
+    return hasStrictAncestorNewRedactionByNpaId($pdo, $itemInternalId, $npaInfo['npa_id']);
+}
+
 function isIntroductionInheritedFromAncestor($pdo, $internalItemId, $addRevision) {
     static $parentByItemId = [];
     static $revisionsByItemId = [];
@@ -233,17 +410,64 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
                     $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative');
                 }
                 break;
-            case 'new_redaction': $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'new_redaction':
+                // Дочерний элемент в новой редакции того же НПА, что переписал
+                // предка: «В редакции — …» избыточно (примечание предка уже
+                // покрывает весь его состав). Подавляем только если это
+                // последняя ревизия элемента И строгий предок имеет new_redaction
+                // этого же НПА (см. isNewRedactionNoteSuppressedByAncestor —
+                // та же проверка гасит и блок кнопок целиком). Другой НПА /
+                // не последняя ревизия / нет предка с new_redaction —
+                // показываем, как раньше.
+                $isLastRevNr = ((int)$rev['rev_id'] === $currentRevId);
+                if ($isLastRevNr && isNewRedactionNoteSuppressedByAncestor($pdo, $internal_item_id, $rev, $currentRevId, 'rev_id')) {
+                    $newRedactionNote = null;
+                } else {
+                    $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative');
+                }
+                break;
             case 'change':
                 $npaInfo = getNpaInfoByItemId($rev['modified_by_id'], $pdo);
+                // Последняя ревизия элемента, закрытая тем же НПА, что переписал
+                // его предка в новой редакции (new_redaction) — примечание
+                // «С изменениями: …» на таком элементе избыточно: из примечания
+                // «В редакции — NPA» на предке уже следует, что весь состав
+                // предка (включая этот дочерний) изложен этой редакцией.
+                // Реальные правки ДРУГИХ НПА (не того, что переписал предка)
+                // примечание получают — это отдельная правка, а не следствие
+                // новой редакции родителя (кейс 269-ЗС <- 380-ЗС: дочерние
+                // элементы статьи 2, закрытые 380-ЗС, не должны дублировать
+                // «В редакции — 380-ЗС» на уровне статьи 2).
+                $isLastRev = ((int)$rev['rev_id'] === $currentRevId);
                 if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
-                    $seenChangeNpaIds[] = $npaInfo['npa_id'];
-                    $changeNotes[] = $shortDesc;
+                    if ($isLastRev && hasAncestorNewRedactionByNpaId($pdo, $internal_item_id, $npaInfo['npa_id'])) {
+                        // Подавляем: примечание избыточно.
+                    } else {
+                        $seenChangeNpaIds[] = $npaInfo['npa_id'];
+                        $changeNotes[] = $shortDesc;
+                    }
                 }
                 break;
         }
         foreach (array_filter(array_map('trim', explode(',', (string)($rev['modified_by_id'] ?? '')))) as $mid) {
             if ($mid !== '' && $mid !== 'base') $ownChangerIds[$mid] = true;
+        }
+    }
+
+    // НПА, создавшие собственные ревизии элемента (в т.ч. new_redaction/add).
+    // Их повторный подъём из дочерних элементов в «С изменениями» запрещён:
+    // когда элемент изложен новой редакцией или введён этим же НПА, закрытие
+    // его старых дочерних элементов — часть ТОГО ЖЕ изменения, а не отдельная
+    // правка. Иначе рядом с «В редакции — Закон № 380-ЗС …» появляется
+    // вводящее в заблуждение «С изменениями: Закон № 380-ЗС …», как будто
+    // была ещё и правка типа change, которой не было
+    // (кейс 269-ЗС <- 380-ЗС: статья 2 изложена новой редакцией 380-ЗС,
+    // её бывшие части закрыты той же 380-ЗС).
+    $ownProvenanceNpaIds = [];
+    foreach (array_keys($ownChangerIds) as $ownMid) {
+        $ownNpaInfo = getNpaInfoByItemId($ownMid, $pdo);
+        if ($ownNpaInfo && !in_array($ownNpaInfo['npa_id'], $ownProvenanceNpaIds, true)) {
+            $ownProvenanceNpaIds[] = $ownNpaInfo['npa_id'];
         }
     }
 
@@ -275,6 +499,13 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
         );
         foreach ($childChangerNotes as $modifiedById) {
             $npaInfo = getNpaInfoByItemId($modifiedById, $pdo);
+            // Подъём не выполняется для НПА, создавшей собственную ревизию
+            // элемента (new_redaction/add/change): закрытие её же старых
+            // дочерних элементов — часть того же изменения, а не отдельная
+            // правка. НПА уже отображается в «В редакции — …»/«Введён — …».
+            if ($npaInfo && in_array($npaInfo['npa_id'], $ownProvenanceNpaIds, true)) {
+                continue;
+            }
             if ($npaInfo && !in_array($npaInfo['npa_id'], $seenChangeNpaIds, true)) {
                 $seenChangeNpaIds[] = $npaInfo['npa_id'];
                 $changeNotes[] = getShortNpaDescription($modifiedById, $pdo, true);

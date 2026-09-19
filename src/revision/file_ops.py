@@ -34,7 +34,11 @@ from npazs.constants import (
     PROMPT_4,
     TYPE_TO_RUSSIAN,
 )
-from npazs.revision.ui_utils import clean_number_for_filename, get_date_for_filename
+from npazs.revision.ui_utils import (
+    clean_number_for_filename,
+    get_date_for_filename,
+    backfill_revision_valid_from,
+)
 from npazs.revision.engine import *
 from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
 from npazs.ui.dialogs.source_mapping import SourceMappingDialog
@@ -54,6 +58,14 @@ class FileOpsMixin:
                     for rev in data['head_revision']:
                         rev.pop('valid_from', None)
             clean_head_revisions_valid_from(result_data)
+
+            # Бэкфилл valid_from у «голых» ревизий элементов (без valid_from/
+            # mod_type/modified_by_id): импортёр иначе подставляет дату сам и
+            # пишет WARN «Ревизии вложенных элементов без valid_from/mod_type».
+            # Дата восстанавливается заранее по той же конвенции, что
+            # использует импортёр (compute_valid_from: prev_vto + 1 день,
+            # иначе дата корневой редакции из data['valid_from']/['date_passed']).
+            backfill_revision_valid_from(result_data, log_callback=self.log)
 
             orig_id = result_data.get('npa_id', 'unknown')
             change_id = change_data.get('npa_id', 'unknown')

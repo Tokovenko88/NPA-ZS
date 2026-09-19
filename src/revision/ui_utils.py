@@ -378,6 +378,103 @@ def _stamp_new_subtree_provenance(element, change_date, modified_by_id, mod_type
         if isinstance(child, dict):
             _stamp_new_subtree_provenance(child, change_date, modified_by_id, mod_type)
 
+def _parse_revision_date(value):
+    """Дата из значения ревизии ('DD.MM.YYYY' или 'YYYY-MM-DD') либо None."""
+    if not value:
+        return None
+    s = str(value).strip()
+    for fmt in ('%d.%m.%Y', '%Y-%m-%d'):
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+def backfill_revision_valid_from(data, root_valid_from=None, log_callback=None):
+    """Проставить ``valid_from`` ревизиям элементов, потерявшим дату начала.
+
+    «Голая» ревизия вложенного элемента (нет ``valid_from``/``mod_type``/
+    ``modified_by_id``/``not_valid``, есть ``body``) при импорте в БД
+    заставляет импортёр подставлять дату самостоятельно и печатать
+    WARN «Ревизии вложенных элементов без valid_from/mod_type …»
+    (см. ``src/db/importer.py::_insert_items_revisions``). Чтобы «голых»
+    ревизий в итоговом JSON не оставалось, дата восстанавливается заранее по
+    той же конвенции, что использует импортёр (``compute_valid_from`` в
+    ``npazs.db.connection``):
+
+    * первая ревизия элемента — с даты вступления в силу корневой редакции
+      НПА (``root_valid_from`` — у импортёра это ``d['valid_from']`` или
+      ``d['date_passed']``);
+    * последующие ревизии — на день позже ``valid_to`` предыдущей ревизии
+      списка (конвенция базы: ``valid_to`` закрываемой ревизии равен дню
+      перед ``valid_from`` закрывающей).
+
+    Ревизии с уже проставленным ``valid_from`` не переписываются.
+    ``head_revisions``, ``item_prefix_revisions`` и ``number_revisions``
+    сознательно не трогаются: даты head/prefix импортёр вычисляет по своей
+    цепочке (см. ``clean_head_revisions_valid_from`` в file_ops), а
+    number_revisions без ``valid_from`` импортёр пропускает, а не
+    восстанавливает — бэкфилл изменил бы состав записей в БД.
+
+    Args:
+        data: корневой объект результата (с ключом ``npa_items_revision``);
+            корневая дата берётся из ``data['valid_from']`` или
+            ``data['date_passed']`` — тех же ключей, что читает импортёр.
+        root_valid_from: явная дата корневой редакции ('DD.MM.YYYY' и т.п.),
+            перекрывающая значения из ``data``; если не задана и в ``data``
+            даты нет, восстанавливаются только те ревизии, у которых есть
+            предыдущая ревизия с ``valid_to``.
+        log_callback: опциональный колбэк ``(msg, tag)``.
+
+    Returns:
+        int: количество ревизий, которым проставлен ``valid_from``.
+    """
+    if root_valid_from is None and isinstance(data, dict):
+        root_valid_from = data.get('valid_from') or data.get('date_passed')
+    root_dt = _parse_revision_date(root_valid_from)
+    stats = {'filled': 0}
+    affected_ids = []
+
+    def _fill_element(element):
+        revisions = element.get('revisions')
+        if not isinstance(revisions, list):
+            return
+        element_filled = 0
+        prev_vto = None
+        for rev in revisions:
+            if not isinstance(rev, dict):
+                continue
+            if not rev.get('valid_from'):
+                candidate = (prev_vto + timedelta(days=1)) if prev_vto is not None else root_dt
+                if candidate is not None:
+                    rev['valid_from'] = candidate.strftime('%d.%m.%Y')
+                    element_filled += 1
+            prev_vto = _parse_revision_date(rev.get('valid_to'))
+        if element_filled:
+            stats['filled'] += element_filled
+            item_id = element.get('item_id')
+            if item_id:
+                affected_ids.append(str(item_id))
+
+    def _walk(items):
+        for item in items:
+            if isinstance(item, dict):
+                _fill_element(item)
+                _walk(item.get('item_children') or [])
+
+    _walk(data.get('npa_items_revision') or [])
+    if stats['filled'] and log_callback:
+        shown = ', '.join(dict.fromkeys(affected_ids))
+        if len(shown) > 300:
+            shown = shown[:300] + '…'
+        log_callback(
+            f"Проставлен valid_from у {stats['filled']} ревизий без даты начала "
+            f"(элементы: {shown}) — бэкфилл по конвенции импортёра",
+            'info',
+        )
+    return stats['filled']
+
 
 def _close_excluded_subtree(element, valid_to, modified_by_id):
     """Закрыть активные ревизии элемента и всех его потомков как утратившие силу.

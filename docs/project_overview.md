@@ -501,6 +501,7 @@ python -m unittest discover -s tests -v
 | `_item_id_exists_in_new_tree(item_id, new_element)` | Проверка `item_id` в новом дереве. |
 | `_transfer_structural_state(old_child, new_child, ...)` | Перенос истории и pending со старого на нового при смене родителя. |
 | `sync_structural_element_recursive(old_element, new_element, ...)` | Рекурсивная синхронизация: закрытие старых ревизий, создание новых, перенос детей, `number_revisions`, объединение body. |
+| `backfill_revision_valid_from(data, root_valid_from, ...)` | Бэкфилл `valid_from` «голых» ревизий элементов по конвенции импортёра (prev_vto + 1 день, иначе дата корневой редакции); head/number/prefix не трогаются. |
 | `expand_range_in_new_field(change, log_callback, ...)` | Разбиение диапазона в поле `new` («пункты 1-3»). |
 | `ensure_path(data, tokens, valid_from, ...)` | Обеспечение существования пути (создание отсутствующих). |
 | `_find_existing_element_flexible(data, structural, ...)` | Гибкий поиск по структурному пути. |
