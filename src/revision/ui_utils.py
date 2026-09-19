@@ -833,18 +833,21 @@ def sync_structural_element_recursive(old_element, new_element, change_date, mod
             current_head_raw = head_revisions[active_idx].get('head_text', '') if active_idx != -1 else ''
             current_head_cleaned = clean_head_text(current_head_raw, old_element.get('item_type'), str(old_element.get('item_number', '')))
             if active_idx == -1:
-                if override_mod_type in ('add', 'new_redaction'):
-                    head_rev = {'head_text': new_head}
-                else:
-                    head_mod_type = override_mod_type if override_mod_type else 'add'
-                    head_rev = {
-                        'head_text': new_head,
-                        'mod_type': head_mod_type,
-                        'modified_by_id': modified_by_id,
-                        'revision_id': str(uuid.uuid4())
-                    }
-                    if head_mod_type == 'add':
-                        head_rev['valid_from'] = change_date
+                # ЗАГОЛОВОК всегда несёт собственный провенанс (mod_type +
+                # modified_by_id): иначе импортёр запишет NULL, и сайт
+                # покажет «Заголовок введен» даже для new_redaction (кейс
+                # 380-ЗС -> 269-ЗС, ст. 2), а подсветка <del>/<ins> в
+                # сравнении редакций не сработает (npa-viewer.js
+                # applyPreciseHighlights различает только mod_type).
+                head_mod_type = override_mod_type if override_mod_type else 'add'
+                head_rev = {
+                    'head_text': new_head,
+                    'mod_type': head_mod_type,
+                    'modified_by_id': modified_by_id,
+                    'revision_id': str(uuid.uuid4())
+                }
+                if head_mod_type == 'add':
+                    head_rev['valid_from'] = change_date
                 if highlights is not None and not is_highlights_empty(highlights):
                     head_rev['highlights'] = highlights
                 head_revisions.append(head_rev)
@@ -854,18 +857,18 @@ def sync_structural_element_recursive(old_element, new_element, change_date, mod
                 if current_head_cleaned != new_head:
                     if head_revisions[active_idx].get('valid_to') is None:
                         head_revisions[active_idx]['valid_to'] = valid_to_prev
-                    if override_mod_type in ('add', 'new_redaction'):
-                        head_rev = {'head_text': new_head, 'revision_id': str(uuid.uuid4())}
-                    else:
-                        head_mod_type = override_mod_type if override_mod_type else 'change'
-                        head_rev = {
-                            'head_text': new_head,
-                            'mod_type': head_mod_type,
-                            'modified_by_id': modified_by_id,
-                            'revision_id': str(uuid.uuid4())
-                        }
-                        if head_mod_type == 'add':
-                            head_rev['valid_from'] = change_date
+                    # Здесь та же ошибка, что и в ветке первой записи: без
+                    # mod_type/modified_by_id сайт считает заголовок
+                    # «введённым», а не «в редакции» изменяющего НПА.
+                    head_mod_type = override_mod_type if override_mod_type else 'change'
+                    head_rev = {
+                        'head_text': new_head,
+                        'mod_type': head_mod_type,
+                        'modified_by_id': modified_by_id,
+                        'revision_id': str(uuid.uuid4())
+                    }
+                    if head_mod_type == 'add':
+                        head_rev['valid_from'] = change_date
                     if highlights is not None and not is_highlights_empty(highlights):
                         head_rev['highlights'] = highlights
                     head_revisions.append(head_rev)
