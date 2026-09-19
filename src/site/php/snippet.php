@@ -1539,6 +1539,56 @@ function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType,
          . $dateBlock . implode('<br>', $parts) . '</div>';
 }
 
+function splitChangerIds($modifiedById) {
+    $ids = [];
+    foreach (explode(',', (string)($modifiedById ?? '')) as $part) {
+        $part = trim($part);
+        if ($part !== '' && $part !== 'base') $ids[] = $part;
+    }
+    return $ids;
+}
+
+function isIntroductionInheritedFromAncestor($pdo, $internalItemId, $addRevision) {
+    static $parentByItemId = [];
+    static $revisionsByItemId = [];
+
+    $addDate = parseDate($addRevision['valid_from'] ?? null);
+    $addChangers = splitChangerIds($addRevision['modified_by_id'] ?? '');
+    if (!$addDate || empty($addChangers)) return false;
+    $addDateKey = $addDate->format('Y-m-d');
+
+    $itemId = (int)$internalItemId;
+    $depth = 0;
+    while ($itemId > 0 && $depth < 20) {
+        if (!array_key_exists($itemId, $parentByItemId)) {
+            $stmt = $pdo->prepare("SELECT parent_id FROM npa_item WHERE id = ?");
+            $stmt->execute([$itemId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $parentByItemId[$itemId] = $row ? (int)$row['parent_id'] : 0;
+        }
+        $ancestorId = $parentByItemId[$itemId];
+        if ($ancestorId <= 0) break;
+
+        if (!array_key_exists($ancestorId, $revisionsByItemId)) {
+            $stmt = $pdo->prepare("SELECT valid_from, mod_type, modified_by_id
+                                   FROM npa_item_revision WHERE item_internal_id = ?");
+            $stmt->execute([$ancestorId]);
+            $revisionsByItemId[$ancestorId] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        foreach ($revisionsByItemId[$ancestorId] as $ancestorRev) {
+            if ($ancestorRev['mod_type'] !== 'add' && $ancestorRev['mod_type'] !== 'new_redaction') continue;
+            $ancestorDate = parseDate($ancestorRev['valid_from'] ?? null);
+            if (!$ancestorDate || $ancestorDate->format('Y-m-d') !== $addDateKey) continue;
+            if (array_intersect($addChangers, splitChangerIds($ancestorRev['modified_by_id'] ?? ''))) {
+                return true;
+            }
+        }
+        $itemId = $ancestorId;
+        $depth++;
+    }
+    return false;
+}
+
 function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, $viewDate, $itemType, array $selectedRevisionNpaIds = []) {
     $currentRev = getRevisionForSelectedEdition($pdo, $internal_item_id, $viewDate, $selectedRevisionNpaIds);
     if (!$currentRev || empty($currentRev['rev_id'])) return '';
@@ -1583,7 +1633,12 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
         if ($shortDesc === 'исходная редакция') continue;
 
         switch ($rev['mod_type']) {
-            case 'add': if ($addNote === null) $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'add':
+                
+                if ($addNote === null && !isIntroductionInheritedFromAncestor($pdo, $internal_item_id, $rev)) {
+                    $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative');
+                }
+                break;
             case 'new_redaction': $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
             case 'change':
                 $npaInfo = getNpaInfoByItemId($rev['modified_by_id'], $pdo);

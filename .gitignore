@@ -36,6 +36,7 @@ data/stage_answers/*.json
 data/work_tools/*
 !data/work_tools/build_snippet.py
 !data/work_tools/verify_build.py
+!data/work_tools/check_intro_note_suppression.php
 
 # Diagnostic / one-off artifacts (ad-hoc debugging dumps, not for the repo)
 data/output/_*

@@ -2,7 +2,8 @@
 /**
  * NPA-ZS | ui/notes.php — примечания к элементам и заголовкам.
  *
- * Функции: getItemHeadRevisionNotes, getElementRevisionNotes.
+ * Функции: isOriginalRevision, splitChangerIds, isIntroductionInheritedFromAncestor,
+ *          getItemHeadRevisionNotes, getElementRevisionNotes, filterNotesByValidTo.
  * Источник: строки 1039-1123, 2786-2875 монолита snippet.php.
  */
 
@@ -98,6 +99,86 @@ function getItemHeadRevisionNotes($internal_item_id, $pdo, $viewDate, $itemType,
          . $dateBlock . implode('<br>', $parts) . '</div>';
 }
 
+/**
+ * Разбирает modified_by_id («143532,143624») в список идентификаторов
+ * элементов изменяющего НПА. Служебное значение «base» (исходная редакция)
+ * отбрасывается.
+ *
+ * @param mixed $modifiedById Значение npa_item_revision.modified_by_id.
+ * @return array Список идентификаторов (возможно пустой).
+ */
+function splitChangerIds($modifiedById) {
+    $ids = [];
+    foreach (explode(',', (string)($modifiedById ?? '')) as $part) {
+        $part = trim($part);
+        if ($part !== '' && $part !== 'base') $ids[] = $part;
+    }
+    return $ids;
+}
+
+/**
+ * Введён ли элемент «вместе с предком» тем же изменяющим НПА?
+ *
+ * Когда структурный элемент вводится (mod_type='add') или излагается в новой
+ * редакции (mod_type='new_redaction'), все его потомки из нового содержимого
+ * получают собственную ревизию 'add' с тем же изменяющим НПА и той же датой
+ * вступления в силу. Примечание «Введён — …» под каждым таким потомком
+ * избыточно: из примечания «Введён …»/«В редакции …» на самом элементе уже
+ * следует, что весь его состав введён тем же НПА.
+ *
+ * Примечание скрывается только при точном совпадении: у одного из предков
+ * (цепочка npa_item.parent_id, глубина ≤ 20) есть ревизия 'add' или
+ * 'new_redaction' с тем же изменяющим НПА (пересечение modified_by_id) и той же
+ * датой valid_from. Если позже ДРУГОЙ НПА добавит дочерний элемент в уже
+ * введённый элемент, его собственная 'add'-ревизия с ревизией предка не
+ * совпадёт — примечание «Введён …» для него выводится (как и требуется).
+ *
+ * @param PDO   $pdo            Соединение с БД.
+ * @param int   $internalItemId npa_item.id проверяемого элемента.
+ * @param array $addRevision    Ревизия с mod_type='add' (valid_from, modified_by_id).
+ * @return bool true — примечание «Введён …» избыточно и выводиться не должно.
+ */
+function isIntroductionInheritedFromAncestor($pdo, $internalItemId, $addRevision) {
+    static $parentByItemId = [];
+    static $revisionsByItemId = [];
+
+    $addDate = parseDate($addRevision['valid_from'] ?? null);
+    $addChangers = splitChangerIds($addRevision['modified_by_id'] ?? '');
+    if (!$addDate || empty($addChangers)) return false;
+    $addDateKey = $addDate->format('Y-m-d');
+
+    $itemId = (int)$internalItemId;
+    $depth = 0;
+    while ($itemId > 0 && $depth < 20) {
+        if (!array_key_exists($itemId, $parentByItemId)) {
+            $stmt = $pdo->prepare("SELECT parent_id FROM npa_item WHERE id = ?");
+            $stmt->execute([$itemId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $parentByItemId[$itemId] = $row ? (int)$row['parent_id'] : 0;
+        }
+        $ancestorId = $parentByItemId[$itemId];
+        if ($ancestorId <= 0) break;
+
+        if (!array_key_exists($ancestorId, $revisionsByItemId)) {
+            $stmt = $pdo->prepare("SELECT valid_from, mod_type, modified_by_id
+                                   FROM npa_item_revision WHERE item_internal_id = ?");
+            $stmt->execute([$ancestorId]);
+            $revisionsByItemId[$ancestorId] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        foreach ($revisionsByItemId[$ancestorId] as $ancestorRev) {
+            if ($ancestorRev['mod_type'] !== 'add' && $ancestorRev['mod_type'] !== 'new_redaction') continue;
+            $ancestorDate = parseDate($ancestorRev['valid_from'] ?? null);
+            if (!$ancestorDate || $ancestorDate->format('Y-m-d') !== $addDateKey) continue;
+            if (array_intersect($addChangers, splitChangerIds($ancestorRev['modified_by_id'] ?? ''))) {
+                return true;
+            }
+        }
+        $itemId = $ancestorId;
+        $depth++;
+    }
+    return false;
+}
+
 function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, $viewDate, $itemType, array $selectedRevisionNpaIds = []) {
     $currentRev = getRevisionForSelectedEdition($pdo, $internal_item_id, $viewDate, $selectedRevisionNpaIds);
     if (!$currentRev || empty($currentRev['rev_id'])) return '';
@@ -142,7 +223,16 @@ function getElementRevisionNotes($internal_item_id, $pdo, $baseNpaId, $npaType, 
         if ($shortDesc === 'исходная редакция') continue;
 
         switch ($rev['mod_type']) {
-            case 'add': if ($addNote === null) $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
+            case 'add':
+                // Потомки введённого (или изложенного в новой редакции) элемента
+                // не повторяют «Введён — …»: их введение уже следует из
+                // примечания предка (см. isIntroductionInheritedFromAncestor).
+                // Если элемент введён позже другим НПА, совпадения с предком нет
+                // и примечание выводится.
+                if ($addNote === null && !isIntroductionInheritedFromAncestor($pdo, $internal_item_id, $rev)) {
+                    $addNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative');
+                }
+                break;
             case 'new_redaction': $newRedactionNote = getShortNpaDescription($rev['modified_by_id'], $pdo, true, 'nominative'); break;
             case 'change':
                 $npaInfo = getNpaInfoByItemId($rev['modified_by_id'], $pdo);
