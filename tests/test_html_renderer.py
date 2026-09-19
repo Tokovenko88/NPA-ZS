@@ -70,8 +70,8 @@ def _make_renderer():
              'item_number': '1.', 'parent_id': 10, 'sort_order': 1},
         ],
         revisions={
-            10: {'rev_id': 100, 'valid_from': '2026-01-01', 'valid_to': None},
-            20: {'rev_id': 200, 'valid_from': '2026-01-01', 'valid_to': None},
+            10: {'rev_id': 100, 'valid_from': date(2026, 1, 1), 'valid_to': None},
+            20: {'rev_id': 200, 'valid_from': date(2026, 1, 1), 'valid_to': None},
         },
         heads={
             10: {'head_text': 'Предмет регулирования'},
@@ -124,3 +124,33 @@ def test_render_and_cache_all_dates_saves():
     assert params[0] == 1
     assert params[1] == '2026-01-01'
     assert 'npa-document' in params[2]
+
+
+def test_date_comparison_with_real_db_dates():
+    """Reproduces the TypeError when valid_to is a date and as_of_date is str.
+
+    In real pymysql, DATE columns come back as datetime.date objects.
+    The renderer must normalise as_of_date to date before comparing.
+    """
+    db = FakeDB(
+        base={'npa_id': 1, 'npa_number': '896-ЗС'},
+        head={'npa_title': 'Тест'},
+        items=[
+            {'id': 10, 'item_id': '1_article_1', 'item_type': 'article',
+             'item_number': '1', 'parent_id': None, 'sort_order': 1},
+        ],
+        revisions={
+            # valid_from and valid_to as date objects (like real pymysql)
+            10: {'rev_id': 100, 'valid_from': date(2026, 1, 1),
+                 'valid_to': date(2026, 6, 1)},
+        },
+        heads={10: {'head_text': 'Предмет'}},
+        paragraphs={100: [{'block_type': 'paragraph', 'html_text': '<p>Текст</p>',
+                            'sort_order': 1}]},
+    )
+    renderer = NpaHtmlRenderer(db)
+    # This call must NOT raise TypeError:
+    #   '<' not supported between instances of 'datetime.date' and 'str'
+    tree = renderer._load_items_tree(1, '2026-06-02')
+    assert len(tree) == 1
+    assert tree[0]['is_expired'] is True

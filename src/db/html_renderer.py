@@ -52,6 +52,11 @@ class NpaHtmlRenderer:
         return '\n'.join(html_parts)
     def _load_items_tree(self, npa_id: int, as_of_date: str) -> List[Dict]:
         """Load all items with their active revisions for the date."""
+        # Normalize to date so that Python-level comparisons
+        # (e.g. date < date on valid_to) work regardless of whether
+        # the caller passed a str or date.
+        if isinstance(as_of_date, str):
+            as_of_date = datetime.strptime(as_of_date, '%Y-%m-%d').date()
         items = self.db.fetch_all(
             "SELECT * FROM npa_item WHERE npa_id = %s ORDER BY sort_order, id",
             (npa_id,)

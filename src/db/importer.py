@@ -876,6 +876,23 @@ class NpaImporter:
                     and rev.get('body')
                 ):
                     no_provenance_ids.append(item.get('item_id'))
+                # Подстановка даты (изменяющего НПА или предыдущей редакции) не
+                # должна создавать интервал «наоборот». Иначе закрывающая
+                # (утратившая силу) ревизия получает valid_from новой редакции,
+                # её ключ (item_internal_id, valid_from) совпадает с новой
+                # ревизией, и абзацы обеих редакций сливаются в одну — на сайте
+                # в одном элементе выводятся и утратившая силу, и действующая
+                # редакции (кейс 269-ЗС <- 380-ЗС, пункт 1 статьи 3).
+                if vto is not None and vfrom > vto:
+                    fallback_vf = compute_valid_from(prev_vto, root_valid_from)
+                    self.log('WARN', (
+                        f'{item.get("item_id")}: дата ревизии {vfrom} позже valid_to {vto} — '
+                        f'использована дата предыдущей редакции {fallback_vf}'
+                    ))
+                    vfrom = fallback_vf
+                    if vfrom > vto:
+                        prev_vto = vto
+                        continue
                 mod_by = self._resolve_modified_by(rev.get('modified_by_id'), mapping)
                 highlights_json = self._normalize_highlights(rev.get('highlights'))
                 mod_type = rev.get('mod_type') or None
@@ -940,14 +957,12 @@ class NpaImporter:
             self.log('OK', f'Вставлено {len(all_revisions)} ревизий (bulk)')
 
         if all_paragraphs and self._require_table('npa_paragraph'):
-            rev_mapping = self.db.fetch_revision_ids(npa_id)
-            rev_keys = [(r[0], r[2]) for r in all_revisions]
+            rev_ids = self._resolve_revision_ids_by_index(npa_id, all_revisions)
             paras_with_rev = []
             for (rev_index, internal_id, btype, order, html, plain, ref_internal) in all_paragraphs:
-                if rev_index < len(rev_keys):
-                    actual_rev_id = rev_mapping.get(rev_keys[rev_index])
-                    if actual_rev_id:
-                        paras_with_rev.append((actual_rev_id, internal_id, btype, order, html, plain, ref_internal))
+                actual_rev_id = rev_ids[rev_index] if 0 <= rev_index < len(rev_ids) else None
+                if actual_rev_id:
+                    paras_with_rev.append((actual_rev_id, internal_id, btype, order, html, plain, ref_internal))
             if paras_with_rev:
                 self.db.bulk_insert('npa_paragraph',
                     ['rev_id', 'item_internal_id', 'block_type', 'sort_order', 'html_text', 'plain_text', 'ref_item_internal_id'],
@@ -987,6 +1002,58 @@ class NpaImporter:
                 data
             )
             self.log('OK', f'npa_head_revision: {len(data)} записей')
+
+    def _resolve_revision_ids_by_index(self, npa_id: int, all_revisions: list) -> list:
+        """``[rev_id, ...]`` по позиции ревизии в порядке вставки (bulk).
+
+        Сопоставление по словарю ``(item_internal_id, valid_from)`` теряло
+        вторую ревизию с той же датой начала (закрывающая + новая редакция):
+        абзацы обеих редакций попадали в одну ревизию, и на сайте в одном
+        элементе выводились и утратившая силу, и действующая редакции
+        (кейс 269-ЗС <- 380-ЗС, пункт 1 статьи 3). AUTO_INCREMENT присваивает
+        rev_id в порядке вставки, поэтому связываем позиционно: сначала точное
+        совпадение valid_from, затем FIFO в рамках элемента.
+        """
+        try:
+            ordered = self.db.fetch_revision_ids_ordered(npa_id)
+        except AttributeError:
+            # Legacy-заглушки без упорядоченного чтения: словарное сопоставление.
+            mapping = self.db.fetch_revision_ids(npa_id)
+            return [mapping.get((row[0], row[2])) for row in all_revisions]
+
+        def norm_vf(value):
+            if value is None:
+                return None
+            if hasattr(value, 'isoformat'):
+                return value.isoformat()[:10]
+            return str(value)[:10]
+
+        queues: dict[int, list] = {}
+        for item_internal_id, valid_from, rev_id in ordered:
+            queues.setdefault(int(item_internal_id), []).append((norm_vf(valid_from), rev_id))
+
+        resolved = []
+        for row in all_revisions:
+            internal_id, vfrom = row[0], row[2]
+            queue = queues.setdefault(int(internal_id), [])
+            key = norm_vf(vfrom)
+            chosen = None
+            for i, (vf, rev_id) in enumerate(queue):
+                if vf == key:
+                    chosen = queue.pop(i)
+                    break
+            if chosen is None and queue:
+                chosen = queue.pop(0)
+            if chosen is None:
+                self.log('WARN', (
+                    f'Не найдена вставленная ревизия для item_internal_id='
+                    f'{internal_id}, valid_from={vfrom} — абзацы пропущены'
+                ))
+                resolved.append(None)
+            else:
+                resolved.append(chosen[1])
+        return resolved
+
 
     def _count_items(self, items: list) -> int:
         count = len(items)

@@ -50,6 +50,10 @@ class _FakeDB:
     def fetch_revision_ids(self, npa_id):
         return {(row[0], row[2]): 1000 + idx for idx, row in enumerate(self.revisions)}
 
+    def fetch_revision_ids_ordered(self, npa_id):
+        # Порядок = порядок вставки (как ORDER BY rev_id в реальной БД).
+        return [(row[0], row[2], 1000 + idx) for idx, row in enumerate(self.revisions)]
+
     def bulk_insert(self, table, columns, rows, chunk_size=1000):
         if table == "npa_item_revision":
             self.revisions.extend(rows)

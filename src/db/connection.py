@@ -306,6 +306,26 @@ class DBConnection:
         ревизиям падала, и содержимое элементов не доезжало до сайта. Для
         совместимости с legacy-дрейфом схемы допускается ``id``, но ``rev_id``
         имеет приоритет.
+
+        ВНИМАНИЕ: словарь схлопывает ревизии одного элемента с одинаковой датой
+        начала (закрывающая + новая редакция). Для привязки абзацев используйте
+        ``fetch_revision_ids_ordered``.
+        """
+        return {
+            (item_internal_id, valid_from): rev_id
+            for item_internal_id, valid_from, rev_id in self.fetch_revision_ids_ordered(npa_id)
+        }
+
+    def fetch_revision_ids_ordered(self, npa_id: int) -> list[tuple[int, object, int]]:
+        """``[(item_internal_id, valid_from, rev_id), ...]`` в порядке вставки.
+
+        Порядок задаётся ``ORDER BY rev_id`` (AUTO_INCREMENT присваивается в
+        порядке вставки), т.е. совпадает с порядком сбора ревизий в
+        ``NpaImporter._insert_items_revisions``. Именно этот порядок позволяет
+        однозначно привязать абзацы к ревизии, когда у элемента две ревизии с
+        одинаковым ``valid_from`` (иначе тела обеих редакций сливаются в одну
+        ревизию — на сайте в одном элементе выводятся и утратившая силу, и
+        действующая редакции, кейс 269-ЗС <- 380-ЗС, пункт 1 статьи 3).
         """
         candidates = (
             (self._revision_pk_column,)
@@ -317,7 +337,7 @@ class DBConnection:
             try:
                 rows = self.fetch_all(
                     f"SELECT {column}, item_internal_id, valid_from "
-                    "FROM npa_item_revision WHERE npa_id = %s",
+                    "FROM npa_item_revision WHERE npa_id = %s ORDER BY " + column,
                     (npa_id,)
                 )
             except pymysql.err.ProgrammingError as e:
@@ -325,7 +345,10 @@ class DBConnection:
                 last_error = e
                 continue
             self._revision_pk_column = column
-            return {(r['item_internal_id'], r['valid_from']): r[column] for r in rows}
+            return [
+                (int(r['item_internal_id']), r['valid_from'], int(r[column]))
+                for r in rows
+            ]
         raise last_error
 
 
