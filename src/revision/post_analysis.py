@@ -506,8 +506,7 @@ def _collect_element_changes(element, change_npa_id, chain, out):
             kind, before = 'change', _revision_body_html(revisions[idx - 1])
         out.append(_change_entry(
             kind, item_id, path, _cap(before),
-            _cap(_element_inline_after(element, change_npa_id)
-                 or _revision_body_html(rev)),
+            _cap(_revision_body_html(rev)),
             _highlights_summary(rev.get('highlights')), item_number,
         ))
     head_revs = element.get('head_revisions', []) or []

@@ -168,6 +168,121 @@ def test_collect_changes_finds_all_kinds():
     assert entry['highlights']
 
 
+def test_collect_changes_parent_excludes_children_inline():
+    """Родитель с дочерними элементами, изменяемыми тем же НПА:
+    ``after`` не должен содержать текст детей inline — у детей свои
+    записи в changes. Иначе пост-анализ интерпретирует добавление
+    структуры как полную замену текста родителя.
+    (кейс 444-ЗС -> 269-ЗС: «1. » добавлено в неструктурированный
+    абзац, он становится структурным элементом с детьми)"""
+    result = {
+        'npa_id': '269',
+        'npa_number': '269-ЗС',
+        'doc_type': 'law',
+        'head_revision': [{'npa_head': 'Наименование', 'valid_to': ''}],
+        'npa_notes': [],
+        'revision_info': [],
+        'npa_items_revision': [
+            {
+                'item_id': '269_article_3',
+                'item_type': 'article',
+                'item_number': '3',
+                'item_children': [
+                    {
+                        'item_id': '269_article_3_part_1',
+                        'item_type': 'part',
+                        'item_number': '1',
+                        'revisions': [
+                            {
+                                'valid_from': '15.12.2017',
+                                'modified_by_id': '444_article_3_part_1',
+                                'body': [
+                                    {'type': 'paragraph',
+                                     'html_text': '<p>1. К отдельным '
+                                                  'категориям граждан</p>',
+                                     'order': 1},
+                                    {'type': 'child_ref',
+                                     'item_id': '269_article_3_part_1_point_1',
+                                     'order': 2},
+                                ],
+                            },
+                        ],
+                        'item_children': [
+                            {
+                                'item_id': '269_article_3_part_1_point_1',
+                                'item_type': 'point',
+                                'item_number': '1)',
+                                'revisions': [
+                                    {
+                                        'valid_from': '15.12.2017',
+                                        'modified_by_id': '444_article_3_part_1',
+                                        'body': [
+                                            {'type': 'paragraph',
+                                             'html_text': '<p>имеющих право</p>',
+                                             'order': 1},
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                'revisions': [
+                    {
+                        'valid_from': '05.01.2016',
+                        'modified_by_id': '269',
+                        'body': [
+                            {'type': 'paragraph',
+                             'html_text': '<p>К отдельным категориям '
+                                          'граждан</p>',
+                             'order': 1},
+                        ],
+                    },
+                    {
+                        'valid_from': '15.12.2017',
+                        'modified_by_id': '444_article_3',
+                        'body': [
+                            {'type': 'child_ref',
+                             'item_id': '269_article_3_part_1',
+                             'order': 1},
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+    change = {'npa_id': '444', 'npa_number': '444-ЗС'}
+    changes = pa.collect_changes(result, change)
+    article_entry = next(
+        c for c in changes if c['item_id'] == '269_article_3')
+    assert article_entry['kind'] == 'change', (
+        f"ожидался kind='change', получен {article_entry['kind']}")
+    assert 'К отдельным категориям' in article_entry['before'], (
+        f"before неверен: {article_entry['before']!r}")
+    # after пуст (Rev 2 имеет только child_ref — собственного текста нет)
+    # Это структурная перестройка, а не замена текста.
+    assert article_entry['after'] == '', (
+        f"after должен быть пуст (parent body — только child_ref), "
+        f"получен: {article_entry['after']!r}")
+
+    part_entry = next(
+        c for c in changes if c['item_id'] == '269_article_3_part_1')
+    assert part_entry['kind'] == 'add', (
+        f"ожидался kind='add', получен {part_entry['kind']}")
+    assert '1. К отдельным категориям' in part_entry['after'], (
+        f"after части 1 должен содержать '1. К отдельным категориям': "
+        f"{part_entry['after']!r}")
+    assert 'имеющих право' not in part_entry['after'], (
+        f"after части 1 НЕ должен содержать текст дочернего пункта: "
+        f"{part_entry['after']!r}")
+
+    point_entry = next(
+        c for c in changes if c['item_id']
+        == '269_article_3_part_1_point_1')
+    assert point_entry['kind'] == 'add', (
+        f"ожидался kind='add', получен {point_entry['kind']}")
+
+
 def test_build_prompt_contains_parts(tmp_path):
     _, change = _write_result_file(tmp_path, _make_result())
     result_data = json.loads((tmp_path / '127_2015_04_17_izm_516_2019_07_08.json')
