@@ -322,6 +322,114 @@ def test_run_post_analysis_correct_verdict(tmp_path, monkeypatch):
     assert not (tmp_path / '127_2015_04_17_izm_516_2019_07_08_corrected.json').exists()
 
 
+def _make_numbering_result():
+    """Целевой НПА, где абзац корректно оформлен частью 1 (номер в item_number).
+
+    Структура повторяет кейс 444-ЗС → 269-ЗС: в статье 3 появилась часть 1,
+    её абзац имеет структурный номер только в ``item_number``, а сам текст в
+    ``html_text`` начинается без «1. ».
+    """
+    return {
+        'npa_id': '269', 'npa_number': '269-ЗС', 'doc_type': 'law',
+        'date_signed': '27.07.2016',
+        'head_revision': [{'npa_head': 'О предоставлении участков', 'valid_to': ''}],
+        'npa_notes': [], 'revision_info': [],
+        'npa_items_revision': [
+            {
+                'item_id': '269_article_3', 'item_type': 'article',
+                'item_number': '3',
+                'head_revisions': [{'head_text': 'Статья 3', 'valid_to': ''}],
+                'number_revisions': [], 'item_notes': [],
+                'item_children': [
+                    {
+                        'item_id': '269_article_3_part_1', 'item_type': 'part',
+                        'item_number': '1',
+                        'head_revisions': [], 'number_revisions': [], 'item_notes': [],
+                        'item_children': [
+                            {
+                                'item_id': '269_article_3_part_1_point_1',
+                                'item_type': 'point', 'item_number': '1)',
+                                'head_revisions': [], 'number_revisions': [],
+                                'item_notes': [], 'item_children': [],
+                                'revisions': [
+                                    {'valid_from': '23.10.2018', 'valid_to': '',
+                                     'modified_by_id': '444_article_3',
+                                     'body': [{'type': 'paragraph',
+                                               'html_text': '<p>имеющих право</p>',
+                                               'order': 1}]},
+                                ],
+                            },
+                        ],
+                        'revisions': [
+                            {'valid_from': '23.10.2018', 'valid_to': '',
+                             'modified_by_id': '444_article_3',
+                             'body': [{'type': 'paragraph',
+                                       'html_text': '<p>К отдельным категориям '
+                                                    'граждан, относятся:</p>',
+                                       'order': 1}]},
+                        ],
+                    },
+                ],
+                'revisions': [
+                    {'valid_from': '27.07.2016', 'valid_to': '23.10.2018',
+                     'modified_by_id': '269',
+                     'body': [{'type': 'paragraph',
+                               'html_text': '<p>К отдельным категориям граждан, '
+                                            'относятся:</p>',
+                               'order': 1}]},
+                    {'valid_from': '23.10.2018', 'valid_to': '',
+                     'modified_by_id': '444_article_3',
+                     'body': [{'type': 'child_ref',
+                               'item_id': '269_article_3_part_1', 'order': 1}]},
+                ],
+            },
+        ],
+    }
+
+
+def test_run_post_analysis_filters_numbering_hallucination(tmp_path, monkeypatch):
+    """Кейс 444-ЗС → 269-ЗС: претензия «в тексте нет 1. » отсеивается.
+
+    Абзац корректно оформлен частью 1 (номер в item_number), а ИИ сообщает об
+    отсутствии номера в тексте — вердикт обязан стать correct, а файл
+    ``_corrected.json`` не создаваться.
+    """
+    result = _make_numbering_result()
+    change = {'npa_id': '444', 'npa_number': '444-ЗС'}
+    path = tmp_path / '269_2016_07_27_izm_444_2018_10_12.json'
+    path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+    result_data = json.loads(path.read_text(encoding='utf-8'))
+
+    verdict = {
+        'status': 'incorrect',
+        'summary': 'В части 1 статьи 3 не добавлен номер «1. ».',
+        'issues': [{
+            'index': 1,
+            'path': 'Статья 3 > Часть 1',
+            'issue': 'Абзац не получил структурный номер 1.',
+            'expected': '<p>1. К отдельным категориям граждан, относятся:</p>',
+            'actual': '<p>К отдельным категориям граждан, относятся:</p>',
+            'fix': 'Добавить «1. » в начало абзаца.',
+            'corrections': [{
+                'item_id': '269_article_3_part_1',
+                'field': 'element_html',
+                'value': '<p>1. К отдельным категориям граждан, относятся:</p>',
+            }],
+        }],
+    }
+    monkeypatch.setattr(pa, 'ask_ollama',
+                        lambda *a, **kw: json.dumps(verdict, ensure_ascii=False))
+    res = pa.run_post_analysis(str(path), result_data, change,
+                               model='stub', backend='kilo_gateway')
+    assert res['status'] == 'correct', res
+    assert res['issues'] == 0
+    assert res['corrected_path'] is None
+    assert not (tmp_path / '269_2016_07_27_izm_444_2018_10_12_corrected.json').exists()
+    report = Path(res['report_path']).read_text(encoding='utf-8')
+    assert 'КОРРЕКТНО' in report
+    assert 'конвенции нумерации' in report
+
+
 def test_run_post_analysis_incorrect_creates_corrected(tmp_path, monkeypatch):
     orig_file, change = _write_result_file(tmp_path, _make_result())
     result_data = json.loads(
@@ -978,3 +1086,129 @@ def test_not_valid_without_item_id_still_revokes_whole_npa():
     assert applied and applied[0]['ok'] is True, applied
     assert result['not_valid'] == '01.01.2021'
     assert result['not_valid_npa'] == '33699'
+
+
+def _make_repealed_result():
+    """Элемент, корректно закрытый текущим изменяющим НПА (кейс 925-ЗС → 127-ЗС).
+
+    Конвенция отмены («признать утратившим силу» новой ревизии не создаёт):
+    исходный текст сохранён в закрытой ревизии, пометка not_valid выставлена,
+    открытой ревизии (valid_to == '') нет.
+    """
+    return {
+        'npa_items_revision': [
+            {
+                'item_id': '60050_article_8_part_4',
+                'item_type': 'part',
+                'item_number': '4',
+                'revisions': [
+                    {
+                        'body': [
+                            {'type': 'paragraph',
+                             'html_text': '<p>Отменяемая норма</p>',
+                             'order': 1},
+                        ],
+                        'valid_from': '29.04.2015',
+                        'valid_to': '20.07.2026',
+                        'not_valid': '143532_article_2_point_2_subpoint_б',
+                        'revision_id': '69cc04fe-8538-437d-9f12-9443c3bd4d34',
+                    },
+                ],
+            },
+        ],
+    }
+
+
+def test_repealed_by_current_change_detected():
+    result = _make_repealed_result()
+    element = result['npa_items_revision'][0]
+    assert pa._repealed_by_current_change(element, '143532') is True
+
+
+def test_repealed_by_current_change_not_triggered_for_open_revision():
+    """Открытая ревизия (действующая норма) — не «отменённая»."""
+    result = _make_repealed_result()
+    element = result['npa_items_revision'][0]
+    element['revisions'][0]['valid_to'] = ''
+    element['revisions'][0].pop('not_valid', None)
+    assert pa._repealed_by_current_change(element, '143532') is False
+
+
+def test_repealed_by_current_change_not_triggered_for_other_npa():
+    """Пометка not_valid от ДРУГОГО закона — не основание отклонять правки
+    текущего прогона."""
+    result = _make_repealed_result()
+    element = result['npa_items_revision'][0]
+    element['revisions'][0]['not_valid'] = '59121_article_1_point_6_subpoint_ж'
+    assert pa._repealed_by_current_change(element, '143532') is False
+
+
+def test_element_html_correction_on_repealed_element_rejected():
+    """Кейс 925-ЗС → 127-ЗС: ИИ принял строку-заглушку after за утрату текста
+    и потребовал «восстановить» текст отменённой нормы. Коррекция element_html
+    на таком элементе должна отклоняться — иначе создаётся открытая ревизия
+    с not_valid=False, «воскрешающая» отменённую норму."""
+    result = _make_repealed_result()
+    verdict = {
+        'issues': [
+            {
+                'index': 2,
+                'path': 'Статья 8 > Часть 4',
+                'corrections': [
+                    {
+                        'item_id': '60050_article_8_part_4',
+                        'field': 'element_html',
+                        'value': '<p>Отменяемая норма</p>',
+                    },
+                ],
+            },
+        ],
+    }
+    applied = pa.apply_corrections(result, verdict, '143532', '21.07.2026')
+    assert applied and applied[0]['ok'] is False, applied
+    element = result['npa_items_revision'][0]
+    assert len(element['revisions']) == 1, (
+        'новая ревизия для отменённой нормы создаваться не должна')
+    rev = element['revisions'][0]
+    assert rev.get('valid_to') == '20.07.2026'
+    assert rev.get('not_valid') == '143532_article_2_point_2_subpoint_б'
+    assert pa._repealed_by_current_change(element, '143532') is True
+
+
+def test_element_html_new_rev_on_repealed_element_rejected():
+    """Прямой вызов с field='element_html_new_rev' на отменённом элементе
+    также отклоняется (дублирующая защита)."""
+    result = _make_repealed_result()
+    verdict = {
+        'issues': [
+            {
+                'corrections': [
+                    {
+                        'item_id': '60050_article_8_part_4',
+                        'field': 'element_html_new_rev',
+                        'value': '<p>Отменяемая норма</p>',
+                    },
+                ],
+            },
+        ],
+    }
+    applied = pa.apply_corrections(result, verdict, '143532', '21.07.2026')
+    assert applied and applied[0]['ok'] is False, applied
+    element = result['npa_items_revision'][0]
+    assert len(element['revisions']) == 1
+    assert element['revisions'][0].get('not_valid') == \
+        '143532_article_2_point_2_subpoint_б'
+
+
+def test_repel_law_change_entry_keeps_before_text():
+    """Запись kind=repel_law: before — исходный текст закрытой ревизии,
+    after — статусная строка с явным указанием, что это штатное конечное
+    состояние (а не утрата текста)."""
+    changes = pa.collect_changes(
+        _make_repealed_result(), {'npa_id': '143532', 'npa_number': '925-ЗС'})
+    assert len(changes) == 1
+    entry = changes[0]
+    assert entry['kind'] == 'repel_law'
+    assert 'Отменяемая норма' in entry['before']
+    assert 'помечен утратившим силу' in entry['after']
+    assert 'before' in entry['after'] or 'закрытой ревизии' in entry['after']

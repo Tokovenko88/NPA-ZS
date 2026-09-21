@@ -11,6 +11,8 @@
 
 * :data:`BACKEND_ENV_KEYS` — имена переменных окружения по бэкенду;
 * :data:`ACTIVE_BACKEND_ENV` — переменная выбора активного бэкенда;
+* :data:`POST_ANALYSIS_BACKEND_ENV` — переменная бэкенда пост-анализа;
+* :data:`POST_ANALYSIS_MODEL_ENV` — переменная модели пост-анализа;
 * :func:`env_var_names` — имена переменных одного бэкенда;
 * :func:`get_env_value` — значение переменной прямо из файла;
 * :func:`load_backend_settings` — прочитать сохранённые параметры бэкенда;
@@ -37,16 +39,44 @@ from npazs.config.settings import ENV_PATH
 __all__ = [
     'ACTIVE_BACKEND_ENV',
     'BACKEND_ENV_KEYS',
+    'POST_ANALYSIS_API_KEY_ENV',
+    'POST_ANALYSIS_BACKEND_ENV',
+    'POST_ANALYSIS_BASE_URL_ENV',
+    'POST_ANALYSIS_MODEL_ENV',
     'env_var_names',
     'get_env_value',
     'load_active_backend',
     'load_backend_settings',
+    'load_post_analysis_api_key',
+    'load_post_analysis_backend',
+    'load_post_analysis_base_url',
+    'load_post_analysis_model',
     'save_backend_settings',
     'save_env_values',
+    'save_post_analysis_settings',
 ]
 
 #: Переменная выбора активного LLM-бэкенда (``LLM_BACKEND``).
 ACTIVE_BACKEND_ENV = 'LLM_BACKEND'
+
+#: Переменная выбора бэкенда пост-анализа (``POST_ANALYSIS_BACKEND``).
+#: Позволяет пост-анализу работать на другом провайдере, чем основной прогон.
+POST_ANALYSIS_BACKEND_ENV = 'POST_ANALYSIS_BACKEND'
+
+#: Переменная модели пост-анализа (``POST_ANALYSIS_MODEL``).
+#: Отдельная от ``*_DEFAULT_MODEL``, чтобы основной и пост-анализ могли
+#: использовать разные модели даже одного бэкенда.
+POST_ANALYSIS_MODEL_ENV = 'POST_ANALYSIS_MODEL'
+
+#: Переменная API-ключа пост-анализа (``POST_ANALYSIS_API_KEY``).
+#: Независима от ``*_API_KEY`` выбранного пост-бэкенда: позволяет задать
+#: пост-анализу собственный ключ (например, для другого инстанса прокси
+#: free_deepseek). Пустое значение — наследовать ключ пост-бэкенда.
+POST_ANALYSIS_API_KEY_ENV = 'POST_ANALYSIS_API_KEY'
+
+#: Переменная API URL пост-анализа (``POST_ANALYSIS_BASE_URL``).
+#: Пустое значение — наследовать URL выбранного пост-бэкенда.
+POST_ANALYSIS_BASE_URL_ENV = 'POST_ANALYSIS_BASE_URL'
 
 #: Имена переменных окружения по бэкенду: ``api_key`` / ``base_url`` / ``model``.
 #: У локальной Ollama API-ключа нет, поэтому соответствующий ключ отсутствует.
@@ -89,6 +119,12 @@ BACKEND_ENV_KEYS: dict[str, dict[str, str]] = {
         'api_key': 'GEMINI_API_KEY',
         'base_url': 'GEMINI_BASE_URL',
         'model': 'GEMINI_DEFAULT_MODEL',
+    },
+    'free_deepseek': {
+        'api_key': 'FREE_DEEPSEEK_API_KEY',
+        'base_url': 'FREE_DEEPSEEK_BASE_URL',
+        'model': 'FREE_DEEPSEEK_DEFAULT_MODEL',
+        'session': 'FREE_DEEPSEEK_SESSION',
     },
 }
 
@@ -169,6 +205,84 @@ def load_active_backend(env_path: object = None) -> str:
     return get_env_value(ACTIVE_BACKEND_ENV, env_path=env_path).strip().lower()
 
 
+def load_post_analysis_backend(env_path: object = None) -> str:
+    """Имя бэкенда пост-анализа из ``.env`` (``POST_ANALYSIS_BACKEND``).
+
+    Возвращает '' если не задан — вызывающий код подставит основной бэкенд.
+    """
+    return get_env_value(
+        POST_ANALYSIS_BACKEND_ENV, env_path=env_path
+    ).strip().lower()
+
+
+def load_post_analysis_model(env_path: object = None) -> str:
+    """Модель пост-анализа из ``.env`` (``POST_ANALYSIS_MODEL``); '' если нет."""
+    return get_env_value(
+        POST_ANALYSIS_MODEL_ENV, env_path=env_path
+    ).strip()
+
+
+def load_post_analysis_api_key(env_path: object = None) -> str:
+    """API-ключ пост-анализа из ``.env`` (``POST_ANALYSIS_API_KEY``).
+
+    Возвращает '' если не задан — вызывающий код подставит ключ выбранного
+    пост-бэкенда.
+    """
+    return get_env_value(
+        POST_ANALYSIS_API_KEY_ENV, env_path=env_path
+    ).strip()
+
+
+def load_post_analysis_base_url(env_path: object = None) -> str:
+    """API URL пост-анализа из ``.env`` (``POST_ANALYSIS_BASE_URL``).
+
+    Возвращает '' если не задан — вызывающий код подставит URL выбранного
+    пост-бэкенда.
+    """
+    return get_env_value(
+        POST_ANALYSIS_BASE_URL_ENV, env_path=env_path
+    ).strip()
+
+
+def save_post_analysis_settings(
+    backend: str | None = None,
+    model: str | None = None,
+    api_key: str | None = None,
+    base_url: str | None = None,
+    env_path: object = None,
+) -> dict[str, str]:
+    """Сохранить бэкенд/модель/креды пост-анализа в ``.env``.
+
+    ``backend``/``model`` пишутся как раньше (пустые аргументы игнорируются —
+    ``POST_ANALYSIS_BACKEND`` / ``POST_ANALYSIS_MODEL`` не затираются).
+    ``api_key``/``base_url`` — прямое зеркало редакторов пост-анализа в GUI:
+    непустое значение пишется в ``POST_ANALYSIS_API_KEY`` /
+    ``POST_ANALYSIS_BASE_URL`` (приоритет над ключом/URL самого пост-бэкенда),
+    пустое — молча пропускается (наследуются креды пост-бэкенда), поэтому
+    полными переопределениями становятся только сознательно введённые значения.
+    Возвращает фактически записанные пары. Бросает ``ValueError`` для
+    неизвестного бэкенда.
+    """
+    values: dict[str, str] = {}
+    name = _normalize(backend)
+    if name:
+        lowered = name.strip().lower()
+        if lowered not in BACKEND_ENV_KEYS:
+            raise ValueError(f'Неизвестный LLM-бэкенд: {backend!r}')
+        values[POST_ANALYSIS_BACKEND_ENV] = lowered
+    text_model = _normalize(model)
+    if text_model:
+        values[POST_ANALYSIS_MODEL_ENV] = text_model
+    text_key = _normalize(api_key)
+    if text_key:
+        values[POST_ANALYSIS_API_KEY_ENV] = text_key
+    text_url = _normalize(base_url)
+    if text_url:
+        values[POST_ANALYSIS_BASE_URL_ENV] = text_url
+    save_env_values(values, env_path=env_path)
+    return values
+
+
 def save_env_values(values: Mapping[str, object], env_path: object = None) -> Path:
     """Записать набор ``KEY=VALUE`` в ``.env``; вернуть путь к файлу.
 
@@ -227,6 +341,7 @@ def save_backend_settings(
     api_key: str | None = None,
     base_url: str | None = None,
     model: str | None = None,
+    session: str | None = None,
     make_active: bool = True,
     env_path: object = None,
 ) -> dict[str, str]:
@@ -236,6 +351,9 @@ def save_backend_settings(
     Пустые аргументы игнорируются (не затирают сохранённое значение).
     При ``make_active=True`` дополнительно записывается ``LLM_BACKEND``,
     то есть бэкенд становится активным при следующем запуске.
+    ``session`` используется только бэкендами с sticky-сессиями
+    (``free_deepseek`` → ``FREE_DEEPSEEK_SESSION`` → ``x-agent-session``)
+    и игнорируется остальными.
 
     Бросает ``ValueError`` для неизвестного бэкенда.
     """
@@ -245,7 +363,12 @@ def save_backend_settings(
         raise ValueError(f'Неизвестный LLM-бэкенд: {backend!r}')
 
     values: dict[str, str] = {}
-    for kind, value in (('api_key', api_key), ('base_url', base_url), ('model', model)):
+    for kind, value in (
+        ('api_key', api_key),
+        ('base_url', base_url),
+        ('model', model),
+        ('session', session),
+    ):
         env_name = names.get(kind)
         text = _normalize(value)
         if env_name and text:

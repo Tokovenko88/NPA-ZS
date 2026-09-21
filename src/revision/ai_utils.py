@@ -72,13 +72,20 @@ def _repair_json_answer(answer, log_callback=None):
         return None
 
 
-def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=5, retry_delay=15, backoff_factor=2, change_info=None, base_url=None, api_key=None, backend=None):
+def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=5, retry_delay=15, backoff_factor=2, change_info=None, base_url=None, api_key=None, backend=None, agent_session=None):
     """Универсальный HTTP-клиент для OpenAI-compatible /chat/completions.
 
     ``backend`` — имя бэкенда (``kilo_gateway``/``cline``/``openrouter``/
-    ``deepseek``/``gemini``). Используется только для понятных сообщений в
-    логе: без него все HTTP-ошибки писались как «Kilo Gateway ошибка»,
-    даже когда запрос шёл в OpenRouter/Cline/DeepSeek/Gemini.
+    ``cerebras``/``together``/``mistral``/``gemini``/``free_deepseek``).
+    Используется только для понятных сообщений в логе: без него все
+    HTTP-ошибки писались как «Kilo Gateway ошибка», даже когда запрос шёл
+    в OpenRouter/Cline/DeepSeek/Gemini.
+
+    ``agent_session`` — значение заголовка ``x-agent-session`` для бэкенда
+    ``free_deepseek`` (локальный прокси FreeDeepseekAPI,
+    https://github.com/dekrezz/FreeDeepseekAPI). Если не задан — берётся из
+    конфигурации ``free_deepseek`` (``FREE_DEEPSEEK_SESSION``, по умолчанию
+    ``npazs-main``). Остальные бэкенды заголовок игнорируют.
     """
     backend_name = (backend or '').strip().lower() or 'kilo_gateway'
     if stop_event and stop_event.is_set():
@@ -103,9 +110,23 @@ def ask_kilo_gateway(prompt, model, log_callback, extra_options=None, stop_event
     temperature = extra_options.get("temperature", 0.0) if extra_options else 0.0
     top_p = extra_options.get("top_p", 0.1) if extra_options else 0.1
     url = f"{base_url}/chat/completions"
+    # OpenAI-совместимые бэкенды принимают и bare-host, и base с /v1:
+    # прокси FreeDeepseekAPI слушает на http://127.0.0.1:9655 (эндпоинты
+    # под /v1/*), поэтому bare-host дополняем суффиксом /v1.
+    if backend_name == 'free_deepseek' and not url.rstrip('/').endswith('/v1/chat/completions'):
+        url = f"{base_url}/v1/chat/completions"
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
+    if backend_name == 'free_deepseek':
+        session = (agent_session or '').strip() if agent_session else ''
+        if not session:
+            try:
+                from npazs.config.ollama import get_free_deepseek_config
+                session = str(get_free_deepseek_config().get('session') or '').strip()
+            except Exception:  # noqa: BLE001 — любой сбой → дефолтная сессия
+                session = ''
+        headers["x-agent-session"] = session or 'npazs-main'
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -193,34 +214,53 @@ def _resolve_http_credentials(backend: str) -> dict:
 
     Используется как fallback, когда GUI не передаёт URL/key явно
     (например, вызов из verify/runner.py или post_analysis.py).
+    Для ``free_deepseek`` дополнительно возвращается ``session``
+    (``FREE_DEEPSEEK_SESSION`` → ``x-agent-session``).
     """
     defn = HTTP_BACKEND_DEFS.get(backend)
     if defn is None:
         from npazs.config.ollama import get_active_llm_config
         config = get_active_llm_config()
-        return {
+        resolved = {
             'base_url': config.get('base_url', DEFAULT_KILO_GATEWAY_URL),
             'api_key': config.get('api_key', ''),
         }
-    return {
+        if backend == 'free_deepseek':
+            resolved['session'] = str(config.get('session') or 'npazs-main')
+        return resolved
+    resolved = {
         'base_url': defn['base_url'],
         'api_key': defn['api_key'],
     }
+    if backend == 'free_deepseek':
+        resolved['session'] = str(defn.get('session') or 'npazs-main')
+    return resolved
 
 
-def ask_ollama(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=5, retry_delay=15, backoff_factor=2, change_info=None, backend="ollama", kilo_gateway_url=None, api_key=None):
-    # --- HTTP-бэкенды: kilo_gateway, cline, openrouter, deepseek, gemini ---
+def ask_ollama(prompt, model, log_callback, extra_options=None, stop_event=None, max_retries=5, retry_delay=15, backoff_factor=2, change_info=None, backend="ollama", kilo_gateway_url=None, api_key=None, agent_session=None):
+    # --- HTTP-бэкенды: kilo_gateway, cline, openrouter, cerebras, together, ---
+    # --- mistral, gemini, free_deepseek (локальный прокси FreeDeepseekAPI) ---
     # Все они используют OpenAI-compatible /chat/completions, поэтому
     # маршрутизируются через ask_kilo_gateway с соответствующим base_url/api_key.
     if backend in HTTP_BACKENDS:
         # Если URL/api_key не переданы явно, подставляем из настроек.
-        if not kilo_gateway_url or not api_key:
-            resolved = _resolve_http_credentials(backend)
-            if not kilo_gateway_url:
-                kilo_gateway_url = resolved['base_url']
-            if not api_key:
-                api_key = resolved['api_key']
-        return ask_kilo_gateway(prompt, model, log_callback, extra_options, stop_event, max_retries, retry_delay, backoff_factor, change_info, kilo_gateway_url, api_key, backend=backend)
+        resolved = _resolve_http_credentials(backend) if (not kilo_gateway_url or not api_key) else {}
+        if not kilo_gateway_url:
+            kilo_gateway_url = resolved.get('base_url', '')
+        # free_deepseek: PROXY_API_KEY опционален — пустой ключ НЕ подменяем
+        # дефолтом, иначе requests ушёл бы с чужим Bearer. Остальные бэкенды —
+        # как раньше: пустой ключ добирается из настроек.
+        if not api_key and backend != 'free_deepseek':
+            api_key = resolved.get('api_key', '')
+        if backend == 'free_deepseek' and not (agent_session or '').strip():
+            agent_session = resolved.get('session', '') if resolved else None
+            if not (agent_session or '').strip():
+                try:
+                    from npazs.config.ollama import get_free_deepseek_config
+                    agent_session = get_free_deepseek_config().get('session', '')
+                except Exception:  # noqa: BLE001 — любой сбой → дефолтная сессия
+                    agent_session = 'npazs-main'
+        return ask_kilo_gateway(prompt, model, log_callback, extra_options, stop_event, max_retries, retry_delay, backoff_factor, change_info, kilo_gateway_url, api_key, backend=backend, agent_session=agent_session)
     if stop_event and stop_event.is_set():
         if log_callback:
             log_callback("  Запрос к Ollama отменён", 'warning')

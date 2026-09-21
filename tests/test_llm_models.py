@@ -19,6 +19,7 @@ from npazs.llm_models import (
         _fetch_openai_compat_models,
         fetch_cline_models,
         fetch_cerebras_models,
+        fetch_free_deepseek_models,
         fetch_gemini_models,
         fetch_kilo_gateway_free_models,
         fetch_mistral_models,
@@ -152,9 +153,14 @@ def test_fetch_cline_models_fallback_on_error(monkeypatch):
 
 
 def test_cline_fallback_contains_only_free_models():
-    """Fallback cline, как и сам API, содержит только free-модели."""
+    """Fallback cline, как и сам API, содержит только free-модели.
+    Исключение: DeepSeek V4.1-Flash (через FreeDeepseekAPI) не имеют
+    суффикса ':free', но входят в fallback как локальный бэкенд.
+    """
     for model in HTTP_BACKEND_DEFS['cline']['free_models']:
-        assert 'free' in model.lower(), f"Модель {model} без признака free"
+        assert ('free' in model.lower() or model.startswith('deepseek-')), (
+            f"Модель {model} без признака free"
+        )
 
 
 def test_fetch_cline_models_returns_only_free(monkeypatch):
@@ -212,6 +218,66 @@ def test_fetch_gemini_models_fallback_on_error(monkeypatch):
         monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
         result = fetch_gemini_models('')
         assert result == sorted(HTTP_BACKEND_DEFS['gemini']['free_models'])
+
+
+def test_fetch_free_deepseek_models_hits_v1_models(monkeypatch):
+    """Прокси FreeDeepseekAPI: GET {base}/models без free-фильтра."""
+    calls = []
+
+    def fake_get(url, headers=None, timeout=None):
+        calls.append((url, headers))
+        return _FakeResponse(data={'data': [
+            {'id': 'deepseek-v4-flash', 'name': 'DeepSeek-V4.1-Flash'},
+            {'id': 'deepseek-v4-pro', 'name': 'Legacy alias'},
+        ]})
+
+    monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
+    result = fetch_free_deepseek_models('http://127.0.0.1:9655/v1', '')
+    assert result == ['deepseek-v4-flash', 'deepseek-v4-pro']
+    url, headers = calls[0]
+    assert url == 'http://127.0.0.1:9655/v1/models'
+    # Без PROXY_API_KEY заголовок Authorization не отправляется.
+    assert headers == {'Content-Type': 'application/json'}
+
+
+def test_fetch_free_deepseek_models_fallback_on_error(monkeypatch):
+        def fake_get(url, headers=None, timeout=None):
+            return _FakeResponse(status_code=500, text='boom')
+
+        monkeypatch.setattr('npazs.llm_models.requests.Session', lambda: _fake_session(fake_get))
+        result = fetch_free_deepseek_models('http://127.0.0.1:9655/v1', '')
+        assert result == sorted(HTTP_BACKEND_DEFS['free_deepseek']['free_models'])
+
+
+def test_ask_free_deepseek_sends_agent_session(monkeypatch):
+    """ask_* для free_deepseek: bare-host → /v1/chat/completions + x-agent-session."""
+    from npazs.revision import ai_utils
+
+    calls = {}
+
+    class _Resp:
+        status_code = 200
+        text = ''
+
+        def json(self):
+            return {'choices': [{'message': {'content': '{"ok": true}'}}]}
+
+    def fake_post(url, json=None, headers=None, timeout=None):
+        calls['url'] = url
+        calls['headers'] = dict(headers or {})
+        calls['json'] = json
+        return _Resp()
+
+    monkeypatch.setattr(ai_utils.requests, 'post', fake_post)
+    answer = ai_utils.ask_kilo_gateway(
+        '{"ping": 1}', 'deepseek-v4-flash', None,
+        backend='free_deepseek', base_url='http://127.0.0.1:9655',
+        api_key='', agent_session='npazs-test',
+    )
+    assert answer == '{"ok": true}'
+    assert calls['url'] == 'http://127.0.0.1:9655/v1/chat/completions'
+    assert calls['headers']['x-agent-session'] == 'npazs-test'
+    assert 'Authorization' not in calls['headers']
 
 
 def test_get_free_models_for_backend_all_backends():

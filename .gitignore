@@ -55,3 +55,7 @@ Thumbs.db
 # Kilo
 .kilo/node_modules/
 .kilo/package-lock.json
+
+# FreeDeepseekAPI (локальный клон внешнего прокси; разворачивается
+# через scripts/setup_free_deepseek.py, в репозиторий не входит)
+/tools/

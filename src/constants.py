@@ -168,6 +168,13 @@ HTTP_BACKEND_DEFS = {
             'thinkingmachines/inkling-small:free',
             'thinkingmachines/inkling:free',
             'z-ai/glm-5.2:free',
+            # DeepSeek V4.1-Flash (через FreeDeepseekAPI):
+            'deepseek-v4-flash',
+            'deepseek-flash',
+            'deepseek-v4-pro',
+            'deepseek-v4-flash-thinking',
+            'deepseek-v4-flash-search',
+            'deepseek-v4-flash-thinking-search',
         },
     },
     'openrouter': {
@@ -248,13 +255,33 @@ HTTP_BACKEND_DEFS = {
             'gemini-3-flash-preview',
         },
     },
+    'free_deepseek': {
+        # Локальный прокси FreeDeepseekAPI (https://github.com/dekrezz/FreeDeepseekAPI):
+        # OpenAI-compatible /chat/completions поверх web-сессии chat.deepseek.com.
+        # Запуск: `npm run auth && npm start` в каталоге прокси
+        # (по умолчанию http://127.0.0.1:9655, base_url с суффиксом /v1).
+        # PROXY_API_KEY опционален; параллельные клиенты обязаны использовать
+        # разные x-agent-session (один web-логин = один in-flight чат).
+        'base_url': settings.free_deepseek_base_url or 'http://127.0.0.1:9655/v1',
+        'api_key': settings.free_deepseek_api_key,
+        'default_model': settings.free_deepseek_default_model or 'deepseek-v4-flash',
+        'session': settings.free_deepseek_session or 'npazs-main',
+        'free_models': {
+            'deepseek-v4-flash',
+            'deepseek-flash',
+            'deepseek-v4-pro',
+            'deepseek-v4-flash-thinking',
+            'deepseek-v4-flash-search',
+            'deepseek-v4-flash-thinking-search',
+        },
+    },
 }
 
 # Backward-compatible aliases (old code и тесты ссылаются на эти имена).
 DEFAULT_KILO_GATEWAY_URL = HTTP_BACKEND_DEFS['kilo_gateway']['base_url']
 DEFAULT_KILO_GATEWAY_MODEL = HTTP_BACKEND_DEFS['kilo_gateway']['default_model']
 KILO_GATEWAY_FREE_MODELS = HTTP_BACKEND_DEFS['kilo_gateway']['free_models']
-DEFAULT_BACKEND = "kilo_gateway"
+DEFAULT_BACKEND = "free_deepseek"
 
 # Набор всех HTTP-бэкендов (все, кроме ollama).
 HTTP_BACKENDS = frozenset(HTTP_BACKEND_DEFS.keys())

@@ -19,6 +19,9 @@ from npazs.config.env_store import (
         BACKEND_ENV_KEYS,
         load_active_backend,
         load_backend_settings,
+        load_post_analysis_backend,
+        load_post_analysis_base_url,
+        load_post_analysis_model,
         save_backend_settings,
 )
 from npazs.constants import (
@@ -40,6 +43,7 @@ from npazs.constants import (
 from npazs.llm_models import (
         fetch_cline_models,
         fetch_cerebras_models,
+        fetch_free_deepseek_models,
         fetch_gemini_models,
         fetch_kilo_gateway_free_models,
         fetch_mistral_models,
@@ -92,16 +96,31 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.kilo_gateway_url = tk.StringVar(
                 value=_saved.get('base_url') or _defn.get('base_url') or DEFAULT_KILO_GATEWAY_URL
             )
-            self.kilo_gateway_api_key = tk.StringVar(
-                value=_saved.get('api_key') or _defn.get('api_key') or settings.kilo_gateway_api_key or ""
-            )
             _saved_model = _saved.get('model') or _defn.get('default_model') or ''
             self.ollama_model = tk.StringVar(value=_saved_model)
-            # Модель для пост-анализа по умолчанию — та же, что и основная модель,
-            # пока список моделей не загрузится из API. После загрузки
-            # _fetch_models переставит её на первый доступный free-модель.
-            self.post_analysis_model = tk.StringVar(value=_saved_model)
-            self.extra_options = tk.StringVar(value=json.dumps(DEFAULT_EXTRA_OPTIONS))
+            # Пост-анализ — независимый провайдер: свой бэкенд
+            # (POST_ANALYSIS_BACKEND), своя модель (POST_ANALYSIS_MODEL).
+            # Ключи берутся из .env (POST_ANALYSIS_API_KEY/POST_ANALYSIS_BASE_URL).
+            _pa_backend = load_post_analysis_backend()
+            if _pa_backend not in BACKEND_ENV_KEYS:
+                _pa_backend = _saved_backend
+            _pa_saved = load_backend_settings(_pa_backend)
+            _pa_defn = HTTP_BACKEND_DEFS.get(_pa_backend) or {}
+            self.post_analysis_backend = tk.StringVar(value=_pa_backend)
+            _pa_model = (
+                load_post_analysis_model()
+                or _pa_saved.get('model')
+                or _pa_defn.get('default_model')
+                or _saved_model
+            )
+            self.post_analysis_model = tk.StringVar(value=_pa_model)
+            self.post_gateway_url = tk.StringVar(
+                value=load_post_analysis_base_url()
+                or _pa_saved.get('base_url')
+                or _pa_defn.get('base_url')
+                or ''
+            )
+            self._prev_post_backend = _pa_backend
             self.pub_date = tk.StringVar()
             self.last_paths = load_json(LAST_PATHS_FILE, {})
             # Восстанавливаем последние пути, только если файлы ещё существуют:
@@ -137,7 +156,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.answer_queue = queue.Queue()
             self.create_widgets()
             self.check_queue()
-            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
+            threading.Thread(target=lambda: self._fetch_models(try_api=True, target='all'), daemon=True).start()
             _constants._user_retry_callback = self._ask_user_retry
 
         def _ask_user_retry(self, error_message):
@@ -168,116 +187,177 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             event.wait()
             return choice['value']
 
-        def _fetch_models(self, try_api=True):
+        def _api_key_for(self, backend_name, target='main'):
+            """API key для бэкенда: читаем из .env (GUI не хранит ключи)."""
+            name = (backend_name or '').strip().lower()
+            if target == 'post':
+                # Для пост-анализа сначала проверяем POST_ANALYSIS_API_KEY
+                from npazs.config.env_store import load_post_analysis_api_key
+                pa_key = load_post_analysis_api_key()
+                if pa_key:
+                    return pa_key
+            try:
+                return (load_backend_settings(name).get('api_key') or '').strip()
+            except ValueError:
+                return ''
+
+        def _fetch_models(self, try_api=True, target='main'):
+            if target == 'post':
+                self._fetch_models_for(
+                    self.post_analysis_backend.get(), try_api=try_api, target='post')
+                return
             backend = self.backend.get()
+            self._fetch_models_for(backend, try_api=try_api, target='main')
+            if target == 'all':
+                self._fetch_models_for(
+                    self.post_analysis_backend.get(), try_api=try_api, target='post')
+
+        def _fetch_models_for(self, backend, try_api=True, target='main'):
             if backend == "ollama":
-                self._fetch_ollama_models()
+                self._fetch_ollama_models(target=target)
             elif backend == "kilo_gateway":
-                self._fetch_kilo_gateway_models(try_api=try_api)
+                self._fetch_kilo_gateway_models(try_api=try_api, target=target)
             elif backend == "openrouter":
                 self._fetch_http_models('openrouter', fetch_openrouter_free_models,
-                                        self.kilo_gateway_api_key.get().strip(), try_api)
+                                        self._api_key_for('openrouter', target=target), try_api,
+                                        target=target)
             elif backend == "cline":
                 self._fetch_http_models('cline', fetch_cline_models,
-                                        self.kilo_gateway_api_key.get().strip(), try_api)
+                                        self._api_key_for('cline', target=target), try_api,
+                                        target=target)
             elif backend == "cerebras":
                 self._fetch_http_models('cerebras', fetch_cerebras_models,
-                                        self.kilo_gateway_api_key.get().strip(), try_api)
+                                        self._api_key_for('cerebras', target=target), try_api,
+                                        target=target)
             elif backend == "together":
                 self._fetch_http_models('together', fetch_together_models,
-                                        self.kilo_gateway_api_key.get().strip(), try_api)
+                                        self._api_key_for('together', target=target), try_api,
+                                        target=target)
             elif backend == "mistral":
                 self._fetch_http_models('mistral', fetch_mistral_models,
-                                        self.kilo_gateway_api_key.get().strip(), try_api)
+                                        self._api_key_for('mistral', target=target), try_api,
+                                        target=target)
             elif backend == "gemini":
                 self._fetch_http_models('gemini', fetch_gemini_models,
-                                        self.kilo_gateway_api_key.get().strip(), try_api)
+                                        self._api_key_for('gemini', target=target), try_api,
+                                        target=target)
+            elif backend == "free_deepseek":
+                # Локальный прокси FreeDeepseekAPI: ключ опционален, URL важен.
+                # fetcher сам ходит в GET {base}/models, fallback — константы.
+                # Для пост-анализа URL берётся из его редактора (креды пост-анализа
+                # независимы от основного бэкенда) — см. _kilo_credentials_for.
+                if target == 'post':
+                    # URL из редактора пост-кредов, иначе — URL пост-бэкенда.
+                    _fd_url, _ = self._kilo_credentials_for('free_deepseek', target='post')
+                    if not _fd_url:
+                        try:
+                            _fd_url = (load_backend_settings('free_deepseek').get('base_url') or '')
+                        except ValueError:
+                            _fd_url = ''
+                    _fd_key = self._api_key_for('free_deepseek', target='post')
+                else:
+                    _fd_url = self.kilo_gateway_url.get().strip()
+                    _fd_key = self._api_key_for('free_deepseek')
+                    if not _fd_url:
+                        try:
+                            _fd_url = (load_backend_settings('free_deepseek').get('base_url') or '')
+                        except ValueError:
+                            _fd_url = ''
+                from npazs.constants import HTTP_BACKEND_DEFS as _DEFS
+                _fd_url = _fd_url or (_DEFS.get('free_deepseek') or {}).get('base_url', '')
+                self._fetch_http_models('free_deepseek',
+                                        lambda _key, _u=_fd_url: fetch_free_deepseek_models(_u, _key),
+                                        _fd_key, try_api,
+                                        target=target)
             else:
-                self._fetch_ollama_models()
+                self._fetch_ollama_models(target=target)
 
-        def _fetch_http_models(self, backend_name, fetcher, api_key, try_api=True):
+        def _set_models_for_target(self, models, target):
+            """Записать список моделей только в main- или post-список."""
+            if target == 'post':
+                self.post_analysis_models = list(models)
+                if models and self.post_analysis_model.get() not in models:
+                    self.root.after(0, lambda: self.post_analysis_model.set(models[0]))
+            else:
+                self.ollama_models = list(models)
+                if models and self.ollama_model.get() not in models:
+                    self.root.after(0, lambda: self.ollama_model.set(models[0]))
+
+        def _fetch_http_models(self, backend_name, fetcher, api_key, try_api=True, target='main'):
             """Загрузить модели для HTTP-бэкенда (openrouter/cline/cerebras/
-            together/mistral/gemini)."""
+            together/mistral/gemini/free_deepseek)."""
             if not try_api:
                 models = get_free_models_for_backend(backend_name)
-                self.ollama_models = models
-                self.post_analysis_models = models
-                current = self.ollama_model.get()
-                if current not in self.ollama_models:
-                    self.ollama_model.set(self.ollama_models[0])
-                if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
-                    self.post_analysis_model.set(self.ollama_models[0])
+                self._set_models_for_target(models, target)
                 self.root.after(0, self.log, f"Установлены модели {backend_name} по умолчанию: {models}", 'info')
                 return
             try:
                 models = fetcher(api_key)
-                self.ollama_models = models
-                self.post_analysis_models = models
-                if self.ollama_models:
-                    current = self.ollama_model.get()
-                    if current not in self.ollama_models:
-                        self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
-                    if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
-                        self.root.after(0, lambda: self.post_analysis_model.set(self.ollama_models[0]))
+                self._set_models_for_target(models, target)
+                if models:
                     self.root.after(0, self.log, f"Выбрано моделей {backend_name}: {models}", 'info')
                 else:
                     self.root.after(0, self.log, f"Нет доступных free-моделей в {backend_name}. Проверьте API ключ или URL.", 'warning')
             except Exception as e:
-                self.root.after(0, self.log, f"Ошибка подключения к {backend_name}: {e}. Проверьте URL и API ключ.", 'error')
+                if backend_name == 'free_deepseek':
+                    hint = ('Локальный прокси FreeDeepseekAPI не запущен? '
+                            'Выполните: cd tools/FreeDeepseekAPI && npm start '
+                            '(первый раз — сначала `npm run auth`). '
+                            'URL по умолчанию: http://127.0.0.1:9655/v1.')
+                else:
+                    hint = 'Проверьте URL и API ключ.'
+                self.root.after(0, self.log, f"Ошибка подключения к {backend_name}: {e}. {hint}", 'error')
                 self.root.after(0, self.log, f'{backend_name} недоступен — показан запасной список моделей.', 'warning')
                 models = get_free_models_for_backend(backend_name)
-                self.ollama_models = models
-                self.post_analysis_models = models
-                current = self.ollama_model.get()
-                if current not in self.ollama_models:
-                    self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
-                if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
-                    self.root.after(0, lambda: self.post_analysis_model.set(self.ollama_models[0]))
+                self._set_models_for_target(models, target)
 
-        def _fetch_ollama_models(self):
+        def _fetch_ollama_models(self, target='main'):
             try:
                 models = fetch_ollama_models()
                 self.root.after(0, self.log, f"Получено {len(models)} моделей от Ollama (после фильтрации)", 'info')
-                self.ollama_models = models
-                self.post_analysis_models = models
-                if self.ollama_models:
-                    current = self.ollama_model.get()
-                    if current not in self.ollama_models:
-                        self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
-                    if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
-                        self.root.after(0, lambda: self.post_analysis_model.set(self.ollama_models[0]))
-                else:
+                self._set_models_for_target(models, target)
+                if not models:
                     self.root.after(0, self.log, "Нет разрешённых моделей в локальном Ollama. Убедитесь, что сервер запущен и загружены разрешённые модели.", 'warning')
             except Exception as e:
                 self.root.after(0, self.log, f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен.", 'error')
-                self.ollama_models = []
-                self.post_analysis_models = []
+                self._set_models_for_target([], target)
 
-        def _fetch_kilo_gateway_models(self, try_api=True):
+        def _kilo_credentials_for(self, backend_name, target='main'):
+            """URL/ключ Kilo-совместимого бэкенда: GUI для URL, .env для ключа."""
+            name = (backend_name or '').strip().lower()
+            if target == 'post':
+                _pa_url = self.post_gateway_url.get().strip() if hasattr(self, 'post_gateway_url') else ''
+                from npazs.config.env_store import load_post_analysis_api_key
+                _pa_key = load_post_analysis_api_key()
+            else:
+                _pa_url = ''
+                _pa_key = ''
+            if name == (self.backend.get() or '').strip().lower():
+                return (
+                    _pa_url or self.kilo_gateway_url.get().strip(),
+                    _pa_key or self._api_key_for(name),
+                )
+            try:
+                saved = load_backend_settings(name)
+            except ValueError:
+                saved = {}
+            defn = HTTP_BACKEND_DEFS.get(name) or {}
+            return (
+                _pa_url or saved.get('base_url') or defn.get('base_url') or '',
+                _pa_key or saved.get('api_key') or defn.get('api_key') or '',
+            )
+
+        def _fetch_kilo_gateway_models(self, try_api=True, target='main'):
             if not try_api:
                 models = sorted(_constants.KILO_GATEWAY_FREE_MODELS)
-                self.ollama_models = models
-                self.post_analysis_models = models
-                current = self.ollama_model.get()
-                if current not in self.ollama_models:
-                    self.ollama_model.set(self.ollama_models[0])
-                if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
-                    self.post_analysis_model.set(self.ollama_models[0])
+                self._set_models_for_target(models, target)
                 self.root.after(0, self.log, f"Установлены модели Kilo Gateway по умолчанию: {models}", 'info')
                 return
             try:
-                models = fetch_kilo_gateway_free_models(
-                    self.kilo_gateway_url.get().strip(),
-                    self.kilo_gateway_api_key.get().strip(),
-                )
-                self.ollama_models = models
-                self.post_analysis_models = models
-                if self.ollama_models:
-                    current = self.ollama_model.get()
-                    if current not in self.ollama_models:
-                        self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
-                    if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
-                        self.root.after(0, lambda: self.post_analysis_model.set(self.ollama_models[0]))
+                _url, _key = self._kilo_credentials_for('kilo_gateway', target=target)
+                models = fetch_kilo_gateway_free_models(_url, _key)
+                self._set_models_for_target(models, target)
+                if models:
                     self.root.after(0, self.log, f"Выбрано бесплатных моделей: {models}", 'info')
                 else:
                     self.root.after(0, self.log, "Нет доступных бесплатных моделей в Kilo Gateway. Проверьте API ключ или URL.", 'warning')
@@ -285,66 +365,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                 self.root.after(0, self.log, f"Ошибка подключения к Kilo Gateway: {e}. Проверьте URL и API ключ.", 'error')
                 self.root.after(0, self.log, 'Kilo Gateway недоступен — показан запасной список моделей.', 'warning')
                 models = sorted(_constants.KILO_GATEWAY_FREE_MODELS)
-                self.ollama_models = models
-                self.post_analysis_models = models
-                current = self.ollama_model.get()
-                if current not in self.ollama_models:
-                    self.root.after(0, lambda: self.ollama_model.set(self.ollama_models[0]))
-                if not self.post_analysis_model.get() or self.post_analysis_model.get() not in self.ollama_models:
-                    self.root.after(0, lambda: self.post_analysis_model.set(self.ollama_models[0]))
-
-        def fetch_model_parameters(self, model_name):
-            if self.backend.get() != "ollama":
-                self.log("Загрузка параметров модели поддерживается только для Ollama", 'warning')
-                return
-            try:
-                response = requests.post(f"{_ollama_base_url}/api/show", json={"name": model_name}, timeout=5)
-                if response.status_code == 200:
-                    data = response.json()
-                    modelfile = data.get("modelfile", "")
-                    params = {}
-                    for line in modelfile.split("\n"):
-                        if line.startswith("PARAMETER"):
-                            parts = line.split()
-                            if len(parts) >= 3:
-                                key = parts[1]
-                                value = parts[2]
-                                try:
-                                    if '.' in value:
-                                        value = float(value)
-                                    else:
-                                        value = int(value)
-                                except:
-                                    pass
-                                params[key] = value
-                    model_lower = model_name.lower()
-                    if 'deepseek' in model_lower or 'r1' in model_lower:
-                        if 'think' not in params:
-                            params['think'] = "low"
-                    return params
-                else:
-                    self.log(f"Ошибка получения параметров модели: HTTP {response.status_code}", 'error')
-                    return {}
-            except requests.exceptions.RequestException as e:
-                self.log(f"Не удалось подключиться к Ollama для загрузки параметров: {e}", 'error')
-                return {}
-
-        def load_model_params(self):
-            model = self.ollama_model.get().strip()
-            if not model:
-                self.log("Сначала выберите модель", 'warning')
-                return
-            if self.backend.get() != "ollama":
-                self.log("Загрузка параметров модели поддерживается только для Ollama", 'warning')
-                return
-            self.log(f"Загрузка параметров модели {model}...", 'info')
-            params = self.fetch_model_parameters(model)
-            if params:
-                params_json = json.dumps(params, ensure_ascii=False, indent=None)
-                self.extra_options.set(params_json)
-                self.log(f"Параметры модели загружены: {params_json}", 'result')
-            else:
-                self.log(f"Не удалось загрузить параметры модели {model}. Поле не изменено.", 'warning')
+                self._set_models_for_target(models, target)
 
         def _validate_html_marker(self, html, item_type, item_number, change_info):
             if item_type not in ('point', 'subpoint', 'part'):
@@ -534,36 +555,6 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.use_stage1_answer.set(data.get('use_stage1_answer', False))
             self.use_stage2_answer.set(data.get('use_stage2_answer', False))
             self.use_stage3_answer.set(data.get('use_stage3_answer', False))
-
-        def save_env_settings(self, quiet=False) -> bool:
-            """Сохранить параметры текущего бэкенда (ключ, URL, модель) в ``.env``.
-
-            Вызывается кнопкой «Сохранить в .env», кнопками «Обновить модели» и
-            автоматически перед запуском пайплайна — API-ключ моделей не нужно
-            вводить заново после перезапуска окна.
-            """
-            backend = self.backend.get().strip() or DEFAULT_BACKEND
-            if backend not in BACKEND_ENV_KEYS:
-                if not quiet:
-                    self.log(f'Неизвестный бэкенд {backend!r}, сохранять нечего', 'warning')
-                return False
-            try:
-                written = save_backend_settings(
-                    backend,
-                    api_key=self.kilo_gateway_api_key.get().strip(),
-                    base_url=self.kilo_gateway_url.get().strip(),
-                    model=self.ollama_model.get().strip(),
-                )
-            except (OSError, ValueError) as e:
-                if not quiet:
-                    self.log(f'Не удалось сохранить настройки в .env: {e}', 'error')
-                return False
-            if not quiet:
-                self.log(
-                    'Настройки бэкенда сохранены в .env: ' + ', '.join(sorted(written)),
-                    'info',
-                )
-            return bool(written)
 
         def _normalize_text(self, text):
             if not text:

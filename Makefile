@@ -1,4 +1,4 @@
-.PHONY: help install lint typecheck test validate clean run-parser run-revision run-compare run-verify run-importer run-sync build-snippet
+.PHONY: help install lint typecheck test validate clean run-parser run-editor run-revision run-compare run-verify run-importer run-sync run-free-deepseek auth-free-deepseek build-snippet
 
 help:
 	@echo NPA-ZS make targets:
@@ -8,6 +8,7 @@ help:
 	@echo   test          - run pytest
 	@echo   validate      - validate JSON schemas
 	@echo   run-parser    - run HTML parser GUI
+	@echo   run-editor    - run DB records editor GUI
 	@echo   run-revision  - run revision processor GUI
 	@echo   run-compare   - run NPA revision comparison GUI
 	@echo   run-verify    - run verification GUI
@@ -34,6 +35,9 @@ validate:
 run-parser:
 	python scripts/run_parser.py
 
+run-editor:
+	python scripts/run_editor.py
+
 run-revision:
 	python scripts/run_revision.py
 
@@ -48,6 +52,12 @@ run-importer:
 
 run-sync:
 	python scripts/run_site_sync.py
+
+run-free-deepseek:
+	python scripts/setup_free_deepseek.py --start
+
+auth-free-deepseek:
+	python scripts/setup_free_deepseek.py
 
 build-snippet:
 	python data/work_tools/build_snippet.py

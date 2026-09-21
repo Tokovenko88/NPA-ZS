@@ -255,6 +255,25 @@ def fetch_gemini_models(api_key: str = '') -> list:
         return sorted(HTTP_BACKEND_DEFS['gemini']['free_models'])
 
 
+def fetch_free_deepseek_models(
+    base_url: str = 'http://127.0.0.1:9655/v1', api_key: str = ''
+) -> list:
+    """Получить список моделей локального прокси FreeDeepseekAPI.
+
+    Прокси OpenAI-совместим (``GET /v1/models`` без фильтра: веб DeepSeek
+    отдаёт одну модель — DeepSeek-V4.1-Flash + алиасы/суффиксы thinking/search).
+    Без запущенного ``npm start`` возвращается fallback из констант
+    (``HTTP_BACKEND_DEFS['free_deepseek']['free_models']``).
+    """
+    base = (base_url or 'http://127.0.0.1:9655/v1').rstrip('/')
+    # base_url хранится с суффиксом /v1, bare-host дополняем так же.
+    root = base if base.endswith('/v1') else f'{base}/v1'
+    try:
+        return _fetch_openai_compat_models(root, api_key, free_marker=None)
+    except RuntimeError:
+        return sorted(HTTP_BACKEND_DEFS['free_deepseek']['free_models'])
+
+
 def get_free_models_for_backend(backend: str) -> list:
     """Вернуть fallback-список free-моделей для любого бэкенда.
 

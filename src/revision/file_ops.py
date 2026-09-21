@@ -289,6 +289,10 @@ class FileOpsMixin:
                 lines.append(f"**Модель:** `{run_info.get('model')}`")
             if run_info.get('backend'):
                 lines.append(f"**Бэкенд:** `{run_info.get('backend')}`")
+            if run_info.get('post_analysis_model'):
+                lines.append(f"**Модель пост-анализа:** `{run_info.get('post_analysis_model')}`")
+            if run_info.get('post_analysis_backend'):
+                lines.append(f"**Бэкенд пост-анализа:** `{run_info.get('post_analysis_backend')}`")
             lines.append("")
 
             if tracker is not None:

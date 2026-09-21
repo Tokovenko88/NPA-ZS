@@ -96,8 +96,32 @@ def test_save_env_values_creates_file(tmp_path):
     assert path.read_text(encoding='utf-8') == 'GEMINI_API_KEY=k\n'
 
 
+def _check_pa_test_env_clean(monkeypatch):
+    """Снять влияние репозиторного ``.env`` на тесты пост-конфига.
+
+    ``monkeypatch`` обязан очищать и ``POST_ANALYSIS_*``, и все переменные
+    провайдеров, которые могут подхватиться из окружения.
+    """
+    for var in (
+        'POST_ANALYSIS_BACKEND', 'POST_ANALYSIS_MODEL',
+        'POST_ANALYSIS_API_KEY', 'POST_ANALYSIS_BASE_URL',
+        'OLLAMA_BASE_URL', 'OLLAMA_DEFAULT_MODEL',
+        'KILO_GATEWAY_API_KEY', 'KILO_GATEWAY_BASE_URL', 'KILO_GATEWAY_DEFAULT_MODEL',
+        'CLINE_API_KEY', 'CLINE_BASE_URL', 'CLINE_DEFAULT_MODEL',
+        'OPENROUTER_API_KEY', 'OPENROUTER_BASE_URL', 'OPENROUTER_DEFAULT_MODEL',
+        'CEREBRAS_API_KEY', 'CEREBRAS_BASE_URL', 'CEREBRAS_DEFAULT_MODEL',
+        'TOGETHER_API_KEY', 'TOGETHER_BASE_URL', 'TOGETHER_DEFAULT_MODEL',
+        'MISTRAL_API_KEY', 'MISTRAL_BASE_URL', 'MISTRAL_DEFAULT_MODEL',
+        'GEMINI_API_KEY', 'GEMINI_BASE_URL', 'GEMINI_DEFAULT_MODEL',
+        'FREE_DEEPSEEK_API_KEY', 'FREE_DEEPSEEK_BASE_URL',
+        'FREE_DEEPSEEK_DEFAULT_MODEL', 'FREE_DEEPSEEK_SESSION',
+        'LLM_BACKEND',
+    ):
+        monkeypatch.delenv(var, raising=False)
+
+
 def test_save_env_values_updates_os_environ(env_file, monkeypatch):
-    monkeypatch.delenv('GEMINI_API_KEY', raising=False)
+    _check_pa_test_env_clean(monkeypatch)
     save_env_values({'GEMINI_API_KEY': 'AIza-live'}, env_path=env_file)
     assert os.environ['GEMINI_API_KEY'] == 'AIza-live'
     assert get_env_value('GEMINI_API_KEY', env_path=env_file) == 'AIza-live'
@@ -210,7 +234,6 @@ def test_saved_settings_load_back_into_gui_fakes(env_file, monkeypatch):
     )
     saved = compare_gui._initial_backend_settings()
     assert saved['backend'] == 'gemini'
-    assert saved['api_key'] == 'AIza-saved'
     assert saved['base_url'] == 'https://gemini.example/v1'
     assert saved['model'] == 'gemini-2.5-flash'
 
@@ -234,12 +257,10 @@ class _FakeCompareApp:
     def __init__(
         self,
         backend: str = 'gemini',
-        api_key: str = 'AIza-key',
         url: str = 'https://example.test/v1',
         model: str = '',
     ):
         self.backend = _FakeVar(backend)
-        self.kilo_gateway_api_key = _FakeVar(api_key)
         self.kilo_gateway_url = _FakeVar(url)
         self.model = _FakeVar(model)
         self.log_queue: queue.Queue = queue.Queue()
@@ -261,9 +282,9 @@ def _install_recorder(monkeypatch, module) -> dict:
     """Подменить ``save_backend_settings`` в модуле GUI и записать аргументы."""
     saved: dict = {}
 
-    def fake(backend, api_key=None, base_url=None, model=None, make_active=True, env_path=None):
+    def fake(backend, base_url=None, model=None, make_active=True, env_path=None):
         saved.update(
-            backend=backend, api_key=api_key, base_url=base_url, model=model,
+            backend=backend, base_url=base_url, model=model,
             make_active=make_active, env_path=env_path,
         )
         return {ACTIVE_BACKEND_ENV: backend}
@@ -272,48 +293,12 @@ def _install_recorder(monkeypatch, module) -> dict:
     return saved
 
 
-def test_compare_gui_saves_backend_key_to_env(monkeypatch):
-    from npazs.compare import gui as compare_gui
-
-    saved = _install_recorder(monkeypatch, compare_gui)
-    app = _FakeCompareApp()
-    assert compare_gui.CompareApp._save_env_settings(app) is True
-    assert saved == {
-        'backend': 'gemini', 'api_key': 'AIza-key',
-        'base_url': 'https://example.test/v1', 'model': '',
-        'make_active': True, 'env_path': None,
-    }
-    level, message = app.log_queue.get_nowait()
-    assert level == 'success'
-    assert '.env' in message
-
-
-def test_compare_gui_skips_unknown_backend(monkeypatch):
-    from npazs.compare import gui as compare_gui
-
-    saved = _install_recorder(monkeypatch, compare_gui)
-    assert compare_gui.CompareApp._save_env_settings(_FakeCompareApp(backend='nope')) is False
-    assert saved == {}
-
-
-def test_verify_gui_saves_backend_key_to_env(monkeypatch):
-    from npazs.verify import gui as verify_gui
-
-    saved = _install_recorder(monkeypatch, verify_gui)
-    app = _FakeCompareApp(backend='openrouter', api_key='or-key')
-    assert verify_gui.VerifyApp._save_env_settings(app) is True
-    assert saved['backend'] == 'openrouter'
-    assert saved['api_key'] == 'or-key'
-    level, message = app.log_queue.get_nowait()
-    assert '.env' in message
-    assert level in ('info', 'success')
-
-
-def test_revision_gui_saves_backend_key_to_env(monkeypatch):
+def test_revision_gui_saves_backend_url_to_env(monkeypatch):
+    from npazs.ui import gui_builder
     from npazs.ui import revision_app
 
-    saved = _install_recorder(monkeypatch, revision_app)
-    app = _FakeRevisionApp(backend='gemini', api_key='AIza-key')
+    saved = _install_recorder(monkeypatch, gui_builder)
+    app = _FakeRevisionApp(backend='gemini')
     assert revision_app.App.save_env_settings(app) is True
     assert saved['backend'] == 'gemini'
     assert saved['model'] == 'gemini-2.0-flash'
@@ -324,6 +309,104 @@ def test_revision_gui_quiet_mode_keeps_journal_clean(monkeypatch):
     from npazs.ui import revision_app
 
     _install_recorder(monkeypatch, revision_app)
-    app = _FakeRevisionApp(backend='cline', api_key='cline-key')
+    app = _FakeRevisionApp(backend='cline')
     assert revision_app.App.save_env_settings(app, quiet=True) is True
     assert app.messages == []
+
+
+def test_save_post_analysis_settings_roundtrip(env_file):
+    from npazs.config.env_store import (
+        POST_ANALYSIS_BACKEND_ENV,
+        POST_ANALYSIS_MODEL_ENV,
+        load_post_analysis_backend,
+        load_post_analysis_model,
+        save_post_analysis_settings,
+    )
+
+    written = save_post_analysis_settings(
+        backend='gemini', model='gemini-2.5-flash', env_path=env_file)
+    assert written[POST_ANALYSIS_BACKEND_ENV] == 'gemini'
+    assert written[POST_ANALYSIS_MODEL_ENV] == 'gemini-2.5-flash'
+    text = env_file.read_text(encoding='utf-8')
+    assert 'GEMINI_API_KEY' not in text
+    assert f'{POST_ANALYSIS_BACKEND_ENV}=gemini' in text
+    assert f'{POST_ANALYSIS_MODEL_ENV}=gemini-2.5-flash' in text
+    assert load_post_analysis_backend(env_path=env_file) == 'gemini'
+    assert load_post_analysis_model(env_path=env_file) == 'gemini-2.5-flash'
+
+
+def test_save_post_analysis_settings_rejects_unknown_backend(env_file):
+    from npazs.config.env_store import save_post_analysis_settings
+
+    with pytest.raises(ValueError):
+        save_post_analysis_settings(backend='nope', env_path=env_file)
+
+
+def test_save_post_analysis_settings_writes_own_creds(env_file):
+    """Креды пост-анализа пишутся в POST_ANALYSIS_API_KEY/_BASE_URL."""
+    from npazs.config.env_store import (
+        POST_ANALYSIS_API_KEY_ENV,
+        POST_ANALYSIS_BACKEND_ENV,
+        POST_ANALYSIS_BASE_URL_ENV,
+        POST_ANALYSIS_MODEL_ENV,
+        load_post_analysis_api_key,
+        load_post_analysis_base_url,
+        save_post_analysis_settings,
+    )
+
+    written = save_post_analysis_settings(
+        backend='free_deepseek', model='deepseek-v4-flash',
+        api_key='proxy-secret', base_url='http://127.0.0.1:9656/v1',
+        env_path=env_file)
+    assert written[POST_ANALYSIS_BACKEND_ENV] == 'free_deepseek'
+    assert written[POST_ANALYSIS_MODEL_ENV] == 'deepseek-v4-flash'
+    assert written[POST_ANALYSIS_API_KEY_ENV] == 'proxy-secret'
+    assert written[POST_ANALYSIS_BASE_URL_ENV] == 'http://127.0.0.1:9656/v1'
+    text = env_file.read_text(encoding='utf-8')
+    assert 'POST_ANALYSIS_API_KEY=proxy-secret' in text
+    assert 'POST_ANALYSIS_BASE_URL=http://127.0.0.1:9656/v1' in text
+    # Ключи самого бэкенда не тронуты.
+    assert 'FREE_DEEPSEEK_API_KEY' not in text
+    assert load_post_analysis_api_key(env_path=env_file) == 'proxy-secret'
+    assert load_post_analysis_base_url(env_path=env_file) == 'http://127.0.0.1:9656/v1'
+
+
+def test_save_post_analysis_settings_skips_empty_creds(env_file):
+    """Пустые креды пост-анализа пропускаются (наследуются креды бэкенда)."""
+    from npazs.config.env_store import save_post_analysis_settings
+
+    written = save_post_analysis_settings(
+        backend='gemini', model='gemini-2.5-flash',
+        api_key='', base_url=None, env_path=env_file)
+    assert 'POST_ANALYSIS_API_KEY' not in written
+    assert 'POST_ANALYSIS_BASE_URL' not in written
+    text = env_file.read_text(encoding='utf-8')
+    assert 'POST_ANALYSIS_API_KEY' not in text
+    assert 'POST_ANALYSIS_BASE_URL' not in text
+
+
+def test_post_analysis_llm_config_uses_own_backend(monkeypatch):
+    from npazs.config.ollama import get_post_analysis_llm_config
+
+    # .env репозитория/окружения не должен влиять: креды пост-бэкенда
+    # задаём явно, оверрайды снимаем.
+    _check_pa_test_env_clean(monkeypatch)
+    monkeypatch.setenv('POST_ANALYSIS_BACKEND', 'gemini')
+    monkeypatch.setenv('POST_ANALYSIS_MODEL', 'gemini-2.5-flash')
+    monkeypatch.setenv('GEMINI_API_KEY', 'K-pa')
+    monkeypatch.setenv('GEMINI_BASE_URL', 'https://pa-url')
+    monkeypatch.setenv('GEMINI_DEFAULT_MODEL', 'gemini-2.5-flash')
+    config = get_post_analysis_llm_config()
+    assert config['backend'] == 'gemini'
+    assert config['model'] == 'gemini-2.5-flash'
+    assert config['api_key'] == 'K-pa'
+    assert config['base_url'] == 'https://pa-url'
+
+
+def test_post_analysis_llm_config_falls_back_to_main(monkeypatch):
+    from npazs.config.ollama import get_post_analysis_llm_config
+
+    _check_pa_test_env_clean(monkeypatch)
+    monkeypatch.setenv('LLM_BACKEND', 'openrouter')
+    config = get_post_analysis_llm_config()
+    assert config['backend'] == 'openrouter'

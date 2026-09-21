@@ -14,14 +14,18 @@ from npazs.revision.element_finder import (
 )
 from npazs.revision.html_utils import (
     _correct_table_highlights,
+    apply_word_replacement_fuzzy,
     clean_and_unwrap_html,
     clean_description_html,
     extract_paragraphs_by_indices,
     get_current_head,
     get_full_element_html,
     get_own_text_html,
+    norm_for_phrase_match,
     parse_ai_response_for_prompt4,
     parse_structural_tokens,
+    parse_word_replacement,
+    refine_word_replacement,
     remove_leading_number_from_html,
     split_html_to_paragraphs,
     strip_number_from_element_html,
@@ -350,6 +354,9 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
                 if answer:
                     new_html, ai_highlights = parse_ai_response_for_prompt4(answer, log_callback)
                     if new_html:
+                        new_html = _ensure_word_replacement_applied(
+                            original_op.get('description', ''), old_html, new_html,
+                            log_callback, label=f' (абзац {target_idx})')
                         ai_paragraphs[target_idx - 1] = new_html
                         if ai_highlights:
                             combined_highlights = _merge_highlights_with_paragraph_prefix(combined_highlights, ai_highlights, target_idx)
@@ -454,6 +461,45 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
         if log_callback:
             log_callback("  Группа изменений применена: pending для перестройки", 'result')
         return [_make_prepared_result(cid) for cid in (change_ids or [""] * len(changes))]
+
+
+def _ensure_word_replacement_applied(description, old_html, new_html,
+                                     log_callback=None, label=''):
+    """Детерминированный контроль правки «слова «X» заменить словами «Y»».
+
+    ИИ иногда возвращает абзац без изменений (кейс 444-ЗС → 269-ЗС: замена
+    «К отдельным категориям граждан» → «1. К отдельным категориям граждан»
+    не попала в ответ, из-за чего абзац не стал частью 1, а постанализ выдал
+    ложное сообщение о не применённой правке). Проверяем факт замены и при
+    необходимости применяем её программно (с допуском на опечатки OCR в
+    описании правки).
+    """
+    pair = parse_word_replacement(description)
+    if not pair:
+        return new_html
+    # Фразы приводим к написанию целевого документа: ИИ переписывает инструкцию
+    # своими словами и допускает опечатки («отельным» вместо «отдельным»), из-за
+    # чего они попадали в текст НПА (кейс 444-ЗС → 269-ЗС).
+    old_phrase, new_phrase = refine_word_replacement(pair[0], pair[1], old_html or new_html)
+    if norm_for_phrase_match(new_phrase) in norm_for_phrase_match(new_html):
+        return new_html
+    for source_html in (new_html, old_html or ''):
+        replaced = apply_word_replacement_fuzzy(source_html, old_phrase, new_phrase)
+        if replaced is not None:
+            break
+    if replaced is None:
+        if log_callback:
+            log_callback(
+                f"  Не удалось детерминированно применить замену слов "
+                f"«{old_phrase}» → «{new_phrase}»{label}", 'warning',
+            )
+        return new_html
+    if log_callback and replaced != new_html:
+        log_callback(
+            f"  ИИ не применил замену слов «{old_phrase}» → «{new_phrase}»{label}; "
+            f"применено программно", 'result',
+        )
+    return replaced
 
 
 def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, log_callback,
@@ -1341,6 +1387,9 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
                 if log_callback:
                     log_callback("  Не удалось извлечь HTML из ответа ИИ", 'error')
                 return False
+            answer_html = _ensure_word_replacement_applied(
+                description, current_html, answer_html, log_callback,
+                label=f' (элемент {element.get("item_id")})')
             paragraphs = split_html_to_paragraphs(answer_html)
             if not paragraphs:
                 paragraphs = [answer_html] if answer_html.strip() else []

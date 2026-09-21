@@ -1,0 +1,53 @@
+2026/09/21-19:41:23.765 3848 Creating DB D:\NPA-ZS\scripts\tools\FreeDeepseekAPI\.chrome-for-testing-profile-deepseek\Default\Local Storage\leveldb since it was missing.
+2026/09/21-19:41:32.786 3848 Reusing MANIFEST D:\NPA-ZS\scripts\tools\FreeDeepseekAPI\.chrome-for-testing-profile-deepseek\Default\Local Storage\leveldb/MANIFEST-000001
+2026/09/21-19:49:20.891 9e8 Level-0 table #5: started
+2026/09/21-19:49:21.138 9e8 Level-0 table #5: 21033 bytes OK
+2026/09/21-19:49:21.170 9e8 Delete type=0 #3
+2026/09/21-19:54:34.725 3848 Level-0 table #7: started
+2026/09/21-19:54:34.738 3848 Level-0 table #7: 21793 bytes OK
+2026/09/21-19:54:34.745 3848 Delete type=0 #4
+2026/09/21-20:05:29.121 9e8 Level-0 table #9: started
+2026/09/21-20:05:30.218 9e8 Level-0 table #9: 23188 bytes OK
+2026/09/21-20:05:30.229 9e8 Delete type=0 #6
+2026/09/21-20:15:36.787 9e8 Level-0 table #11: started
+2026/09/21-20:15:37.212 9e8 Level-0 table #11: 21379 bytes OK
+2026/09/21-20:15:37.229 9e8 Delete type=0 #8
+2026/09/21-20:25:36.474 9e8 Level-0 table #13: started
+2026/09/21-20:25:40.944 9e8 Level-0 table #13: 21382 bytes OK
+2026/09/21-20:25:40.952 9e8 Delete type=0 #10
+2026/09/21-20:35:44.232 9e8 Level-0 table #15: started
+2026/09/21-20:35:57.919 9e8 Level-0 table #15: 21383 bytes OK
+2026/09/21-20:36:02.610 9e8 Delete type=0 #12
+2026/09/21-20:36:02.622 9e8 Compacting 4@0 + 1@1 files
+2026/09/21-20:36:20.619 9e8 Generated table #16@0: 22 keys, 13707 bytes
+2026/09/21-20:36:20.619 9e8 Compacted 4@0 + 1@1 files => 13707 bytes
+2026/09/21-20:36:20.779 9e8 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/09/21-20:36:20.780 9e8 Delete type=2 #7
+2026/09/21-20:36:20.780 9e8 Delete type=2 #9
+2026/09/21-20:36:20.780 9e8 Delete type=2 #11
+2026/09/21-20:36:20.780 9e8 Delete type=2 #13
+2026/09/21-20:36:20.780 9e8 Delete type=2 #15
+2026/09/21-20:45:51.556 9e8 Level-0 table #18: started
+2026/09/21-20:46:27.358 9e8 Level-0 table #18: 21380 bytes OK
+2026/09/21-20:46:27.385 9e8 Delete type=0 #14
+2026/09/21-20:55:54.932 9e8 Level-0 table #20: started
+2026/09/21-20:56:21.616 9e8 Level-0 table #20: 21387 bytes OK
+2026/09/21-20:56:26.063 9e8 Delete type=0 #17
+2026/09/21-21:44:41.233 9e8 Level-0 table #22: started
+2026/09/21-21:44:41.270 9e8 Level-0 table #22: 21380 bytes OK
+2026/09/21-21:44:41.281 9e8 Delete type=0 #19
+2026/09/21-21:54:48.085 9e8 Level-0 table #24: started
+2026/09/21-21:54:51.343 9e8 Level-0 table #24: 21360 bytes OK
+2026/09/21-21:54:51.349 9e8 Delete type=0 #21
+2026/09/21-21:54:51.352 9e8 Compacting 4@0 + 1@1 files
+2026/09/21-21:54:58.817 9e8 Generated table #25@0: 22 keys, 13709 bytes
+2026/09/21-21:54:58.817 9e8 Compacted 4@0 + 1@1 files => 13709 bytes
+2026/09/21-21:54:58.860 9e8 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/09/21-21:54:58.862 9e8 Delete type=2 #16
+2026/09/21-21:54:58.862 9e8 Delete type=2 #18
+2026/09/21-21:54:58.862 9e8 Delete type=2 #20
+2026/09/21-21:54:58.862 9e8 Delete type=2 #22
+2026/09/21-21:54:58.862 9e8 Delete type=2 #24
+2026/09/21-22:04:53.770 9e8 Level-0 table #27: started
+2026/09/21-22:05:12.269 9e8 Level-0 table #27: 21360 bytes OK
+2026/09/21-22:05:16.705 9e8 Delete type=0 #23

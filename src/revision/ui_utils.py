@@ -505,6 +505,91 @@ def _close_excluded_subtree(element, valid_to, modified_by_id):
     return closed_any
 
 
+def _html_text_key(html):
+    """Ключ сравнения текста абзаца: без тегов, нижний регистр, схлопнутые пробелы."""
+    text = re.sub(r'<[^>]+>', ' ', str(html or ''))
+    return re.sub(r'\s+', ' ', text).strip().lower()
+
+
+def _salvage_missing_own_paragraphs(old_element, new_element, log_callback=None):
+    """Дописать вводные абзацы в тело уже перестроенного элемента.
+
+    Вызывается в точке раннего выхода ``sync_structural_element_recursive``:
+    родительская перестройка принесла свежее содержимое элемента, но активная
+    ревизия элемента (созданная в этом же прогоне узкой правкой) состоит
+    только из ``child_ref`` — вводные абзацы, не относящиеся ни к одному из
+    детей, терялись. Добавляем их в начало активной ревизии, снимая
+    структурный номер (по конвенции номер хранится в ``item_number``).
+    Элементы, у которых в теле уже есть абзацы, не трогаем: их текст мог быть
+    получен из своей узкой правки, и перезапись спровоцировала бы дубли
+    (кейс 127 <- 516).
+    """
+    active_rev = None
+    for rev in reversed(old_element.get('revisions') or []):
+        if rev.get('valid_to') in (None, '') and not rev.get('not_valid'):
+            active_rev = rev
+            break
+    if active_rev is None:
+        return
+    body = active_rev.setdefault('body', [])
+    if any(b.get('type') == 'paragraph' for b in body):
+        return
+
+    # Свежие вводные абзацы: collected_content парсера либо paragraphs из body.
+    candidates = []
+    for content in new_element.get('collected_content') or []:
+        if isinstance(content, str) and content.strip():
+            candidates.append(content.strip())
+    if not candidates:
+        new_rev = (new_element.get('revisions') or [{}])[0]
+        for block in new_rev.get('body') or []:
+            if block.get('type') == 'paragraph' and (block.get('html_text') or '').strip():
+                candidates.append(block['html_text'].strip())
+    if not candidates:
+        return
+
+    item_type = old_element.get('item_type')
+    if item_type in ('part', 'point', 'subpoint'):
+        item_number = str(old_element.get('item_number') or '')
+        cleaned = []
+        for html in candidates:
+            stripped = remove_leading_number_from_html(html, item_number).strip()
+            if stripped:
+                cleaned.append(stripped)
+        candidates = cleaned
+    if not candidates:
+        return
+
+    # Не дублируем тексты детей: вводный абзац должен отличаться от
+    # собственного текста каждого существующего ребёнка.
+    existing_keys = {_html_text_key(b.get('html_text')) for b in body if b.get('type') == 'paragraph'}
+    child_keys = set()
+    for child in old_element.get('item_children') or []:
+        if isinstance(child, dict):
+            for rev in child.get('revisions') or []:
+                for block in rev.get('body') or []:
+                    if block.get('type') == 'paragraph':
+                        child_keys.add(_html_text_key(block.get('html_text')))
+    missing = [h for h in candidates if _html_text_key(h) not in existing_keys | child_keys]
+    if not missing:
+        return
+
+    new_body = []
+    for html in missing:
+        new_body.append({'type': 'paragraph', 'html_text': html, 'order': len(new_body) + 1})
+    new_body.extend(body)
+    for idx, block in enumerate(new_body, 1):
+        block['order'] = idx
+    active_rev['body'] = new_body
+    if log_callback:
+        log_callback(
+            f"  В тело {old_element.get('item_id')} добавлены вводные абзацы "
+            f"({len(missing)} шт.) из перестройки родителя — активная ревизия "
+            f"этого прогона была без текста.",
+            'result',
+        )
+
+
 def sync_structural_element_recursive(old_element, new_element, change_date, modified_by_id, data_context, log_callback, is_top_level=True, override_mod_type=None, highlights=None, is_table_child=False):
     valid_from_dt = datetime.strptime(change_date, '%d.%m.%Y')
     valid_to_prev = (valid_from_dt - timedelta(days=1)).strftime('%d.%m.%Y')
@@ -798,6 +883,13 @@ def sync_structural_element_recursive(old_element, new_element, change_date, mod
     # revision carrying the OLD body and no highlights (see 127<-516 point 1/9).
     # Only the top-level element of this sync may rebuild its own body.
     if not is_top_level and _already_revised_this_run(old_element, change_date):
+        # Дополнение: если парсер родителя принёс собственные (вводные) абзацы,
+        # а активная ревизия этого прогона состоит только из child_ref,
+        # дописываем их в начало тела. Без этого теряется вводный абзац
+        # родителя, ставшего структурным элементом в этом же прогоне
+        # (кейс 444-ЗС -> 269-ЗС: «1. К отдельным категориям...» должен стать
+        # телом части 1, а не исчезнуть вместе с ранним выходом).
+        _salvage_missing_own_paragraphs(old_element, new_element, log_callback)
         if log_callback:
             log_callback(
                 f"  Сохраняем уже перестроенный дочерний элемент "

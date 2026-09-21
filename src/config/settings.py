@@ -98,7 +98,15 @@ _SETTINGS_FIELDS = [
     'gemini_api_key',
     'gemini_base_url',
     'gemini_default_model',
+    'free_deepseek_api_key',
+    'free_deepseek_base_url',
+    'free_deepseek_default_model',
+    'free_deepseek_session',
     'llm_backend',
+    'post_analysis_backend',
+    'post_analysis_model',
+    'post_analysis_api_key',
+    'post_analysis_base_url',
     'ssl_verify',
     # База НПА
     'db_host',
@@ -161,7 +169,19 @@ def get_settings() -> Settings:
         gemini_api_key=os.environ.get('GEMINI_API_KEY', ''),
         gemini_base_url=os.environ.get('GEMINI_BASE_URL', ''),
         gemini_default_model=os.environ.get('GEMINI_DEFAULT_MODEL', ''),
-        llm_backend=os.environ.get('LLM_BACKEND', 'kilo_gateway'),
+        free_deepseek_api_key=os.environ.get('FREE_DEEPSEEK_API_KEY', ''),
+        free_deepseek_base_url=os.environ.get(
+            'FREE_DEEPSEEK_BASE_URL', 'http://127.0.0.1:9655/v1'
+        ),
+        free_deepseek_default_model=os.environ.get(
+            'FREE_DEEPSEEK_DEFAULT_MODEL', 'deepseek-v4-flash'
+        ),
+        free_deepseek_session=os.environ.get('FREE_DEEPSEEK_SESSION', 'npazs-main'),
+        llm_backend=os.environ.get('LLM_BACKEND', 'free_deepseek'),
+        post_analysis_backend=os.environ.get('POST_ANALYSIS_BACKEND', ''),
+        post_analysis_model=os.environ.get('POST_ANALYSIS_MODEL', ''),
+        post_analysis_api_key=os.environ.get('POST_ANALYSIS_API_KEY', ''),
+        post_analysis_base_url=os.environ.get('POST_ANALYSIS_BASE_URL', ''),
         ssl_verify=os.environ.get('SSL_VERIFY', 'true'),
         db_host=os.environ.get('DB_HOST', 'localhost'),
         db_port=_int_env('DB_PORT', '3306'),

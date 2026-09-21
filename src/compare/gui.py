@@ -30,6 +30,7 @@ from npazs.constants import (
 from npazs.llm_models import (
         fetch_cline_models,
         fetch_cerebras_models,
+        fetch_free_deepseek_models,
         fetch_gemini_models,
         fetch_kilo_gateway_free_models,
         fetch_mistral_models,
@@ -64,7 +65,7 @@ def _initial_backend_settings() -> dict[str, str]:
     """Настройки бэкенда при старте окна: из ``.env``, с fallback на константы.
 
     Возвращает ``backend`` (сохранённый ``LLM_BACKEND`` или ``DEFAULT_BACKEND``)
-    и его ``api_key`` / ``base_url`` / ``model``; отсутствующие в ``.env``
+    и его ``base_url`` / ``model``; отсутствующие в ``.env``
     значения подставляются из :data:`HTTP_BACKEND_DEFS`.
     """
     backend = load_active_backend()
@@ -74,7 +75,6 @@ def _initial_backend_settings() -> dict[str, str]:
     defn = HTTP_BACKEND_DEFS.get(backend) or {}
     return {
         'backend': backend,
-        'api_key': saved.get('api_key') or defn.get('api_key', ''),
         'base_url': saved.get('base_url') or defn.get('base_url') or DEFAULT_KILO_GATEWAY_URL,
         'model': saved.get('model', ''),
     }
@@ -94,11 +94,10 @@ class CompareApp:
         self.target_number = tk.StringVar()
         self.mode = tk.StringVar(value='agent')
         # Автозагрузка сохранённых настроек бэкенда из .env: активный бэкенд,
-        # его URL, API-ключ и модель — как при последнем сохранении.
+        # его URL и модель — как при последнем сохранении.
         saved = _initial_backend_settings()
         self.backend = tk.StringVar(value=saved['backend'])
         self.kilo_gateway_url = tk.StringVar(value=saved['base_url'])
-        self.kilo_gateway_api_key = tk.StringVar(value=saved['api_key'])
         self.available_models = []
         self._models_backend = None
         self.model = tk.StringVar(value=saved['model'])
@@ -214,6 +213,10 @@ class CompareApp:
             backend_frame, text='Gemini', variable=self.backend,
             value='gemini', command=self._on_backend_changed,
         ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='FreeDeepseek', variable=self.backend,
+            value='free_deepseek', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
 
         self.kg_url_label = tk.Label(backend_frame, text='API URL:')
         self.kg_url_label.pack(side=tk.LEFT, padx=(16, 4))
@@ -221,24 +224,6 @@ class CompareApp:
             backend_frame, textvariable=self.kilo_gateway_url, width=40
         )
         self.kg_url_entry.pack(side=tk.LEFT)
-
-        self.kg_key_label = tk.Label(backend_frame, text='API Key:')
-        self.kg_key_label.pack(side=tk.LEFT, padx=(16, 4))
-        self.kg_key_entry = tk.Entry(
-            backend_frame, textvariable=self.kilo_gateway_api_key, width=20,
-            show='*',
-        )
-        self.kg_key_entry.pack(side=tk.LEFT)
-
-        self.save_env_btn = tk.Button(
-            backend_frame, text='Сохранить в .env', command=self._save_env_settings,
-        )
-        self.save_env_btn.pack(side=tk.LEFT, padx=(8, 0))
-
-        self.fetch_models_btn = tk.Button(
-            backend_frame, text='Обновить модели', command=self._refresh_models
-        )
-        self.fetch_models_btn.pack(side=tk.LEFT, padx=(16, 0))
 
         btn_frame = tk.Frame(frame)
         btn_frame.grid(row=7, column=0, columnspan=3, sticky='w', **pad)
@@ -371,33 +356,31 @@ class CompareApp:
         return 'break'
 
     def _on_backend_changed(self) -> None:
-        # Для HTTP-бэкендов (kilo_gateway, cline, openrouter, deepseek, gemini)
-        # показываем URL/API Key поля. Для ollama скрываем и используем локальный сервер.
+        # For HTTP backends (kilo_gateway, cline, openrouter, deepseek, gemini)
+        # show URL field. For ollama hide and use local server.
         backend = self.backend.get()
         if backend in HTTP_BACKENDS:
             self.kg_url_label.config(state=tk.NORMAL)
             self.kg_url_entry.config(state=tk.NORMAL)
-            self.kg_key_label.config(state=tk.NORMAL)
-            self.kg_key_entry.config(state=tk.NORMAL)
-            # Автоподстановка URL по умолчанию, если поле пусто или совпадает
-            # с URL другого бэкенда.
+            # Auto-set default URL if empty or matches
+            # another backend.
             defn = HTTP_BACKEND_DEFS.get(backend)
             if defn:
                 saved = load_backend_settings(backend)
                 current_url = self.kilo_gateway_url.get().strip()
                 default_url = defn['base_url']
-                default_key = saved.get('api_key') or defn.get('api_key', '')
                 if not current_url or current_url != default_url:
                     self.kilo_gateway_url.set(saved.get('base_url') or default_url)
-                    self.kilo_gateway_api_key.set(str(default_key or ''))
                 if saved.get('model'):
                     self.model.set(saved['model'])
         else:
             self.kg_url_label.config(state=tk.DISABLED)
             self.kg_url_entry.config(state=tk.DISABLED)
-            self.kg_key_label.config(state=tk.DISABLED)
-            self.kg_key_entry.config(state=tk.DISABLED)
         if getattr(self, '_models_backend', None) != backend:
+            # Clear stale models from the previous backend so the combo box
+            # doesn't show another provider's models while the fresh fetch
+            # (started below) is still in progress.
+            self.available_models = []
             self._fetch_models()
         self._update_model_combo()
 
@@ -410,37 +393,6 @@ class CompareApp:
         else:
             self.model.set('')
 
-    def _refresh_models(self) -> None:
-        """Кнопка «Обновить модели»: сначала сохранить ключ в ``.env``."""
-        self._save_env_settings()
-        self._fetch_models()
-
-    def _save_env_settings(self) -> bool:
-        """Сохранить параметры текущего бэкенда (ключ, URL, модель) в ``.env``.
-
-        Вызывается кнопкой «Сохранить в .env», кнопкой «Обновить модели» и
-        автоматически при запуске сравнения — API-ключ моделей не нужно
-        вводить заново после перезапуска окна.
-        """
-        backend = self.backend.get().strip() or DEFAULT_BACKEND
-        if backend not in BACKEND_ENV_KEYS:
-            return False
-        try:
-            written = save_backend_settings(
-                backend,
-                api_key=self.kilo_gateway_api_key.get().strip(),
-                base_url=self.kilo_gateway_url.get().strip(),
-                model=self.model.get().strip(),
-            )
-        except (OSError, ValueError) as e:
-            self.log_queue.put(('error', f'Не удалось сохранить настройки в .env: {e}'))
-            return False
-        self.log_queue.put((
-            'success',
-            'Настройки бэкенда сохранены в .env: ' + ', '.join(sorted(written)),
-        ))
-        return bool(written)
-
     def _fetch_models(self) -> None:
         """Обновить список моделей выбранного бэкенда в фоновом потоке.
 
@@ -451,35 +403,43 @@ class CompareApp:
         if getattr(self, '_models_fetching', False):
             return
         self._models_fetching = True
-        self.fetch_models_btn.config(state=tk.DISABLED, text='Загрузка...')
         backend = self.backend.get()
         url = self.kilo_gateway_url.get().strip()
-        api_key = self.kilo_gateway_api_key.get().strip()
+        # API key читается из .env в фоновом потоке
         threading.Thread(
             target=self._fetch_models_worker,
-            args=(backend, url, api_key),
+            args=(backend, url),
             daemon=True,
         ).start()
 
-    def _fetch_models_worker(self, backend, kilo_gateway_url, kilo_gateway_api_key) -> None:
+    def _fetch_models_worker(self, backend, kilo_gateway_url) -> None:
         """Фоновый поток: получить модели для выбранного бэкенда."""
+        # Читаем API key из .env
+        from npazs.config.env_store import load_backend_settings
+        try:
+            saved = load_backend_settings(backend)
+            api_key = saved.get('api_key') or ''
+        except ValueError:
+            api_key = ''
         try:
             if backend == 'ollama':
                 self._fetch_ollama_models()
             elif backend == 'kilo_gateway':
-                self._fetch_kilo_gateway_models(kilo_gateway_url, kilo_gateway_api_key)
+                self._fetch_kilo_gateway_models(kilo_gateway_url, api_key)
             elif backend == 'openrouter':
-                self._fetch_openrouter_models(kilo_gateway_api_key)
+                self._fetch_openrouter_models(api_key)
             elif backend == 'cline':
-                self._fetch_cline_models(kilo_gateway_api_key)
+                self._fetch_cline_models(api_key)
             elif backend == 'cerebras':
-                self._fetch_cerebras_models(kilo_gateway_api_key)
+                self._fetch_cerebras_models(api_key)
             elif backend == 'together':
-                self._fetch_together_models(kilo_gateway_api_key)
+                self._fetch_together_models(api_key)
             elif backend == 'mistral':
-                self._fetch_mistral_models(kilo_gateway_api_key)
+                self._fetch_mistral_models(api_key)
             elif backend == 'gemini':
-                self._fetch_gemini_models(kilo_gateway_api_key)
+                self._fetch_gemini_models(api_key)
+            elif backend == 'free_deepseek':
+                self._fetch_free_deepseek_models(kilo_gateway_url, api_key)
             else:
                 self._fetch_ollama_models()
         finally:
@@ -553,6 +513,21 @@ class CompareApp:
             self.log_queue.put(('warning', 'Gemini недоступен — показан запасной список моделей.'))
             self.log_queue.put(('models', ('gemini', fallback)))
 
+    def _fetch_free_deepseek_models(self, base_url: str, api_key: str) -> None:
+        """Загрузить модели локального прокси FreeDeepseekAPI.
+
+        Без запущенного прокси (``npm start`` на http://127.0.0.1:9655)
+        показывается fallback из констант — модели DeepSeek-V4.1-Flash.
+        """
+        try:
+            models = fetch_free_deepseek_models(base_url, api_key)
+            self.log_queue.put(('models', ('free_deepseek', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к FreeDeepseekAPI: {e}"))
+            fallback = get_free_models_for_backend('free_deepseek')
+            self.log_queue.put(('warning', 'FreeDeepseekAPI недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('free_deepseek', fallback)))
+
     def _fetch_ollama_models(self) -> None:
         try:
             models = fetch_ollama_models()
@@ -560,7 +535,10 @@ class CompareApp:
             self.log_queue.put(('models', ('ollama', models)))
         except Exception as e:  # noqa: BLE001 - показываем причину пользователю
             self.log_queue.put(('error', f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен."))
-            self.log_queue.put(('models', ('ollama', [])))
+            # Fallback to known models so the dropdown is not empty
+            fallback = get_free_models_for_backend('ollama')
+            self.log_queue.put(('warning', 'Ollama недоступен — показан запасной список моделей.'))
+            self.log_queue.put(('models', ('ollama', fallback)))
 
     def _fetch_kilo_gateway_models(self, kilo_gateway_url, kilo_gateway_api_key) -> None:
         """Загрузить реально существующие free-модели Kilo Gateway.
@@ -602,10 +580,6 @@ class CompareApp:
                 messagebox.showerror('Сравнение', f'Файл не найден:\n{path}')
                 return
 
-        # Ключ и параметры бэкенда фиксируем в .env, чтобы следующий запуск
-        # поднял их из настроек, а не требовал повторного ввода.
-        self._save_env_settings()
-
         options = CompareOptions(
             ours_path=ours,
             theirs_path=theirs,
@@ -615,7 +589,6 @@ class CompareApp:
             backend=self.backend.get().strip(),
             model=self.model.get().strip(),
             kilo_gateway_url=self.kilo_gateway_url.get().strip(),
-            kilo_gateway_api_key=self.kilo_gateway_api_key.get().strip(),
             resume=bool(self.resume.get()),
         )
         self.stop_event.clear()

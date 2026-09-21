@@ -126,15 +126,89 @@ def test_get_active_llm_config_is_backend(monkeypatch):
 
 
 def test_get_llm_backend_valid_and_invalid(monkeypatch):
-        """Неизвестный бэкенд откатывается к kilo_gateway."""
-        monkeypatch.setattr(
-            'npazs.config.ollama.get_settings',
-            lambda: type('S', (), {'llm_backend': 'bogus'})(),
-        )
-        assert get_llm_backend() == 'kilo_gateway'
+        """Неизвестный бэкенд откатывается к free_deepseek (дефолт)."""
+        monkeypatch.setattr('npazs.config.ollama.get_settings', lambda: type('S', (), {'llm_backend': 'bogus'})())
+        assert get_llm_backend() == 'free_deepseek'
+        assert get_llm_backend() == 'free_deepseek'
 
-        monkeypatch.setattr(
-            'npazs.config.ollama.get_settings',
-            lambda: type('S', (), {'llm_backend': 'cline'})(),
-        )
-        assert get_llm_backend() == 'cline'
+def test_default_backend_is_free_deepseek(monkeypatch):
+    """free_deepseek — бэкенд по умолчанию для обоих селекторов."""
+    from npazs.config.settings import get_settings
+    from npazs.constants import DEFAULT_BACKEND
+
+    assert DEFAULT_BACKEND == 'free_deepseek'
+    monkeypatch.delenv('LLM_BACKEND', raising=False)
+    assert get_settings().llm_backend == 'free_deepseek'
+    assert get_llm_backend() == 'free_deepseek'
+
+
+def _fake_settings(**overrides):
+    """Минимальный settings-объект для тестов пост-конфига."""
+    fields = {
+        'llm_backend': 'free_deepseek',
+        'post_analysis_backend': '',
+        'post_analysis_model': '',
+        'post_analysis_api_key': '',
+        'post_analysis_base_url': '',
+        'free_deepseek_base_url': 'http://127.0.0.1:9655/v1',
+        'free_deepseek_api_key': '',
+        'free_deepseek_default_model': 'deepseek-v4-flash',
+        'free_deepseek_session': 'npazs-main',
+        'gemini_base_url': 'https://gemini-url',
+        'gemini_api_key': 'K-pa',
+        'gemini_default_model': 'gemini-2.5-flash',
+    }
+    fields.update(overrides)
+    return type('S', (), fields)()
+
+
+def test_post_analysis_llm_config_overrides(monkeypatch):
+    """POST_ANALYSIS_API_KEY/_BASE_URL приоритетнее кредов пост-бэкенда."""
+    from npazs.config.ollama import get_post_analysis_llm_config
+
+    monkeypatch.setattr(
+        'npazs.config.ollama.get_settings',
+        lambda: _fake_settings(
+            post_analysis_backend='gemini',
+            post_analysis_api_key='K-override',
+            post_analysis_base_url='https://pa-own-url',
+        ),
+    )
+    config = get_post_analysis_llm_config()
+    assert config['backend'] == 'gemini'
+    assert config['api_key'] == 'K-override'
+    assert config['base_url'] == 'https://pa-own-url'
+
+
+def test_post_analysis_llm_config_inherits_backend_creds(monkeypatch):
+    """Пустые POST_ANALYSIS-оверрайды — наследуются креды пост-бэкенда."""
+    from npazs.config.ollama import get_post_analysis_llm_config
+
+    monkeypatch.setattr(
+        'npazs.config.ollama.get_settings',
+        lambda: _fake_settings(post_analysis_backend='gemini'),
+    )
+    config = get_post_analysis_llm_config()
+    assert config['backend'] == 'gemini'
+    assert config['api_key'] == 'K-pa'
+    assert config['base_url'] == 'https://gemini-url'
+
+
+def test_post_analysis_llm_config_ollama_ignores_overrides(monkeypatch):
+    """Для ollama креды не переопределяются (нет api_key в конфиге)."""
+    from npazs.config.ollama import get_post_analysis_llm_config
+
+    monkeypatch.setattr(
+        'npazs.config.ollama.get_settings',
+        lambda: _fake_settings(
+            post_analysis_backend='ollama',
+            post_analysis_api_key='K-override',
+            post_analysis_base_url='https://pa-own-url',
+            ollama_base_url='http://localhost:11434',
+            default_ollama_model='gemini-1.5-flash',
+        ),
+    )
+    config = get_post_analysis_llm_config()
+    assert config['backend'] == 'ollama'
+    assert 'api_key' not in config
+    assert config['base_url'] == 'http://localhost:11434'

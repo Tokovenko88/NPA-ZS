@@ -1351,3 +1351,214 @@ def create_element_skeleton(item_type, item_number, html_text, parent_id, existi
                 body.append({'type': 'paragraph', 'html_text': html_text, 'order': 1})
         element['revisions'] = [{'body': body}]
     return element
+
+
+# --------------------------------------------------------------------------- #
+# Детерминированная замена слов «слова «X» заменить словами «Y»
+# (fallback, если ИИ не применил замену — кейс 444-ЗС → 269-ЗС: замена
+# «К отдельным категориям граждан» → «1. К отдельным категориям граждан»
+# не попала в ответ ИИ, из-за чего абзац не стал частью 1).
+# --------------------------------------------------------------------------- #
+
+def parse_word_replacement(description):
+    """Разобрать инструкцию «слова «X» заменить словами «Y»».
+
+    Работает по чистому тексту описания (HTML-теги удаляются). Возвращает
+    пару строк ``(old_phrase, new_phrase)`` или ``None``, если шаблон не найден.
+    """
+    text = re.sub(r'<[^>]+>', ' ', str(description or ''))
+    m = re.search(
+        r'слова\s*«\s*(.+?)\s*»\s*заменить\s*словами\s*«\s*(.+?)\s*»',
+        text,
+    )
+    if not m:
+        return None
+    return m.group(1).strip(), m.group(2).strip()
+
+
+def norm_for_phrase_match(text):
+    """Нормализовать фразу для поиска: нижний регистр, схлопнутые пробелы."""
+    return re.sub(r'\s+', ' ', str(text or '')).strip().lower()
+
+
+def _norm_char_map(html_text):
+    """Отображение символов нормализованного текста на индексы исходного HTML.
+
+    Возвращает ``(norm_string, raw_indices)``: символы вне HTML-тегов в нижнем
+    регистре; последовательности пробелов схлопываются в один пробел, который
+    отображается на индекс первого символа пробельного прогона.
+    """
+    chars = []
+    raw = []
+    in_tag = False
+    prev_space = False
+    for i, ch in enumerate(html_text):
+        if ch == '<':
+            in_tag = True
+            continue
+        if ch == '>':
+            in_tag = False
+            continue
+        if in_tag:
+            continue
+        if ch.isspace():
+            if not prev_space:
+                chars.append(' ')
+                raw.append(i)
+                prev_space = True
+            continue
+        prev_space = False
+        chars.append(ch.lower())
+        raw.append(i)
+    return ''.join(chars), raw
+
+
+_PHRASE_WINDOW_DELTA = 3  # допуск длины окна при нечётком поиске фразы
+
+
+def find_phrase_raw_range_fuzzy(html_text, phrase, min_ratio=0.8):
+    """Найти диапазон ``(raw_start, raw_end)`` фразы в HTML-тексте.
+
+    Сначала точный поиск по нормализованному тексту (регистр/пробелы не важны);
+    если не нашлось — нечёткий поиск скользящим окном с допуском на опечатки
+    OCR в описании правки (difflib, порог ``min_ratio``).
+
+    Длина окна перебирается вокруг длины фразы (± ``_PHRASE_WINDOW_DELTA``):
+    иначе фрагмент, отличающийся от фразы на несколько символов, обрезался бы
+    (кейс 444-ЗС → 269-ЗС: описание «К отельным категориям граждан» на один
+    символ короче реального «К отдельным категориям граждан» — конец диапазона
+    попадал на предпоследний символ, и в тексте появлялось «гражданн»).
+    Возвращает ``None``, если фраза не найдена.
+    """
+    norm_html, raw_idx = _norm_char_map(html_text)
+    norm_phrase = norm_for_phrase_match(phrase)
+    if not norm_html or not norm_phrase:
+        return None
+    plen = len(norm_phrase)
+    idx = norm_html.find(norm_phrase)
+    if idx >= 0:
+        return raw_idx[idx], raw_idx[idx + plen - 1] + 1
+    if plen < 6 or len(norm_html) < plen - _PHRASE_WINDOW_DELTA:
+        return None
+    best = None
+    low = max(1, plen - _PHRASE_WINDOW_DELTA)
+    for length in range(low, plen + _PHRASE_WINDOW_DELTA + 1):
+        if length > len(norm_html):
+            continue
+        for start in range(len(norm_html) - length + 1):
+            window = norm_html[start:start + length]
+            matcher = difflib.SequenceMatcher(None, norm_phrase, window)
+            if matcher.quick_ratio() < min_ratio:
+                continue
+            ratio = matcher.ratio()
+            if ratio >= min_ratio and (best is None or ratio > best[0]):
+                best = (ratio, start, length)
+    if best is None:
+        return None
+    _, start, length = best
+    return raw_idx[start], raw_idx[start + length - 1] + 1
+
+
+def _phrase_index_map(phrase, found):
+    """Вернуть ``(map_start, map_end)`` — перевод индексов ``phrase`` в ``found``.
+
+    Совпавшие блоки ``difflib`` задают соответствие; на границе двух блоков
+    начало относится к следующему блоку, а конец — к предыдущему (иначе при
+    вставке символа в середину фразы он попадал бы и в «совпадающую» часть).
+    Позиции вне блоков притягиваются к концу ближайшего предыдущего блока.
+    """
+    blocks = [(a, b, size) for a, b, size in
+              difflib.SequenceMatcher(None, phrase, found).get_matching_blocks()
+              if size]
+
+    def _prev_end(idx):
+        best = 0
+        for a, b, size in blocks:
+            if a + size <= idx:
+                best = b + size
+            else:
+                break
+        return best
+
+    def map_start(idx):
+        for a, b, _size in blocks:          # начало блока — высший приоритет
+            if idx == a:
+                return b
+        for a, b, size in blocks:           # внутри блока — со сдвигом
+            if a < idx < a + size:
+                return b + (idx - a)
+        for a, b, size in blocks:           # конец блока
+            if idx == a + size:
+                return b + size
+        return _prev_end(idx)
+
+    def map_end(idx):
+        for a, b, size in blocks:           # конец блока — высший приоритет
+            if idx == a + size:
+                return b + size
+        for a, b, size in blocks:
+            if a < idx < a + size:
+                return b + (idx - a)
+        for a, b, _size in blocks:
+            if idx == a:
+                return b
+        return _prev_end(idx)
+
+    return map_start, map_end
+
+
+def _splice_minimal_edit(found, old_phrase, new_phrase):
+    """Собрать результат замены как минимальное редактирование фрагмента.
+
+    Неизменённые части берутся из ``found`` (написание целевого документа —
+    источник истины), новые/изменённые — из ``new_phrase``. Так опечатки в
+    описании правки (ИИ переписывает инструкцию своими словами: «отельным»
+    вместо «отдельным») не попадают в текст НПА.
+    """
+    map_start, map_end = _phrase_index_map(old_phrase, found)
+    out = []
+    matcher = difflib.SequenceMatcher(None, old_phrase, new_phrase)
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == 'equal':
+            out.append(found[map_start(i1):map_end(i2)])
+        elif tag in ('replace', 'insert'):
+            out.append(new_phrase[j1:j2])
+    return ''.join(out)
+
+
+
+def refine_word_replacement(old_phrase, new_phrase, source_html):
+    """Уточнить фразы замены по написанию исходного текста документа.
+
+    ИИ на этапе разбора инструкций иногда переписывает её своими словами и
+    допускает опечатки (кейс 444-ЗС → 269-ЗС: «К отельным категориям граждан»
+    вместо «К отдельным категориям граждан»). Написание нормы — в документе,
+    поэтому фразы приводим к нему: ``old_clean`` — реально найденный фрагмент,
+    ``new_clean`` — ``new_phrase`` с неизменёнными частями из этого фрагмента.
+    Если фраза в документе не найдена или совпадает — возвращаем исходные.
+    """
+    rng = find_phrase_raw_range_fuzzy(source_html or '', old_phrase)
+    if rng is None:
+        return old_phrase, new_phrase
+    found = (source_html or '')[rng[0]:rng[1]]
+    if not found or found == old_phrase:
+        return old_phrase, new_phrase
+    return found, _splice_minimal_edit(found, old_phrase, new_phrase)
+
+
+def apply_word_replacement_fuzzy(html_text, old_phrase, new_phrase, min_ratio=0.8):
+    """Заменить в HTML-тексте фразу ``old_phrase`` на ``new_phrase`` (чистый текст).
+
+    Поиск нечувствителен к регистру/пробелам и допускает опечатки OCR. Замена
+    выполняется минимальным редактированием: совпадающие части сохраняют
+    написание целевого текста, подставляются только новые фрагменты.
+    Возвращает исправленный HTML или ``None``, если фраза не найдена.
+    """
+    rng = find_phrase_raw_range_fuzzy(html_text, old_phrase, min_ratio)
+    if rng is None:
+        return None
+    start, end = rng
+    found = html_text[start:end]
+    if not found:
+        return None
+    return html_text[:start] + _splice_minimal_edit(found, old_phrase, new_phrase) + html_text[end:]

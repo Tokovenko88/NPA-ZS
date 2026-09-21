@@ -180,7 +180,34 @@ def _collect_child_refs(element: dict) -> set[str]:
     return refs
 
 
-def check_orphan_children(result: dict, change_npa_id: Any) -> list[dict]:
+def _date_key(value):
+    """Ключ сравнения для даты «ДД.ММ.ГГГГ» (или ``None``, если не распознать)."""
+    parts = str(value or '').strip().split('.')
+    if len(parts) != 3:
+        return None
+    try:
+        return (int(parts[2]), int(parts[1]), int(parts[0]))
+    except ValueError:
+        return None
+
+
+def _last_closed_key_not_own(child: dict, change_npa_id: Any):
+    """Дата закрытия последней ревизии ребёнка, если НИ одна ревизия не создана
+    изменяющим НПА. Возвращает ключ даты или ``None``."""
+    revisions = [rev for rev in child.get('revisions') or [] if isinstance(rev, dict)]
+    if not revisions:
+        return None
+    if any(_is_own_revision(rev.get('modified_by_id'), change_npa_id) for rev in revisions):
+        return None
+    last_key = None
+    for rev in revisions:
+        key = _date_key(rev.get('valid_to'))
+        if key:
+            last_key = key
+    return last_key
+
+
+def check_orphan_children(result: dict, change_npa_id: Any, change_date: Any = None) -> list[dict]:
     """Детерминированная проверка: дети родителя, пересозданного через
     ``new_redaction`` (модифицированного изменяющим НПА), должны либо
     иметь активную ревизию от изменяющего НПА, либо быть помеченными
@@ -198,6 +225,7 @@ def check_orphan_children(result: dict, change_npa_id: Any) -> list[dict]:
     удаляющая действующую норму.
     """
     gaps: list[dict] = []
+    change_key = _date_key(change_date)
     for element in _iter_elements(result.get("npa_items_revision")):
         # Родитель должен быть пересоздан изменяющим НПА (new_redaction/change).
         if not _active_rev_is_own(element, change_npa_id):
@@ -232,6 +260,16 @@ def check_orphan_children(result: dict, change_npa_id: Any) -> list[dict]:
                 if parent_refs is None:
                     parent_refs = _collect_child_refs(element)
                 if str(child.get("item_id") or "") in parent_refs:
+                    continue
+            # Ребёнок, чья последняя ревизия закрыта ДО даты изменяющего НПА
+            # (и у которого нет собственных ревизий от изменяющего НПА), правкам
+            # изменяющего НПА не подлежал: норма прекратила действие раньше.
+            # Не сирота — иначе ложный пробел (кейс 444-ЗС -> 269-ЗС: старые
+            # пункты 3) и 4) статьи 3 были закрыты законом 33699-ЗС 14.12.2017,
+            # задолго до даты вступления 444-ЗС в силу 23.10.2018).
+            if change_key is not None:
+                last_key = _last_closed_key_not_own(child, change_npa_id)
+                if last_key is not None and last_key < change_key:
                     continue
             gaps.append({
                 "change_id": None,
@@ -310,6 +348,7 @@ def check_tracker_coverage(
     result: dict,
     changes: Iterable[dict],
     change_npa_id: Any,
+    change_date: Any = None,
 ) -> list[dict]:
     """Сверяет нормы трекера с ревизиями результата.
 
@@ -319,6 +358,9 @@ def check_tracker_coverage(
             ``change_id``, ``revision_number``, ``structural_element``, ``type``,
             ``status``, ``revision_id``, ``target_item_id``).
         change_npa_id: id изменяющего НПА или коллекция ids его норм.
+        change_date: дата вступления в силу изменяющего НПА («ДД.ММ.ГГГГ»);
+            используется, чтобы не считать «сиротами» детей, ревизии которых
+            были закрыты другими законами раньше этой даты.
 
     Returns:
         Список «пробелов покрытия» — норм, помеченных как применённые, но не
@@ -387,7 +429,7 @@ def check_tracker_coverage(
     # ревизия не закрылась, а пост-анализ (собирающий изменения по
     # modified_by_id) такую проблему не видит (кейс 380-ЗС -> 269-ЗС:
     # части 8-11 статьи 5 остались активными).
-    gaps.extend(check_orphan_children(result, change_npa_id))
+    gaps.extend(check_orphan_children(result, change_npa_id, change_date))
     return gaps
 
 
@@ -404,7 +446,8 @@ def format_coverage_gaps(gaps: list[dict]) -> str:
         lines.append(
             f"- change_id={gap.get('change_id')} | пункт/подпункт: {gap.get('revision_number')} | "
             f"элемент: {gap.get('structural_element')} | тип: {gap.get('type')} | "
-            f"статус: {gap.get('status')} | причина: {gap.get('reason')}"
+            f"статус: {gap.get('status')} | причина: {gap.get('reason')} | "
+            f"target_item_id: {gap.get('target_item_id')}"
         )
     lines.append("</coverage_gaps>")
     return "\n".join(lines)
@@ -470,9 +513,11 @@ def _normalize_status(status: Any) -> str:
     return str(status).lower().strip()
 
 
-def check_coverage(tracker: Any, result: dict, change_npa_id: Any) -> list[dict]:
+def check_coverage(tracker: Any, result: dict, change_npa_id: Any, change_date: Any = None) -> list[dict]:
     """Обёртка: снять снимок изменений трекера и сверить с результатом."""
-    return check_tracker_coverage(result, serialize_tracker_changes(tracker), change_npa_id)
+    return check_tracker_coverage(
+        result, serialize_tracker_changes(tracker), change_npa_id, change_date
+    )
 
 
 def append_coverage_section(report_path: Any, gaps: list[dict]) -> bool:

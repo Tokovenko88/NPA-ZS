@@ -10,7 +10,10 @@
 2. Формирует промпт из ``data/prompts/prompt_post_analysis.md``: описание
    структуры JSON (``docs/json_schema.md``), полный текст инструкций
    изменяющего закона и список «до/после» по каждому изменению.
-3. Отправляет промпт ИИ-агенту (тот же бэкенд/модель, что и основной прогон).
+3. Отправляет промпт ИИ-агенту пост-анализа (свой бэкенд/модель:
+   ``POST_ANALYSIS_BACKEND`` / ``POST_ANALYSIS_MODEL``; ключ/URL — из
+   переменных выбранного пост-бэкенда; при отсутствии настроек —
+   основной бэкенд прогона).
 4. Вердикт агента:
    - ``correct``   — пишется отчёт-подтверждение ``<результат>_post_analysis.md``;
    - ``incorrect`` — применяются точечные исправления и создаётся
@@ -36,10 +39,17 @@ from npazs.constants import (
 )
 from npazs.revision.ai_utils import _repair_json_answer, ask_ollama
 from npazs.revision.coverage_check import (
+    _is_own_mark,
+    _is_own_revision,
     check_coverage,
+    collect_result_revisions,
     format_coverage_gaps,
 )
-from npazs.revision.html_utils import extract_text_from_element, split_html_to_paragraphs
+from npazs.revision.html_utils import (
+    extract_text_from_element,
+    remove_leading_number_from_html,
+    split_html_to_paragraphs,
+)
 from npazs.revision.text_utils import get_active_revision, safe_re_sub
 from npazs.revision.tree_utils import find_item_by_id
 
@@ -296,6 +306,38 @@ def _ids_match(modified_by_id, change_npa_id):
     return False
 
 
+def _repealed_by_current_change(element, change_npa_id):
+    """True, если элемент уже корректно закрыт ТЕКУЩИМ изменяющим НПА
+    (пометка ``not_valid`` от него): у элемента нет открытой ревизии
+    (с пустым ``valid_to``), а последняя по порядку ревизия помечена
+    ``not_valid`` со ссылкой на текущий изменяющий НПА.
+
+    Это штатное конечное состояние отменённой нормы («признать
+    утратившим силу» новой ревизии не создаёт — см. ``change_applier``,
+    ветка ``delete``): исходный текст сохранён в закрытой ревизии,
+    пометка утраты силы выставлена, ``valid_to`` = день перед вступлением
+    изменения в силу. Правки текста такого элемента недопустимы — они
+    «воскрешают» отменённую норму (кейс 925-ЗС → 127-ЗС: ИИ-агент решил,
+    что текст «утрачен», и коррекция ``element_html`` создала открытую
+    ревизию с ``not_valid: False``).
+    """
+    if not isinstance(element, dict) or not change_npa_id:
+        return False
+    revisions = element.get('revisions') or []
+    if not revisions:
+        return False
+    # Открытая ревизия (пустой valid_to) — норма действует, отменой это не
+    # является. get_active_revision() здесь не подходит: при отсутствии
+    # открытой ревизии он возвращает последнюю закрытую (fallback), поэтому
+    # проверяем valid_to напрямую.
+    for rev in revisions:
+        if rev.get('valid_to') in (None, ''):
+            return False
+    last_rev = revisions[-1]
+    not_valid = last_rev.get('not_valid')
+    return bool(not_valid) and _ids_match(not_valid, change_npa_id)
+
+
 def _revision_body_html(rev):
     """Собственный HTML ревизии: блоки paragraph/table в порядке order."""
     if not rev:
@@ -494,14 +536,24 @@ def _collect_element_changes(element, change_npa_id, chain, out):
                 out.append(_change_entry(
                     'repel_law', item_id, path,
                     _cap(_revision_body_html(rev)),
-                    f"Элемент помечен утратившим силу (not_valid по изменяющему НПА {change_npa_id})",
+                    f"Элемент помечен утратившим силу (not_valid по изменяющему "
+                    f"НПА {change_npa_id}); исходный текст сохранён в закрытой "
+                    f"ревизии выше (before). Это штатное конечное состояние "
+                    f"отменённой нормы: «признать утратившим силу» новой "
+                    f"ревизии не создаёт — не требовать восстановления текста "
+                    f"и не предлагать текстовых ревизий для этого элемента.",
                     _highlights_summary(rev.get('highlights')), item_number,
                 ))
             continue
         if not _ids_match(rev.get('modified_by_id'), change_npa_id):
             continue
+        # Для первой ревизии от изменяющего НПА используем активную ревизию как 'before'.
+        # Иначе пустая строка вызывала ложные претензии на "пустой элемент" при
+        # первом присвоении контента (например, когда неструктурированный
+        # абзац становится структурным элементом с нумерацией). Конвенция: номер
+        # структурного элемента хранится в item_number, а не в html_text.
         if idx == 0:
-            kind, before = 'add', ''
+            kind, before = 'add', _revision_body_html(get_active_revision(element))
         else:
             kind, before = 'change', _revision_body_html(revisions[idx - 1])
         out.append(_change_entry(
@@ -641,6 +693,16 @@ def build_prompt(result, change_data, changes, extracted_instructions=None,
         + '\n\n<integrity_check>\nTexts in <changes> may be truncated with \"…[обрезано]\". '
         'If truncation removed a mandatory phrase from the instruction or cut the sentence mid-clause, '
         'treat it as an incorrect application and reconstruct the full correct text in corrections.value.\n</integrity_check>\n'
+        + '\n\n<numbering_convention>\n'
+        'Номер структурного элемента (часть, пункт, подпункт) хранится в поле item_number '
+        '(например «1», «3)») и НЕ должен присутствовать в начале его абзацев: пайплайн '
+        'снимает префиксы «1. »/«3) » из html_text. ОТСУТСТВИЕ такого префикса в тексте '
+        'элемента — НЕ ошибка; не предлагайте коррекции, дописывающие номер в текст.\n'
+        'При сверке текстов с <instructions> эталоном являются формулировки внутри кавычек '
+        '«...» текста изменяющего закона. НЕ исправляйте словоформы, которые дословно '
+        'совпадают с текстом изменяющего закона (в том числе архаичные/спорные формы '
+        'вроде «выполнявшихся работ») — расхождение с вашим ожиданием не является ошибкой.\n'
+        '</numbering_convention>\n'
         + '\n\n<changes>\n' + changes_json + '\n</changes>'
     )
     if coverage_section:
@@ -779,7 +841,36 @@ def _build_highlights_for_html_change(old_html, new_html):
     }
 
 
-def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callback=None):
+def _correction_conflicts_with_source(old_html, value, change_text):
+    """True, если коррекция правит формулировку, дословно совпадающую с текстом
+    изменяющего НПА, на формулировку, в нём отсутствующую.
+
+    Защита от галлюцинаций LLM (кейс 444-ЗС -> 269-ЗС: в результате было
+    «выполнявшихся работ» — дословно из закона; LLM заявила «выполняющихся
+    вместо выполняющих» и автоправка испортила корректный текст).
+    """
+    if not change_text:
+        return False
+    old_tokens = re.findall(r'\w+', _strip_html(old_html).lower())
+    new_tokens = re.findall(r'\w+', _strip_html(value).lower())
+    if not old_tokens or not new_tokens:
+        return False
+    source_norm = re.sub(r'\s+', ' ', _strip_html(change_text)).lower()
+    sm = difflib.SequenceMatcher(None, old_tokens, new_tokens)
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag not in ('delete', 'replace'):
+            continue
+        removed = ' '.join(old_tokens[i1:i2])
+        added = ' '.join(new_tokens[j1:j2])
+        if not removed or len(removed) < 5:
+            continue
+        if removed in source_norm and added not in source_norm:
+            return True
+    return False
+
+
+def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callback=None,
+                      change_text=None):
     """Применить одну коррекцию из вердикта ИИ. Возвращает (успех, ошибка)."""
     field = str(corr.get('field', ''))
     value = corr.get('value', '')
@@ -787,6 +878,29 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
     item_id = str(corr.get('item_id', ''))
 
     if field in ('element_html', 'element_html_new_rev'):
+        element = find_item_by_id(result, item_id)
+        if element is not None and _repealed_by_current_change(element, change_npa_id):
+            # Защита от «воскрешения» отменённой нормы: элемент уже корректно
+            # закрыт текущим изменяющим НПА (пометка not_valid, исходный текст
+            # сохранён в закрытой ревизии, открытой ревизии нет — «признать
+            # утратившим силу» новой ревизии не создаёт). ИИ-агент иногда
+            # принимает строку-заглушку after («Элемент помечен утратившим
+            # силу…») за утрату текста и требует «восстановить» его — такая
+            # коррекция создала бы открытую ревизию с not_valid=False и вернула
+            # бы отменённую норму в действующую редакцию (кейс 925-ЗС → 127-ЗС).
+            if log_callback:
+                log_callback(
+                    f"  Пост-анализ: коррекция {field} для {item_id} отклонена — "
+                    f"элемент уже корректно закрыт текущим изменяющим НПА "
+                    f"(not_valid; новая текстовая ревизия для отменённой нормы "
+                    f"не создаётся)", 'warning',
+                )
+            return False, (
+                'коррекция текста отклонена: элемент уже корректно помечен '
+                'утратившим силу текущим изменяющим НПА (not_valid; исходный '
+                'текст сохранён в закрытой ревизии) — новая текстовая ревизия '
+                'для отменённой нормы не создаётся'
+            )
         # Защита от плейсхолдеров: ИИ иногда возвращает «[текст части 3 без
         # указанных слов]» вместо полного исправленного HTML (баг 516-ЗС,
         # прогон 07.09.2026). Такая «правка» затирает реальный текст элемента.
@@ -794,6 +908,11 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         if plain_value.startswith('[') and plain_value.endswith(']'):
             return False, ('ИИ вернул плейсхолдер вместо исправленного HTML — '
                            'коррекция отклонена')
+        if not plain_value:
+            # Пустая коррекция (value: "") на текстовом элементе затёрла бы
+            # его содержимое; содержательной правки в ней нет (кейс 20.09.2026:
+            # ИИ прислал пустые «исправления» по фантомным пробелам покрытия).
+            return False, 'ИИ вернул пустое исправление — коррекция отклонена'
 
     if field == 'element_html':
         element = find_item_by_id(result, item_id)
@@ -816,8 +935,69 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
             new_corr = dict(corr)
             new_corr['field'] = 'element_html_new_rev'
             return _apply_correction(
-                result, new_corr, change_npa_id, change_valid_from, log_callback)
+                result, new_corr, change_npa_id, change_valid_from, log_callback,
+                change_text=change_text)
         old_html = _revision_body_html(rev)
+        # Защита от «префиксных» коррекций: ИИ предлагает дописать «N. »/«N) »
+        # в начало текста, тогда как структура уже отражает правку — у элемента
+        # есть дочерняя часть/пункт с этим номером (абзац должен был стать
+        # структурным элементом, а не текстом с цифрой). Такая коррекция
+        # дублирует номер в тексте и родителе — отклоняем (кейс 444-ЗС →
+        # 269-ЗС: коррекция «1.» к статье 3 при уже созданной части 1).
+        # Исключение: если в активной ревизии вообще нет абзацев (тело состоит
+        # только из child_ref), коррекция фактически добавляет недостающий
+        # вводный абзац — принимаем её, сняв структурный номер (по конвенции
+        # номер хранится в item_number, а не в html_text).
+        m_new = re.match(r'^(\d+)[.)]\s', _strip_html(value).strip())
+        if m_new:
+            m_old = re.match(r'^(\d+)[.)]\s', _strip_html(old_html).strip() if old_html else '')
+            if m_new.group(1) != (m_old.group(1) if m_old else None):
+                num = m_new.group(1)
+                matching_child = None
+                for child in element.get('item_children') or []:
+                    if not isinstance(child, dict):
+                        continue
+                    child_num = str(child.get('item_number') or '').strip().rstrip(').')
+                    if (child_num == num
+                            and child.get('item_type') in ('part', 'point', 'subpoint')):
+                        matching_child = child
+                        break
+                if matching_child is not None:
+                    # Номер уже хранится в item_number (и продублирован дочерним
+                    # элементом) — из текста коррекции его нужно СНЯТЬ, а не
+                    # отклонять всю правку: содержательная часть коррекции
+                    # (исправление опечаток и т.п.) при этом сохраняется
+                    # (кейс 444-ЗС → 269-ЗС: «отельным»/«гражданн» в части 1).
+                    stripped_value = remove_leading_number_from_html(
+                        value, str(element.get('item_number') or '')).strip()
+                    if not stripped_value or stripped_value == value:
+                        return False, (
+                            f"коррекция «дописать номер {num} в текст» отклонена: "
+                            f"номер уже хранится в item_number элемента {item_id} "
+                            f"(дочерний {matching_child.get('item_type')} "
+                            f"{matching_child.get('item_number')}), а снять его из "
+                            f"коррекции не удалось"
+                        )
+                    if _strip_html(stripped_value).strip() == _strip_html(old_html).strip():
+                        return False, (
+                            f"коррекция сводится к дублированию номера, который уже "
+                            f"хранится в item_number элемента {item_id} — текст уже "
+                            f"соответствует ожидаемому, правка не требуется"
+                        )
+                    if log_callback:
+                        log_callback(
+                            f"  Пост-анализ: из коррекции для {item_id} снят "
+                            f"структурный номер «{num}» (хранится в item_number) — "
+                            f"применена содержательная часть правки",
+                            'info',
+                        )
+                    value = stripped_value
+        if _correction_conflicts_with_source(old_html, value, change_text):
+            return False, (
+                'коррекция заменяет формулировку, дословно совпадающую с текстом '
+                'изменяющего НПА, на формулировку, в нём отсутствующую — отклонена '
+                '(вероятна галлюцинация ИИ-агента; текст элемента соответствует закону)'
+            )
         new_body = _build_body_preserving_structure(rev, value)
         if not new_body:
             return False, 'пустой исправленный HTML'
@@ -839,6 +1019,23 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         element = find_item_by_id(result, item_id)
         if not element:
             return False, f"элемент {item_id} не найден"
+        if _repealed_by_current_change(element, change_npa_id):
+            # Дублирующая защита (основная — в общей проверке полей
+            # element_html/element_html_new_rev выше): сюда можно попасть
+            # только прямым вызовом с field='element_html_new_rev'.
+            # Создание открытой ревизии для отменённой нормы запрещено —
+            # оно «воскрешает» норму в действующей редакции (кейс 925-ЗС).
+            if log_callback:
+                log_callback(
+                    f"  Пост-анализ: коррекция element_html_new_rev для {item_id} "
+                    f"отклонена — элемент уже корректно закрыт текущим "
+                    f"изменяющим НПА (not_valid)", 'warning',
+                )
+            return False, (
+                'коррекция отклонена: элемент уже корректно помечен утратившим '
+                'силу текущим изменяющим НПА (not_valid) — новая текстовая '
+                'ревизия для отменённой нормы не создаётся'
+            )
         # Закрываем предыдущую активную ревизию (valid_to = за день до,
         # чтобы не было перекрытия с valid_from новой ревизии)
         active_rev = get_active_revision(element)
@@ -1002,6 +1199,54 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
     return False, f"неизвестное поле коррекции: {field}"
 
 
+def _change_effective_date(work, change_npa_id, change_data=None):
+    """Дата вступления в силу изменяющего НПА («ДД.ММ.ГГГГ») или ``None``.
+
+    Приоритет: самая ранняя ``valid_from`` среди ревизий, созданных изменяющим
+    НПА в результате; затем паспортное поле ``valid_from`` изменяющего JSON.
+    Нужна детерминированной проверке покрытия, чтобы не считать «сиротами»
+    элементы, закрытые другими законами раньше даты изменяющего НПА.
+    """
+    best = None
+    items = work.get('npa_items_revision') or []
+
+    def _iter_elements(nodes):
+        for node in nodes or []:
+            if isinstance(node, dict):
+                yield node
+                yield from _iter_elements(node.get('item_children'))
+
+    for element in _iter_elements(items):
+        if not isinstance(element, dict):
+            continue
+        for rev in element.get('revisions') or []:
+            if not isinstance(rev, dict):
+                continue
+            if not _ids_match(rev.get('modified_by_id'), change_npa_id):
+                continue
+            key = _date_key(rev.get('valid_from'))
+            if key and (best is None or key < best):
+                best = key
+    if best is not None:
+        return f"{best[2]:02d}.{best[1]:02d}.{best[0]:04d}"
+    if change_data:
+        value = change_data.get('valid_from') or change_data.get('npa_date_effective')
+        if _date_key(value):
+            return str(value).strip()
+    return None
+
+
+def _date_key(value):
+    """Ключ сравнения для даты «ДД.ММ.ГГГГ» (или ``None``, если не распознать)."""
+    parts = str(value or '').strip().split('.')
+    if len(parts) != 3:
+        return None
+    try:
+        return (int(parts[2]), int(parts[1]), int(parts[0]))
+    except ValueError:
+        return None
+
+
 def _parent_still_references(result, item_id):
     """True, если открытая ревизия родителя всё ещё содержит ``child_ref`` на элемент.
 
@@ -1027,12 +1272,14 @@ def _parent_still_references(result, item_id):
     return False
 
 
-def apply_corrections(result, verdict, change_npa_id, change_valid_from, log_callback=None):
+def apply_corrections(result, verdict, change_npa_id, change_valid_from, log_callback=None,
+                      change_text=None):
     """Применить все ``corrections`` из вердикта ИИ. Возвращает список статусов."""
     applied = []
     for issue in (verdict.get('issues') or []):
         for corr in (issue.get('corrections') or []):
-            ok, err = _apply_correction(result, corr, change_npa_id, change_valid_from, log_callback)
+            ok, err = _apply_correction(result, corr, change_npa_id, change_valid_from,
+                                        log_callback, change_text=change_text)
             applied.append({
                 'item_id': corr.get('item_id', ''),
                 'field': corr.get('field', ''),
@@ -1182,12 +1429,39 @@ def _finish_run(orig_file, started, result_data, change_data, final, verdict,
     return final
 
 
+def _same_npa_number(left, right):
+    """Сравнить номера НПА по ведущим цифрам («444-ЗС» == «444»)."""
+    def _lead(value):
+        match = re.match(r'^\s*(\d+)', str(value or ''))
+        return match.group(1) if match else ''
+    a, b = _lead(left), _lead(right)
+    return bool(a) and a == b
+
+
+def _snapshot_provenance(work_data):
+    """Номер изменяющего НПА, которому принадлежит work-файл (или '')."""
+    if not isinstance(work_data, dict):
+        return ''
+    run_info = work_data.get('run_info')
+    if isinstance(run_info, dict):
+        for key in ('change_npa_number', 'change_npa', 'npa_number'):
+            if run_info.get(key):
+                return str(run_info[key])
+    return ''
+
+
 def _load_tracker_snapshot_from_work(orig_file, change_data, log):
     """Снимок изменений трекера из ``<number>_work.json`` рядом с целевым НПА.
 
     Standalone-прогоны (GUI-верификация, CLI ``verify``) не имеют живого объекта
     ChangeTracker, поэтому оркестратор сохраняет снимок (ключ ``tracker_changes``)
     в work-файл. Здесь он подгружается для детерминированной проверки покрытия.
+
+    Файл принимается только при совпадении провенанса: имя файла и
+    ``run_info.change_npa_number`` должны соответствовать изменяющему НПА.
+    Иначе (кейс 444-ЗС → 269-ЗС: рядом лежал ``410_work.json`` от прошлого
+    прогона) снимок чужого закона порождал ложные пробелы покрытия
+    ``foreign_revision`` и портил результат авто-коррекциями.
     """
     try:
         from npazs.revision.file_ops import clean_number_for_filename
@@ -1199,6 +1473,14 @@ def _load_tracker_snapshot_from_work(orig_file, change_data, log):
             return None
         with open(work_path, 'r', encoding='utf-8') as f:
             work_data = json.load(f)
+        if not _work_file_belongs_to(work_path, work_data, change_data):
+            log(
+                f'Пост-анализ: work-файл {work_path} относится к другому '
+                f'изменяющему НПА ({_snapshot_provenance(work_data) or "неизвестно"}) — '
+                f'проверка покрытия норм пропущена',
+                'warning',
+            )
+            return None
         snapshot = work_data.get('tracker_changes') if isinstance(work_data, dict) else None
         if isinstance(snapshot, list) and snapshot:
             log(f'Пост-анализ: снимок трекера загружен из {work_path} ({len(snapshot)} изм.)',
@@ -1208,6 +1490,179 @@ def _load_tracker_snapshot_from_work(orig_file, change_data, log):
         log(f'Пост-анализ: не удалось загрузить снимок трекера из work-файла: {exc}',
             'warning')
     return None
+
+
+def _work_file_belongs_to(work_path, work_data, change_data):
+    """True, если work-файл — от текущего изменяющего НПА (по имени и ``run_info``).
+
+    Имя файла — правило 7 AGENTS.md (``<изменяющий>_work.json``). Если в
+    ``run_info`` записан номер, он тоже должен совпасть; при отсутствии
+    ``run_info`` достаточно имени файла.
+    """
+    change_number = str(change_data.get('npa_number', '') or '')
+    change_id = str(change_data.get('npa_id', '') or '')
+    stem = os.path.splitext(os.path.basename(str(work_path or '')))[0]
+    lead = re.match(r'^(\d+)', stem)
+    if not lead or not _same_npa_number(lead.group(1), change_number):
+        return False
+    provenance = _snapshot_provenance(work_data)
+    if provenance and not _same_npa_number(provenance, change_number):
+        return False
+    run_info = work_data.get('run_info') if isinstance(work_data, dict) else None
+    run_change_id = str((run_info or {}).get('change_npa_id') or '') if isinstance(run_info, dict) else ''
+    return not (run_change_id and change_id and run_change_id != change_id)
+
+
+
+_NUMBERING_TYPES = ('part', 'point', 'subpoint')
+
+
+def _norm_ws(text):
+    """Схлопнуть пробелы и привести к нижнему регистру — ключ для сравнения."""
+    return re.sub(r'\s+', ' ', str(text or '')).strip().lower()
+
+
+def _resolve_issue_target(issue, work, path_to_item=None):
+    """Элемент результата, к которому относится претензия ИИ-агента, либо None.
+
+    Порядок поиска: ``item_id`` коррекций → ``item_id`` самой претензии →
+    человекочитаемый ``path`` (например «Статья 3 > Часть 1») по карте
+    ``path_to_item``, собранной из записей ``<changes>`` промпта.
+    """
+    candidates = []
+    for corr in issue.get('corrections') or []:
+        if isinstance(corr, dict) and corr.get('item_id'):
+            candidates.append(str(corr['item_id']))
+    if issue.get('item_id'):
+        candidates.append(str(issue['item_id']))
+    mapped = (path_to_item or {}).get(str(issue.get('path') or '').strip())
+    if mapped:
+        candidates.append(str(mapped))
+    seen = set()
+    for item_id in candidates:
+        if item_id in seen:
+            continue
+        seen.add(item_id)
+        element = find_item_by_id(work, item_id)
+        if element:
+            return element
+    return None
+
+
+def _element_active_text(element):
+    """Видимый текст абзацев активной ревизии элемента (без HTML-тегов)."""
+    if not isinstance(element, dict):
+        return ''
+    try:
+        active = get_active_revision(element)
+    except Exception:  # noqa: BLE001 — отсутствие активной ревизии не критично
+        return ''
+    if not isinstance(active, dict):
+        return ''
+    parts = []
+    for block in active.get('body') or []:
+        if isinstance(block, dict) and block.get('type') == 'paragraph':
+            text = _norm_ws(_strip_html(str(block.get('html_text') or '')))
+            if text:
+                parts.append(text)
+    return ' '.join(parts).strip()
+
+
+def _is_numbering_prefix_only_issue(issue, work, path_to_item=None):
+    """True, если единственная суть претензии — отсутствие структурного номера
+    «N. »/«N) » в начале текста элемента, у которого номер хранится в
+    ``item_number``.
+
+    Детерминированный фильтр галлюцинаций: пайплайн по конвенции снимает
+    префиксы «1. »/«3) » из html_text (номер — в item_number), поэтому
+    «в тексте нет номера» ошибкой не является (кейс 444-ЗС → 269-ЗС:
+    постанализ требовал «1.» в тексте части 1 при корректном результате).
+    """
+    if not isinstance(issue, dict):
+        return False
+    corrections = [c for c in (issue.get('corrections') or []) if isinstance(c, dict)]
+    # Любое «не текстовое» исправление (element_not_valid, item_number, head…)
+    # означает, что претензия не сводится к номеру в тексте.
+    if any(str(c.get('field', '')) != 'element_html' for c in corrections):
+        return False
+    element = _resolve_issue_target(issue, work, path_to_item)
+    if not element or element.get('item_type') not in _NUMBERING_TYPES:
+        return False
+    m_num = re.match(r'^(\d+)', str(element.get('item_number') or '').strip())
+    if not m_num:
+        return False
+    number = m_num.group(1)
+    prefix_re = re.compile(rf'^{re.escape(number)}\s*[.)]\s*')
+    exp_plain = _norm_ws(_strip_html(str(issue.get('expected') or '')))
+    if not exp_plain or not prefix_re.match(exp_plain):
+        return False
+    expected_body = prefix_re.sub('', exp_plain, count=1).strip()
+    if not expected_body:
+        return False
+            # Сравниваем «ожидаемое без номера» с ТЕКУЩИМ текстом элемента: фильтром
+    # подтверждается, только если пропущен ровно префикс (номер), а остальное
+    # совпадает. ИИ-коррекцию (`corrections[].value`) в качестве «фактического
+    # текста» НЕ используем: она описывает желаемый результат, а не текущее
+    # состояние — иначе чистое исправление «1. К отдельным…» маскировало бы
+    # реальное содержательное расхождение (регресс в прогоне 22:35).
+    act_plain = _norm_ws(_strip_html(str(issue.get('actual') or '')))
+    candidates = [act_plain] if act_plain else [_element_active_text(element)]
+    for base in candidates:
+        if not base or prefix_re.match(base):
+            continue
+        if prefix_re.sub('', base, count=1).strip() == expected_body:
+            return True
+    return False
+
+
+def _drop_stale_tracker_entries(result, changes, change_npa_id, log):
+    """Убрать из снимка трекера записи, принадлежащие ДРУГИМ прогонам.
+
+    Живой ``ChangeTracker`` в GUI-сессии копит изменения нескольких прогонов
+    (кейс 20.09.2026: после прогона 410-ЗС постанализ 444-ЗС получил его
+    нормы, «выявил» 4 ложных пробела coverage по статье 4 и создал фантомные
+    ревизии 444-ЗС на нетронутых элементах). Запись считается устаревшей,
+    если зафиксированная в ней ревизия (``revision_id``) в результате
+    создана ДРУГИМ НПА:
+    - change/add/new_redaction — автор ревизии (``modified_by_id``) чужой;
+    - delete/repel_law — ревизия в записи закрываемая (чужая по определению),
+      поэтому критерий стари: она помечена ``not_valid`` ДРУГИМ законом.
+    Записи без ``revision_id`` (правка не доведена до результата) не
+    трогаем — это реальные пробелы текущего прогона.
+    """
+    try:
+        result_revisions = collect_result_revisions(result)
+    except Exception:  # noqa: BLE001 — без карты ревизий фильтр не работает
+        return list(changes or [])
+    kept, dropped = [], []
+    for change in changes or []:
+        rev_id = str(change.get('revision_id') or '')
+        ctype = str(change.get('type') or '').strip().lower()
+        mapped = result_revisions.get(rev_id) if rev_id else None
+        stale = False
+        if mapped:
+            item_id, modified_by = mapped[0], mapped[1]
+            if ctype in ('delete', 'repel_law', 'repel'):
+                element = find_item_by_id(result, item_id) if item_id else None
+                for rev in (element or {}).get('revisions') or []:
+                    if str(rev.get('revision_id') or '') != rev_id:
+                        continue
+                    mark = rev.get('not_valid')
+                    if mark and not _is_own_mark(mark, change_npa_id):
+                        stale = True
+                    break
+            elif modified_by and not _is_own_revision(modified_by, change_npa_id):
+                stale = True
+        (dropped if stale else kept).append(change)
+    for change in dropped:
+        log(
+            f'Пост-анализ: запись трекера {change.get("change_id")} '
+            f'({change.get("revision_number")}, {change.get("structural_element")}) '
+            f'принадлежит другому прогону (ревизия чужого НПА) — исключена '
+            f'из проверки покрытия',
+            'warning',
+        )
+    return kept
 
 
 def run_post_analysis(orig_file, result_data, change_data, model=None, extra_options=None,
@@ -1283,9 +1738,17 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     if tracker_snapshot is None:
         tracker_snapshot = _load_tracker_snapshot_from_work(orig_file, change_data, _log)
     if tracker_snapshot is not None:
+        # Живой трекер GUI-сессии копит записи нескольких прогонов: чужие
+        # нормы порождают ложные пробелы coverage и фантомные автоправки.
+        try:
+            tracker_snapshot = _drop_stale_tracker_entries(
+                work, tracker_snapshot, change_npa_id, _log)
+        except Exception as stale_exc:  # noqa: BLE001 — фильтр не ломает проверку
+            _log(f'Ошибка фильтра устаревших записей трекера: {stale_exc}', 'error')
         try:
             coverage_gaps = check_coverage(
-                tracker_snapshot, work, change_npa_id
+                tracker_snapshot, work, change_npa_id,
+                change_date=_change_effective_date(work, change_npa_id, change_data),
             )
         except Exception as gap_exc:  # noqa: BLE001 — дыра покрытия не должна ломать пост-анализ
             import traceback
@@ -1320,13 +1783,34 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     prompt = build_prompt(work, change_data, changes, extracted_instructions,
                           coverage_section=coverage_section)
 
-    from npazs.config.ollama import get_active_llm_config
+    from npazs.config.ollama import (
+        get_llm_config,
+        get_post_analysis_llm_config,
+    )
     # backend/model/url/key могут быть переданы из GUI или остаться пустыми.
+    # Пост-анализ по умолчанию работает на СВОЁМ бэкенде (POST_ANALYSIS_BACKEND /
+    # POST_ANALYSIS_MODEL), а не на основном — ключ/URL берутся из переменных
+    # выбранного пост-бэкенда (см. get_post_analysis_llm_config).
+    pa_config = get_post_analysis_llm_config()
     if not backend:
-        backend = get_active_llm_config().get('backend', 'kilo_gateway')
+        backend = pa_config.get('backend', 'kilo_gateway')
     if not model:
-        active_config = get_active_llm_config()
-        model = active_config.get('model', '')
+        if (backend or '').strip().lower() == pa_config.get('backend'):
+            model = pa_config.get('model', '')
+        else:
+            model = get_llm_config(backend).get('model', '')
+    if not kilo_gateway_url:
+        kilo_gateway_url = (
+            pa_config.get('base_url')
+            if (backend or '').strip().lower() == pa_config.get('backend')
+            else get_llm_config(backend).get('base_url')
+        )
+    if not api_key:
+        api_key = (
+            pa_config.get('api_key')
+            if (backend or '').strip().lower() == pa_config.get('backend')
+            else get_llm_config(backend).get('api_key')
+        )
     if extra_options is None:
         extra_options = {'temperature': 0.0, 'top_p': 0.1}
 
@@ -1360,6 +1844,51 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
         status = 'error'
         _log('Пост-анализ: ИИ не вернул валидный вердикт (status отсутствует)', 'error')
         issues = (verdict.get('issues') or []) if isinstance(verdict, dict) else []
+
+    # ── Фильтр «номерных» галлюцинаций ─────────────────────────────────────
+    # По конвенции номер структурного элемента хранится в item_number, а не в
+    # html_text: претензии вида «в тексте нет "1. "/"3) "» отсеиваются
+    # детерминированно (кейс 444-ЗС → 269-ЗС). Целевой элемент резолвится по
+    # item_id коррекции, item_id претензии либо по path из <changes>.
+    if issues:
+        path_to_item = {}
+        for entry in changes:
+            entry_path = str(entry.get('path') or '').strip()
+            entry_id = str(entry.get('item_id') or '').strip()
+            if entry_path and entry_id and entry_path not in path_to_item:
+                path_to_item[entry_path] = entry_id
+        kept_issues = []
+        for issue in issues:
+            if _is_numbering_prefix_only_issue(issue, work, path_to_item):
+                _log(
+                    "Пост-анализ: претензия отсеяна детерминированной проверкой "
+                    f"конвенции нумерации (номер хранится в item_number, а не в "
+                    f"тексте): {(issue.get('path') or '?')}",
+                    'info',
+                )
+                continue
+            kept_issues.append(issue)
+        if len(kept_issues) != len(issues):
+            issues = kept_issues
+            if isinstance(verdict, dict):
+                verdict['issues'] = issues
+                if not issues and status == 'incorrect' and not coverage_gaps:
+                    status = 'correct'
+                    verdict['status'] = 'correct'
+                    original_summary = str(verdict.get('summary') or '').strip()
+                    verdict['summary'] = (
+                        'Детерминированная проверка конвенции нумерации отсеяла все '
+                        'претензии ИИ-агента: номера структурных элементов хранятся в '
+                        'item_number и не дублируются в тексте абзацев. Ошибок внесения '
+                        'не выявлено.'
+                        + (f' Исходное (ошибочное) резюме ИИ: {original_summary}'
+                           if original_summary else '')
+                    )
+                    _log(
+                        'Пост-анализ: все претензии ИИ отсеяны проверкой конвенции '
+                        'нумерации — итоговый статус correct',
+                        'result',
+                    )
 
     # ── Слияние детерминированных проблем покрытия с ответом LLM ──────────
     # Детерминированные пробелы покрытия норм (правка не применена, но трекер
@@ -1419,6 +1948,21 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
                                 f'детерминированно удалена фраза из инструкции',
                                 'info',
                             )
+                    if new_value == current_html:
+                        # Детерминированную правку применить не удалось: «новая
+                        # ревизия» свелась бы к копии чужого текста под авторством
+                        # изменяющего НПА — фантомная редакция на элементе, который
+                        # закон не трогал (кейс 20.09.2026, статья 4). Только
+                        # репортим, исправление — перегон, а не автоправка.
+                        _log(
+                            f'Пост-анализ: для {gap.get("revision_number")} '
+                            f'({gap.get("reason")}) автоправка не сформирована — '
+                            f'содержательную правку применить детерминированно не '
+                            f'удалось, копия чужого текста недопустима',
+                            'warning',
+                        )
+                        issues.append(issue_entry)
+                        continue
                     correction = {
                         'item_id': target_item_id,
                         'field': 'element_html_new_rev',
@@ -1539,7 +2083,8 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     if status == 'incorrect':
         _log(f"Пост-анализ: выявлены проблемы ({len(issues)}). Применяются исправления…", 'warning')
         # Передаём полный список issues (включая coverage_gaps), а не только verdict
-        applied = apply_corrections(work, {'issues': issues}, change_npa_id, change_valid_from, _log)
+        applied = apply_corrections(work, {'issues': issues}, change_npa_id, change_valid_from, _log,
+                                    change_text=extract_instructions_text(change_data))
         if any(a.get('ok') for a in applied):
             corrected_path = os.path.join(
                 os.path.dirname(result_path) or '.',

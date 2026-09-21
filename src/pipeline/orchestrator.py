@@ -50,6 +50,7 @@ _bootstrap_project_root()
 
 from json_repair import repair_json
 from npazs.constants import (
+    DEFAULT_EXTRA_OPTIONS,
     TYPE_TO_RUSSIAN,
     save_last_run_log,
 )
@@ -159,6 +160,12 @@ class AiPipelineMixin:
             self._prompt_answers["run_info"]["model"] = self.ollama_model.get() if hasattr(self, 'ollama_model') and hasattr(self.ollama_model, 'get') else str(getattr(self, 'ollama_model', None))
             if hasattr(self, 'backend'):
                 self._prompt_answers["run_info"]["backend"] = self.backend.get() if hasattr(self.backend, 'get') else str(self.backend)
+            if hasattr(self, 'post_analysis_backend'):
+                _pa_b = self.post_analysis_backend.get() if hasattr(self.post_analysis_backend, 'get') else str(self.post_analysis_backend)
+                self._prompt_answers["run_info"]["post_analysis_backend"] = _pa_b
+            if hasattr(self, 'post_analysis_model'):
+                _pa_m = self.post_analysis_model.get() if hasattr(self.post_analysis_model, 'get') else str(self.post_analysis_model)
+                self._prompt_answers["run_info"]["post_analysis_model"] = _pa_m
             self._prompt_answers["run_info"]["change_npa_number"] = change_npa_number
             self._prompt_answers["run_info"]["change_doc_type"] = change_doc_type
             self._prompt_answers["run_info"]["finished_at"] = datetime.now().isoformat()
@@ -207,7 +214,7 @@ class AiPipelineMixin:
                 .replace("{doc_text}", final_text)
                 .replace("{date_pub}", pub_date_str)
                 .replace("{law_number}", original_law_number))
-            answer1 = ask_ollama(stage1_prompt, model, self.log, extra_options, self.stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+            answer1 = ask_ollama(stage1_prompt, model, self.log, extra_options, self.stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self._api_key_for(self.backend.get()))
             self._collect_prompt_answer(1, stage1_prompt, answer1, change_info="Анализ заключительных положений на утрату силы")
             if answer1 and answer1.lower() != 'null':
                 try:
@@ -381,7 +388,7 @@ class AiPipelineMixin:
                     .replace("{change_date_pub}", change_date_pub)
                     .replace("{change_date_effective}", change_valid_from)
                     .replace("{valid_from}", change_valid_from))
-                answer2 = ask_ollama(stage2_prompt, model, self.log, extra_options, self.stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+                answer2 = ask_ollama(stage2_prompt, model, self.log, extra_options, self.stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self._api_key_for(self.backend.get()))
                 self._collect_prompt_answer(2, stage2_prompt, answer2, change_info="Анализ заключительных положений на даты вступления и правоотношения")
                 parsed = _parse_stage2(answer2, "ИИ") if answer2 else None
 
@@ -427,7 +434,7 @@ class AiPipelineMixin:
                         return []
                     article_json = json.dumps(target_element, ensure_ascii=False, indent=2)
                     stage3_prompt = self.prompt_3.replace("{change_json}", article_json)
-                    answer3 = ask_ollama(stage3_prompt, model, self.log, extra_options, stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+                    answer3 = ask_ollama(stage3_prompt, model, self.log, extra_options, stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self._api_key_for(self.backend.get()))
                     self._collect_prompt_answer(3, stage3_prompt, answer3, change_info="Анализ изменений из текста элемента")
                     if answer3 and answer3.lower() != 'null':
                         try:
@@ -526,7 +533,7 @@ class AiPipelineMixin:
                 return
             element_json = json.dumps(element, ensure_ascii=False, indent=2)
             stage3_prompt = self.prompt_3.replace("{change_json}", element_json)
-            answer = ask_ollama(stage3_prompt, model, log_callback, extra_options, stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+            answer = ask_ollama(stage3_prompt, model, log_callback, extra_options, stop_event, change_info="", backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self._api_key_for(self.backend.get()))
             self._collect_prompt_answer(3, stage3_prompt, answer, change_info=f"Анализ изменений из текста элемента {element.get('item_id')}")
             if answer and answer.lower() != 'null':
                 try:
@@ -1106,7 +1113,7 @@ class AiPipelineMixin:
                         prompt_answer_callback=self._collect_prompt_answer,
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
-                        api_key=self.kilo_gateway_api_key.get(),
+                        api_key=self._api_key_for(self.backend.get()),
                     )
                 else:
                     if tracker:
@@ -1155,7 +1162,7 @@ class AiPipelineMixin:
                             prompt_answer_callback=self._collect_prompt_answer,
                             backend=self.backend.get(),
                             kilo_gateway_url=self.kilo_gateway_url.get(),
-                            api_key=self.kilo_gateway_api_key.get(),
+                            api_key=self._api_key_for(self.backend.get()),
                         ) if tracker else apply_change(
                             change=ch,
                             data=result_data,
@@ -1175,7 +1182,7 @@ class AiPipelineMixin:
                             ambiguous_callback=ambiguous_callback,
                             backend=self.backend.get(),
                             kilo_gateway_url=self.kilo_gateway_url.get(),
-                            api_key=self.kilo_gateway_api_key.get()
+                            api_key=self._api_key_for(self.backend.get())
                         )
                         if ok and ok.get('status') == 'NEEDS_USER_ADDRESS':
                             resolved_ok = _handle_needs_user_address(ch, change_id, target_element.get('item_id') if target_element else None)
@@ -1223,7 +1230,7 @@ class AiPipelineMixin:
                             prompt_answer_callback=self._collect_prompt_answer,
                             backend=self.backend.get(),
                             kilo_gateway_url=self.kilo_gateway_url.get(),
-                            api_key=self.kilo_gateway_api_key.get(),
+                            api_key=self._api_key_for(self.backend.get()),
                         ) if tracker else apply_change(
                             change=ch,
                             data=result_data,
@@ -1243,7 +1250,7 @@ class AiPipelineMixin:
                             ambiguous_callback=ambiguous_callback,
                             backend=self.backend.get(),
                             kilo_gateway_url=self.kilo_gateway_url.get(),
-                            api_key=self.kilo_gateway_api_key.get()
+                            api_key=self._api_key_for(self.backend.get())
                         )
                         if ok and ok.get('status') == 'NEEDS_USER_ADDRESS':
                             resolved_ok = _handle_needs_user_address(ch, change_id, source_id)
@@ -1320,7 +1327,7 @@ class AiPipelineMixin:
                         prompt_answer_callback=self._collect_prompt_answer,
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
-                        api_key=self.kilo_gateway_api_key.get(),
+                        api_key=self._api_key_for(self.backend.get()),
                     ) if tracker else apply_change(
                         change=h_ch,
                         data=result_data,
@@ -1340,7 +1347,7 @@ class AiPipelineMixin:
                         ambiguous_callback=ambiguous_callback,
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
-                        api_key=self.kilo_gateway_api_key.get()
+                        api_key=self._api_key_for(self.backend.get())
                     )
                     if ok_h:
                         success_count += 1
@@ -1397,7 +1404,7 @@ class AiPipelineMixin:
                         prompt_answer_callback=self._collect_prompt_answer,
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
-                        api_key=self.kilo_gateway_api_key.get(),
+                        api_key=self._api_key_for(self.backend.get()),
                     ) if tracker else apply_change(
                         change=del_ch,
                         data=result_data,
@@ -1417,7 +1424,7 @@ class AiPipelineMixin:
                         ambiguous_callback=ambiguous_callback,
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
-                        api_key=self.kilo_gateway_api_key.get()
+                        api_key=self._api_key_for(self.backend.get())
                     )
                     if ok and ok.get('status') == 'NEEDS_USER_ADDRESS':
                         resolved_ok = _handle_needs_user_address(del_ch, change_id, target_element.get('item_id') if target_element else None)
@@ -1462,7 +1469,7 @@ class AiPipelineMixin:
                         source_context_root=target_element,
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
-                        api_key=self.kilo_gateway_api_key.get(),
+                        api_key=self._api_key_for(self.backend.get()),
                         prompt_answer_callback=self._collect_prompt_answer,
                     ) if tracker else apply_grouped_changes(
                         element=element,
@@ -1482,7 +1489,7 @@ class AiPipelineMixin:
                         change_ids=change_ids,
                         backend=self.backend.get(),
                         kilo_gateway_url=self.kilo_gateway_url.get(),
-                        api_key=self.kilo_gateway_api_key.get(),
+                        api_key=self._api_key_for(self.backend.get()),
                     )
                     if not success:
                         needs_address = any(r.get('status') == 'NEEDS_USER_ADDRESS' for r in success) if isinstance(success, list) else False
@@ -1829,20 +1836,12 @@ class AiPipelineMixin:
             law_ref = self.law_ref.get().strip()
             original_law_number = self.original_law_ref.get().strip()
             model = self.ollama_model.get().strip()
-            extra_options_str = self.extra_options.get().strip()
-        
+            
             if not orig_file or not change_file or not law_ref or not original_law_number or not model:
                 messagebox.showerror("Ошибка", "Заполните все поля (дата вступления будет взята из JSON изменений).")
                 return
             
-            extra_options = {}
-            if extra_options_str:
-                try:
-                    extra_options = json.loads(extra_options_str)
-                    self.log(f"Дополнительные параметры: {extra_options}", 'info')
-                except json.JSONDecodeError as e:
-                    self.log(f"Ошибка парсинга дополнительных параметров: {e}. Используются стандартные параметры.", 'error')
-                    extra_options = {}
+            extra_options = DEFAULT_EXTRA_OPTIONS
                 
             try:
                 with open(orig_file, 'r', encoding='utf-8') as f:
@@ -1948,7 +1947,7 @@ class AiPipelineMixin:
                             if not target_element:
                                 # В крайнем случае пробуем ИИ с таймаутом
                                 try:
-                                    target_element = find_target_element_via_ai(change_data, original_data, self.log, model, extra_options, self.stop_event, doc_type_change, backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self.kilo_gateway_api_key.get())
+                                    target_element = find_target_element_via_ai(change_data, original_data, self.log, model, extra_options, self.stop_event, doc_type_change, backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self._api_key_for(self.backend.get()))
                                 except Exception as ai_err:
                                     self.log(f"⚠️ ИИ запрос упал: {ai_err}", 'warning')
                                     target_element = None
@@ -2298,11 +2297,15 @@ class AiPipelineMixin:
                                     model=(
                                         self.post_analysis_model.get().strip()
                                         if hasattr(self, 'post_analysis_model') and self.post_analysis_model.get().strip()
-                                        else self.ollama_model.get().strip() if hasattr(self, 'ollama_model') else None
+                                        else None
                                     ),
                                     stop_event=self.stop_event,
                                     log_callback=self.log,
-                                    backend=self.backend.get() if hasattr(self, 'backend') else None,
+                                    backend=(
+                                        self.post_analysis_backend.get().strip()
+                                        if hasattr(self, 'post_analysis_backend') and self.post_analysis_backend.get().strip()
+                                        else None
+                                    ),
                                     tracker_snapshot=tracker,
                                 )
                                 if pa_result.get('status') == 'correct':

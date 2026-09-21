@@ -10,10 +10,13 @@ from npazs._bootstrap import _bootstrap_project_root
 
 _bootstrap_project_root()
 
-from npazs.config.env_store import load_backend_settings, save_backend_settings
+from npazs.config.env_store import (
+    BACKEND_ENV_KEYS,
+    load_backend_settings,
+    save_backend_settings,
+)
 from npazs.constants import (
         BASE_LAW_DIR,
-        DEFAULT_EXTRA_OPTIONS,
         HTTP_BACKEND_DEFS,
         HTTP_BACKENDS,
         LAST_PATHS_FILE,
@@ -60,19 +63,26 @@ class GuiBuilderMixin:
             self.entry_pub_date = tk.Entry(self.left_frame, textvariable=self.pub_date, width=20, state='readonly')
             self.entry_pub_date.grid(row=row, column=1, padx=10, pady=8, sticky='w', columnspan=2)
             row += 1
-            tk.Label(self.left_frame, text="Модель:").grid(row=row, column=0, padx=10, pady=8, sticky='e')
-            frame_model = tk.Frame(self.left_frame)
-            frame_model.grid(row=row, column=1, columnspan=2, sticky='ew', padx=10, pady=8)
-            self.model_entry = tk.Entry(frame_model, textvariable=self.ollama_model)
-            self.model_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0,5))
-            add_context_menu(self.model_entry, allow_edit=True)
-            add_hotkeys(self.model_entry, allow_edit=True)
-            self.model_dropdown_btn = tk.Button(frame_model, text="▼", width=3, command=self.show_model_dropdown)
-            self.model_dropdown_btn.pack(side=tk.LEFT, padx=(0,5))
-            self.model_refresh_btn = tk.Button(frame_model, text="⟲", width=3, command=self.refresh_models)
-            self.model_refresh_btn.pack(side=tk.LEFT, padx=(0,5))
-            self.model_params_btn = tk.Button(frame_model, text="Загрузить параметры модели", command=self.load_model_params)
-            self.model_params_btn.pack(side=tk.LEFT, padx=(5,0))
+            tk.Label(self.left_frame, text="Бэкенд пост-анализа:").grid(row=row, column=0, padx=10, pady=8, sticky='e')
+            frame_pa_backend = tk.Frame(self.left_frame)
+            frame_pa_backend.grid(row=row, column=1, columnspan=2, sticky='ew', padx=10, pady=8)
+            self._pa_backend_buttons = {}
+            for _label, _value in (
+                ("Ollama", "ollama"),
+                ("Kilo", "kilo_gateway"),
+                ("Cline", "cline"),
+                ("OpenRouter", "openrouter"),
+                ("Cerebras", "cerebras"),
+                ("Together", "together"),
+                ("Mistral", "mistral"),
+                ("Gemini", "gemini"),
+                ("FreeDeepseek", "free_deepseek"),
+            ):
+                _btn = tk.Radiobutton(
+                    frame_pa_backend, text=_label, variable=self.post_analysis_backend,
+                    value=_value, command=self.on_post_backend_changed)
+                _btn.pack(side=tk.LEFT, padx=3)
+                self._pa_backend_buttons[_value] = _btn
             row += 1
             tk.Label(self.left_frame, text="Модель для пост-анализа:").grid(row=row, column=0, padx=10, pady=8, sticky='e')
             frame_post_model = tk.Frame(self.left_frame)
@@ -86,9 +96,22 @@ class GuiBuilderMixin:
             self.post_model_refresh_btn = tk.Button(frame_post_model, text="⟲", width=3, command=self.refresh_post_models)
             self.post_model_refresh_btn.pack(side=tk.LEFT, padx=(0,5))
             row += 1
+            # Собственные креды пост-анализа: независимы от редактора основного
+            # бэкенда — пост-анализ может работать на другом провайдере/ключе/URL
+            # (например, свой инстанс прокси FreeDeepseekAPI). Заполненное поле —
+            # переопределение POST_ANALYSIS_API_KEY/_BASE_URL, пустое — наследовать
+            # ключ/URL выбранного пост-бэкенда.
+            post_creds_frame = tk.Frame(self.left_frame)
+            post_creds_frame.grid(row=row, column=0, columnspan=3, sticky='ew', padx=10, pady=5)
+            tk.Label(post_creds_frame, text="API URL (пост):").pack(side=tk.LEFT, padx=(0,5))
+            self.post_gateway_url_entry = tk.Entry(post_creds_frame, textvariable=self.post_gateway_url, width=40)
+            self.post_gateway_url_entry.pack(side=tk.LEFT, padx=(0,10))
+            add_context_menu(self.post_gateway_url_entry, allow_edit=True)
+            add_hotkeys(self.post_gateway_url_entry, allow_edit=True)
+            row += 1
             backend_frame = tk.Frame(self.left_frame)
             backend_frame.grid(row=row, column=0, columnspan=3, sticky='w', padx=10, pady=5)
-            tk.Label(backend_frame, text="Бэкенд:").pack(side=tk.LEFT, padx=(0,10))
+            tk.Label(backend_frame, text="Бэкенд (основной):").pack(side=tk.LEFT, padx=(0,10))
             tk.Radiobutton(backend_frame, text="Ollama", variable=self.backend, value="ollama", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Kilo Gateway", variable=self.backend, value="kilo_gateway", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Cline", variable=self.backend, value="cline", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
@@ -97,28 +120,25 @@ class GuiBuilderMixin:
             tk.Radiobutton(backend_frame, text="Together", variable=self.backend, value="together", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Mistral", variable=self.backend, value="mistral", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Gemini", variable=self.backend, value="gemini", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
+            tk.Radiobutton(backend_frame, text="FreeDeepseek", variable=self.backend, value="free_deepseek", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             row += 1
             kilo_frame = tk.Frame(self.left_frame)
             kilo_frame.grid(row=row, column=0, columnspan=3, sticky='ew', padx=10, pady=5)
             tk.Label(kilo_frame, text="API URL:").pack(side=tk.LEFT, padx=(0,5))
             self.kilo_gateway_url_entry = tk.Entry(kilo_frame, textvariable=self.kilo_gateway_url, width=40)
             self.kilo_gateway_url_entry.pack(side=tk.LEFT, padx=(0,10))
-            tk.Label(kilo_frame, text="API Key:").pack(side=tk.LEFT, padx=(0,5))
-            self.kilo_gateway_api_key_entry = tk.Entry(kilo_frame, textvariable=self.kilo_gateway_api_key, width=25, show="*")
-            self.kilo_gateway_api_key_entry.pack(side=tk.LEFT, padx=(0,5))
-            self.save_env_btn = tk.Button(
-                kilo_frame, text="Сохранить в .env", command=self.save_env_settings)
-            self.save_env_btn.pack(side=tk.LEFT, padx=(0,5))
             row += 1
-            tk.Label(self.left_frame, text="Дополнительные параметры (JSON):").grid(row=row, column=0, padx=10, pady=8, sticky='e')
-            frame_params = tk.Frame(self.left_frame)
-            frame_params.grid(row=row, column=1, columnspan=2, sticky='ew', padx=10, pady=8)
-            self.entry_extra_options = tk.Entry(frame_params, textvariable=self.extra_options)
-            self.entry_extra_options.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0,5))
-            add_context_menu(self.entry_extra_options, allow_edit=True)
-            add_hotkeys(self.entry_extra_options, allow_edit=True)
-            tk.Button(frame_params, text="Сбросить параметры", command=self.reset_extra_options).pack(side=tk.LEFT, padx=(0,5))
-            tk.Label(frame_params, text="Напр.: {\"temperature\": 0.5, \"top_p\": 0.9}", fg="gray").pack(side=tk.LEFT)
+            tk.Label(self.left_frame, text="Модель:").grid(row=row, column=0, padx=10, pady=8, sticky='e')
+            frame_model = tk.Frame(self.left_frame)
+            frame_model.grid(row=row, column=1, columnspan=2, sticky='ew', padx=10, pady=8)
+            self.model_entry = tk.Entry(frame_model, textvariable=self.ollama_model)
+            self.model_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0,5))
+            add_context_menu(self.model_entry, allow_edit=True)
+            add_hotkeys(self.model_entry, allow_edit=True)
+            self.model_dropdown_btn = tk.Button(frame_model, text="▼", width=3, command=self.show_model_dropdown)
+            self.model_dropdown_btn.pack(side=tk.LEFT, padx=(0,5))
+            self.model_refresh_btn = tk.Button(frame_model, text="⟲", width=3, command=self.refresh_models)
+            self.model_refresh_btn.pack(side=tk.LEFT, padx=(0,5))
             row += 1
             chk_frame = tk.Frame(self.left_frame)
             chk_frame.grid(row=row, column=0, columnspan=3, sticky='w', padx=10, pady=5)
@@ -208,12 +228,14 @@ class GuiBuilderMixin:
             self.log("Параметры сброшены к стандартным", 'info')
 
         def show_model_dropdown(self):
-            if not self.ollama_models:
-                self.log("Список моделей пуст. Нажмите кнопку обновления.", 'warning')
-                return
+            # Fetch fresh models for the current backend before showing the dropdown
+            # so the selector always reflects the active provider's model list.
+            threading.Thread(target=lambda: self._fetch_models(try_api=True, target='main'), daemon=True).start()
             menu = tk.Menu(self.root, tearoff=0)
             for model in self.ollama_models:
                 menu.add_command(label=model, command=lambda m=model: self.on_model_selected(m))
+            if not self.ollama_models:
+                self.log("Список моделей пуст. Нажмите кнопку обновления.", 'warning')
             x = self.model_dropdown_btn.winfo_rootx()
             y = self.model_dropdown_btn.winfo_rooty() + self.model_dropdown_btn.winfo_height()
             menu.post(x, y)
@@ -222,12 +244,15 @@ class GuiBuilderMixin:
             self.ollama_model.set(model)
 
         def show_post_model_dropdown(self):
-            if not self.ollama_models:
-                self.log("Список моделей пуст. Нажмите кнопку обновления.", 'warning')
-                return
+            # Fetch fresh models for the current post-analysis backend before
+            # showing the dropdown so the selector always reflects the active
+            # provider's model list.
+            threading.Thread(target=lambda: self._fetch_models(try_api=True, target='post'), daemon=True).start()
             menu = tk.Menu(self.root, tearoff=0)
-            for model in self.ollama_models:
+            for model in self.post_analysis_models:
                 menu.add_command(label=model, command=lambda m=model: self.on_post_model_selected(m))
+            if not self.post_analysis_models:
+                self.log("Список моделей пост-анализа пуст. Нажмите кнопку обновления.", 'warning')
             x = self.post_model_dropdown_btn.winfo_rootx()
             y = self.post_model_dropdown_btn.winfo_rooty() + self.post_model_dropdown_btn.winfo_height()
             menu.post(x, y)
@@ -236,37 +261,106 @@ class GuiBuilderMixin:
             self.post_analysis_model.set(model)
 
         def refresh_post_models(self):
-            self.save_env_settings(quiet=True)
-            self.log("Обновление списка моделей...", 'info')
-            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
+            self.log("Обновление списка моделей пост-анализа...", 'info')
+            threading.Thread(target=lambda: self._fetch_models(try_api=True, target='post'), daemon=True).start()
 
         def refresh_models(self):
-            self.save_env_settings(quiet=True)
             self.log("Обновление списка моделей...", 'info')
-            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
+            threading.Thread(target=lambda: self._fetch_models(try_api=True, target='main'), daemon=True).start()
+
+        def on_post_backend_changed(self):
+            backend = self.post_analysis_backend.get()
+            # Clear stale models from the previous post-analysis backend so the
+            # dropdown doesn't show another provider's models while the fresh
+            # fetch (started below) is still in progress.
+            self.post_analysis_models = []
+            self.log(f"Пост-анализ переключён на {backend}", 'info')
+            # Подтянуть модель по умолчанию для пост-бэкенда из .env/констант,
+            # только если текущая модель не из его списка.
+            try:
+                saved = load_backend_settings(backend)
+            except ValueError:
+                saved = {}
+            defn = HTTP_BACKEND_DEFS.get(backend) or {}
+            candidates = [m for m in (
+                self.post_analysis_model.get().strip(),
+                saved.get('model') or '',
+                defn.get('default_model') or '',
+            ) if m]
+            if candidates and not self.post_analysis_model.get().strip():
+                # Не затираем введённую вручную модель: меняем только если
+                # текущее значение пустое (тогда candidates[0] != '' по фильтру).
+                self.post_analysis_model.set(candidates[0])
+            if hasattr(self, 'post_gateway_url'):
+                # Редактор пост-URL — переопределение поверх бэкенда:
+                # значения, равные собственным кредам СТАРОГО пост-бэкенда,
+                # считаем наследованием и не тянем за собой.
+                _prev = getattr(self, '_prev_post_backend', None)
+                if _prev and _prev != backend:
+                    try:
+                        _prev_saved = load_backend_settings(_prev)
+                    except ValueError:
+                        _prev_saved = {}
+                    _prev_defn = HTTP_BACKEND_DEFS.get(_prev) or {}
+                    _prev_url = (_prev_saved.get('base_url')
+                                 or _prev_defn.get('base_url') or '').strip()
+                    if self.post_gateway_url.get().strip() in ('', _prev_url):
+                        self.post_gateway_url.set(
+                            saved.get('base_url') or defn.get('base_url') or '')
+                self._prev_post_backend = backend
+            threading.Thread(target=lambda: self._fetch_models(try_api=True, target='post'), daemon=True).start()
 
         def on_backend_changed(self):
             backend = self.backend.get()
+            # Clear stale models from the previous backend so the dropdown
+            # doesn't show another provider's models while the fresh fetch
+            # (started below) is still in progress.
+            self.ollama_models = []
             if backend in HTTP_BACKENDS:
                 self.log(f"Переключено на {backend}", 'info')
-                # Автоподстановка URL/ключа выбранного бэкенда: сначала
+                # Автоподстановка URL выбранного бэкенда: сначала
                 # сохранённые в .env значения, затем константы HTTP_BACKEND_DEFS.
                 defn = HTTP_BACKEND_DEFS.get(backend)
                 if defn:
                     saved = load_backend_settings(backend)
                     current_url = self.kilo_gateway_url.get().strip()
                     default_url = defn['base_url']
-                    default_key = saved.get('api_key') or defn.get('api_key', '')
                     if not current_url or current_url != default_url:
                         self.kilo_gateway_url.set(saved.get('base_url') or default_url)
-                        self.kilo_gateway_api_key.set(str(default_key or ''))
                     if saved.get('model'):
                         self.ollama_model.set(saved['model'])
             else:
                 self.log("Переключено на Ollama", 'info')
-            # Выбранный бэкенд и его ключ сразу уходят в .env (LLM_BACKEND).
+            # Выбранный бэкенд и URL/модель сразу уходят в .env (LLM_BACKEND).
             self.save_env_settings(quiet=True)
-            threading.Thread(target=lambda: self._fetch_models(try_api=True), daemon=True).start()
+            threading.Thread(target=lambda: self._fetch_models(try_api=True, target='main'), daemon=True).start()
+
+        def save_env_settings(self, quiet=False) -> bool:
+            """Сохранить параметры текущего бэкенда (URL, модель) в ``.env``.
+
+            Вызывается при смене бэкенда/модели — API-ключ не сохраняется через GUI.
+            """
+            backend = self.backend.get().strip() or DEFAULT_BACKEND
+            if backend not in BACKEND_ENV_KEYS:
+                if not quiet:
+                    self.log(f'Неизвестный бэкенд {backend!r}, сохранять нечего', 'warning')
+                return False
+            try:
+                written = save_backend_settings(
+                    backend,
+                    base_url=self.kilo_gateway_url.get().strip(),
+                    model=self.ollama_model.get().strip(),
+                )
+            except (OSError, ValueError) as e:
+                if not quiet:
+                    self.log(f'Не удалось сохранить настройки в .env: {e}', 'error')
+                return False
+            if not quiet:
+                self.log(
+                    'Настройки бэкенда сохранены в .env: ' + ', '.join(sorted(written)),
+                    'info',
+                )
+            return bool(written)
 
         def _dialog_initial_dir(self, current_value=''):
             """Каталог для диалога выбора JSON-файла (без привязки к диску).
