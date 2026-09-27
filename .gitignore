@@ -30,7 +30,12 @@ htmlcov/
 # Data (local overrides)
 data/input/*.json
 data/output/*.json
+data/output/compare/
 data/logs/*.log
+data/logs/*.err
+data/logs/*.snapshot
+data/logs/*.md
+data/logs/last_paths.json
 data/debug_runs/*
 data/stage_answers/*.json
 data/work_tools/*
@@ -47,6 +52,7 @@ data/logs/*.txt
 /fix_*.py
 /diag_*.py
 /test_fragment*.py
+modx_processor.log
 
 # OS
 Thumbs.db
@@ -59,3 +65,4 @@ Thumbs.db
 # FreeDeepseekAPI (локальный клон внешнего прокси; разворачивается
 # через scripts/setup_free_deepseek.py, в репозиторий не входит)
 /tools/
+/scripts/tools/FreeDeepseekAPI/
