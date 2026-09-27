@@ -48,6 +48,7 @@ from npazs._bootstrap import _bootstrap_project_root
 
 _bootstrap_project_root()
 
+import npazs.constants as _constants
 from json_repair import repair_json
 from npazs.constants import (
     DEFAULT_EXTRA_OPTIONS,
@@ -77,7 +78,11 @@ from npazs.revision.retroactive_notes import (
     normalize_amending_note_text,
 )
 from npazs.revision.text_utils import strip_thinking_tags
-from npazs.revision.tree_utils import _find_target_element, find_item_by_id, find_target_element_via_ai
+from npazs.revision.tree_utils import (
+    _find_target_element,
+    find_item_by_id,
+    find_target_element_via_ai,
+)
 from npazs.revision.ui_utils import (
     _add_new_element,
     _correct_change_description,
@@ -1822,6 +1827,56 @@ class AiPipelineMixin:
                                     self.log(f"Переопределена дата для изменения (источник: {rev_num}) на {am_date} (частичное совпадение)", 'info')
                                     break
 
+        def _post_analysis_settings_provider(self):
+            """Live-снимок настроек ПОСТ-АНАЛИЗА для диалога смены провайдера.
+
+            Регистрируется **только на время** ``run_post_analysis()``: когда
+            пользователь после 3 неудачных попыток выбирает «Переключить
+            бэкенд», ``_reapply_request_after_switch()`` (ai_utils) читает
+            именно эту лямбду. Возвращает пост-бэкенд/модель/URL/ключ
+            (поля главного окна «Пост-анализ»), а НЕ основной бэкенд прогона —
+            иначе повтор ушёл бы не туда.
+
+            Пустые значения модели/URL добираются из ``.env``/констант, как это
+            делает ``GuiBuilderMixin.on_post_backend_changed``.
+            """
+            backend = (
+                self.post_analysis_backend.get().strip()
+                if hasattr(self, 'post_analysis_backend') else ''
+            )
+            model = (
+                self.post_analysis_model.get().strip()
+                if hasattr(self, 'post_analysis_model') else ''
+            )
+            base_url = (
+                self.post_gateway_url.get().strip()
+                if hasattr(self, 'post_gateway_url') else ''
+            )
+            defn = _constants.HTTP_BACKEND_DEFS.get(backend) or {}
+            saved = {}
+            try:
+                from npazs.config.env_store import load_backend_settings
+                saved = load_backend_settings(backend) or {}
+            except Exception:  # noqa: BLE001 — нет .env / неизвестный бэкенд
+                saved = {}
+            if not model:
+                model = saved.get('model') or defn.get('default_model') or ''
+            if not base_url:
+                base_url = saved.get('base_url') or defn.get('base_url') or ''
+            try:
+                api_key = self._api_key_for(backend, target='post')
+            except Exception:  # noqa: BLE001 — GUI без ``_api_key_for``
+                api_key = ''
+            if not api_key:
+                api_key = saved.get('api_key') or defn.get('api_key') or ''
+            return {
+                'backend': backend,
+                'model': model,
+                'base_url': base_url,
+                'api_key': api_key,
+                'agent_session': None,
+            }
+
         def run_all(self):
             def manual_resolver(rev, stop_event=None, change_info=""):
                 return self.resolve_revision_manually(rev, change_data, self.log, stop_event, change_info)
@@ -1890,6 +1945,17 @@ class AiPipelineMixin:
             if hasattr(self, 'logs'):
                 self.logs.clear()
             self.stop_event.clear()
+
+            # Provide a live snapshot of GUI backend/model settings so that
+            # ask_kilo_gateway can re-read them when the user switches provider
+            # mid-run (quota-exhausted 'switch' path).
+            _constants._settings_provider = lambda: {
+                'backend': self.backend.get(),
+                'model': self.ollama_model.get().strip(),
+                'base_url': self.kilo_gateway_url.get().strip(),
+                'api_key': self._api_key_for(self.backend.get()),
+                'agent_session': None,
+            }
         
             def process():
                 error_occurred = False
@@ -1947,6 +2013,7 @@ class AiPipelineMixin:
                             if not target_element:
                                 # В крайнем случае пробуем ИИ с таймаутом
                                 try:
+                                    model = self.ollama_model.get().strip()
                                     target_element = find_target_element_via_ai(change_data, original_data, self.log, model, extra_options, self.stop_event, doc_type_change, backend=self.backend.get(), kilo_gateway_url=self.kilo_gateway_url.get(), api_key=self._api_key_for(self.backend.get()))
                                 except Exception as ai_err:
                                     self.log(f"⚠️ ИИ запрос упал: {ai_err}", 'warning')
@@ -1967,6 +2034,7 @@ class AiPipelineMixin:
                         final_text += extract_text_from_element(item) + "\n"
                     
                     self.log("=== ЭТАП 1: Анализ заключительных положений на утрату силы ===", 'info')
+                    model = self.ollama_model.get().strip()
                     deletion_changes = self._stage1_deletion_analysis(final_text, model, extra_options, pub_date_str, original_law_number)
                     if self.stop_event.is_set():
                         self.log("Процесс прерван пользователем.", 'warning')
@@ -2036,6 +2104,7 @@ class AiPipelineMixin:
                         return
 
                     self.log("=== ЭТАП 2: Анализ заключительных положений на даты вступления и правоотношения ===", 'info')
+                    model = self.ollama_model.get().strip()
                     stage2_records = self._stage2_dates_analysis(final_text, target_element, model, extra_options, pub_date_str, original_law_number, change_data, base_law_date_pub)
                     if self.stop_event.is_set():
                         self.log("Процесс прерван пользователем.", 'warning')
@@ -2120,6 +2189,7 @@ class AiPipelineMixin:
                                  f"(amending_law, будут применены после этапа 4/5)", 'info')
 
                     self.log("=== ЭТАП 3: Анализ изменений из текста элемента ===", 'info')
+                    model = self.ollama_model.get().strip()
                     article_changes = self._stage3_changes_extraction(
                         target_element, model, extra_options, change_data,
                         manual_resolver=manual_resolver, stop_event=self.stop_event
@@ -2184,6 +2254,7 @@ class AiPipelineMixin:
                                  f"{len(groups_by_target_id)} группам изменений после этапа 4/5", 'info')
 
                     self.log("=== ЭТАП 4: Применение изменений к JSON ===", 'info')
+                    model = self.ollama_model.get().strip()
                     result_data = copy.deepcopy(original_data)
                     rebuild_ids = []
 
@@ -2283,6 +2354,9 @@ class AiPipelineMixin:
                     # Пост-анализ внесения изменений (автоматический ИИ-контроль).
                     # Запускается только после успешного завершения прогона;
                     # отключается переменной окружения NPAZS_POST_ANALYSIS=0.
+                    # Провайдер основного прогона здесь уже не нужен, но и
+                    # обнулять его рано: на время постанализа он заменяется
+                    # снимком НАСТРОЕК ПОСТ-АНАЛИЗА (см. ниже).
                     if ('result_data' in dir() and result_data
                             and ('error_occurred' not in dir() or not error_occurred)):
                         try:
@@ -2292,22 +2366,36 @@ class AiPipelineMixin:
                             )
                             if post_analysis_enabled():
                                 self.log("— Запуск пост-анализа внесения изменений —", 'result')
-                                pa_result = run_post_analysis(
-                                    orig_file, result_data, change_data,
-                                    model=(
-                                        self.post_analysis_model.get().strip()
-                                        if hasattr(self, 'post_analysis_model') and self.post_analysis_model.get().strip()
-                                        else None
-                                    ),
-                                    stop_event=self.stop_event,
-                                    log_callback=self.log,
-                                    backend=(
-                                        self.post_analysis_backend.get().strip()
-                                        if hasattr(self, 'post_analysis_backend') and self.post_analysis_backend.get().strip()
-                                        else None
-                                    ),
-                                    tracker_snapshot=tracker,
-                                )
+                                # Диалог «Переключить бэкенд» после 3 неудачных
+                                # попыток читает _settings_provider в
+                                # _reapply_request_after_switch(): раньше к
+                                # этому моменту он был уже None (любое
+                                # переключение в постанализе превращалось в
+                                # «Пользователь остановил процесс»), а основной
+                                # бэкенд повтору пост-анализа не годится.
+                                _constants._settings_provider = (
+                                    self._post_analysis_settings_provider)
+                                _constants._settings_provider_scope = 'post'
+                                try:
+                                    pa_result = run_post_analysis(
+                                        orig_file, result_data, change_data,
+                                        model=(
+                                            self.post_analysis_model.get().strip()
+                                            if hasattr(self, 'post_analysis_model') and self.post_analysis_model.get().strip()
+                                            else None
+                                        ),
+                                        stop_event=self.stop_event,
+                                        log_callback=self.log,
+                                        backend=(
+                                            self.post_analysis_backend.get().strip()
+                                            if hasattr(self, 'post_analysis_backend') and self.post_analysis_backend.get().strip()
+                                            else None
+                                        ),
+                                        tracker_snapshot=tracker,
+                                    )
+                                finally:
+                                    _constants._settings_provider = None
+                                    _constants._settings_provider_scope = ''
                                 if pa_result.get('status') == 'correct':
                                     self.log(
                                         f"Пост-анализ: изменения внесены корректно "
@@ -2324,9 +2412,28 @@ class AiPipelineMixin:
                                             "Пост-анализ: выявлены ошибки, исправить "
                                             "автоматически не удалось (см. отчёт)", 'error',
                                         )
+                                elif pa_result.get('status') == 'error':
+                                    # Пост-анализ не выполнен (бэкенд не ответил
+                                    # либо пользователь в диалоге выбрал
+                                    # «Остановить»). Прогон уже сохранён —
+                                    # приложение продолжает работу, как и в
+                                    # основном коде прогона.
+                                    self.log(
+                                        "Пост-анализ не выполнен: бэкенд не "
+                                        "ответил или выбрана остановка. "
+                                        "Результат прогона сохранён, "
+                                        "приложение продолжает работу "
+                                        "(см. лог пост-анализа выше).",
+                                        'warning',
+                                    )
                         except Exception as pa_exc:
                             self.log(f"Ошибка пост-анализа: {pa_exc}", 'error')
                             traceback.print_exc()
+                    # Провайдер больше не нужен ни на одном исходе — чистим
+                    # после пост-анализа, а не до него (иначе диалог смены
+                    # провайдера в постанализе работать не может).
+                    _constants._settings_provider = None
+                    _constants._settings_provider_scope = ''
                     self.message_queue.put({
                         'type': 'done',
                         'success': not error_occurred

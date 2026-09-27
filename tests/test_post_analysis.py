@@ -1212,3 +1212,241 @@ def test_repel_law_change_entry_keeps_before_text():
     assert 'Отменяемая норма' in entry['before']
     assert 'помечен утратившим силу' in entry['after']
     assert 'before' in entry['after'] or 'закрытой ревизии' in entry['after']
+
+
+# --------------- скоуп инструкций (кейс 516-ЗС: статья 2 правит Закон 51-ЗС)
+def _two_law_change():
+    """Изменяющий закон из двух статей: статья 1 правит 127-ЗС, статья 2 — 51-ЗС."""
+    return {
+        'npa_id': '59121',
+        'npa_number': '516-ЗС',
+        'npa_items_revision': [
+            {
+                'item_id': '59121_article_1', 'item_type': 'article',
+                'item_number': '1',
+                'revisions': [{'body': [{
+                    'type': 'paragraph',
+                    'html_text': '<p>Внести в Закон города Севастополя от 17 апреля '
+                                 '2015 года № 127-ЗС следующие изменения:</p>',
+                    'order': 1,
+                }]}],
+            },
+            {
+                'item_id': '59121_article_2', 'item_type': 'article',
+                'item_number': '2',
+                'revisions': [{'body': [{
+                    'type': 'paragraph',
+                    'html_text': '<p>Внести в Закон города Севастополя от 25 июля '
+                                 '2014 года № 51-ЗС следующие изменения:</p>',
+                    'order': 1,
+                }]}],
+            },
+        ],
+    }
+
+
+def test_extract_instructions_text_scopes_to_target_law():
+    """Разделы изменяющего закона, не относящиеся к целевому НПА, отбрасываются
+    (иначе постанализ требует применить чужие правки — ложное срабатывание
+    «отсутствуют изменения в статью 16 Закона 51-ЗС», прогон 23.09.2026)."""
+    change = _two_law_change()
+    text = pa.extract_instructions_text(change, '127-ЗС')
+    assert '127-ЗС' in text
+    assert '51-ЗС' not in text
+    # Без номера целевого закона или при нестандартном формате («ЗС-127»)
+    # фильтр не применяется — страховка от ложной фильтрации.
+    assert '51-ЗС' in pa.extract_instructions_text(change, '')
+    assert '51-ЗС' in pa.extract_instructions_text(change, 'ЗС-127')
+
+
+def test_build_prompt_scopes_instructions_and_adds_scope_block():
+    result = {'npa_number': '127-ЗС'}
+    prompt = pa.build_prompt(result, _two_law_change(), [])
+    instructions = prompt.split('<instructions>', 1)[1].split('</instructions>', 1)[0]
+    assert '127-ЗС' in instructions
+    assert '51-ЗС' not in instructions
+    assert '<scope>' in prompt
+    assert 'НЕ является ошибкой' in prompt
+    # Правило против фиктивных претензий (expected ≡ actual)
+    assert 'НЕ репортите issue, если expected и actual' in prompt
+
+
+def test_is_vacuous_issue():
+    # Совпадение без учёта регистра/пунктуации — фиктивная претензия
+    assert pa._is_vacuous_issue(
+        {'expected': '<p>Текст нормы.</p>', 'actual': '<p>текст  нормы .</p>'})
+    # Содержательное расхождение — не фиктивная
+    assert not pa._is_vacuous_issue(
+        {'expected': '<p>Текст нормы.</p>', 'actual': '<p>Другой текст.</p>'})
+    # Без текстов expected/actual (пробелы покрытия и т.п.) — не фильтруется
+    assert not pa._is_vacuous_issue({'issue': 'нет текстов'})
+
+
+def test_run_post_analysis_filters_vacuous_issue(tmp_path, monkeypatch):
+    """Претензия с expected ≡ actual (кейс 516-ЗС, обе претензии повторного
+    пост-анализа 23.09.2026 01:04) отсеивается — статус correct, corrected не
+    создаётся."""
+    orig_file, change = _write_result_file(tmp_path, _make_result())
+    result_data = json.loads(
+        (tmp_path / '127_2015_04_17_izm_516_2019_07_08.json').read_text(encoding='utf-8'))
+    verdict = {
+        'status': 'incorrect',
+        'summary': 'Некорректно применено исключение слов в статье 6.',
+        'issues': [{
+            'index': 17,
+            'path': 'Статья 6 > Часть 3',
+            'issue': 'фиктивная претензия при идентичных expected/actual',
+            'expected': GOOD_HTML,
+            'actual': GOOD_HTML.replace('Положение', 'положение', 1),
+            'fix': 'no-op',
+            'corrections': [{
+                'item_id': '127_law_1_art_5',
+                'field': 'element_html',
+                'value': GOOD_HTML,
+            }],
+        }],
+    }
+    monkeypatch.setattr(
+        pa, 'ask_ollama', lambda *a, **k: json.dumps(verdict, ensure_ascii=False))
+    res = pa.run_post_analysis(str(orig_file), result_data, change,
+                               model='stub', backend='kilo_gateway')
+    assert res['status'] == 'correct', res
+    assert res['issues'] == 0
+    assert res['corrected_path'] is None
+    report = Path(res['report_path']).read_text(encoding='utf-8')
+    assert 'КОРРЕКТНО' in report
+    assert 'expected/actual' in report
+
+
+# ------------- list-записи подсветки (формат change_applier, кейс «Севастоля»)
+def test_sanitize_highlights_handles_list_entries():
+    """Записи [текст, "M-N»] сверяются с текстом, а не проходят мимо фильтра."""
+    highlights = {
+        'previous_edition': {'deletion': [], 'addition': [],
+                             'difference': [['в городе Севастополе', '1-1']]},
+        'current_edition': {'deletion': [], 'addition': [],
+                            'difference': [['города Севастоля', '1-1']]},
+    }
+    old = '<p>8) получать гонорары … должность в городе Севастополе;</p>'
+    new = '<p>8) получать гонорары … должность города Севастополя;</p>'
+    cleaned = pa._sanitize_highlights(highlights, old, new)
+    assert cleaned['previous_edition']['difference'] == [['в городе Севастополе', '1-1']]
+    assert cleaned['current_edition']['difference'] == []
+
+
+def test_element_html_correction_regenerates_stale_list_highlights():
+    """Коррекция element_html при полностью устаревшей list-подсветке пересобирает
+    её по diff «предыдущая ревизия → исправленный текст» вместо сохранения ложных
+    меток (кейс 516-ЗС: подсветка «города Севастоля» после исправления опечатки)."""
+    result = _make_result()
+    rev = result['npa_items_revision'][0]['revisions'][-1]
+    rev['highlights'] = {
+        'previous_edition': {'deletion': [], 'addition': [],
+                             'difference': [['НЕТ В СТАРОМ ТЕКСТЕ', '1-1']]},
+        'current_edition': {'deletion': [], 'addition': [],
+                            'difference': [['ГОРОДА СЕВАСТОЛЯ', '1-1']]},
+    }
+    corr = {'item_id': '127_law_1_art_5', 'field': 'element_html', 'value': GOOD_HTML}
+    ok, err = pa._apply_correction(result, corr, '516', '19.07.2019')
+    assert ok, err
+    dumped = json.dumps(rev.get('highlights'), ensure_ascii=False)
+    assert 'СЕВАСТОЛЯ' not in dumped
+    assert 'НЕТ В СТАРОМ ТЕКСТЕ' not in dumped
+    # Подсветка пересобрана по diff ORIGINAL_HTML → GOOD_HTML
+    assert rev['highlights']['current_edition']['addition']
+
+
+# ---------- хвост «поисковых» ссылок после JSON (кейс 516-ЗС → 127-ЗС, 23.09.2026)
+
+_SEARCH_TAIL = (
+    "\n\n---\n"
+    "[1] [Горячие документы. Магаданская область. 30 января 2016]"
+    "(https://www.garant.ru/hotlaw/magadan/archive/2016/01/30/) | 来源: 未知来源\n"
+    "[2] [Закон города Севастополя от 8 июля 2019 № 516-ЗС]"
+    "(https://sevzakon.ru/view/laws/bank/2019/zakon_n_516_zs_ot_08_07_2019/"
+    "tekst_zakonoproekta/) | 来源: 未知来源"
+)
+
+
+def _issue():
+    return {
+        'index': 0,
+        'path': 'Статья 5',
+        'issue': 'часть текста удалена без указания в инструкции',
+        'expected': GOOD_HTML,
+        'actual': BAD_HTML,
+        'fix': 'восстановить окончание предложения',
+        'corrections': [{
+            'item_id': '127_law_1_art_5',
+            'field': 'element_html',
+            'value': GOOD_HTML,
+        }],
+    }
+
+
+def test_run_post_analysis_trailing_search_tail_applies_corrections(tmp_path,
+                                                                   monkeypatch):
+    """Валидный JSON + хвост из цитат ссылок не должен терять коррекции.
+
+    Прогон 516-ЗС → 127-ЗС от 23.09.2026: бэкенд дописал после вердикта
+    «---\\n[1] … | 来源: 未知来源», ``repair_json`` дочитал хвост и превратил
+    объект в массив — пост-анализ падал в ``status=error, issues=0,
+    corrected_path=null``, хотя все 5 претензий с коррекциями были в ответе.
+    """
+    orig_file, change = _write_result_file(tmp_path, _make_result())
+    result_data = json.loads(
+        (tmp_path / '127_2015_04_17_izm_516_2019_07_08.json').read_text(encoding='utf-8'))
+    verdict = {'status': 'incorrect', 'summary': 'Найдены ошибки внесения.',
+               'issues': [_issue()]}
+    answer = json.dumps(verdict, ensure_ascii=False, indent=2) + _SEARCH_TAIL
+
+    monkeypatch.setattr(pa, 'ask_ollama', lambda *a, **k: answer)
+    res = pa.run_post_analysis(str(orig_file), result_data, change,
+                               model='stub', backend='kilo_gateway')
+    assert res['status'] == 'incorrect', res
+    assert res['issues'] == 1, res
+    corrected = res['corrected_path']
+    assert corrected and Path(corrected).exists()
+    report = Path(res['report_path']).read_text(encoding='utf-8')
+    assert 'ОШИБКИ' in report
+    assert 'восстановить окончание' in report
+    assert '[2] [Закон города Севастополя' in report
+
+
+def test_run_post_analysis_passes_raw_json_to_single_parser(tmp_path,
+                                                           monkeypatch):
+    """HTTP-слой не ремонтирует JSON заранее: хвост доступен пост-анализу."""
+    orig_file, change = _write_result_file(tmp_path, _make_result())
+    result_data = json.loads(
+        (tmp_path / '127_2015_04_17_izm_516_2019_07_08.json').read_text(encoding='utf-8'))
+    answer = json.dumps(
+        {'status': 'incorrect', 'issues': [_issue()]}, ensure_ascii=False) + _SEARCH_TAIL
+    seen = {}
+
+    def _ask(*args, **kwargs):
+        seen.update(kwargs)
+        return answer
+
+    monkeypatch.setattr(pa, 'ask_ollama', _ask)
+    res = pa.run_post_analysis(
+        str(orig_file), result_data, change,
+        model='stub', backend='kilo_gateway')
+    assert seen['repair_json'] is False
+    assert res['status'] == 'incorrect'
+    assert res['corrected_path'] and Path(res['corrected_path']).exists()
+
+
+def test_run_post_analysis_derives_status_from_issues(tmp_path, monkeypatch):
+    """Ответ без поля status, но со списком претензий — статус выводится по факту."""
+    orig_file, change = _write_result_file(tmp_path, _make_result())
+    result_data = json.loads(
+        (tmp_path / '127_2015_04_17_izm_516_2019_07_08.json').read_text(encoding='utf-8'))
+    verdict = {'summary': 'Найдены ошибки внесения.', 'issues': [_issue()]}
+
+    monkeypatch.setattr(pa, 'ask_ollama',
+                        lambda *a, **k: json.dumps(verdict, ensure_ascii=False))
+    res = pa.run_post_analysis(str(orig_file), result_data, change,
+                               model='stub', backend='kilo_gateway')
+    assert res['status'] == 'incorrect', res
+    assert res['issues'] == 1, res
+    assert res['corrected_path'] and Path(res['corrected_path']).exists()

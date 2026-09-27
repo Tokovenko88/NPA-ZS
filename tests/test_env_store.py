@@ -110,7 +110,6 @@ def _check_pa_test_env_clean(monkeypatch):
         'CLINE_API_KEY', 'CLINE_BASE_URL', 'CLINE_DEFAULT_MODEL',
         'OPENROUTER_API_KEY', 'OPENROUTER_BASE_URL', 'OPENROUTER_DEFAULT_MODEL',
         'CEREBRAS_API_KEY', 'CEREBRAS_BASE_URL', 'CEREBRAS_DEFAULT_MODEL',
-        'TOGETHER_API_KEY', 'TOGETHER_BASE_URL', 'TOGETHER_DEFAULT_MODEL',
         'MISTRAL_API_KEY', 'MISTRAL_BASE_URL', 'MISTRAL_DEFAULT_MODEL',
         'GEMINI_API_KEY', 'GEMINI_BASE_URL', 'GEMINI_DEFAULT_MODEL',
         'FREE_DEEPSEEK_API_KEY', 'FREE_DEEPSEEK_BASE_URL',
@@ -125,6 +124,19 @@ def test_save_env_values_updates_os_environ(env_file, monkeypatch):
     save_env_values({'GEMINI_API_KEY': 'AIza-live'}, env_path=env_file)
     assert os.environ['GEMINI_API_KEY'] == 'AIza-live'
     assert get_env_value('GEMINI_API_KEY', env_path=env_file) == 'AIza-live'
+
+
+def test_save_env_values_refuses_real_env_under_pytest(monkeypatch):
+    """Защита: запись в боевой .env (env_path=None) из теста запрещена.
+
+    История: такие записи затирали URL провайдеров значениями вида
+    https://example.test/v1 (дефолт URL в GUI-двойниках тестов).
+    """
+    from npazs.config import env_store
+
+    assert os.environ.get('PYTEST_CURRENT_TEST')  # мы в тесте
+    with pytest.raises(RuntimeError):
+        env_store.save_env_values({'GEMINI_BASE_URL': 'https://example.test/v1'})
 
 
 def test_save_backend_settings_writes_key_url_model_and_active_backend(env_file):
@@ -306,12 +318,21 @@ def test_revision_gui_saves_backend_url_to_env(monkeypatch):
 
 
 def test_revision_gui_quiet_mode_keeps_journal_clean(monkeypatch):
+    from npazs.ui import gui_builder
     from npazs.ui import revision_app
 
-    _install_recorder(monkeypatch, revision_app)
+    # ВАЖНО: патчить нужно gui_builder, а не revision_app — метод
+    # save_env_settings определён в gui_builder и резолвит
+    # save_backend_settings из его глобалов. Патч revision_app НЕ
+    # перехватывает вызов, и тест тихо записывал
+    # CLINE_BASE_URL=https://example.test/v1 в реальный .env.
+    saved = _install_recorder(monkeypatch, gui_builder)
     app = _FakeRevisionApp(backend='cline')
     assert revision_app.App.save_env_settings(app, quiet=True) is True
     assert app.messages == []
+    # Аргументы ушли в recorder, а не в реальный .env.
+    assert saved['backend'] == 'cline'
+    assert saved['base_url'] == 'https://example.test/v1'
 
 
 def test_save_post_analysis_settings_roundtrip(env_file):

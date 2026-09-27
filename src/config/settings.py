@@ -89,9 +89,6 @@ _SETTINGS_FIELDS = [
     'cerebras_api_key',
     'cerebras_base_url',
     'cerebras_default_model',
-    'together_api_key',
-    'together_base_url',
-    'together_default_model',
     'mistral_api_key',
     'mistral_base_url',
     'mistral_default_model',
@@ -102,6 +99,9 @@ _SETTINGS_FIELDS = [
     'free_deepseek_base_url',
     'free_deepseek_default_model',
     'free_deepseek_session',
+    'qwen2api_api_key',
+    'qwen2api_base_url',
+    'qwen2api_default_model',
     'llm_backend',
     'post_analysis_backend',
     'post_analysis_model',
@@ -160,9 +160,6 @@ def get_settings() -> Settings:
         cerebras_api_key=os.environ.get('CEREBRAS_API_KEY', ''),
         cerebras_base_url=os.environ.get('CEREBRAS_BASE_URL', ''),
         cerebras_default_model=os.environ.get('CEREBRAS_DEFAULT_MODEL', ''),
-        together_api_key=os.environ.get('TOGETHER_API_KEY', ''),
-        together_base_url=os.environ.get('TOGETHER_BASE_URL', ''),
-        together_default_model=os.environ.get('TOGETHER_DEFAULT_MODEL', ''),
         mistral_api_key=os.environ.get('MISTRAL_API_KEY', ''),
         mistral_base_url=os.environ.get('MISTRAL_BASE_URL', ''),
         mistral_default_model=os.environ.get('MISTRAL_DEFAULT_MODEL', ''),
@@ -177,6 +174,13 @@ def get_settings() -> Settings:
             'FREE_DEEPSEEK_DEFAULT_MODEL', 'deepseek-v4-flash'
         ),
         free_deepseek_session=os.environ.get('FREE_DEEPSEEK_SESSION', 'npazs-main'),
+        qwen2api_api_key=os.environ.get('QWEN2API_API_KEY', ''),
+        qwen2api_base_url=os.environ.get(
+            'QWEN2API_BASE_URL', 'http://127.0.0.1:3000/v1'
+        ),
+        qwen2api_default_model=os.environ.get(
+            'QWEN2API_DEFAULT_MODEL', 'qwen3-coder-plus'
+        ),
         llm_backend=os.environ.get('LLM_BACKEND', 'free_deepseek'),
         post_analysis_backend=os.environ.get('POST_ANALYSIS_BACKEND', ''),
         post_analysis_model=os.environ.get('POST_ANALYSIS_MODEL', ''),

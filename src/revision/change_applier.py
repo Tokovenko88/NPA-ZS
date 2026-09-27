@@ -1,8 +1,10 @@
 """Применение изменений к документу."""
 
 import copy
+import difflib
 import re
 import uuid
+from collections import Counter
 from datetime import datetime, timedelta
 
 from npazs.constants import DEFAULT_BACKEND, TYPE_TO_RUSSIAN
@@ -14,17 +16,27 @@ from npazs.revision.element_finder import (
 )
 from npazs.revision.html_utils import (
     _correct_table_highlights,
+    apply_word_exclusion_fuzzy,
     apply_word_replacement_fuzzy,
     clean_and_unwrap_html,
     clean_description_html,
     extract_paragraphs_by_indices,
+    find_phrase_raw_range_fuzzy,
+    find_text_boundary_defects,
     get_current_head,
     get_full_element_html,
     get_own_text_html,
+    html_to_plain_text,
+    join_edit_span,
     norm_for_phrase_match,
+    normalize_space_boundaries,
+    parse_addition_anchor,
     parse_ai_response_for_prompt4,
     parse_structural_tokens,
-    parse_word_replacement,
+    parse_word_addition,
+    parse_word_exclusion,
+    parse_word_replacements,
+    refine_phrase_from_document,
     refine_word_replacement,
     remove_leading_number_from_html,
     split_html_to_paragraphs,
@@ -242,7 +254,29 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
             answer_html = safe_re_sub(r'^\s*<p[^>]*>\s*<strong>[^<]*</strong>\s*</p>\s*', '', answer_html, flags=re.DOTALL)
             if element.get('item_type') in ('part', 'point', 'subpoint'):
                 answer_html = remove_leading_number_from_html(answer_html, str(element.get('item_number', '')))
-            
+
+            # Детерминированный контроль инструкций: ИИ при расхождении написания
+            # фразы (абсолютный/относительный href) возвращает текст без
+            # изменений, а в заменах допускает опечатки (кейс 516-ЗС → 127-ЗС:
+            # LLM вернул «города Севастоля» вместо «города Севастополя» в пункте 8
+            # части 2 статьи 8). Раньше guard замены в групповом пути не вызывался
+            # и опечатка проходила в текст результата.
+            base_html_before_change = current_html
+            answer_html = _ensure_word_replacement_applied(
+                desc, base_html_before_change, answer_html, log_callback,
+                label=f' (элемент {element.get("item_id")})')
+            answer_html, excluded_fragment = _ensure_word_exclusion_applied(
+                desc, base_html_before_change, answer_html, log_callback)
+            answer_html = _ensure_addition_applied(
+                desc, base_html_before_change, answer_html, log_callback,
+                label=f' (элемент {element.get("item_id")})')
+            for defect in find_text_boundary_defects(
+                    base_html_before_change, answer_html):
+                if log_callback:
+                    log_callback(
+                        f"  ⚠ Дефект границы текста "
+                        f"(элемент {element.get('item_id')}): {defect}", 'warning')
+
             if element.get('_is_table_child', False) or element.get('item_type') == 'structured_table':
                 old_html_for_diff = get_full_element_html(element, include_header=False)
                 corrected = _correct_table_highlights(old_html_for_diff, answer_html, ai_highlights, log_callback)
@@ -250,6 +284,15 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
                     ai_highlights = corrected
 
             current_html = answer_html
+            if excluded_fragment:
+                combined_highlights = _merge_highlights_with_paragraph_prefix(
+                    combined_highlights,
+                    _deletion_highlights(
+                        excluded_fragment,
+                        _paragraph_index_of_fragment(base_html_before_change,
+                                                     excluded_fragment)),
+                    1,
+                )
             if ai_highlights:
                 combined_highlights = _merge_highlights_with_paragraph_prefix(combined_highlights, ai_highlights, 1)
         ai_paragraphs = split_html_to_paragraphs(current_html)
@@ -357,9 +400,21 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
                         new_html = _ensure_word_replacement_applied(
                             original_op.get('description', ''), old_html, new_html,
                             log_callback, label=f' (абзац {target_idx})')
+                        new_html, excluded_fragment = _ensure_word_exclusion_applied(
+                            original_op.get('description', ''), old_html, new_html,
+                            log_callback, label=f' (абзац {target_idx})')
+                        new_html = _ensure_addition_applied(
+                            original_op.get('description', ''), old_html, new_html,
+                            log_callback, label=f' (абзац {target_idx})')
                         ai_paragraphs[target_idx - 1] = new_html
                         if ai_highlights:
                             combined_highlights = _merge_highlights_with_paragraph_prefix(combined_highlights, ai_highlights, target_idx)
+                        if excluded_fragment:
+                            combined_highlights = _merge_highlights_with_paragraph_prefix(
+                                combined_highlights,
+                                _deletion_highlights(excluded_fragment, target_idx),
+                                target_idx,
+                            )
                         if log_callback:
                             log_callback(f"  Абзац {target_idx} изменён через ИИ", 'result')
                     else:
@@ -463,43 +518,290 @@ def apply_grouped_changes(element, changes, valid_from, change_data, data, model
         return [_make_prepared_result(cid) for cid in (change_ids or [""] * len(changes))]
 
 
+def _restore_text_lost_by_replacement(old_html, result_html, old_phrases,
+                                      new_phrases):
+    """Пересобрать абзац из исходного текста, если в ``result_html`` потерян
+    текст ВНЕ заменяемых фраз.
+
+    ИИ при замене переписывает абзац целиком и может выбросить его хвост
+    (инструкция «слово(а) … заменить …» предписывает менять ТОЛЬКО указанную
+    фразу). Считаются токены старого текста, не входящие в мультимножество
+    токенов всех старых фраз (контрольный кейс 516-ЗС → 127-ЗС: риск потери
+    «и иную информацию» в пункте 2 части 1 статьы 12). Возвращает пересобранный
+    HTML (исходный текст со всеми заменами) либо ``None``, если потери нет
+    или пересборка невозможна.
+    """
+    if not old_html or not old_phrases:
+        return None
+    old_tokens = re.findall(r'\w+', html_to_plain_text(old_html).lower())
+    res_tokens = re.findall(r'\w+', html_to_plain_text(result_html).lower())
+    if not old_tokens or not res_tokens:
+        return None
+    sm = difflib.SequenceMatcher(None, old_tokens, res_tokens)
+    removed = []
+    for tag, i1, i2, _j1, _j2 in sm.get_opcodes():
+        if tag in ('delete', 'replace'):
+            removed.extend(old_tokens[i1:i2])
+    legit = []
+    for phrase in old_phrases:
+        legit.extend(re.findall(r'\w+', html_to_plain_text(phrase).lower()))
+    if not (Counter(removed) - Counter(legit)):
+        return None  # удалено ровно то, что предписывала инструкция
+    rebuilt = old_html
+    for old_phrase, new_phrase in zip(old_phrases, new_phrases):
+        out = apply_word_replacement_fuzzy(rebuilt, old_phrase, new_phrase)
+        if out is None:
+            return None  # детерминированная пересборка невозможна — не рискваем
+        rebuilt = out
+    return rebuilt if rebuilt != result_html else None
+
+
 def _ensure_word_replacement_applied(description, old_html, new_html,
                                      log_callback=None, label=''):
-    """Детерминированный контроль правки «слова «X» заменить словами «Y»».
+    """Детерминированный контроль правок «слово(а) «X» заменить слово(м/ами) «Y»».
 
     ИИ иногда возвращает абзац без изменений (кейс 444-ЗС → 269-ЗС: замена
-    «К отдельным категориям граждан» → «1. К отдельным категориям граждан»
-    не попала в ответ, из-за чего абзац не стал частью 1, а постанализ выдал
-    ложное сообщение о не применённой правке). Проверяем факт замены и при
-    необходимости применяем её программно (с допуском на опечатки OCR в
-    описании правки).
+    «К отдельным категориям граждан» → «1. К отдельным…» не попала в ответ),
+    допускает опечатку в новой фразе (кейс 516-ЗС → 127-ЗС: «города Севастоля»
+    вместо «города Севастополя» — прогон 23.09.2026) либо теряет текст абзаца
+    вне заменяемой фразы. Каждая пара проверяется и при необходимости
+    применяется программно (с допуском на опечатки OCR в описании правки);
+    потерянный вне инструкции текст восстанавливается из исходной редакции.
     """
-    pair = parse_word_replacement(description)
-    if not pair:
+    pairs = parse_word_replacements(description)
+    if not pairs:
         return new_html
     # Фразы приводим к написанию целевого документа: ИИ переписывает инструкцию
     # своими словами и допускает опечатки («отельным» вместо «отдельным»), из-за
     # чего они попадали в текст НПА (кейс 444-ЗС → 269-ЗС).
-    old_phrase, new_phrase = refine_word_replacement(pair[0], pair[1], old_html or new_html)
-    if norm_for_phrase_match(new_phrase) in norm_for_phrase_match(new_html):
-        return new_html
-    for source_html in (new_html, old_html or ''):
-        replaced = apply_word_replacement_fuzzy(source_html, old_phrase, new_phrase)
-        if replaced is not None:
-            break
-    if replaced is None:
+    refined_pairs = [refine_word_replacement(o, n, old_html or new_html)
+                     for o, n in pairs]
+    result = new_html
+    for old_phrase, new_phrase in refined_pairs:
+        if norm_for_phrase_match(new_phrase) in norm_for_phrase_match(result):
+            continue
+        # Порядок попыток: (1) замена старой фразы в ответе ИИ — только если она
+        # там ЕСТЬ (нечёткий поиск по отсутствующей фразе матчил случайные окна
+        # и портил текст: кейс 516-ЗС «Севастоля» + двойной пробел); (2)
+        # восстановление при опечатке ИИ в новой фразе — сохраняет прочие правки
+        # ИИ; (3) пересборка из исходного текста документа (последний шанс).
+        replaced = None
+        if norm_for_phrase_match(old_phrase) in norm_for_phrase_match(result):
+            replaced = apply_word_replacement_fuzzy(result, old_phrase, new_phrase)
+        if replaced is None:
+            # ИИ применил замену, но с опечаткой в новой формулировке: старой
+            # фразы в ответе уже нет, поэтому ищем нечётким окном фрагмент ПО
+            # НОВОЙ фразе и переписываем его целиком.
+            rng = find_phrase_raw_range_fuzzy(result, new_phrase)
+            if rng is not None and rng[0] < rng[1]:
+                found = result[rng[0]:rng[1]]
+                if norm_for_phrase_match(found) != norm_for_phrase_match(new_phrase):
+                    replaced = join_edit_span(
+                        result[:rng[0]], found, result[rng[1]:], new_phrase)
+        if replaced is None and old_html:
+            replaced = apply_word_replacement_fuzzy(old_html, old_phrase, new_phrase)
+        if replaced is None:
+            if log_callback:
+                log_callback(
+                    f"  Не удалось детерминированно применить замену слов "
+                    f"«{old_phrase}» → «{new_phrase}»{label}", 'warning',
+                )
+            continue
+        if log_callback and replaced != result:
+            log_callback(
+                f"  ИИ не применил замену слов «{old_phrase}» → «{new_phrase}»{label}; "
+                f"применено программно", 'result',
+            )
+        result = replaced
+    # Diff-гвард: ответ ИИ не должен терять текст абзаца ВНЕ заменяемых фраз —
+    # иначе пересобираем из исходной редакции со всеми заменами.
+    restored = _restore_text_lost_by_replacement(
+        old_html, result,
+        [o for o, _ in refined_pairs], [n for _, n in refined_pairs])
+    if restored is not None:
         if log_callback:
             log_callback(
-                f"  Не удалось детерминированно применить замену слов "
-                f"«{old_phrase}» → «{new_phrase}»{label}", 'warning',
+                f"  ИИ потерял текст абзаца вне инструкции замены{label}; "
+                f"текст восстановлен из исходной редакции с применёнными заменами",
+                'warning',
             )
+        result = restored
+    return result
+
+
+def _ensure_addition_applied(description, old_html, new_html,
+                             log_callback=None, label=''):
+    """Детерминированный контроль инструкции «дополнить словами «X»».
+
+    Контрольный кейс 516-ЗС → 127-ЗС (ст.9 ч.8, прогон 23.09.2026): промпт 4
+    не запрещает вставлять дополнение после конечной точки предложения, и ИИ
+    вернул «…предыдущего Уполномоченного. в порядке, предусмотренном статьей
+    6 настоящего Закона» вместо «…предыдущего Уполномоченного в порядке,
+    предусмотренном статьей 6 настоящего Закона.» — точка осталась посреди
+    предложения, а финальная пропала. Проверка «фраза присутствует» этот
+    дефект не видит, поэтому нормализация выполняется здесь.
+
+    Правки (все — только при явных признаках дефекта):
+    1. точка «уехала» перед вставкой: исходное заканчивалось «.», новое — нет,
+       и дополнение начинается со строчной буквы → точка переносится в конец;
+    2. дополнение отсутствует вовсе → вставляется после опорной фразы
+       «после слов «X»» (а при её отсутствии — перед терминальной пунктуацией
+       последнего абзаца).
+
+    Возвращает исправленный HTML.
+    """
+    phrase = parse_word_addition(description)
+    if not phrase:
         return new_html
-    if log_callback and replaced != new_html:
+    result = normalize_space_boundaries(str(new_html or ''))
+    old_plain = html_to_plain_text(old_html).rstrip()
+    new_plain = html_to_plain_text(result).rstrip()
+    phrase_norm = norm_for_phrase_match(phrase)
+
+    # (1) Точка, «съехавшая» перед дополнением.
+    if phrase_norm and phrase_norm in norm_for_phrase_match(result):
+        if (phrase[:1].islower()
+                and old_plain.endswith('.')
+                and not new_plain.endswith(('.', ';', ':', '!', '?'))):
+            # «. …» или «.. …» перед дополнением — точка целиком переезжает в конец
+            pattern = re.compile(r'\.+\s+' + re.escape(phrase))
+            if pattern.search(result):
+                terminal = '' if phrase.rstrip().endswith((';', '.')) else '.'
+
+                def _move(_match):
+                    # замена по шаблону: «. <дополнение>» → « <дополнение>.»
+                    return ' ' + phrase + terminal
+
+                moved = pattern.sub(_move, result, count=1)
+                if moved != result:
+                    if log_callback:
+                        log_callback(
+                            f"  Дополнение «{phrase[:60]}…» стояло после "
+                            f"конечной точки предложения — точка перенесена "
+                            f"в конец{label}", 'result',
+                        )
+                    return moved
+        return result
+
+    # (2) Дополнения в тексте нет — вставляем программно.
+    anchor = parse_addition_anchor(description)
+    inserted = None
+    if anchor:
+        rng = find_phrase_raw_range_fuzzy(result, anchor)
+        if rng is not None and rng[0] < rng[1]:
+            inserted = join_edit_span(
+                result[:rng[1]], '', result[rng[1]:], ' ' + phrase)
+    if inserted is None:
+        inserted = _append_before_terminal_punct(result, phrase)
+    if inserted is None or inserted == result:
+        if log_callback:
+            log_callback(
+                f"  Не удалось детерминированно применить дополнение словами "
+                f"«{phrase}»{label}", 'warning',
+            )
+        return result
+    if log_callback:
         log_callback(
-            f"  ИИ не применил замену слов «{old_phrase}» → «{new_phrase}»{label}; "
+            f"  Дополнение словами «{phrase[:60]}…» отсутствовало в ответе ИИ; "
+            f"вставлено программно{label}", 'result',
+        )
+    return inserted
+
+
+def _append_before_terminal_punct(html, phrase):
+    """Вставить ``phrase`` перед терминальной пунктуацией последнего абзаца.
+
+    Инструкция вида «часть N дополнить словами «X»» не задаёт опору, поэтому
+    дополнение — продолжение последнего предложения и должно стоять перед его
+    точкой. Возвращает ``None``, если абзац/конечная пунктуация не найдены.
+    """
+    if not html or not phrase:
+        return None
+    match = None
+    for match in re.finditer(r'<p\b[^>]*>', html):
+        pass
+    if match is None:
+        return None
+    close = html.find('</p>', match.end())
+    if close < 0:
+        return None
+    body = html[match.end():close]
+    tail = re.search(r'[.;:](\s*)$', body)
+    if tail is None:
+        return None
+    new_body = body[:tail.start()] + ' ' + phrase + body[tail.start():]
+    return html[:match.end()] + new_body + html[close:]
+
+
+def _paragraph_index_of_fragment(old_html, fragment, default=1):
+    """Номер абзаца (1-based) старого HTML, в котором находится фрагмент."""
+    plain_fragment = norm_for_phrase_match(html_to_plain_text(fragment))
+    if not plain_fragment:
+        return default
+    paragraphs = split_html_to_paragraphs(old_html)
+    if not paragraphs:
+        paragraphs = [old_html] if str(old_html or '').strip() else []
+    for index, paragraph in enumerate(paragraphs, start=1):
+        if plain_fragment in norm_for_phrase_match(html_to_plain_text(paragraph)):
+            return index
+    return default
+
+
+def _deletion_highlights(removed_html, paragraph_num=1):
+    """Подсветка удаления фразы в формате highlights (previous_edition.deletion)."""
+    if not removed_html:
+        return None
+    return {
+        'previous_edition': {
+            'deletion': [[removed_html, f'{paragraph_num}-1']],
+            'addition': [],
+            'difference': [],
+        },
+        'current_edition': {'deletion': [], 'addition': [], 'difference': []},
+    }
+
+
+def _ensure_word_exclusion_applied(description, old_html, new_html,
+                                   log_callback=None, label=''):
+    """Детерминированный контроль правки «слова «X» исключить».
+
+    ``prompt_4`` требует точного совпадения фразы (WHOLE PHRASE MATCHING /
+    VERBATIM SUBSTITUTION), поэтому при расхождении оформления ссылки (в
+    инструкции абсолютный URL, в документе относительный) ИИ возвращает текст
+    без изменений и правка молча теряется (кейс 516-ЗС → 127-ЗС: фраза
+    «, указанными в статье 3 … № 185-ЗС …» осталась в части 3 статьи 6, а
+    трекер закрыл норму 6)->б) чужой ревизией 221-ЗС). Проверяем факт исключения
+    и при необходимости удаляем фразу программно (поиск по нормализованному
+    тексту, с допуском на опечатки OCR).
+
+    Возвращает ``(HTML после контроля, удалённый фрагмент или None)``.
+    """
+    phrase = parse_word_exclusion(description)
+    if not phrase:
+        return new_html, None
+    if norm_for_phrase_match(phrase) not in norm_for_phrase_match(html_to_plain_text(new_html)):
+        # Фразы в результате уже нет — исключение применено (или неприменимо).
+        return new_html, None
+    refined = refine_phrase_from_document(phrase, old_html or new_html) or phrase
+    applied = None
+    for source_html in (new_html, old_html or ''):
+        applied = apply_word_exclusion_fuzzy(source_html, refined)
+        if applied is not None:
+            break
+    if applied is None:
+        if log_callback:
+            log_callback(
+                f"  Не удалось детерминированно применить исключение фразы "
+                f"«{refined}»{label}", 'warning',
+            )
+        return new_html, None
+    corrected, removed = applied
+    if log_callback:
+        log_callback(
+            f"  ИИ не применил исключение фразы «{refined}»{label}; "
             f"применено программно", 'result',
         )
-    return replaced
+    return corrected, removed
 
 
 def _apply_change_impl(change, data, change_data, law_ref, general_valid_from, log_callback,
@@ -1390,6 +1692,27 @@ def _apply_change_to_element_content(element, ch_type, description, valid_from,
             answer_html = _ensure_word_replacement_applied(
                 description, current_html, answer_html, log_callback,
                 label=f' (элемент {element.get("item_id")})')
+            answer_html, excluded_fragment = _ensure_word_exclusion_applied(
+                description, current_html, answer_html, log_callback,
+                label=f' (элемент {element.get("item_id")})')
+            answer_html = _ensure_addition_applied(
+                description, current_html, answer_html, log_callback,
+                label=f' (элемент {element.get("item_id")})')
+            for defect in find_text_boundary_defects(current_html, answer_html):
+                if log_callback:
+                    log_callback(
+                        f"  ⚠ Дефект границы текста "
+                        f"(элемент {element.get('item_id')}): {defect}", 'warning')
+            if excluded_fragment:
+                from npazs.revision.revision_builder import (
+                    _merge_highlights_with_paragraph_prefix,
+                )
+                para_index = _paragraph_index_of_fragment(current_html, excluded_fragment)
+                highlights = _merge_highlights_with_paragraph_prefix(
+                    highlights,
+                    _deletion_highlights(excluded_fragment, para_index),
+                    para_index,
+                )
             paragraphs = split_html_to_paragraphs(answer_html)
             if not paragraphs:
                 paragraphs = [answer_html] if answer_html.strip() else []

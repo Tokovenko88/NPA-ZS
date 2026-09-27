@@ -73,10 +73,10 @@ class GuiBuilderMixin:
                 ("Cline", "cline"),
                 ("OpenRouter", "openrouter"),
                 ("Cerebras", "cerebras"),
-                ("Together", "together"),
                 ("Mistral", "mistral"),
                 ("Gemini", "gemini"),
                 ("FreeDeepseek", "free_deepseek"),
+                ("Qwen2API", "qwen2api"),
             ):
                 _btn = tk.Radiobutton(
                     frame_pa_backend, text=_label, variable=self.post_analysis_backend,
@@ -96,19 +96,10 @@ class GuiBuilderMixin:
             self.post_model_refresh_btn = tk.Button(frame_post_model, text="⟲", width=3, command=self.refresh_post_models)
             self.post_model_refresh_btn.pack(side=tk.LEFT, padx=(0,5))
             row += 1
-            # Собственные креды пост-анализа: независимы от редактора основного
-            # бэкенда — пост-анализ может работать на другом провайдере/ключе/URL
-            # (например, свой инстанс прокси FreeDeepseekAPI). Заполненное поле —
-            # переопределение POST_ANALYSIS_API_KEY/_BASE_URL, пустое — наследовать
-            # ключ/URL выбранного пост-бэкенда.
-            post_creds_frame = tk.Frame(self.left_frame)
-            post_creds_frame.grid(row=row, column=0, columnspan=3, sticky='ew', padx=10, pady=5)
-            tk.Label(post_creds_frame, text="API URL (пост):").pack(side=tk.LEFT, padx=(0,5))
-            self.post_gateway_url_entry = tk.Entry(post_creds_frame, textvariable=self.post_gateway_url, width=40)
-            self.post_gateway_url_entry.pack(side=tk.LEFT, padx=(0,10))
-            add_context_menu(self.post_gateway_url_entry, allow_edit=True)
-            add_hotkeys(self.post_gateway_url_entry, allow_edit=True)
-            row += 1
+            # Поля ввода BASE_URL убраны из GUI: URL бэкенда берётся из .env
+            # (load_backend_settings / HTTP_BACKEND_DEFS), переменные
+            # self.post_gateway_url / self.kilo_gateway_url сохранены —
+            # на них опирается логика смены бэкенда и запросов.
             backend_frame = tk.Frame(self.left_frame)
             backend_frame.grid(row=row, column=0, columnspan=3, sticky='w', padx=10, pady=5)
             tk.Label(backend_frame, text="Бэкенд (основной):").pack(side=tk.LEFT, padx=(0,10))
@@ -117,16 +108,10 @@ class GuiBuilderMixin:
             tk.Radiobutton(backend_frame, text="Cline", variable=self.backend, value="cline", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="OpenRouter", variable=self.backend, value="openrouter", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Cerebras", variable=self.backend, value="cerebras", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
-            tk.Radiobutton(backend_frame, text="Together", variable=self.backend, value="together", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Mistral", variable=self.backend, value="mistral", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="Gemini", variable=self.backend, value="gemini", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             tk.Radiobutton(backend_frame, text="FreeDeepseek", variable=self.backend, value="free_deepseek", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
-            row += 1
-            kilo_frame = tk.Frame(self.left_frame)
-            kilo_frame.grid(row=row, column=0, columnspan=3, sticky='ew', padx=10, pady=5)
-            tk.Label(kilo_frame, text="API URL:").pack(side=tk.LEFT, padx=(0,5))
-            self.kilo_gateway_url_entry = tk.Entry(kilo_frame, textvariable=self.kilo_gateway_url, width=40)
-            self.kilo_gateway_url_entry.pack(side=tk.LEFT, padx=(0,10))
+            tk.Radiobutton(backend_frame, text="Qwen2API", variable=self.backend, value="qwen2api", command=self.on_backend_changed).pack(side=tk.LEFT, padx=5)
             row += 1
             tk.Label(self.left_frame, text="Модель:").grid(row=row, column=0, padx=10, pady=8, sticky='e')
             frame_model = tk.Frame(self.left_frame)
@@ -331,7 +316,11 @@ class GuiBuilderMixin:
                         self.ollama_model.set(saved['model'])
             else:
                 self.log("Переключено на Ollama", 'info')
-            # Выбранный бэкенд и URL/модель сразу уходят в .env (LLM_BACKEND).
+                saved = load_backend_settings('ollama')
+                if saved.get('model'):
+                    self.ollama_model.set(saved['model'])
+            # Выбранный бэкенд фиксируем в .env (LLM_BACKEND), но не перезаписываем
+            # параметры бэкенда (URL/модель) без явного сохранения.
             self.save_env_settings(quiet=True)
             threading.Thread(target=lambda: self._fetch_models(try_api=True, target='main'), daemon=True).start()
 
@@ -339,6 +328,7 @@ class GuiBuilderMixin:
             """Сохранить параметры текущего бэкенда (URL, модель) в ``.env``.
 
             Вызывается при смене бэкенда/модели — API-ключ не сохраняется через GUI.
+            Для Ollama URL не перезаписывается переменной kilo_gateway_url.
             """
             backend = self.backend.get().strip() or DEFAULT_BACKEND
             if backend not in BACKEND_ENV_KEYS:
@@ -346,9 +336,10 @@ class GuiBuilderMixin:
                     self.log(f'Неизвестный бэкенд {backend!r}, сохранять нечего', 'warning')
                 return False
             try:
+                base_url = None if backend == 'ollama' else self.kilo_gateway_url.get().strip()
                 written = save_backend_settings(
                     backend,
-                    base_url=self.kilo_gateway_url.get().strip(),
+                    base_url=base_url,
                     model=self.ollama_model.get().strip(),
                 )
             except (OSError, ValueError) as e:

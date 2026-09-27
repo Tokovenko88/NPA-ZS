@@ -1,36 +1,36 @@
 """Общие функции работы со списками моделей ИИ-бэкендов.
 
 Используются и модулем внесения изменений (``npazs.ui.revision_app``),
-и модулем сравнения документов (``npazs.compare.gui``), чтобы логика
-отбора free-моделей Kilo Gateway и whitelist-фильтра Ollama жила в одном
-месте, а не дублировалась в двух GUI.
+и модулем сравнения документов (``npazs.compare.gui``).
+
+Строгое правило: списки моделей — ТОЛЬКО live из API провайдера
+(``GET {base_url}/models``, для Ollama — ``GET {base_url}/api/tags``).
+Никаких захардкоженных списков и fallback-наборов здесь нет:
+при недоступности API функции бросают ``RuntimeError``/``requests``-исключение,
+а GUI показывает пустой список + честную ошибку. ``base_url`` всегда
+передаётся параметром (из ``.env`` через ``load_backend_settings``),
+внутри функций URL не зашиты.
 
 Модуль намеренно не зависит от Tkinter: всё — чистые функции с ``requests``.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 import os
+import subprocess
+from collections.abc import Iterable
 
 import requests
-from npazs.constants import (
-    HTTP_BACKEND_DEFS,
-    KILO_GATEWAY_FREE_MODELS,
-    OLLAMA_MODELS_WHITELIST,
-    _ollama_base_url,
-)
 
 
-def filter_free_models(
-    payload, known: Iterable[str] = KILO_GATEWAY_FREE_MODELS
-) -> list:
-    """Отобрать реально существующие free-модели из ответа Kilo Gateway.
+def filter_free_models(payload, known: Iterable[str] = ()) -> list:
+    """Отобрать реально существующие free-модели из ответа ``GET /models``.
 
-    ``payload`` — объект из ответа ``GET /models`` (словарь с ключом
-    ``data``). Сначала отбираются все модели, в id/названии которых есть
-    признак ``free`` (или ``auto free``); если таких нет — по известным
-    id из ``known``. Возвращается отсортированный список без дубликатов.
+    ``payload`` — объект из ответа (словарь с ключом ``data``). Отбираются
+    только модели, в id/названии которых есть признак ``free`` — это реальный
+    тарифный признак в ответах Kilo/OpenRouter/Cline, а не выдуманный список.
+    ``known`` оставлен для совместимости и по умолчанию пуст (не используется).
+    Возвращается отсортированный список без дубликатов.
     """
     candidates = []
     for m in payload.get('data', []) if isinstance(payload, dict) else []:
@@ -44,11 +44,11 @@ def filter_free_models(
     selected = []
     for model_id, name in candidates:
         low = f"{model_id} {name}".lower()
-        if 'free' in low or 'auto free' in low:
+        if 'free' in low:
             selected.append(model_id)
     if not selected:
         for expected in known:
-            lower = expected.lower()
+            lower = str(expected).lower()
             if lower in ids_lower:
                 selected.append(ids_lower[lower])
     return sorted(set(selected))
@@ -59,8 +59,8 @@ def fetch_kilo_gateway_free_models(url: str, api_key: str = '') -> list:
 
     Выполняет ``GET {url}/models`` и возвращает список моделей через
     :func:`filter_free_models`. Бросает ``RuntimeError`` при HTTP-ошибке;
-    исключения ``requests`` уходят вызывающей стороне — она решает, как
-    показать fallback-список.
+    исключения ``requests`` уходят вызывающей стороне (GUI показывает
+    пустой список + честную ошибку, без выдуманных моделей).
     """
     base = url.rstrip('/') if url else ''
     headers = {}
@@ -79,14 +79,22 @@ def fetch_kilo_gateway_free_models(url: str, api_key: str = '') -> list:
     return filter_free_models(data)
 
 
-def fetch_ollama_models(base_url: str = _ollama_base_url) -> list:
-    """Получить разрешённые модели из локального Ollama.
+def fetch_ollama_models(base_url: str = '', cloud_only: bool = False) -> list:
+    """Получить установленные модели из локального Ollama.
 
     Выполняет ``GET {base_url}/api/tags`` и возвращает отсортированный
-    список моделей, прошедших ``OLLAMA_MODELS_WHITELIST``. Бросает
-    ``RuntimeError`` при HTTP-ошибке.
+    список имён. Никакого whitelist-фильтра: что реально установлено,
+    то и показывается. Бросает ``RuntimeError`` при HTTP-ошибке.
+    ``base_url`` обязан прийти из ``.env`` (``OLLAMA_BASE_URL``).
+
+    ``cloud_only=True`` — только облачные модели Ollama (признак
+    ``remote_host``/``remote_model`` в ``/api/tags`` либо ``cloud``-суффикс
+    в имени); локальные модели в выборку не попадают (см.
+    :func:`is_ollama_cloud_model`).
     """
-    base = base_url.rstrip('/') if base_url else ''
+    base = (base_url or '').rstrip('/')
+    if not base:
+        raise RuntimeError('OLLAMA_BASE_URL is not configured in .env')
     session = _ssl_session()
     try:
         response = session.get(f'{base}/api/tags', timeout=5)
@@ -100,9 +108,97 @@ def fetch_ollama_models(base_url: str = _ollama_base_url) -> list:
         if not isinstance(m, dict):
             continue
         name = str(m.get('name') or '').strip()
-        if name and name in OLLAMA_MODELS_WHITELIST:
-            models.append(name)
-    return sorted(models)
+        if not name:
+            continue
+        if cloud_only and not is_ollama_cloud_model(m):
+            continue
+        models.append(name)
+    return sorted(set(models))
+
+
+#: Подсказка при отсутствии авторизации Ollama cloud (HTTP 403 от ollama.com).
+OLLAMA_SIGNIN_HINT = (
+    'Облачным моделям Ollama нужен вход на ollama.com: выполните в терминале '
+    '`ollama signin` (откроется браузер для входа) или откройте '
+    'https://ollama.com, затем обновите список моделей.'
+)
+
+#: Текст диалога «Авторизоваться сейчас?» (GUI).
+OLLAMA_SIGNIN_DIALOG_TEXT = (
+    'Облачные модели Ollama недоступны: нет авторизации ollama.com (HTTP 403).\n\n'
+    'Авторизоваться сейчас? Будет запущен `ollama signin` и откроется браузер '
+    'для входа на ollama.com.\n\n'
+    'Позже авторизацию можно выполнить вручную командой `ollama signin` '
+    'в терминале, затем нажать «Обновить модели».'
+)
+
+
+def is_ollama_cloud_model(entry) -> bool:
+    """Признак облачной модели Ollama.
+
+    ``entry`` — словарь из ``GET /api/tags`` или имя строки. Облачная модель:
+    в ответе есть ``remote_host``/``remote_model`` (авторитетный признак
+    remote-модели Ollama) либо тег имени равен/оканчивается на ``cloud``
+    (``gpt-oss:20b-cloud``, ``minimax-m3:cloud``).
+    """
+    if isinstance(entry, dict):
+        if str(entry.get('remote_host') or '').strip() or str(entry.get('remote_model') or '').strip():
+            return True
+        name = str(entry.get('name') or '')
+    else:
+        name = str(entry or '')
+    tag = name.split(':', 1)[1] if ':' in name else name
+    return tag == 'cloud' or tag.endswith('-cloud')
+
+
+def check_ollama_cloud_access(base_url: str, model: str) -> str:
+    """Проверить доступ к облачной модели Ollama (проба авторизации).
+
+    Дёшево выполняет ``POST {base_url}/api/show`` (без генерации токенов):
+    если облако Ollama отвечает ``HTTP 403`` — входа на ollama.com нет
+    (или нет прав на модель). Возвращает пустую строку при успехе либо
+    текст причины; при 403 причина содержит подсказку ``ollama signin``.
+    Прочие ошибки тоже возвращаются текстом (403 — не единственная причина
+    недоступности). ``RuntimeError`` — только при незаданном ``base_url``.
+    """
+    base = (base_url or '').rstrip('/')
+    if not base:
+        raise RuntimeError('OLLAMA_BASE_URL is not configured in .env')
+    session = _ssl_session()
+    try:
+        response = session.post(f'{base}/api/show', json={'name': model}, timeout=10)
+    finally:
+        session.close()
+    if response.status_code == 403:
+        return f'HTTP 403 (нет авторизации ollama.com). {OLLAMA_SIGNIN_HINT}'
+    if response.status_code == 401:
+        return f'HTTP 401 (требуется авторизация ollama.com). {OLLAMA_SIGNIN_HINT}'
+    if response.status_code != 200:
+        return f'HTTP {response.status_code}'
+    return ''
+
+
+def verify_ollama_cloud_models(base_url: str, models) -> dict:
+    """Проверить доступность облачных моделей Ollama.
+
+    Возвращает ``{model: reason}`` только для недоступных моделей:
+    пустой словарь = авторизация есть, все модели доступны.
+    """
+    blocked = {}
+    for name in models:
+        try:
+            reason = check_ollama_cloud_access(base_url, name)
+        except requests.RequestException as e:
+            # Сеть/таймаут — не «нет авторизации», но модель тоже недоступна.
+            reason = f'Проверка доступа не удалась: {e}'
+        if reason:
+            blocked[str(name)] = reason
+    return blocked
+
+
+def run_ollama_signin() -> None:
+    """Запустить ``ollama signin`` (открывает браузер для входа на ollama.com)."""
+    subprocess.Popen(['ollama', 'signin'])
 
 
 # ---------------------------------------------------------------------------
@@ -131,11 +227,10 @@ def _fetch_openai_compat_models(
     """Получить список моделей из OpenAI-compatible ``GET /models``.
 
     ``free_marker`` — маркер, по которому отбираются free-модели
-    (например, ``free`` для OpenRouter/Cline или ``flash`` для Gemini).
-    При ``free_marker=None`` фильтр отключается и возвращаются все модели
-    (используется для бэкендов без free-тарифа, например DeepSeek).
-    Если API недоступен или не возвращает моделей, выбрасывается
-    ``RuntimeError`` — вызывающий код решает, как использовать fallback-список.
+    (``free`` для OpenRouter/Cline). При ``free_marker=None`` фильтр
+    отключается и возвращаются ВСЕ модели из ответа (Cerebras,
+    Mistral, Gemini, локальные прокси).
+    Ошибки НЕ глотаются: ``RuntimeError`` уходит в GUI.
     """
     base = (base_url or '').rstrip('/')
     if not base:
@@ -166,122 +261,85 @@ def _fetch_openai_compat_models(
     return sorted(set(selected))
 
 
-def fetch_openrouter_free_models(api_key: str = '') -> list:
-    """Получить free-модели OpenRouter через ``GET /models``.
+def fetch_openrouter_free_models(base_url: str, api_key: str = '') -> list:
+    """РЕАЛЬНЫЕ free-модели OpenRouter: ``GET {base_url}/models``, фильтр 'free'.
 
-    Если API недоступен (SSL, сеть, ключ), используется fallback из констант
-    (``HTTP_BACKEND_DEFS['openrouter']['free_models']``) — как у остальных
-    HTTP-бэкендов.
+    ``base_url`` — строго из ``.env`` (``OPENROUTER_BASE_URL``). Ошибки
+    не глотаются: уходят в GUI (пустой список + честная ошибка).
     """
-    try:
-        return _fetch_openai_compat_models(
-            'https://openrouter.ai/api/v1', api_key, 'free'
-        )
-    except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['openrouter']['free_models'])
+    return _fetch_openai_compat_models(base_url, api_key, 'free')
 
 
-def fetch_cline_models(api_key: str = '') -> list:
-    """Получить только и только free-модели Cline API через ``GET /models``.
+def fetch_cline_models(base_url: str, api_key: str = '') -> list:
+    """РЕАЛЬНЫЕ free-модели Cline API: ``GET {base_url}/models``, фильтр 'free'.
 
-    Отбираются модели с признаком ``free`` (у Cline это суффикс ``:free``).
-    Если API недоступен, используется fallback из констант
-    (``HTTP_BACKEND_DEFS['cline']['free_models']``).
+    ``base_url`` — строго из ``.env`` (``CLINE_BASE_URL``). Ошибки не глотаются.
     """
-    try:
-        return _fetch_openai_compat_models(
-            'https://api.cline.bot/api/v1', api_key, 'free'
-        )
-    except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['cline']['free_models'])
+    return _fetch_openai_compat_models(base_url, api_key, 'free')
 
 
-def fetch_cerebras_models(api_key: str = '') -> list:
-    """Получить список моделей Cerebras через ``GET /models``.
+def fetch_cerebras_models(base_url: str, api_key: str = '') -> list:
+    """РЕАЛЬНЫЙ список моделей Cerebras: ``GET {base_url}/models`` без фильтра.
 
-    Cerebras — платный pay-per-token, но с generous free tier'ом при регистрации
-    (без карты), контекст до 128K. Если API недоступен, используется fallback
-    из констант.
+    ``base_url`` — строго из ``.env`` (``CEREBRAS_BASE_URL``). Ошибки не глотаются.
     """
-    try:
-        return _fetch_openai_compat_models(
-            'https://api.cerebras.ai/v1', api_key, free_marker=None
-        )
-    except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['cerebras']['free_models'])
+    return _fetch_openai_compat_models(base_url, api_key, free_marker=None)
 
 
-def fetch_together_models(api_key: str = '') -> list:
-    """Получить список моделей Together AI через ``GET /models``.
+def fetch_mistral_models(base_url: str, api_key: str = '') -> list:
+    """РЕАЛЬНЫЙ список моделей Mistral AI: ``GET {base_url}/models`` без фильтра.
 
-    Together AI — платный pay-per-token, но с free tier'ом при регистрации
-    (без карты), контекст до 128K. Если API недоступен, используется fallback
-    из констант.
+    ``base_url`` — строго из ``.env`` (``MISTRAL_BASE_URL``). Ошибки не глотаются.
     """
-    try:
-        return _fetch_openai_compat_models(
-            'https://api.together.xyz/v1', api_key, free_marker=None
-        )
-    except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['together']['free_models'])
+    return _fetch_openai_compat_models(base_url, api_key, free_marker=None)
 
 
-def fetch_mistral_models(api_key: str = '') -> list:
-    """Получить список моделей Mistral AI через ``GET /models``.
+def fetch_gemini_models(base_url: str, api_key: str = '') -> list:
+    """РЕАЛЬНЫЙ список моделей Gemini: ``GET {base_url}/models`` без фильтра.
 
-    Mistral AI — платный pay-per-token, но с free tier'ом при регистрации
-    (без карты), контекст до 128K. Если API недоступен, используется fallback
-    из констант.
+    ``base_url`` — строго из ``.env`` (``GEMINI_BASE_URL``). Возвращаются все
+    доступные по ключу модели (фильтра по тарифу нет — его знает только
+    провайдер/ключ). Ошибки не глотаются.
     """
-    try:
-        return _fetch_openai_compat_models(
-            'https://api.mistral.ai/v1', api_key, free_marker=None
-        )
-    except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['mistral']['free_models'])
+    return _fetch_openai_compat_models(base_url, api_key, free_marker=None)
 
 
-def fetch_gemini_models(api_key: str = '') -> list:
-    """Получить список free-моделей Gemini через ``GET /models``.
+def fetch_free_deepseek_models(base_url: str, api_key: str = '') -> list:
+    """РЕАЛЬНЫЙ список моделей локального прокси FreeDeepseekAPI.
 
-    Если API не доступен, используется fallback из констант.
+    ``base_url`` — строго из ``.env`` (``FREE_DEEPSEEK_BASE_URL``, хранится
+    с суффиксом ``/v1``; bare-host дополняется до ``/v1``). Без фильтра:
+    возвращается всё, что отдал ``GET /v1/models``. Ошибки не глотаются.
     """
-    try:
-        return _fetch_openai_compat_models(
-            'https://generativelanguage.googleapis.com/v1beta/openai',
-            api_key, 'flash'
-        )
-    except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['gemini']['free_models'])
-
-
-def fetch_free_deepseek_models(
-    base_url: str = 'http://127.0.0.1:9655/v1', api_key: str = ''
-) -> list:
-    """Получить список моделей локального прокси FreeDeepseekAPI.
-
-    Прокси OpenAI-совместим (``GET /v1/models`` без фильтра: веб DeepSeek
-    отдаёт одну модель — DeepSeek-V4.1-Flash + алиасы/суффиксы thinking/search).
-    Без запущенного ``npm start`` возвращается fallback из констант
-    (``HTTP_BACKEND_DEFS['free_deepseek']['free_models']``).
-    """
-    base = (base_url or 'http://127.0.0.1:9655/v1').rstrip('/')
+    base = (base_url or '').rstrip('/')
+    if not base:
+        raise RuntimeError('FREE_DEEPSEEK_BASE_URL is not configured in .env')
     # base_url хранится с суффиксом /v1, bare-host дополняем так же.
     root = base if base.endswith('/v1') else f'{base}/v1'
-    try:
-        return _fetch_openai_compat_models(root, api_key, free_marker=None)
-    except RuntimeError:
-        return sorted(HTTP_BACKEND_DEFS['free_deepseek']['free_models'])
+    return _fetch_openai_compat_models(root, api_key, free_marker=None)
+
+
+def fetch_qwen2api_models(base_url: str, api_key: str = '') -> list:
+    """РЕАЛЬНЫЙ список моделей локального прокси Qwen2API (Qwen-Proxy).
+
+    ``base_url`` — строго из ``.env`` (``QWEN2API_BASE_URL``, хранится
+    с суффиксом ``/v1``; bare-host дополняется до ``/v1``). Без фильтра:
+    список зависит от подключённых аккаунтов chat.qwen.ai.
+    Ошибки не глотаются (401 = неверный ``QWEN2API_API_KEY`` в ``.env`` NPA-ZS
+    относительно ``API_KEY`` в ``.env`` самого прокси).
+    """
+    base = (base_url or '').rstrip('/')
+    if not base:
+        raise RuntimeError('QWEN2API_BASE_URL is not configured in .env')
+    # base_url хранится с суффиксом /v1, bare-host дополняем так же.
+    root = base if base.endswith('/v1') else f'{base}/v1'
+    return _fetch_openai_compat_models(root, api_key, free_marker=None)
 
 
 def get_free_models_for_backend(backend: str) -> list:
-    """Вернуть fallback-список free-моделей для любого бэкенда.
+    """Совместимость: выдуманных fallback-списков больше нет — всегда [].
 
-    Используется как запасной вариант, когда API недоступен.
+    Оставлена, чтобы старый код не падал с ImportError: при недоступности
+    API GUI показывает пустой список + честную ошибку.
     """
-    if backend == 'kilo_gateway':
-        return sorted(KILO_GATEWAY_FREE_MODELS)
-    defn = HTTP_BACKEND_DEFS.get(backend)
-    if defn:
-        return sorted(defn['free_models'])
-    return sorted(KILO_GATEWAY_FREE_MODELS)
+    return []

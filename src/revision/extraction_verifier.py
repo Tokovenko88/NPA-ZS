@@ -434,6 +434,10 @@ def patch_change_applier(change_applier_module):
 
     verified_grouped_changes.__name__ = original_grouped.__name__
     verified_apply_change.__name__ = original_apply.__name__
+    # Сохраняем сигнатуру: без неё inspect.signature видит только (*args, **kwargs)
+    # и regression-тесты (tests/test_change_applier_delete.py) падают после активации патча.
+    verified_grouped_changes.__signature__ = grouped_signature
+    verified_apply_change.__signature__ = apply_signature
     change_applier_module.apply_grouped_changes = verified_grouped_changes
     change_applier_module.apply_change = verified_apply_change
     _PATCHED = True

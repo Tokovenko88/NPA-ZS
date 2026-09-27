@@ -17,17 +17,18 @@ _bootstrap.bootstrap()
 from npazs.revision.change_applier import apply_change
 
 
+_FIXTURES = Path(__file__).resolve().parent / "data"
+
+
 @pytest.fixture
 def result_data():
-    result_path = r"D:\Base\law\269\269_2016_07_27_izm_380_2017_12_04.json"
-    with open(result_path, encoding="utf-8") as f:
+    with open(_FIXTURES / "269_2016_07_27_izm_380_2017_12_04.json", encoding="utf-8") as f:
         return json.load(f)
 
 
 @pytest.fixture
 def change_data():
-    change_path = r"D:\Base\law\269\380.json"
-    with open(change_path, encoding="utf-8") as f:
+    with open(_FIXTURES / "380.json", encoding="utf-8") as f:
         return json.load(f)
 
 

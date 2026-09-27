@@ -1,4 +1,4 @@
-.PHONY: help install lint typecheck test validate clean run-parser run-editor run-revision run-compare run-verify run-importer run-sync run-free-deepseek auth-free-deepseek build-snippet
+.PHONY: help install lint typecheck test validate clean run-parser run-editor run-revision run-compare run-verify run-importer run-sync run-free-deepseek auth-free-deepseek run-qwen2api setup-qwen2api build-snippet
 
 help:
 	@echo NPA-ZS make targets:
@@ -15,6 +15,8 @@ help:
 	@echo   run-importer  - run DB importer GUI
 	@echo   run-sync      - run site sync
 	@echo   build-snippet - assemble src/site/php/snippet.php from npazs/ modules
+	@echo   setup-qwen2api - install/configure local Qwen2API proxy
+	@echo   run-qwen2api  - start local Qwen2API proxy
 	@echo   clean         - remove caches and build artifacts
 
 install:
@@ -59,8 +61,15 @@ run-free-deepseek:
 auth-free-deepseek:
 	python scripts/setup_free_deepseek.py
 
+setup-qwen2api:
+	python scripts/setup_qwen2api.py
+
+run-qwen2api:
+	python scripts/setup_qwen2api.py --start
+
 build-snippet:
 	python data/work_tools/build_snippet.py
 
 clean:
-	rm -rf .ruff_cache .pytest_cache __pycache__ dist build
+	rm -rf dist build
+	find . -type d \( -name __pycache__ -o -name .pytest_cache -o -name .ruff_cache \) -prune -exec rm -rf {} +

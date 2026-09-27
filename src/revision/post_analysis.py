@@ -44,6 +44,7 @@ from npazs.revision.coverage_check import (
     check_coverage,
     collect_result_revisions,
     format_coverage_gaps,
+    serialize_tracker_changes,
 )
 from npazs.revision.html_utils import (
     extract_text_from_element,
@@ -654,13 +655,35 @@ def collect_changes(result, change_data):
     return out
 
 
-def extract_instructions_text(change_data):
-    """Полный текст изменяющего закона (источник инструкций) из его JSON."""
+def _leading_npa_digits(number):
+    """Ведущие цифры номера НПА («127-ЗС» → «127», «ЗС-127» → «»)."""
+    match = re.match(r'\s*(\d+)', str(number or ''))
+    return match.group(1) if match else ''
+
+
+def extract_instructions_text(change_data, target_npa_number=''):
+    """Полный текст изменяющего закона (источник инструкций) из его JSON.
+
+    Если известен номер целевого НПА, разделы, его не упоминающие, отбрасываются:
+    изменяющий закон может содержать статьи, вносящие изменения в ДРУГИЕ законы
+    (кейс 516-ЗС: статья 2 правит Закон 51-ЗС, а прогон идёт по 127-ЗС). Такие
+    инструкции не относятся к целевому закону, и их «неприменение» ложно
+    трактовалось пост-анализом как ошибка («отсутствуют изменения в статью 16
+    Закона 51-ЗС», прогон 23.09.2026). Если ни один раздел целевой номер не
+    упоминает — фильтр не применяется (страховка при нестандартном формате
+    номера, например «ЗС-127»).
+    """
     parts = []
     for item in change_data.get('npa_items_revision', []) or []:
         text = extract_text_from_element(item)
         if text:
             parts.append(text)
+    digits = _leading_npa_digits(target_npa_number)
+    if digits and parts:
+        needle = f'{digits}-ЗС'
+        relevant = [part for part in parts if needle in part]
+        if relevant:
+            parts = relevant
     return '\n\n'.join(parts)
 
 
@@ -675,7 +698,8 @@ def build_prompt(result, change_data, changes, extracted_instructions=None,
             schema = f.read()
     except Exception:  # noqa: BLE001 — краткая схема как запасной вариант
         schema = _SHORT_SCHEMA
-    instructions = extract_instructions_text(change_data)
+    instructions = extract_instructions_text(
+        change_data, str(result.get('npa_number', '')))
     if extracted_instructions:
         extra = '\n'.join(f"- {_cap(str(t), 2000)}" for t in extracted_instructions if t)
         if extra:
@@ -689,6 +713,13 @@ def build_prompt(result, change_data, changes, extracted_instructions=None,
         + '\n\n<json_schema>\n' + _cap(schema, MAX_SCHEMA_CHARS) + '\n</json_schema>'
         + '\n\n<change_npa_number>' + str(change_data.get('npa_number', '')) + '</change_npa_number>'
         + '\n\n<target_npa_number>' + str(result.get('npa_number', '')) + '</target_npa_number>'
+        + '\n\n<scope>\n'
+          'Прогон применяет изменения изменяющего закона ТОЛЬКО к закону '
+          '<target_npa_number>. <instructions> содержит полный текст изменяющего '
+          'закона — включая статьи, вносящие изменения в ДРУГИЕ законы (других '
+          'номеров). Инструкции для таких законов НЕ применяются к целевому закону '
+          'и НЕ проверяются: отсутствие соответствующих изменений в <changes> НЕ '
+          'является ошибкой и не должно упоминаться в issues.\n</scope>\n'
         + '\n\n<instructions>\n' + _cap(instructions, MAX_INSTRUCTIONS_CHARS) + '\n</instructions>'
         + '\n\n<integrity_check>\nTexts in <changes> may be truncated with \"…[обрезано]\". '
         'If truncation removed a mandatory phrase from the instruction or cut the sentence mid-clause, '
@@ -698,6 +729,9 @@ def build_prompt(result, change_data, changes, extracted_instructions=None,
         '(например «1», «3)») и НЕ должен присутствовать в начале его абзацев: пайплайн '
         'снимает префиксы «1. »/«3) » из html_text. ОТСУТСТВИЕ такого префикса в тексте '
         'элемента — НЕ ошибка; не предлагайте коррекции, дописывающие номер в текст.\n'
+        'НЕ репортите issue, если expected и actual тексты совпадают (без учёта '
+        'регистра, пробелов и пунктуации): такая претензия фиктивна — исправлять '
+        'нечего.\n'
         'При сверке текстов с <instructions> эталоном являются формулировки внутри кавычек '
         '«...» текста изменяющего закона. НЕ исправляйте словоформы, которые дословно '
         'совпадают с текстом изменяющего закона (в том числе архаичные/спорные формы '
@@ -761,9 +795,17 @@ def _sanitize_highlights(highlights, old_html, new_html, log_callback=None):
                 continue
             kept = []
             for item in items:
-                if not isinstance(item, dict):
+                # Записи бывают dict («text»/«positions» — формат ответа ИИ) и
+                # list [текст, "M-N"] (формат change_applier: в таком виде они
+                # лежат в сохранённом результате). Раньше list-записи проходили
+                # мимо сверки и «устаревшая» подсветка оставалась в ревизии
+                # (кейс 516-ЗС: «города Севастоля» после коррекции опечатки).
+                if isinstance(item, dict):
+                    text = str(item.get('text', ''))
+                elif isinstance(item, (list, tuple)) and item:
+                    text = str(item[0])
+                else:
                     continue
-                text = str(item.get('text', ''))
                 if text == 'table' or not text.strip():
                     kept.append(item)
                     continue
@@ -1006,8 +1048,26 @@ def _apply_correction(result, corr, change_npa_id, change_valid_from, log_callba
         cleaned = _sanitize_highlights(original_highlights, old_html, value, log_callback)
         if cleaned is not None and not _highlights_empty(cleaned):
             rev['highlights'] = cleaned
-        elif not original_highlights:
-            rev.pop('highlights', None)
+        else:
+            # Подсветка полностью устарела (все записи не прошли сверку) или
+            # отсутствовала — пересобираем её diff'ом «предыдущая ревизия →
+            # исправленный текст». Иначе в ревизии остаются ложные метки
+            # (кейс 516-ЗС: подсветка «города Севастоля» после исправления
+            # опечатки) либо правка остаётся вовсе без подсветки.
+            revisions_list = element.get('revisions') or []
+            prev_html = ''
+            try:
+                prev_index = revisions_list.index(rev)
+                if prev_index > 0:
+                    prev_html = _revision_body_html(revisions_list[prev_index - 1])
+            except ValueError:
+                prev_html = ''
+            regenerated = (_build_highlights_for_html_change(prev_html, value)
+                           if prev_html else None)
+            if regenerated:
+                rev['highlights'] = regenerated
+            else:
+                rev.pop('highlights', None)
         if element.get('item_children'):
             from npazs.revision.revision_builder import sync_parent_body_with_children
             sync_parent_body_with_children(element, log_callback)
@@ -1615,13 +1675,35 @@ def _is_numbering_prefix_only_issue(issue, work, path_to_item=None):
     return False
 
 
+def _is_vacuous_issue(issue):
+    """True, если претензия фиктивна: ``expected`` и ``actual`` совпадают.
+
+    ИИ формулирует претензию, но в полях expected/actual приводит один и тот
+    же текст — исправлять нечего (коррекция no-op), а статус ошибочно становится
+    incorrect (кейс 516-ЗС → 127-ЗС: обе претензии повторного пост-анализа
+    23.09.2026 01:04 идентичны побайтово). Сравнение без учёта регистра,
+    пробелов и пунктуации. Претензии без текстов expected/actual (например,
+    пробелы покрытия норм) не фильтруются.
+    """
+    if not isinstance(issue, dict):
+        return False
+    expected = issue.get('expected')
+    actual = issue.get('actual')
+    if not isinstance(expected, str) or not isinstance(actual, str):
+        return False
+    if not expected.strip() or not actual.strip():
+        return False
+    return _norm_for_match(expected) == _norm_for_match(actual)
+
+
 def _drop_stale_tracker_entries(result, changes, change_npa_id, log):
     """Убрать из снимка трекера записи, принадлежащие ДРУГИМ прогонам.
 
-    Живой ``ChangeTracker`` в GUI-сессии копит изменения нескольких прогонов
-    (кейс 20.09.2026: после прогона 410-ЗС постанализ 444-ЗС получил его
-    нормы, «выявил» 4 ложных пробела coverage по статье 4 и создал фантомные
-    ревизии 444-ЗС на нетронутых элементах). Запись считается устаревшей,
+    Применяется к снимкам-спискам (work-файл, standalone-verify): такие
+    снимки лежат на диске и могут быть от более раннего прогона того же
+    изменяющего НПА (кейс 20.09.2026: снимок прошлого прогона породил
+    4 ложных пробела coverage по статье 4 и фантомные ревизии на
+    нетронутых элементах). Запись считается устаревшей,
     если зафиксированная в ней ревизия (``revision_id``) в результате
     создана ДРУГИМ НПА:
     - change/add/new_redaction — автор ревизии (``modified_by_id``) чужой;
@@ -1629,7 +1711,21 @@ def _drop_stale_tracker_entries(result, changes, change_npa_id, log):
       поэтому критерий стари: она помечена ``not_valid`` ДРУГИМ законом.
     Записи без ``revision_id`` (правка не доведена до результата) не
     трогаем — это реальные пробелы текущего прогона.
+
+    Живой объект ``ChangeTracker`` этим фильтром в ``run_post_analysis``
+    НЕ пропускается: оркестратор создаёт трекер свежим на каждый прогон
+    (``tracker = ChangeTracker(...)`` внутри ``process()``), поэтому все
+    его записи — текущего прогона. Ревизия чужого автора в записи живого
+    трекера — это не «чужой прогон», а ровно ``foreign_revision`` (норма
+    текущего прогона, закрытая чужой ревизией), которую обязана поймать
+    проверка покрытия и исправить авто-коррекцией (баг 516-ЗС). Отфильт-
+    ровать живой трекер — значит потерять эти пробелы. Оборонительная
+    нормализация ниже нужна для прямых вызовов с объектом, чтобы вместо
+    TypeError («'ChangeTracker' object is not iterable») выполнялась
+    штатная логика фильтрации.
     """
+    if changes is not None and not isinstance(changes, (list, tuple)):
+        changes = serialize_tracker_changes(changes)
     try:
         result_revisions = collect_result_revisions(result)
     except Exception:  # noqa: BLE001 — без карты ревизий фильтр не работает
@@ -1738,13 +1834,19 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     if tracker_snapshot is None:
         tracker_snapshot = _load_tracker_snapshot_from_work(orig_file, change_data, _log)
     if tracker_snapshot is not None:
-        # Живой трекер GUI-сессии копит записи нескольких прогонов: чужие
-        # нормы порождают ложные пробелы coverage и фантомные автоправки.
-        try:
-            tracker_snapshot = _drop_stale_tracker_entries(
-                work, tracker_snapshot, change_npa_id, _log)
-        except Exception as stale_exc:  # noqa: BLE001 — фильтр не ломает проверку
-            _log(f'Ошибка фильтра устаревших записей трекера: {stale_exc}', 'error')
+        # Фильтр устаревших записей применяем ТОЛЬКО к снимкам-спискам
+        # (work-файл может быть от более раннего прогона). Живой объект
+        # ChangeTracker не фильтруем: трекер создаётся свежим на каждый
+        # прогон, и ревизия чужого автора в его записи — это foreign_revision
+        # (баг 516-ЗС), которую обязана поймать проверка покрытия ниже.
+        # Раньше фильтр получал объект, падал с TypeError и это логировалось
+        # как «Ошибка фильтра устаревших записей трекера».
+        if isinstance(tracker_snapshot, (list, tuple)):
+            try:
+                tracker_snapshot = _drop_stale_tracker_entries(
+                    work, tracker_snapshot, change_npa_id, _log)
+            except Exception as stale_exc:  # noqa: BLE001 — фильтр не ломает проверку
+                _log(f'Ошибка фильтра устаревших записей трекера: {stale_exc}', 'error')
         try:
             coverage_gaps = check_coverage(
                 tracker_snapshot, work, change_npa_id,
@@ -1817,9 +1919,12 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     _log(f"Запрос к ИИ-агенту пост-анализа (бэкенд: {backend}, модель: {model})", 'info')
 
     try:
-                answer = ask_ollama(prompt, model, _log, extra_options=extra_options,
-                            stop_event=stop_event, backend=backend,
-                            kilo_gateway_url=kilo_gateway_url, api_key=api_key)
+        answer = ask_ollama(
+            prompt, model, _log, extra_options=extra_options,
+            stop_event=stop_event, backend=backend,
+            kilo_gateway_url=kilo_gateway_url, api_key=api_key,
+            repair_json=False,
+        )
     except Exception as exc:  # noqa: BLE001 — сбой пост-анализа не должен ломать прогон
         _log(f"Ошибка запроса к ИИ-агенту пост-анализа: {exc}", 'error')
         return _finish_run(orig_file, started, result_data, change_data,
@@ -1840,10 +1945,81 @@ def run_post_analysis(orig_file, result_data, change_data, model=None, extra_opt
     if isinstance(verdict, dict) and verdict.get('status'):
         status = str(verdict['status'])
         issues = (verdict.get('issues') or [])
+    elif isinstance(verdict, list) and verdict and all(
+            isinstance(item, dict) for item in verdict) and any(
+            key in item for item in verdict for key in ('path', 'issue', 'corrections')):
+        # repair_json разобрал ответ (с «поисковым» хвостом [1] … [2] …) как
+        # массив претензий без обёртки — восстанавливаем вердикт, иначе все
+        # найденные коррекции отбрасывались бы (кейс 516-ЗС → 127-ЗС,
+        # прогон 23.09.2026: status=error, issues=0, corrected_path=null).
+        issues = verdict
+        verdict = {'status': 'incorrect', 'issues': issues}
+        status = 'incorrect'
+        _log(
+            'Пост-анализ: ответ ИИ разобран как массив претензий — статус '
+            f'выведен детерминированно (issues={len(issues)})', 'warning',
+        )
+    elif isinstance(verdict, dict) and isinstance(verdict.get('issues'), list):
+        # Объект без status, но со списком претензий: статус выводим по факту,
+        # чтобы коррекции дошли до apply_corrections.
+        issues = verdict.get('issues') or []
+        status = 'incorrect' if issues else 'correct'
+        verdict['status'] = status
+        verdict.setdefault('summary', '')
+        _log(
+            f'Пост-анализ: в ответе ИИ нет status — статус выведен из issues '
+            f'({len(issues)}) → {status}', 'warning',
+        )
     else:
         status = 'error'
-        _log('Пост-анализ: ИИ не вернул валидный вердикт (status отсутствует)', 'error')
+        if not (raw_answer or '').strip():
+            # Бэкенд не ответил / запрос остановлен пользователем: это не
+            # «плохой вердикт», а недоступность модели. Прогон уже сохранён —
+            # приложение продолжает работу, а пользователю предлагается
+            # переключить пост-бэкенд и повторить (диалог в ai_utils).
+            _log(
+                'Пост-анализ: ИИ не ответил (бэкенд не сработал или запрос был '
+                'остановлен) — прогон сохранён, приложение продолжает работу. '
+                'Переключите пост-бэкенд и запустите пост-анализ повторно.',
+                'error',
+            )
+        else:
+            _log('Пост-анализ: ИИ не вернул валидный вердикт (status отсутствует)', 'error')
         issues = (verdict.get('issues') or []) if isinstance(verdict, dict) else []
+
+    # ── Фильтр фиктивных претензий (expected ≡ actual) ───────────────────────
+    # ИИ описывает «ошибку», но в expected/actual приводит один и тот же текст:
+    # исправлять нечего (коррекция no-op), а статус ошибочно становится incorrect
+    # (кейс 516-ЗС → 127-ЗС: обе претензии повторного пост-анализа 23.09.2026
+    # 01:04 идентичны побайтово).
+    if issues:
+        vacuous = [issue for issue in issues if _is_vacuous_issue(issue)]
+        if vacuous:
+            for issue in vacuous:
+                _log(
+                    "Пост-анализ: претензия отсеяна (expected совпадает с "
+                    f"actual — фиктивная): {(issue.get('path') or '?')}",
+                    'info',
+                )
+            issues = [issue for issue in issues if issue not in vacuous]
+            if isinstance(verdict, dict):
+                verdict['issues'] = issues
+                if not issues and status == 'incorrect' and not coverage_gaps:
+                    status = 'correct'
+                    verdict['status'] = 'correct'
+                    original_summary = str(verdict.get('summary') or '').strip()
+                    verdict['summary'] = (
+                        'Детерминированная сверка expected/actual отсеяла все '
+                        'претензии ИИ-агента: приведённые ожидаемые тексты '
+                        'совпадают с фактическими. Ошибок внесения не выявлено.'
+                        + (f' Исходное (ошибочное) резюме ИИ: {original_summary}'
+                           if original_summary else '')
+                    )
+                    _log(
+                        'Пост-анализ: все претензии ИИ фиктивны (expected ≡ '
+                        'actual) — итоговый статус correct',
+                        'result',
+                    )
 
     # ── Фильтр «номерных» галлюцинаций ─────────────────────────────────────
     # По конвенции номер структурного элемента хранится в item_number, а не в

@@ -22,7 +22,6 @@ from npazs.config.ollama import (
         get_llm_backend,
         get_mistral_config,
         get_openrouter_config,
-        get_together_config,
 )
 from npazs.constants import HTTP_BACKEND_DEFS
 
@@ -31,7 +30,8 @@ def test_supported_backends_include_new_ones():
         assert 'oline' not in SUPPORTED_BACKENDS  # typo check
         for backend in (
             'ollama', 'kilo_gateway', 'cline', 'openrouter',
-            'cerebras', 'together', 'mistral', 'gemini',
+            'cerebras', 'mistral', 'gemini',
+            'free_deepseek', 'qwen2api',
         ):
             assert backend in SUPPORTED_BACKENDS
 
@@ -63,12 +63,6 @@ def test_get_cerebras_config():
         assert cfg['model']
 
 
-def test_get_together_config():
-        cfg = get_together_config()
-        assert cfg['base_url']
-        assert cfg['model']
-
-
 def test_get_mistral_config():
         cfg = get_mistral_config()
         assert cfg['base_url']
@@ -79,6 +73,22 @@ def test_get_gemini_config():
         cfg = get_gemini_config()
         assert cfg['base_url']
         assert cfg['model']
+
+
+def test_get_qwen2api_config(monkeypatch):
+        """Конфиг локального прокси Qwen2API: URL/модель из дефолтов.
+
+        Live-значения из .env пользователя не влияют: env-переменные
+        снимаются, проверяются именно дефолты.
+        """
+        from npazs.config.ollama import get_qwen2api_config
+
+        monkeypatch.delenv('QWEN2API_BASE_URL', raising=False)
+        monkeypatch.delenv('QWEN2API_API_KEY', raising=False)
+        monkeypatch.delenv('QWEN2API_DEFAULT_MODEL', raising=False)
+        cfg = get_qwen2api_config()
+        assert cfg['base_url'] == 'http://127.0.0.1:3000/v1'
+        assert cfg['model'] == 'qwen3-coder-plus'
 
 
 def test_get_active_llm_config_is_backend(monkeypatch):
@@ -99,9 +109,6 @@ def test_get_active_llm_config_is_backend(monkeypatch):
             openrouter_base_url = ''
             openrouter_api_key = ''
             openrouter_default_model = ''
-            together_base_url = ''
-            together_api_key = ''
-            together_default_model = ''
             mistral_base_url = ''
             mistral_api_key = ''
             mistral_default_model = ''

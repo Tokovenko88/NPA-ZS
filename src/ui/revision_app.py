@@ -41,18 +41,20 @@ from npazs.constants import (
         settings,
 )
 from npazs.llm_models import (
-        fetch_cline_models,
+        OLLAMA_SIGNIN_HINT,
         fetch_cerebras_models,
+        fetch_cline_models,
         fetch_free_deepseek_models,
         fetch_gemini_models,
         fetch_kilo_gateway_free_models,
         fetch_mistral_models,
         fetch_ollama_models,
         fetch_openrouter_free_models,
-        fetch_together_models,
-        get_free_models_for_backend,
+        fetch_qwen2api_models,
+        verify_ollama_cloud_models,
 )
 from npazs.pipeline.orchestrator import AiPipelineMixin
+from npazs.revision.ai_utils import reset_ollama_signin_notice
 from npazs.revision.engine import *
 from npazs.revision.file_ops import FileOpsMixin
 from npazs.revision.html_utils import get_clean_text_from_block, get_full_element_html
@@ -62,6 +64,7 @@ from npazs.revision.tree_utils import find_item_by_id
 from npazs.ui.dialogs.manual_mapping import ManualMappingDialog
 from npazs.ui.dialogs.source_mapping import SourceMappingDialog
 from npazs.ui.gui_builder import GuiBuilderMixin
+from npazs.ui.ollama_signin import offer_ollama_signin
 
 
 class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
@@ -93,10 +96,18 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             _saved = load_backend_settings(_saved_backend)
             _defn = HTTP_BACKEND_DEFS.get(_saved_backend) or {}
             self.backend = tk.StringVar(value=_saved_backend)
+            # Для ollama base_url читается из её настроек/констант, а для HTTP-бэкендов — из их base_url
+            _init_url = _saved.get('base_url') or _defn.get('base_url')
+            if not _init_url and _saved_backend == 'ollama':
+                from npazs.constants import _ollama_base_url
+                _init_url = _ollama_base_url
             self.kilo_gateway_url = tk.StringVar(
-                value=_saved.get('base_url') or _defn.get('base_url') or DEFAULT_KILO_GATEWAY_URL
+                value=_init_url or DEFAULT_KILO_GATEWAY_URL
             )
             _saved_model = _saved.get('model') or _defn.get('default_model') or ''
+            if not _saved_model and _saved_backend == 'ollama':
+                from npazs.constants import DEFAULT_OLLAMA_MODEL
+                _saved_model = DEFAULT_OLLAMA_MODEL
             self.ollama_model = tk.StringVar(value=_saved_model)
             # Пост-анализ — независимый провайдер: свой бэкенд
             # (POST_ANALYSIS_BACKEND), своя модель (POST_ANALYSIS_MODEL).
@@ -158,17 +169,47 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             self.check_queue()
             threading.Thread(target=lambda: self._fetch_models(try_api=True, target='all'), daemon=True).start()
             _constants._user_retry_callback = self._ask_user_retry
+            _constants._ollama_signin_callback = self._request_ollama_signin
 
-        def _ask_user_retry(self, error_message):
+        def _request_ollama_signin(self) -> None:
+            """Показать диалог `ollama signin` в главном потоке Tk.
+
+            Вызывается из рабочего потока `ask_ollama` при HTTP 403.
+            """
+            self.root.after(0, self._show_ollama_signin_dialog)
+
+        def _show_ollama_signin_dialog(self) -> None:
+            from npazs.revision.ai_utils import reset_ollama_signin_notice
+
+            started = offer_ollama_signin(
+                lambda msg, level='info': self.log(msg, level), parent=self.root)
+            if started:
+                reset_ollama_signin_notice()
+
+        def _ask_user_retry(self, error_message, action='retry'):
             event = threading.Event()
             choice = {'value': 'stop'}
+            # Область смены провайдера: '' — основной прогон, 'post' —
+            # пост-анализ (диалог подсказывает менять именно пост-бэкенд).
+            scope = getattr(_constants, '_settings_provider_scope', '') or ''
+            scope_note = " (пост-анализ)" if scope == 'post' else ""
+            switch_hint = (
+                "Выберите новый бэкенд и модель в блоке «Пост-анализ»\n"
+                "главного окна, затем нажмите «Готово» для продолжения."
+                if scope == 'post' else
+                "Выберите новый бэкенд и модель в главном окне,\n"
+                "затем нажмите «Готово» для продолжения."
+            )
             def show_dialog():
                 dialog = tk.Toplevel(self.root)
-                dialog.title("Ошибка запроса к модели")
-                dialog.geometry("500x200")
+                dialog.title(
+                    ("Лимит модели исчерпан" if action == 'switch'
+                     else "Ошибка запроса к модели") + scope_note
+                )
+                dialog.geometry("560x240" if action == 'switch' else "500x200")
                 dialog.transient(self.root)
                 dialog.grab_set()
-                msg = tk.Label(dialog, text=error_message, wraplength=450, justify=tk.LEFT)
+                msg = tk.Label(dialog, text=error_message, wraplength=500, justify=tk.LEFT)
                 msg.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
                 btn_frame = tk.Frame(dialog)
                 btn_frame.pack(pady=10)
@@ -180,8 +221,36 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                     choice['value'] = 'stop'
                     dialog.destroy()
                     event.set()
-                tk.Button(btn_frame, text="Повторить", command=on_retry, width=15).pack(side=tk.LEFT, padx=10)
-                tk.Button(btn_frame, text="Остановить", command=on_stop, width=15).pack(side=tk.LEFT, padx=10)
+                def on_switch():
+                    # User picks a new backend/model in the main GUI; we must
+                    # not terminate the pipeline (stop_event stays clear).
+                    choice['value'] = 'switch'
+                    dialog.destroy()
+                    # Show a non-modal waiting dialog so the user can interact
+                    # with the main window's backend radio buttons.
+                    switch_dialog = tk.Toplevel(self.root)
+                    switch_dialog.title("Переключение бэкенда")
+                    switch_dialog.geometry("420x160")
+                    switch_dialog.transient(self.root)
+                    tk.Label(
+                        switch_dialog,
+                        text=switch_hint,
+                        wraplength=400, justify=tk.LEFT,
+                    ).pack(padx=10, pady=10)
+                    def on_ready():
+                        switch_dialog.destroy()
+                    tk.Button(switch_dialog, text="Готово", command=on_ready, width=12).pack(pady=10)
+                    switch_dialog.protocol("WM_DELETE_WINDOW", on_ready)
+                    switch_dialog.wait_window()
+                    event.set()
+                if action == 'switch':
+                    tk.Button(btn_frame, text="Переключить бэкенд", command=on_switch, width=18).pack(side=tk.LEFT, padx=5)
+                    tk.Button(btn_frame, text="Повторить", command=on_retry, width=12).pack(side=tk.LEFT, padx=5)
+                    tk.Button(btn_frame, text="Остановить", command=on_stop, width=12).pack(side=tk.LEFT, padx=5)
+                else:
+                    tk.Button(btn_frame, text="Переключить бэкенд", command=on_switch, width=15).pack(side=tk.LEFT, padx=10)
+                    tk.Button(btn_frame, text="Повторить", command=on_retry, width=15).pack(side=tk.LEFT, padx=10)
+                    tk.Button(btn_frame, text="Остановить", command=on_stop, width=15).pack(side=tk.LEFT, padx=10)
                 dialog.protocol("WM_DELETE_WINDOW", on_stop)
             self.root.after(0, show_dialog)
             event.wait()
@@ -218,28 +287,29 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             elif backend == "kilo_gateway":
                 self._fetch_kilo_gateway_models(try_api=try_api, target=target)
             elif backend == "openrouter":
+                _url, _key = self._kilo_credentials_for('openrouter', target=target)
                 self._fetch_http_models('openrouter', fetch_openrouter_free_models,
-                                        self._api_key_for('openrouter', target=target), try_api,
+                                        _url, _key, try_api,
                                         target=target)
             elif backend == "cline":
+                _url, _key = self._kilo_credentials_for('cline', target=target)
                 self._fetch_http_models('cline', fetch_cline_models,
-                                        self._api_key_for('cline', target=target), try_api,
+                                        _url, _key, try_api,
                                         target=target)
             elif backend == "cerebras":
+                _url, _key = self._kilo_credentials_for('cerebras', target=target)
                 self._fetch_http_models('cerebras', fetch_cerebras_models,
-                                        self._api_key_for('cerebras', target=target), try_api,
-                                        target=target)
-            elif backend == "together":
-                self._fetch_http_models('together', fetch_together_models,
-                                        self._api_key_for('together', target=target), try_api,
+                                        _url, _key, try_api,
                                         target=target)
             elif backend == "mistral":
+                _url, _key = self._kilo_credentials_for('mistral', target=target)
                 self._fetch_http_models('mistral', fetch_mistral_models,
-                                        self._api_key_for('mistral', target=target), try_api,
+                                        _url, _key, try_api,
                                         target=target)
             elif backend == "gemini":
+                _url, _key = self._kilo_credentials_for('gemini', target=target)
                 self._fetch_http_models('gemini', fetch_gemini_models,
-                                        self._api_key_for('gemini', target=target), try_api,
+                                        _url, _key, try_api,
                                         target=target)
             elif backend == "free_deepseek":
                 # Локальный прокси FreeDeepseekAPI: ключ опционален, URL важен.
@@ -265,9 +335,34 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                             _fd_url = ''
                 from npazs.constants import HTTP_BACKEND_DEFS as _DEFS
                 _fd_url = _fd_url or (_DEFS.get('free_deepseek') or {}).get('base_url', '')
-                self._fetch_http_models('free_deepseek',
-                                        lambda _key, _u=_fd_url: fetch_free_deepseek_models(_u, _key),
-                                        _fd_key, try_api,
+                self._fetch_http_models('free_deepseek', fetch_free_deepseek_models,
+                                        _fd_url, _fd_key, try_api,
+                                        target=target)
+            elif backend == "qwen2api":
+                # Локальный прокси Qwen2API: URL важен, API_KEY обязателен
+                # (задаётся в самом прокси). fetcher сам ходит в GET {base}/models,
+                # fallback — константы. Для пост-анализа URL берётся из его
+                # редактора (креды пост-анализа независимы) — см. _kilo_credentials_for.
+                if target == 'post':
+                    _qw_url, _ = self._kilo_credentials_for('qwen2api', target='post')
+                    if not _qw_url:
+                        try:
+                            _qw_url = (load_backend_settings('qwen2api').get('base_url') or '')
+                        except ValueError:
+                            _qw_url = ''
+                    _qw_key = self._api_key_for('qwen2api', target='post')
+                else:
+                    _qw_url = self.kilo_gateway_url.get().strip()
+                    _qw_key = self._api_key_for('qwen2api')
+                    if not _qw_url:
+                        try:
+                            _qw_url = (load_backend_settings('qwen2api').get('base_url') or '')
+                        except ValueError:
+                            _qw_url = ''
+                from npazs.constants import HTTP_BACKEND_DEFS as _DEFS
+                _qw_url = _qw_url or (_DEFS.get('qwen2api') or {}).get('base_url', '')
+                self._fetch_http_models('qwen2api', fetch_qwen2api_models,
+                                        _qw_url, _qw_key, try_api,
                                         target=target)
             else:
                 self._fetch_ollama_models(target=target)
@@ -283,44 +378,88 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                 if models and self.ollama_model.get() not in models:
                     self.root.after(0, lambda: self.ollama_model.set(models[0]))
 
-        def _fetch_http_models(self, backend_name, fetcher, api_key, try_api=True, target='main'):
-            """Загрузить модели для HTTP-бэкенда (openrouter/cline/cerebras/
-            together/mistral/gemini/free_deepseek)."""
+        def _fetch_http_models(self, backend_name, fetcher, base_url, api_key, try_api=True, target='main'):
+            """Загрузить РЕАЛЬНЫЕ модели HTTP-бэкенда строго из API.
+
+            ``base_url``/``api_key`` — строго из ``.env`` (через
+            ``load_backend_settings``). Никаких fallback-списков: при ошибке
+            показывается пустой список + честная ошибка.
+            """
             if not try_api:
-                models = get_free_models_for_backend(backend_name)
-                self._set_models_for_target(models, target)
-                self.root.after(0, self.log, f"Установлены модели {backend_name} по умолчанию: {models}", 'info')
+                self._set_models_for_target([], target)
+                self.root.after(0, self.log, f"Модели {backend_name}: live-запрос отключён — список пуст.", 'warning')
+                return
+            if not (base_url or '').strip():
+                self.root.after(0, self.log, f"Модели {backend_name}: пустой base_url в .env — список пуст.", 'error')
+                self._set_models_for_target([], target)
                 return
             try:
-                models = fetcher(api_key)
+                models = fetcher(base_url, api_key)
                 self._set_models_for_target(models, target)
                 if models:
                     self.root.after(0, self.log, f"Выбрано моделей {backend_name}: {models}", 'info')
                 else:
-                    self.root.after(0, self.log, f"Нет доступных free-моделей в {backend_name}. Проверьте API ключ или URL.", 'warning')
+                    self.root.after(0, self.log, f"Нет доступных моделей в {backend_name}. Проверьте API ключ или URL.", 'warning')
             except Exception as e:
                 if backend_name == 'free_deepseek':
                     hint = ('Локальный прокси FreeDeepseekAPI не запущен? '
                             'Выполните: cd tools/FreeDeepseekAPI && npm start '
                             '(первый раз — сначала `npm run auth`). '
                             'URL по умолчанию: http://127.0.0.1:9655/v1.')
+                elif backend_name == 'qwen2api':
+                    hint = ('Локальный прокси Qwen2API не запущен или неверный ключ? '
+                            'Проверьте, что сервер на 127.0.0.1:3000 запущен и '
+                            'QWEN2API_API_KEY в .env NPA-ZS совпадает с API_KEY в .env прокси.')
+                elif backend_name == 'ollama':
+                    hint = 'Убедитесь, что сервер Ollama запущен.'
                 else:
                     hint = 'Проверьте URL и API ключ.'
                 self.root.after(0, self.log, f"Ошибка подключения к {backend_name}: {e}. {hint}", 'error')
-                self.root.after(0, self.log, f'{backend_name} недоступен — показан запасной список моделей.', 'warning')
-                models = get_free_models_for_backend(backend_name)
-                self._set_models_for_target(models, target)
+                self._set_models_for_target([], target)
 
         def _fetch_ollama_models(self, target='main'):
+            # base_url строго из .env (OLLAMA_BASE_URL)
             try:
-                models = fetch_ollama_models()
-                self.root.after(0, self.log, f"Получено {len(models)} моделей от Ollama (после фильтрации)", 'info')
+                _ollama_url = (load_backend_settings('ollama').get('base_url') or '').strip()
+            except ValueError:
+                _ollama_url = ''
+            try:
+                # Только облачные модели: локальные в NPA-ZS не используются.
+                models = fetch_ollama_models(_ollama_url, cloud_only=True)
+                self.root.after(0, self.log, f"Получено {len(models)} cloud-моделей от Ollama", 'info')
                 self._set_models_for_target(models, target)
                 if not models:
-                    self.root.after(0, self.log, "Нет разрешённых моделей в локальном Ollama. Убедитесь, что сервер запущен и загружены разрешённые модели.", 'warning')
+                    self.root.after(
+                        0, self.log,
+                        "Облачные модели Ollama не найдены. Установите, например: "
+                        "ollama pull gpt-oss:20b-cloud",
+                        'warning')
+                    return
+                # Проба авторизации: POST /api/show отвечает 403 без входа на ollama.com.
+                blocked = verify_ollama_cloud_models(_ollama_url, models)
+                if blocked:
+                    self.root.after(
+                        0, self.log,
+                        f"Ollama cloud: нет авторизации для {len(blocked)} моделей "
+                        f"({', '.join(blocked)}). {OLLAMA_SIGNIN_HINT}",
+                        'error')
+                    self._offer_ollama_signin()
+                else:
+                    # Авторизация есть — разрешаем повторное предложение при
+                    # следующем HTTP 403 (например, после истечения сессии).
+                    reset_ollama_signin_notice()
+                    self.root.after(0, self.log, "Ollama cloud: авторизация активна — модели доступны.", 'info')
             except Exception as e:
                 self.root.after(0, self.log, f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен.", 'error')
                 self._set_models_for_target([], target)
+
+        def _offer_ollama_signin(self):
+            """Предложить вход в Ollama Cloud.
+
+            Метод вызывается из рабочего потока загрузки списка моделей,
+            поэтому диалог показывается через ``root.after`` в главном потоке Tk.
+            """
+            self.root.after(0, self._show_ollama_signin_dialog)
 
         def _kilo_credentials_for(self, backend_name, target='main'):
             """URL/ключ Kilo-совместимого бэкенда: GUI для URL, .env для ключа."""
@@ -349,9 +488,8 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
 
         def _fetch_kilo_gateway_models(self, try_api=True, target='main'):
             if not try_api:
-                models = sorted(_constants.KILO_GATEWAY_FREE_MODELS)
-                self._set_models_for_target(models, target)
-                self.root.after(0, self.log, f"Установлены модели Kilo Gateway по умолчанию: {models}", 'info')
+                self._set_models_for_target([], target)
+                self.root.after(0, self.log, "Модели Kilo Gateway: live-запрос отключён — список пуст.", 'warning')
                 return
             try:
                 _url, _key = self._kilo_credentials_for('kilo_gateway', target=target)
@@ -363,9 +501,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                     self.root.after(0, self.log, "Нет доступных бесплатных моделей в Kilo Gateway. Проверьте API ключ или URL.", 'warning')
             except Exception as e:
                 self.root.after(0, self.log, f"Ошибка подключения к Kilo Gateway: {e}. Проверьте URL и API ключ.", 'error')
-                self.root.after(0, self.log, 'Kilo Gateway недоступен — показан запасной список моделей.', 'warning')
-                models = sorted(_constants.KILO_GATEWAY_FREE_MODELS)
-                self._set_models_for_target(models, target)
+                self._set_models_for_target([], target)
 
         def _validate_html_marker(self, html, item_type, item_number, change_info):
             if item_type not in ('point', 'subpoint', 'part'):

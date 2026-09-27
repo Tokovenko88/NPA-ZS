@@ -14,31 +14,32 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+from npazs import constants as _constants
 from npazs.config.env_store import (
     BACKEND_ENV_KEYS,
     load_active_backend,
     load_backend_settings,
-    save_backend_settings,
 )
 from npazs.constants import (
     DEFAULT_BACKEND,
     DEFAULT_KILO_GATEWAY_URL,
     HTTP_BACKEND_DEFS,
     HTTP_BACKENDS,
-    KILO_GATEWAY_FREE_MODELS,
 )
 from npazs.llm_models import (
-        fetch_cline_models,
-        fetch_cerebras_models,
-        fetch_free_deepseek_models,
-        fetch_gemini_models,
-        fetch_kilo_gateway_free_models,
-        fetch_mistral_models,
-        fetch_ollama_models,
-        fetch_openrouter_free_models,
-        fetch_together_models,
-        get_free_models_for_backend,
+    OLLAMA_SIGNIN_HINT,
+    fetch_cerebras_models,
+    fetch_cline_models,
+    fetch_free_deepseek_models,
+    fetch_gemini_models,
+    fetch_kilo_gateway_free_models,
+    fetch_mistral_models,
+    fetch_ollama_models,
+    fetch_openrouter_free_models,
+    fetch_qwen2api_models,
+    verify_ollama_cloud_models,
 )
+from npazs.ui.ollama_signin import offer_ollama_signin
 
 from .runner import CompareOptions, run_compare
 
@@ -109,7 +110,20 @@ class CompareApp:
 
         self._create_widgets()
         self._on_backend_changed()
+        _constants._ollama_signin_callback = self._request_ollama_signin
         self._poll_log()
+
+    def _request_ollama_signin(self) -> None:
+        """Из рабочего потока поставить в очередь показ диалога `ollama signin`."""
+        self.log_queue.put(('signin', None))
+
+    def _show_ollama_signin_dialog(self) -> None:
+        from npazs.revision.ai_utils import reset_ollama_signin_notice
+
+        started = offer_ollama_signin(
+            lambda msg, level='info': self._append_log(msg, level), parent=self.root)
+        if started:
+            reset_ollama_signin_notice()
 
     # ------------------------------------------------------------- widgets
     def _create_widgets(self) -> None:
@@ -202,10 +216,6 @@ class CompareApp:
             value='cerebras', command=self._on_backend_changed,
         ).pack(side=tk.LEFT, padx=4)
         tk.Radiobutton(
-            backend_frame, text='Together', variable=self.backend,
-            value='together', command=self._on_backend_changed,
-        ).pack(side=tk.LEFT, padx=4)
-        tk.Radiobutton(
             backend_frame, text='Mistral', variable=self.backend,
             value='mistral', command=self._on_backend_changed,
         ).pack(side=tk.LEFT, padx=4)
@@ -217,13 +227,15 @@ class CompareApp:
             backend_frame, text='FreeDeepseek', variable=self.backend,
             value='free_deepseek', command=self._on_backend_changed,
         ).pack(side=tk.LEFT, padx=4)
+        tk.Radiobutton(
+            backend_frame, text='Qwen2API', variable=self.backend,
+            value='qwen2api', command=self._on_backend_changed,
+        ).pack(side=tk.LEFT, padx=4)
 
-        self.kg_url_label = tk.Label(backend_frame, text='API URL:')
-        self.kg_url_label.pack(side=tk.LEFT, padx=(16, 4))
-        self.kg_url_entry = tk.Entry(
-            backend_frame, textvariable=self.kilo_gateway_url, width=40
-        )
-        self.kg_url_entry.pack(side=tk.LEFT)
+        # Поле ввода BASE_URL убрано из GUI: URL берётся из .env
+        # (load_backend_settings / HTTP_BACKEND_DEFS), переменная
+        # self.kilo_gateway_url сохранена — на ней держатся запросы моделей
+        # и запуск сравнения.
 
         btn_frame = tk.Frame(frame)
         btn_frame.grid(row=7, column=0, columnspan=3, sticky='w', **pad)
@@ -315,8 +327,15 @@ class CompareApp:
                 if level == 'models':
                     self._on_models_loaded(payload)
                     continue
-                if level == 'button':
-                    self.fetch_models_btn.config(state=tk.NORMAL, text=payload)
+                if level == 'reset-signin':
+                    # Авторизация Ollama Cloud активна — разрешаем повторное
+                    # предложение `ollama signin` при следующем HTTP 403.
+                    from npazs.revision.ai_utils import reset_ollama_signin_notice
+
+                    reset_ollama_signin_notice()
+                    continue
+                if level == 'signin':
+                    self._show_ollama_signin_dialog()
                     continue
                 self._append_log(str(payload), level)
         except queue.Empty:
@@ -356,14 +375,13 @@ class CompareApp:
         return 'break'
 
     def _on_backend_changed(self) -> None:
-        # For HTTP backends (kilo_gateway, cline, openrouter, deepseek, gemini)
-        # show URL field. For ollama hide and use local server.
+        # Поле URL убрано из GUI — для HTTP-бэкендов только синхронизируем
+        # self.kilo_gateway_url из .env/констант (оно используется ниже
+        # при загрузке моделей и запуске сравнения).
         backend = self.backend.get()
         if backend in HTTP_BACKENDS:
-            self.kg_url_label.config(state=tk.NORMAL)
-            self.kg_url_entry.config(state=tk.NORMAL)
-            # Auto-set default URL if empty or matches
-            # another backend.
+            # Автоподстановка URL выбранного бэкенда: сначала
+            # сохранённые в .env значения, затем константы HTTP_BACKEND_DEFS.
             defn = HTTP_BACKEND_DEFS.get(backend)
             if defn:
                 saved = load_backend_settings(backend)
@@ -373,9 +391,6 @@ class CompareApp:
                     self.kilo_gateway_url.set(saved.get('base_url') or default_url)
                 if saved.get('model'):
                     self.model.set(saved['model'])
-        else:
-            self.kg_url_label.config(state=tk.DISABLED)
-            self.kg_url_entry.config(state=tk.DISABLED)
         if getattr(self, '_models_backend', None) != backend:
             # Clear stale models from the previous backend so the combo box
             # doesn't show another provider's models while the fresh fetch
@@ -419,135 +434,133 @@ class CompareApp:
         try:
             saved = load_backend_settings(backend)
             api_key = saved.get('api_key') or ''
+            base_url = saved.get('base_url') or kilo_gateway_url or ''
         except ValueError:
             api_key = ''
+            base_url = kilo_gateway_url or ''
         try:
             if backend == 'ollama':
-                self._fetch_ollama_models()
+                self._fetch_ollama_models(base_url)
             elif backend == 'kilo_gateway':
-                self._fetch_kilo_gateway_models(kilo_gateway_url, api_key)
+                self._fetch_kilo_gateway_models(base_url, api_key)
             elif backend == 'openrouter':
-                self._fetch_openrouter_models(api_key)
+                self._fetch_openrouter_models(base_url, api_key)
             elif backend == 'cline':
-                self._fetch_cline_models(api_key)
+                self._fetch_cline_models(base_url, api_key)
             elif backend == 'cerebras':
-                self._fetch_cerebras_models(api_key)
-            elif backend == 'together':
-                self._fetch_together_models(api_key)
+                self._fetch_cerebras_models(base_url, api_key)
             elif backend == 'mistral':
-                self._fetch_mistral_models(api_key)
+                self._fetch_mistral_models(base_url, api_key)
             elif backend == 'gemini':
-                self._fetch_gemini_models(api_key)
+                self._fetch_gemini_models(base_url, api_key)
             elif backend == 'free_deepseek':
                 self._fetch_free_deepseek_models(kilo_gateway_url, api_key)
+            elif backend == 'qwen2api':
+                self._fetch_qwen2api_models(kilo_gateway_url, api_key)
             else:
                 self._fetch_ollama_models()
         finally:
             self._models_fetching = False
-            self.log_queue.put(('button', 'Обновить модели'))
 
-    def _fetch_openrouter_models(self, api_key: str) -> None:
-        """Загрузить free-модели OpenRouter."""
+    def _fetch_openrouter_models(self, base_url: str, api_key: str) -> None:
+        """Загрузить РЕАЛЬНЫЕ free-модели OpenRouter строго из API (base_url из .env)."""
         try:
-            models = fetch_openrouter_free_models(api_key)
+            models = fetch_openrouter_free_models(base_url, api_key)
             self.log_queue.put(('info', f"OpenRouter: получено {len(models)} free-моделей"))
             self.log_queue.put(('models', ('openrouter', models)))
         except Exception as e:  # noqa: BLE001
             self.log_queue.put(('error', f"Ошибка подключения к OpenRouter: {e}"))
-            fallback = get_free_models_for_backend('openrouter')
-            self.log_queue.put(('warning', 'OpenRouter недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('openrouter', fallback)))
+            self.log_queue.put(('warning', 'OpenRouter недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('openrouter', [])))
 
-    def _fetch_cline_models(self, api_key: str) -> None:
-        """Загрузить модели Cline API."""
+    def _fetch_cline_models(self, base_url: str, api_key: str) -> None:
+        """Загрузить РЕАЛЬНЫЕ модели Cline API строго из API (base_url из .env)."""
         try:
-            models = fetch_cline_models(api_key)
+            models = fetch_cline_models(base_url, api_key)
             self.log_queue.put(('models', ('cline', models)))
         except Exception as e:  # noqa: BLE001
             self.log_queue.put(('error', f"Ошибка подключения к Cline API: {e}"))
-            fallback = get_free_models_for_backend('cline')
-            self.log_queue.put(('warning', 'Cline API недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('cline', fallback)))
+            self.log_queue.put(('warning', 'Cline API недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('cline', [])))
 
-    def _fetch_cerebras_models(self, api_key: str) -> None:
-        """Загрузить модели Cerebras."""
+    def _fetch_cerebras_models(self, base_url: str, api_key: str) -> None:
+        """Загрузить РЕАЛЬНЫЕ модели Cerebras строго из API (base_url из .env)."""
         try:
-            models = fetch_cerebras_models(api_key)
+            models = fetch_cerebras_models(base_url, api_key)
             self.log_queue.put(('models', ('cerebras', models)))
         except Exception as e:  # noqa: BLE001
             self.log_queue.put(('error', f"Ошибка подключения к Cerebras: {e}"))
-            fallback = get_free_models_for_backend('cerebras')
-            self.log_queue.put(('warning', 'Cerebras недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('cerebras', fallback)))
+            self.log_queue.put(('warning', 'Cerebras недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('cerebras', [])))
 
-    def _fetch_together_models(self, api_key: str) -> None:
-        """Загрузить модели Together AI."""
+    def _fetch_mistral_models(self, base_url: str, api_key: str) -> None:
+        """Загрузить РЕАЛЬНЫЕ модели Mistral AI строго из API (base_url из .env)."""
         try:
-            models = fetch_together_models(api_key)
-            self.log_queue.put(('models', ('together', models)))
-        except Exception as e:  # noqa: BLE001
-            self.log_queue.put(('error', f"Ошибка подключения к Together AI: {e}"))
-            fallback = get_free_models_for_backend('together')
-            self.log_queue.put(('warning', 'Together AI недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('together', fallback)))
-
-    def _fetch_mistral_models(self, api_key: str) -> None:
-        """Загрузить модели Mistral AI."""
-        try:
-            models = fetch_mistral_models(api_key)
+            models = fetch_mistral_models(base_url, api_key)
             self.log_queue.put(('models', ('mistral', models)))
         except Exception as e:  # noqa: BLE001
             self.log_queue.put(('error', f"Ошибка подключения к Mistral AI: {e}"))
-            fallback = get_free_models_for_backend('mistral')
-            self.log_queue.put(('warning', 'Mistral AI недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('mistral', fallback)))
+            self.log_queue.put(('warning', 'Mistral AI недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('mistral', [])))
 
-    def _fetch_gemini_models(self, api_key: str) -> None:
-        """Загрузить модели Gemini."""
+    def _fetch_gemini_models(self, base_url: str, api_key: str) -> None:
+        """Загрузить РЕАЛЬНЫЕ модели Gemini строго из API (base_url из .env)."""
         try:
-            models = fetch_gemini_models(api_key)
+            models = fetch_gemini_models(base_url, api_key)
             self.log_queue.put(('models', ('gemini', models)))
         except Exception as e:  # noqa: BLE001
             self.log_queue.put(('error', f"Ошибка подключения к Gemini: {e}"))
-            fallback = get_free_models_for_backend('gemini')
-            self.log_queue.put(('warning', 'Gemini недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('gemini', fallback)))
+            self.log_queue.put(('warning', 'Gemini недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('gemini', [])))
 
     def _fetch_free_deepseek_models(self, base_url: str, api_key: str) -> None:
-        """Загрузить модели локального прокси FreeDeepseekAPI.
-
-        Без запущенного прокси (``npm start`` на http://127.0.0.1:9655)
-        показывается fallback из констант — модели DeepSeek-V4.1-Flash.
-        """
+        """Загрузить РЕАЛЬНЫЕ модели локального прокси FreeDeepseekAPI строго из API."""
         try:
             models = fetch_free_deepseek_models(base_url, api_key)
             self.log_queue.put(('models', ('free_deepseek', models)))
         except Exception as e:  # noqa: BLE001
             self.log_queue.put(('error', f"Ошибка подключения к FreeDeepseekAPI: {e}"))
-            fallback = get_free_models_for_backend('free_deepseek')
-            self.log_queue.put(('warning', 'FreeDeepseekAPI недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('free_deepseek', fallback)))
+            self.log_queue.put(('warning', 'FreeDeepseekAPI недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('free_deepseek', [])))
 
-    def _fetch_ollama_models(self) -> None:
+    def _fetch_qwen2api_models(self, base_url: str, api_key: str) -> None:
+        """Загрузить РЕАЛЬНЫЕ модели локального прокси Qwen2API строго из API."""
         try:
-            models = fetch_ollama_models()
-            self.log_queue.put(('info', f"Получено {len(models)} моделей от Ollama (после фильтрации)"))
+            models = fetch_qwen2api_models(base_url, api_key)
+            self.log_queue.put(('models', ('qwen2api', models)))
+        except Exception as e:  # noqa: BLE001
+            self.log_queue.put(('error', f"Ошибка подключения к Qwen2API: {e}"))
+            self.log_queue.put(('warning', 'Qwen2API недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('qwen2api', [])))
+
+    def _fetch_ollama_models(self, base_url: str = '') -> None:
+        """Загрузить облачные (cloud) модели Ollama и проверить авторизацию."""
+        try:
+            models = fetch_ollama_models(base_url, cloud_only=True)
+            self.log_queue.put(('info', f"Получено {len(models)} cloud-моделей от Ollama"))
             self.log_queue.put(('models', ('ollama', models)))
+            if not models:
+                self.log_queue.put(('warning', 'Облачные модели Ollama не найдены. Установите, например: ollama pull gpt-oss:20b-cloud'))
+                return
+            # Проба авторизации: POST /api/show отвечает 403 без входа на ollama.com.
+            blocked = verify_ollama_cloud_models(base_url, models)
+            if blocked:
+                self.log_queue.put(('error', f"Ollama cloud: нет авторизации для {len(blocked)} моделей ({', '.join(blocked)}). {OLLAMA_SIGNIN_HINT}"))
+                self.log_queue.put(('signin', True))
+            else:
+                # Авторизация есть — разрешаем повторное предложение при 403.
+                self.log_queue.put(('reset-signin', None))
+                self.log_queue.put(('info', 'Ollama cloud: авторизация активна — модели доступны.'))
         except Exception as e:  # noqa: BLE001 - показываем причину пользователю
             self.log_queue.put(('error', f"Ошибка подключения к Ollama: {e}. Убедитесь, что сервер запущен."))
-            # Fallback to known models so the dropdown is not empty
-            fallback = get_free_models_for_backend('ollama')
-            self.log_queue.put(('warning', 'Ollama недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('ollama', fallback)))
+            self.log_queue.put(('warning', 'Ollama недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('ollama', [])))
 
     def _fetch_kilo_gateway_models(self, kilo_gateway_url, kilo_gateway_api_key) -> None:
-        """Загрузить реально существующие free-модели Kilo Gateway.
+        """Загрузить РЕАЛЬНЫЕ free-модели Kilo Gateway строго из API.
 
-        Запрос ``GET /models`` выполняется в фоновом потоке через общую
-        функцию :func:`npazs.llm_models.fetch_kilo_gateway_free_models`,
-        результат уходит в ``log_queue`` как ``('models', ('kilo_gateway',
-        models))``. Если API недоступно, используется захардкоженный список
-        как временный fallback, чтобы поле выбора не оставалось пустым.
+        При недоступности API показывается пустой список + честная
+        ошибка (только live из API, без выдуманных моделей).
         """
         try:
             models = fetch_kilo_gateway_free_models(
@@ -560,8 +573,8 @@ class CompareApp:
             self.log_queue.put(('models', ('kilo_gateway', models)))
         except Exception as e:  # noqa: BLE001 - показываем причину пользователю
             self.log_queue.put(('error', f"Ошибка подключения к Kilo Gateway: {e}. Проверьте URL и API ключ."))
-            self.log_queue.put(('warning', 'Kilo Gateway недоступен — показан запасной список моделей.'))
-            self.log_queue.put(('models', ('kilo_gateway', sorted(KILO_GATEWAY_FREE_MODELS))))
+            self.log_queue.put(('warning', 'Kilo Gateway недоступен — список пуст, показаны только live-модели из API.'))
+            self.log_queue.put(('models', ('kilo_gateway', [])))
 
     def _set_running(self, running: bool) -> None:
         self.run_button.config(state=tk.DISABLED if running else tk.NORMAL)

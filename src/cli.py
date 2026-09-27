@@ -117,7 +117,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     compare_parser.add_argument(
         '--backend',
-        choices=('ollama', 'kilo_gateway', 'cline', 'openrouter', 'cerebras', 'together', 'mistral', 'gemini'),
+        choices=('ollama', 'kilo_gateway', 'cline', 'openrouter', 'cerebras', 'mistral', 'gemini'),
         help='LLM-бэкенд (по умолчанию из LLM_BACKEND)',
     )
     compare_parser.add_argument('--model', help='Имя модели')
@@ -155,7 +155,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     verify_parser.add_argument(
         '--backend',
-        choices=('ollama', 'kilo_gateway', 'cline', 'openrouter', 'cerebras', 'together', 'mistral', 'gemini'),
+        choices=(
+            'ollama', 'kilo_gateway', 'cline', 'openrouter', 'cerebras',
+            'mistral', 'gemini', 'free_deepseek', 'qwen2api',
+        ),
         help='LLM-бэкенд (по умолчанию из LLM_BACKEND)',
     )
     verify_parser.add_argument('--model', help='Имя модели')

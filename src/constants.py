@@ -207,21 +207,6 @@ HTTP_BACKEND_DEFS = {
             'gemma-3-12b-it',
         },
     },
-    'together': {
-        'base_url': settings.together_base_url or 'https://api.together.xyz/v1',
-        'api_key': settings.together_api_key,
-        # Together AI — платный pay-per-token, но с free tier'ом при регистрации
-        # (без карты), контекст до 128K. Fallback-список — популярные модели.
-        'default_model': settings.together_default_model or 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
-        'free_models': {
-            'meta-llama/Llama-3.3-70B-Instruct-Turbo',
-            'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
-            'Qwen/Qwen2.5-7B-Instruct-Turbo',
-            'Qwen/Qwen2.5-72B-Instruct-Turbo',
-            'mistralai/Mistral-7B-Instruct-v0.3',
-            'mistralai/Mixtral-8x7B-Instruct-v0.1',
-        },
-    },
     'mistral': {
         'base_url': settings.mistral_base_url or 'https://api.mistral.ai/v1',
         'api_key': settings.mistral_api_key,
@@ -275,6 +260,27 @@ HTTP_BACKEND_DEFS = {
             'deepseek-v4-flash-thinking-search',
         },
     },
+    'qwen2api': {
+        # Локальный прокси Qwen2API / Qwen-Proxy
+        # (https://github.com/Rfym21/Qwen2API): OpenAI-compatible /v1/*
+        # поверх аккаунтов chat.qwen.ai (и CLI-эндпоинт /cli/v1).
+        # Запуск: `bun src/server.js` (или npm start) в каталоге прокси;
+        # по умолчанию http://127.0.0.1:3000 (см. SERVICE_PORT).
+        # API_KEY прокси обязателен (env API_KEY прокси) — продублируйте
+        # его в QWEN2API_API_KEY; аккаунты добавляются через веб-панель.
+        'base_url': settings.qwen2api_base_url or 'http://127.0.0.1:3000/v1',
+        'api_key': settings.qwen2api_api_key,
+        'default_model': settings.qwen2api_default_model or 'qwen3-coder-plus',
+        'free_models': {
+            'qwen3-coder-plus',
+            'qwen3-coder-flash',
+            'coder-model',
+            'qwen3.5-plus',
+            'Qwen3.6-Plus',
+            'Qwen3.6-Plus-thinking',
+            'Qwen3.6-Plus-search',
+        },
+    },
 }
 
 # Backward-compatible aliases (old code и тесты ссылаются на эти имена).
@@ -286,6 +292,24 @@ DEFAULT_BACKEND = "free_deepseek"
 # Набор всех HTTP-бэкендов (все, кроме ollama).
 HTTP_BACKENDS = frozenset(HTTP_BACKEND_DEFS.keys())
 _user_retry_callback = None
+
+#: Callable set by the GUI to re-read the *current* backend/model/api_key/URL
+#: at runtime.  Called by ``ask_kilo_gateway`` when the user chooses to switch
+#: provider mid-run so the retry uses the freshly selected backend.
+#:  Returns a dict or ``None``.
+_settings_provider = None
+
+#: Область действия текущего ``_settings_provider``: '' — основной прогон,
+#: 'post' — пост-анализ. GUI берёт её в диалоге смены провайдера, чтобы
+#: подсказать менять именно тот бэкенд, который работает прямо сейчас
+#: (основной или пост-анализа).
+_settings_provider_scope = ''
+
+#: Callable set by the GUI to offer ``ollama signin`` when a cloud request is
+#: rejected with HTTP 403 (нет авторизации ollama.com).  Вызывается из
+#: ``ask_ollama`` НЕ из рабочего потока напрямую: каждый GUI обязан сам
+#: перенести вызов в главный поток Tkinter (root.after / очередь логов).
+_ollama_signin_callback = None
 
 # --- Промпты ----------------------------------------------------------------
 # Канонические имена файлов в data/prompts/. Вторые элементы — исторические

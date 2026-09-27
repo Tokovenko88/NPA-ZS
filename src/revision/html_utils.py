@@ -1020,7 +1020,7 @@ def parse_ai_response_for_prompt4(response_text, change_description="", log_call
                             'error'
                         )
                     return "", None
-                html = safe_re_sub(r'  +', ' ', html)
+                html = normalize_space_boundaries(html)
                 html = safe_re_sub(r';{2,}', ';', html)
                 highlights = _normalize_highlights_positions(highlights)
                 return html, highlights
@@ -1042,7 +1042,7 @@ def parse_ai_response_for_prompt4(response_text, change_description="", log_call
                         'error'
                     )
                 return "", None
-            html = safe_re_sub(r'  +', ' ', html)
+            html = normalize_space_boundaries(html)
             html = safe_re_sub(r';{2,}', ';', html)
             highlights = _normalize_highlights_positions(highlights)
             return html, highlights
@@ -1059,7 +1059,7 @@ def parse_ai_response_for_prompt4(response_text, change_description="", log_call
                     'error'
                 )
             return "", None
-        html = safe_re_sub(r'  +', ' ', html)
+        html = normalize_space_boundaries(html)
         html = safe_re_sub(r';{2,}', ';', html)
         highlights = _normalize_highlights_positions(highlights)
         return html, highlights
@@ -1360,20 +1360,36 @@ def create_element_skeleton(item_type, item_number, html_text, parent_id, existi
 # не попала в ответ ИИ, из-за чего абзац не стал частью 1).
 # --------------------------------------------------------------------------- #
 
+def parse_word_replacements(description):
+    """Все пары «слово(а) «X» заменить слово(м/ами) «Y»» из инструкции.
+
+    Работает по чистому тексту описания (HTML-теги удаляются). Поддерживаются
+    и множественное число («слова … заменить словами …»), и единственное
+    («слово «ребенка» заменить словом «детей»» — кейс 516-ЗС → 127-ЗС: такие
+    инструкции раньше guard-ом не распознавались). Возвращает список пар
+    ``(old_phrase, new_phrase)`` — в описании может быть несколько замен.
+    """
+    text = re.sub(r'<[^>]+>', ' ', str(description or ''))
+    pairs = []
+    for m in re.finditer(
+            r'слов(?:о|а)\s*«\s*(.+?)\s*»\s*заменить\s*слов(?:ом|ами)\s*«\s*(.+?)\s*»',
+            text):
+        old_phrase = m.group(1).strip()
+        new_phrase = m.group(2).strip()
+        if old_phrase and new_phrase:
+            pairs.append((old_phrase, new_phrase))
+    return pairs
+
+
 def parse_word_replacement(description):
-    """Разобрать инструкцию «слова «X» заменить словами «Y»».
+    """Разобрать ПЕРВУЮ инструкцию «слова «X» заменить словами «Y»».
 
     Работает по чистому тексту описания (HTML-теги удаляются). Возвращает
     пару строк ``(old_phrase, new_phrase)`` или ``None``, если шаблон не найден.
+    Обёртка над :func:`parse_word_replacements` (обратная совместимость).
     """
-    text = re.sub(r'<[^>]+>', ' ', str(description or ''))
-    m = re.search(
-        r'слова\s*«\s*(.+?)\s*»\s*заменить\s*словами\s*«\s*(.+?)\s*»',
-        text,
-    )
-    if not m:
-        return None
-    return m.group(1).strip(), m.group(2).strip()
+    pairs = parse_word_replacements(description)
+    return pairs[0] if pairs else None
 
 
 def norm_for_phrase_match(text):
@@ -1561,4 +1577,457 @@ def apply_word_replacement_fuzzy(html_text, old_phrase, new_phrase, min_ratio=0.
     found = html_text[start:end]
     if not found:
         return None
-    return html_text[:start] + _splice_minimal_edit(found, old_phrase, new_phrase) + html_text[end:]
+    replacement = _splice_minimal_edit(found, old_phrase, new_phrase)
+    # Границы замены нормализуются: если фраза начиналась/заканчивалась
+    # пунктуацией с пробелом и вставляемый текст зеркала не даёт, пробел
+    # восстанавливается (кейс 516-ЗС → 127-ЗС: «обращенияграждан»).
+    return join_edit_span(html_text[:start], found, html_text[end:], replacement)
+
+
+# --------------------------------------------------------------------------- #
+# Детерминированное исключение фразы «слова «X» исключить»
+#
+# Fallback, если ИИ правку не применил. Кейс 516-ЗС → 127-ЗС (часть 3 статьи 6):
+# в инструкции ссылка записана абсолютным URL (http://sevzakon.ru/view/laws/…),
+# а в целевом документе — относительным (view/laws/…). Точного совпадения фразы
+# нет, а prompt_4 (WHOLE PHRASE MATCHING / VERBATIM SUBSTITUTION) предписывает в
+# этом случае оставить текст без изменений — ИИ так и сделал, правка потерялась.
+# Поиск ниже идёт по нормализованному тексту (без тегов, регистра и пробелов),
+# поэтому расхождение в href ему не мешает.
+# --------------------------------------------------------------------------- #
+
+def html_to_plain_text(html_text):
+    """Текст HTML без тегов со схлопнутыми пробелами (для сравнения фраз)."""
+    without_tags = re.sub(r'<[^>]+>', ' ', str(html_text or ''))
+    return re.sub(r'\s+', ' ', without_tags).strip()
+
+
+def parse_word_exclusion(description):
+    """Разобрать инструкцию «слова «X» исключить» и вернуть фразу ``X``.
+
+    Работает по чистому тексту описания (HTML-теги удаляются). Возвращает
+    ``None``, если шаблон инструкции не найден.
+
+    Учитываются вложенные кавычки: внешняя и внутренняя цитата могут
+    разделять одну закрывающую „»“ (кейс 516-ЗС → 127-ЗС: «слова «, указанными
+    … № 185-ЗС «О правовых актах города Севастополя» исключить»). В этом
+    случае общая „»“ входит в фразу — иначе при вырезании в тексте остаётся
+    «висячая» кавычка («…законодательной инициативы».”).
+    """
+    text = re.sub(r'<[^>]+>', ' ', str(description or ''))
+    for match in re.finditer(r'слова\s*', text):
+        start = text.find('«', match.end())
+        if start == -1:
+            continue
+        depth = 0
+        last_close = -1
+        close = -1
+        for i in range(start, len(text)):
+            ch = text[i]
+            if ch == '«':
+                depth += 1
+            elif ch == '»':
+                depth -= 1
+                last_close = i
+                if depth == 0:
+                    close = i
+                    break
+        if close == -1:
+            # Несбалансированные кавычки: общая закрывающая „»“ входит в фразу
+            if last_close <= start:
+                continue
+            phrase = text[start + 1:last_close + 1]
+            tail = text[last_close + 1:]
+        else:
+            phrase = text[start + 1:close]
+            tail = text[close + 1:]
+        if not re.match(r'\s*исключить', tail):
+            continue  # это не инструкция «исключить» (например, «заменить»)
+        phrase = phrase.strip()
+        if phrase:
+            return phrase
+    return None
+
+
+def _extract_quoted_phrase_at(text, search_from):
+    """Фраза в «...», начинающаяся не раньше ``search_from``.
+
+    Возвращает ``(фраза, хвост)`` или ``None``. Учитываются вложенные цитаты:
+    внешняя и внутренняя «...» могут разделять одну закрывающую „»“.
+    """
+    start = text.find('«', search_from)
+    if start == -1:
+        return None
+    depth = 0
+    last_close = -1
+    close = -1
+    for index in range(start, len(text)):
+        char = text[index]
+        if char == '«':
+            depth += 1
+        elif char == '»':
+            depth -= 1
+            last_close = index
+            if depth == 0:
+                close = index
+                break
+    if close == -1:
+        if last_close <= start:
+            return None
+        return text[start + 1:last_close + 1], text[last_close + 1:]
+    return text[start + 1:close], text[close + 1:]
+
+
+def parse_word_addition(description):
+    """Разобрать инструкцию «дополнить словами «X»» и вернуть фразу ``X``.
+
+    Работает по чистому тексту описания (HTML-теги удаляются). Возвращает
+    ``None``, если шаблон инструкции не найден или после фразы идёт что-то
+    кроме терминальной пунктуации (тогда это составная инструкция и
+    программный контроль к ней неприменим).
+    """
+    text = re.sub(r'<[^>]+>', ' ', str(description or ''))
+    for match in re.finditer(r'дополнить\s+словами\s*', text, re.IGNORECASE):
+        found = _extract_quoted_phrase_at(text, match.end())
+        if found is None:
+            continue
+        phrase, tail = found
+        if not re.match(r'^\s*[;,)\s]*$', tail or ''):
+            continue
+        phrase = phrase.strip()
+        if phrase:
+            return phrase
+    return None
+
+
+def parse_addition_anchor(description):
+    """Опорная фраза инструкции «после слов «X» дополнить …» (или ``None``)."""
+    text = re.sub(r'<[^>]+>', ' ', str(description or ''))
+    match = re.search(r'после\s+слов\s*', text, re.IGNORECASE)
+    if not match:
+        return None
+    found = _extract_quoted_phrase_at(text, match.end())
+    if found is None:
+        return None
+    anchor = found[0].strip()
+    return anchor or None
+
+
+def refine_phrase_from_document(phrase, source_html):
+    """Привести фразу инструкции к написанию целевого документа.
+
+    Инструкция приходит от ИИ и может отличаться от документа оформлением
+    ссылок (абсолютный URL вместо относительного) и опечатками, поэтому
+    возвращаем реально найденный в документе фрагмент. Если фраза в документе
+    не найдена — возвращаем её без изменений.
+    """
+    rng = find_phrase_raw_range_fuzzy(source_html or '', phrase)
+    if rng is None:
+        return phrase
+    found = (source_html or '')[rng[0]:rng[1]]
+    return found or phrase
+
+
+def _prune_empty_inline_tags(html_text):
+    """Убрать пустые inline-теги, оставшиеся от вырезанного фрагмента."""
+    pattern = re.compile(
+        r'<(a|em|strong|b|i|span|u|sub|sup)\b[^>]*>\s*</\1>', re.IGNORECASE)
+    result = html_text
+    while True:
+        pruned = pattern.sub('', result)
+        if pruned == result:
+            return result
+        result = pruned
+
+
+def _collapse_html_text_spaces(html_text):
+    """Схлопнуть двойные пробелы в текстовых узлах (вне HTML-тегов)."""
+    out = []
+    in_tag = False
+    prev_space = False
+    for char in html_text:
+        if char == '<':
+            in_tag = True
+            prev_space = False
+            out.append(char)
+            continue
+        if char == '>':
+            in_tag = False
+            out.append(char)
+            continue
+        if not in_tag and char in ' \t':
+            if prev_space:
+                continue
+            prev_space = True
+            out.append(char)
+            continue
+        if not in_tag:
+            prev_space = False
+        out.append(char)
+    return ''.join(out)
+
+
+def _ends_inside_tag(fragment):
+    """True, если фрагмент обрывается внутри HTML-тега (между ``<`` и ``>``)."""
+    text = str(fragment or '')
+    last_open = text.rfind('<')
+    if last_open < 0:
+        return False
+    return text.rfind('>') < last_open
+
+
+# символ слова (буква/цифра) — для определения склейки «слово+слово»
+_WORD_CHAR_RE = re.compile(r'[0-9A-Za-zА-Яа-яЁё]')
+# «жёсткая» пунктуация: пробел перед ней в русском тексте недопустим
+_HARD_PUNCT_BEFORE = ';,.:!?'
+# хвостовые пробели/табуляции (перенос строки в HTML — обычный пробел)
+_TAIL_SPACE_RE = re.compile(r'[ \t]+$')
+_LEAD_SPACE_RE = re.compile(r'^[ \t]+')
+
+
+def _join_two_fragments(head, tail, broken_word_boundary=False):
+    """Соединить два куска HTML, выровняв пробелы на границе.
+
+    ``broken_word_boundary`` — True, если вырезанный/заменённый фрагмент
+    начинался (или заканчивался) с не-буквенного символа, то есть граница
+    слова была разрушена и её нужно восстановить пробелом.
+
+    Контрольные кейсы прогона 516-ЗС → 127-ЗС от 23.09.2026:
+
+    * ``обращения`` + ``граждан`` → ``обращения граждан`` (замена
+      «, касающиеся» → «граждан, …»: запятая и пробел целиком ушли
+      в вырезаемую фразу, слова склеились);
+    * ``Федерации `` + ``;`` → ``Федерации;`` (исключение закончилось ровно
+      перед точкой с запятой, пробел остался слева).
+
+    Стык внутри HTML-тега (например, внутри ``href="…"``) не трогается.
+    """
+    if not tail:
+        return head
+    if not head:
+        return tail
+    if _ends_inside_tag(head) or head[-1] == '<' or tail[0] == '>':
+        return head + tail
+    head_space = _TAIL_SPACE_RE.search(head)
+    tail_space = _LEAD_SPACE_RE.search(tail)
+    had_space = bool(head_space or tail_space)
+    if head_space:
+        head = head[:head_space.start()]
+    if tail_space:
+        tail = tail[tail_space.end():]
+    if not tail:
+        return head
+    if not head:
+        return tail
+    first, last = tail[0], head[-1]
+    if first in _HARD_PUNCT_BEFORE:
+        # пробел перед «;,.:!?» не нужен ни при каких условиях
+        return head + tail
+    if broken_word_boundary and _WORD_CHAR_RE.match(last) and _WORD_CHAR_RE.match(first):
+        return head + ' ' + tail
+    if had_space:
+        return head + ' ' + tail
+    return head + tail
+
+
+def join_edit_span(left, removed, right, replacement=''):
+    """Собрать HTML после правки: ``left + replacement + right``.
+
+    ``removed`` — вырезанный/заменённый фрагмент исходного HTML (по нему
+    определяется, была ли граница слова разрушена), ``replacement`` — что
+    вставляется вместо него (пустая строка при чистом исключении).
+    Обе границы нормализуются через :func:`_join_two_fragments`.
+    """
+    left_boundary_broken = bool(removed) and not _WORD_CHAR_RE.match(removed[0])
+    right_boundary_broken = bool(removed) and not _WORD_CHAR_RE.match(removed[-1])
+    head = _join_two_fragments(left, replacement, left_boundary_broken)
+    return _join_two_fragments(head, right, right_boundary_broken)
+
+
+def normalize_space_boundaries(html_text):
+    """Убрать пробелы перед «жёсткой» пунктуацией в текстовых узлах HTML.
+
+    Ответ ИИ на промпт 4 часто содержит «Российской Федерации ;»: модель
+    вырезает фразу и не схлопывает пробел перед точкой с запятой (кейс
+    516-ЗС → 127-ЗС, ст.6 ч.5 п.2). Применяется только к элементам, которые
+    реально редактируются, — нетронутые нормы через эту функцию не проходят.
+    """
+    text = str(html_text or '')
+    if not text:
+        return text
+    parts = re.split(r'(<[^>]*>)', text)
+    for index, part in enumerate(parts):
+        if not part or part[0] == '<':
+            continue
+        part = re.sub(r'[ \t]+([' + _HARD_PUNCT_BEFORE + '])', r'\1', part)
+        part = re.sub(r'  +', ' ', part)
+        parts[index] = part
+    return ''.join(parts)
+
+
+def _quote_counters(text):
+    """Считает ««» и „»“ вне HTML-тегов → ``(открыто, закрыто)``."""
+    opens = closes = 0
+    in_tag = False
+    for char in str(text or ''):
+        if char == '<':
+            in_tag = True
+            continue
+        if char == '>':
+            in_tag = False
+            continue
+        if in_tag:
+            continue
+        if char == '«':
+            opens += 1
+        elif char == '»':
+            closes += 1
+    return opens, closes
+
+
+def _first_orphan_close_pos(text):
+    """Индекс первой „»“ без парной „«“ (или -1), теги пропускаются."""
+    depth = 0
+    in_tag = False
+    for index, char in enumerate(str(text or '')):
+        if char == '<':
+            in_tag = True
+            continue
+        if char == '>':
+            in_tag = False
+            continue
+        if in_tag:
+            continue
+        if char == '«':
+            depth += 1
+        elif char == '»':
+            if depth <= 0:
+                return index
+            depth -= 1
+    return -1
+
+
+def drop_orphan_close_quote(new_html, source_html):
+    """Убрать „»“, появившуюся в результате вырезания фразы.
+
+    Вырезание фразы с вложенной цитатой (внешняя и внутренняя «...» делят
+    одну закрывающую „»“) оставляет в тексте одиночную «» без парной ««
+    (кейс 516-ЗС → 127-ЗС, ст.6 ч.3: «…законодательной инициативы».”).
+    Удаляется только та кавычка, дисбаланс которой появился ИМЕННО из-за
+    этой правки, — чужие/исходные цитаты не трогаются.
+    """
+    fixed = str(new_html or '')
+    source = str(source_html or '')
+    if not fixed:
+        return fixed
+    fixed_open, fixed_close = _quote_counters(fixed)
+    source_open, source_close = _quote_counters(source)
+    if fixed_close - fixed_open <= source_close - source_open:
+        return fixed
+    index = _first_orphan_close_pos(fixed)
+    if index < 0:
+        return fixed
+    return fixed[:index] + fixed[index + 1:]
+
+
+def find_text_boundary_defects(old_html, new_html):
+    """Список дефектов границ, появившихся именно в новом тексте.
+
+    Страховочная сеть для трёх классов дефектов прогона 516-ЗС → 127-ЗС
+    (23.09.2026), которые пост-анализ находил уже постфактум:
+
+    * склейка двух слов (``обращенияграждан``);
+    * пробел перед «жёсткой» пунктуацией (``Федерации ;``);
+    * «висячая» „»“ после вырезания вложенной цитаты.
+
+    Сравнение идёт с исходным HTML: дефект, который был в документе и до
+    правки, новым не считается. Возвращает список человекочитаемых описаний.
+    """
+    defects = []
+    old = str(old_html or '')
+    new = str(new_html or '')
+    if not new or new == old:
+        return defects
+
+    # 1) Пробел перед «жёсткой» пунктуацией в текстовых узлах.
+    def _hard_punct_spaces(html):
+        total = 0
+        for part in re.split(r'(<[^>]*>)', html):
+            if part[:1] == '<':
+                continue
+            total += len(re.findall(r'[ \t]+[' + _HARD_PUNCT_BEFORE + ']', part))
+        return total
+
+    extra_punct = _hard_punct_spaces(new) - _hard_punct_spaces(old)
+    if extra_punct > 0:
+        defects.append(
+            f'лишний пробел перед «;,.:!?» (+{extra_punct}) — например '
+            f'«Федерации ;»')
+
+    # 2) «Висячая» „»“.
+    old_open, old_close = _quote_counters(old)
+    new_open, new_close = _quote_counters(new)
+    if new_close - new_open > old_close - old_open:
+        defects.append('несбалансированная закрывающая „»“ после правки')
+
+    # 3) Склейка двух слов: токен, которого не было в исходнике, но который
+    #    разбивается на два слова, знакомых документу (одно — из исходника,
+    #    второе — из старого или нового текста: «граждан» могло быть добавлено
+    #    самой инструкцией).
+    old_token_list = re.findall(r'[0-9A-Za-zА-Яа-яЁё]+',
+                                html_to_plain_text(old).lower())
+    new_token_list = re.findall(r'[0-9A-Za-zА-Яа-яЁё]+',
+                                html_to_plain_text(new).lower())
+    old_tokens = set(old_token_list)
+    known_tokens = old_tokens | set(new_token_list)
+    for token in new_token_list:
+        if len(token) < 6 or token in old_tokens:
+            continue
+        for cut in range(3, len(token) - 2):
+            left, right = token[:cut], token[cut:]
+            glued = ((left in old_tokens and right in known_tokens)
+                     or (right in old_tokens and left in known_tokens))
+            if glued:
+                defects.append(f'возможная склейка слов «{left}»+«{right}» '
+                               f'→ «{token}»')
+                break
+    return defects
+
+
+def apply_word_exclusion_fuzzy(html_text, phrase, min_ratio=0.8):
+    """Удалить фразу из HTML-текста (поиск по нормализованному тексту).
+
+    Поиск нечувствителен к тегам, регистру и пробелам и допускает опечатки OCR
+    в описании правки. Теги в самой ``phrase`` вычищаются перед поиском:
+    ``find_phrase_raw_range_fuzzy`` сравнивает фразу с текстом без тегов, и
+    фраза-описание, содержащая ссылку (кейс 516-ЗС → 127-ЗС: вокруг «№ 185-ЗС»
+    стоит <a href>), иначе не находится никогда. Возвращаемая пара —
+    ``(исправленный HTML, удалённый фрагмент исходного HTML)``: удалённый
+    фрагмент сохраняет теги документа (нужны для highlights). ``None`` — если
+    фраза не найдена или удаление не изменило текст.
+    """
+    source = str(html_text or '')
+    if not source or not phrase:
+        return None
+    rng = find_phrase_raw_range_fuzzy(source, html_to_plain_text(phrase), min_ratio)
+    if rng is None:
+        return None
+    start, end = rng
+    if start >= end:
+        return None
+    removed = source[start:end]
+    # Границы выреза нормализуются: пробел перед «;,.:!?» убирается, склеившиеся
+    # слова разъединяются (кейсы 516-ЗС → 127-ЗС: «Федерации ;», «обращенияграждан»).
+    joined = join_edit_span(source[:start], removed, source[end:])
+    corrected = _collapse_html_text_spaces(_prune_empty_inline_tags(joined))
+    # Пустая пара кавычек на границе выреза: документ обрамлял исключаемую
+    # фразу в «...» — после удаления внутреннего текста остаётся «»
+    # (в нормальном тексте пустых кавычек не бывает).
+    corrected = safe_re_sub(r'«\s*»', '', corrected)
+    # «Висячая» „»“: внешняя и внутренняя цитаты разделяли одну закрывающую.
+    corrected = drop_orphan_close_quote(corrected, source)
+    before = norm_for_phrase_match(html_to_plain_text(source))
+    after = norm_for_phrase_match(html_to_plain_text(corrected))
+    if not removed or after == before:
+        return None
+    return corrected, removed

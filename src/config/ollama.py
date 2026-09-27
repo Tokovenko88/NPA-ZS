@@ -7,8 +7,8 @@ AI-пайплайна:
     Локальный/сетевой сервер Ollama. Адрес — ``OLLAMA_BASE_URL``,
     модель по умолчанию — ``OLLAMA_DEFAULT_MODEL``.
 
-``kilo_gateway``, ``cline``, ``openrouter``, ``cerebras``, ``together``, ``mistral``, ``gemini``,
-``free_deepseek``
+``kilo_gateway``, ``cline``, ``openrouter``, ``cerebras``, ``mistral``, ``gemini``,
+``free_deepseek``, ``qwen2api``
     HTTP-шлюзы, использующие OpenAI-compatible ``/chat/completions``.
     Конфигурация (URL, ключ, модель) берётся из :class:`npazs.config.settings.Settings`
     или из :data:`npazs.constants.HTTP_BACKEND_DEFS` как fallback.
@@ -33,7 +33,7 @@ from npazs.config.settings import get_settings
 
 #: Допустимые значения ``LLM_BACKEND``.  ``ollama`` — локальный сервер;
 #: остальные — HTTP-бэкенды с OpenAI-compatible API.
-#: Cerebras, Together, Mistral — платные pay-per-token API, но с generous
+#: Cerebras, Mistral — платные pay-per-token API, но с generous
 #: free tier'ом (без карты при регистрации), контекст до 128K.
 SUPPORTED_BACKENDS = (
     'ollama',
@@ -41,10 +41,10 @@ SUPPORTED_BACKENDS = (
     'cline',
     'openrouter',
     'cerebras',
-    'together',
     'mistral',
     'gemini',
     'free_deepseek',
+    'qwen2api',
 )
 
 #: HTTP-бэкенды, для которых используется единый ``ask_http_backend`.
@@ -126,11 +126,13 @@ def _get_http_config(backend: str) -> dict[str, Any]:
         'cline':        ('cline_base_url',         'cline_api_key',          'cline_default_model'),
         'openrouter':   ('openrouter_base_url',    'openrouter_api_key',     'openrouter_default_model'),
         'cerebras':     ('cerebras_base_url',      'cerebras_api_key',       'cerebras_default_model'),
-        'together':     ('together_base_url',      'together_api_key',       'together_default_model'),
         'mistral':      ('mistral_base_url',       'mistral_api_key',        'mistral_default_model'),
         'gemini':       ('gemini_base_url',        'gemini_api_key',         'gemini_default_model'),
         'free_deepseek': (
             'free_deepseek_base_url', 'free_deepseek_api_key', 'free_deepseek_default_model',
+        ),
+        'qwen2api': (
+            'qwen2api_base_url', 'qwen2api_api_key', 'qwen2api_default_model',
         ),
     }
     base_url_attr, key_attr, model_attr = attr_map.get(backend, attr_map['free_deepseek'])
@@ -187,11 +189,6 @@ def get_cerebras_config() -> dict[str, Any]:
     return _get_http_config('cerebras')
 
 
-def get_together_config() -> dict[str, Any]:
-    """Параметры Together AI API."""
-    return _get_http_config('together')
-
-
 def get_mistral_config() -> dict[str, Any]:
     """Параметры Mistral AI API."""
     return _get_http_config('mistral')
@@ -205,6 +202,11 @@ def get_gemini_config() -> dict[str, Any]:
 def get_free_deepseek_config() -> dict[str, Any]:
     """Параметры локального прокси FreeDeepseekAPI (OpenAI-compatible)."""
     return _get_http_config('free_deepseek')
+
+
+def get_qwen2api_config() -> dict[str, Any]:
+    """Параметры локального прокси Qwen2API (OpenAI-compatible)."""
+    return _get_http_config('qwen2api')
 
 
 def get_active_llm_config() -> dict[str, Any]:
@@ -235,5 +237,5 @@ __all__ = [
         'get_openrouter_config',
         'get_post_analysis_backend',
         'get_post_analysis_llm_config',
-        'get_together_config',
+        'get_qwen2api_config',
     ]

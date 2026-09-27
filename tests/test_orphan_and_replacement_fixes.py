@@ -22,15 +22,20 @@ _bootstrap = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_bootstrap)
 _bootstrap.bootstrap()
 
+from npazs.revision.change_applier import _ensure_word_replacement_applied
 from npazs.revision.coverage_check import (
     check_orphan_children,
     check_tracker_coverage,
     format_coverage_gaps,
 )
 from npazs.revision.html_utils import (
+    apply_word_exclusion_fuzzy,
     apply_word_replacement_fuzzy,
     find_phrase_raw_range_fuzzy,
+    html_to_plain_text,
+    parse_word_exclusion,
     parse_word_replacement,
+    parse_word_replacements,
     refine_word_replacement,
 )
 from npazs.revision.post_analysis import _apply_correction
@@ -396,6 +401,56 @@ def test_own_tracker_delete_entry_kept():
     }]
     kept = _drop_stale_tracker_entries(result, entries, "46989", lambda m, l="info": None)
     assert len(kept) == 1
+
+
+def test_live_change_tracker_object_filtered_without_error():
+    """Живой ChangeTracker (объект, а не список) фильтруется без исключения.
+
+    Регресс: оркестратор передаёт объект, итерация по которому падала
+    ('ChangeTracker' object is not iterable) и фильтр молча пропускался.
+    """
+    from npazs.revision.change_tracker import ChangeTracker
+
+    result = _result_with_rev("0c755a79", "37687_article_1_point_2_subpoint_а")
+    tracker = ChangeTracker()
+    cid = tracker.register_change({
+        "revision_number": "2)->а)",
+        "structural_element": "Статья 4 часть 1 пункт 2",
+        "type": "change",
+    })
+    tracker.mark_applying(cid, "16012_article_4_part_1_point_2")
+    tracker.mark_applied(cid, "0c755a79", "16012_article_4_part_1_point_2")
+    tracker.mark_verified(cid)
+
+    warnings: list = []
+    kept = _drop_stale_tracker_entries(
+        result, tracker, "46989",
+        lambda m, l="info": warnings.append((l, m)),
+    )
+    # Чужая ревизия (modified_by 37687 ≠ 46989) отброшена, а не упала итерация.
+    assert kept == []
+    assert any("исключена" in m for _, m in warnings)
+
+
+def test_live_change_tracker_own_entry_kept():
+    """Живой ChangeTracker: запись текущего прогона проходит фильтр."""
+    from npazs.revision.change_tracker import ChangeTracker
+
+    result = _result_with_rev("f336c92c", "46989_article_1_point_1_subpoint_а")
+    tracker = ChangeTracker()
+    cid = tracker.register_change({
+        "revision_number": "1)->а)",
+        "structural_element": "Статья 3 абзац 1",
+        "type": "change",
+    })
+    tracker.mark_applying(cid, "16012_article_4_part_1_point_2")
+    tracker.mark_applied(cid, "f336c92c", "16012_article_4_part_1_point_2")
+    tracker.mark_verified(cid)
+
+    kept = _drop_stale_tracker_entries(
+        result, tracker, "46989", lambda m, l="info": None)
+    assert len(kept) == 1
+    assert kept[0]["change_id"] == cid
 
 
 def test_prefix_correction_allowed_without_matching_child():
@@ -779,3 +834,168 @@ def test_numbering_prefix_filter_keeps_addition_of_other_paragraph():
         }],
     }
     assert _is_numbering_prefix_only_issue(issue, _work_with_part1()) is False
+
+
+# ------------------------- исключение фразы (кейс 516-ЗС → 127-ЗС, баг 23.09.2026)
+_516_EXCLUSION_DESC = (
+    '<p>в части 3 слова «, указанными в статье 3 Закона города Севастополя'
+    ' от 29 сентября 2015 года <a href="http://sevzakon.ru/">№ 185-ЗС</a>'
+    ' «О правовых актах города Севастополя» исключить;</p>'
+)
+_516_PART3_HTML = (
+    '<p class="justifyfull">Предложения о кандидатах на должность Уполномоченного'
+    ' вносятся в Законодательное Собрание города Севастополя субъектами права'
+    ' законодательной инициативы, указанными в статье 3 Закона города Севастополя'
+    ' от 29 сентября 2015 года <a href="view/laws/bank/09_2015/o_pravovyh_aktah_goroda_sevastopolya/">'
+    '№ 185-ЗС</a> «О правовых актах города Севастополя».</p>'
+)
+
+
+def test_parse_word_exclusion_shared_quote():
+    """Внешняя и внутренняя цитаты делят одну „»“: фраза берётся вместе с ней.
+
+    Наивный regex обрезал фразу до «Севастополя» без закрывающей кавычки —
+    при вырезании в части 3 статьи 6 оставалась «висячая» „»“ («…инициативы».”).
+    """
+    phrase = parse_word_exclusion(_516_EXCLUSION_DESC)
+    assert phrase is not None
+    assert phrase.endswith('Севастополя»')
+    assert '№ 185-ЗС' in phrase
+    assert phrase.startswith(', указанными')
+
+
+def test_parse_word_exclusion_balanced_quote():
+    phrase = parse_word_exclusion(
+        '<p>в пункте 2 слова «в городе Севастополе» исключить;</p>')
+    assert phrase == 'в городе Севастополе'
+
+
+def test_parse_word_exclusion_not_exclusion_returns_none():
+    # «заменить» — не исключение: guard не должен срабатывать на другие инструкции
+    assert parse_word_exclusion(
+        '<p>слова «в городе Севастополе» заменить словами «города Севастополя»;</p>'
+    ) is None
+    assert parse_word_exclusion('<p>пункт 9 дополнить предложением:</p>') is None
+
+
+def test_word_exclusion_fuzzy_no_orphan_quote():
+    """Исключение по разобранным кавычкам не оставляет «висячей» „»“."""
+    fixed, removed = apply_word_exclusion_fuzzy(
+        _516_PART3_HTML, parse_word_exclusion(_516_EXCLUSION_DESC))
+    assert fixed is not None and removed
+    plain = html_to_plain_text(fixed)
+    assert plain.endswith('законодательной инициативы.')
+    assert '»' not in plain
+    assert 'указанными' not in plain
+    assert '<a href=' not in fixed  # опустевшая ссылка вычищена
+
+
+def test_word_exclusion_fuzzy_empty_quote_pair_removed():
+    """Документ обрамлял исключаемую фразу в «...» — пустая пара вычищается."""
+    desc = '<p>слова «должны быть приложены» исключить;</p>'
+    html = '<p>Документы «должны быть приложены» к заявлению.</p>'
+    fixed, _ = apply_word_exclusion_fuzzy(html, parse_word_exclusion(desc))
+    assert fixed is not None
+    plain = html_to_plain_text(fixed)
+    assert plain == 'Документы к заявлению.'
+
+
+# ------------------ замена слов: guard опечатки ИИ (кейс 516-ЗС → 127-ЗС, 23.09.2026)
+_516_REPLACEMENT_DESC = (
+    'Изменение 1 :\n<p>в пункте 8 слова «в городе Севастополе» заменить '
+    'словами «города Севастополя»;</p>'
+)
+_516_POINT8_OLD = (
+    '<p class="justifyfull">8) получать гонорары за публикации и выступления'
+    ' в качестве лица, замещающего государственную должность в городе Севастополе;</p>'
+)
+_516_POINT8_AI_TYPO = (
+    '<p class="justifyfull">8) получать гонорары за публикации и выступления'
+    ' в качестве лица, замещающего государственную должность города Севастоля;</p>'
+)
+
+
+def test_ensure_word_replacement_fixes_ai_typo():
+    """ИИ вернул замену с опечаткой («Севастоля») — guard восстанавливает
+    формулировку инструкции и сохраняет остальной текст абзаца."""
+    fixed = _ensure_word_replacement_applied(
+        _516_REPLACEMENT_DESC, _516_POINT8_OLD, _516_POINT8_AI_TYPO)
+    assert 'города Севастополя' in fixed
+    assert 'Севастоля;' not in fixed
+    assert 'получать гонорары за публикации' in fixed
+
+
+def test_ensure_word_replacement_typo_keeps_other_ai_edits():
+    """Восстановление при опечатке сохраняет прочие правки ИИ в этом же ответе
+    (пересборка из old_html их потеряла бы)."""
+    ai_html = (
+        '<p class="justifyfull">8) получать гонорары за публикации и выступления'
+        ' в качестве лица, замещающего государственную должность города Севастоля;</p>'
+        '<p class="justifyfull">Дополненный ИИ абзац.</p>'
+    )
+    fixed = _ensure_word_replacement_applied(
+        _516_REPLACEMENT_DESC, _516_POINT8_OLD, ai_html)
+    assert 'города Севастополя' in fixed
+    assert 'Севастоля' not in fixed
+    assert 'Дополненный ИИ абзац.' in fixed
+
+
+def test_ensure_word_replacement_correct_ai_answer_untouched():
+    good = _516_POINT8_AI_TYPO.replace('Севастоля', 'Севастополя')
+    fixed = _ensure_word_replacement_applied(
+        _516_REPLACEMENT_DESC, _516_POINT8_OLD, good)
+    assert fixed == good
+
+
+# --------------------- замена: ед. число и потери текста (кейс 516-ЗС, ст. 12)
+def test_parse_word_replacement_singular_number():
+    """«слово «X» заменить словом «Y»» — раньше guard такие не распознавал."""
+    pair = parse_word_replacement('<p>слово «ребенка» заменить словом «детей»;</p>')
+    assert pair == ('ребенка', 'детей')
+
+
+def test_parse_word_replacements_multiple_pairs():
+    desc = ('<p>слова «органов государственной власти» заменить словами '
+            '«территориальных органов»;</p>'
+            '<p>слово «ребенка» заменить словом «детей»;</p>')
+    assert parse_word_replacements(desc) == [
+        ('органов государственной власти', 'территориальных органов'),
+        ('ребенка', 'детей'),
+    ]
+
+
+_LOSS_DESC = (
+    'Изменение 1 :\n<p>слова «органов государственной власти» заменить '
+    'словами «территориальных органов федеральных органов '
+    'государственной власти города Севастополя»;</p>'
+)
+_LOSS_OLD = (
+    '<p class="justifyfull">2) запрашивать сведения, объяснения '
+    'и иную информацию от органов государственной власти '
+    'в городе Севастополе;</p>'
+)
+_LOSS_AI = (
+    '<p class="justifyfull">2) запрашивать сведения, объяснения '
+    'от территориальных органов федеральных органов '
+    'государственной власти города Севастополя;</p>'
+)
+
+
+def test_ensure_word_replacement_restores_lost_tail():
+    """Diff-гвард: ИИ заменил фразу, но выбросил хвост абзаца («и иную
+    информацию») — текст восстанавливается из исходной редакции."""
+    fixed = _ensure_word_replacement_applied(_LOSS_DESC, _LOSS_OLD, _LOSS_AI)
+    assert 'и иную информацию' in fixed
+    assert 'территориальных органов федеральных' in fixed
+    assert 'от органов государственной власти' not in fixed
+
+
+def test_ensure_word_replacement_no_false_restore():
+    """Корректный ответ ИИ не подвергается «восстановлению» (diff-гвард молчит)."""
+    good = (
+        '<p class="justifyfull">2) запрашивать сведения, объяснения '
+        'и иную информацию от территориальных органов федеральных органов '
+        'государственной власти города Севастополя в городе Севастополе;</p>'
+    )
+    fixed = _ensure_word_replacement_applied(_LOSS_DESC, _LOSS_OLD, good)
+    assert fixed == good

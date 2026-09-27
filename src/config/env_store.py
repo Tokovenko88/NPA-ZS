@@ -105,11 +105,6 @@ BACKEND_ENV_KEYS: dict[str, dict[str, str]] = {
         'base_url': 'CEREBRAS_BASE_URL',
         'model': 'CEREBRAS_DEFAULT_MODEL',
     },
-    'together': {
-        'api_key': 'TOGETHER_API_KEY',
-        'base_url': 'TOGETHER_BASE_URL',
-        'model': 'TOGETHER_DEFAULT_MODEL',
-    },
     'mistral': {
         'api_key': 'MISTRAL_API_KEY',
         'base_url': 'MISTRAL_BASE_URL',
@@ -125,6 +120,11 @@ BACKEND_ENV_KEYS: dict[str, dict[str, str]] = {
         'base_url': 'FREE_DEEPSEEK_BASE_URL',
         'model': 'FREE_DEEPSEEK_DEFAULT_MODEL',
         'session': 'FREE_DEEPSEEK_SESSION',
+    },
+    'qwen2api': {
+        'api_key': 'QWEN2API_API_KEY',
+        'base_url': 'QWEN2API_BASE_URL',
+        'model': 'QWEN2API_DEFAULT_MODEL',
     },
 }
 
@@ -300,6 +300,19 @@ def save_env_values(values: Mapping[str, object], env_path: object = None) -> Pa
         text = _normalize(value)
         if key and text:
             updates[key] = text
+
+    # Защита реального .env от тестов: все save_* с env_path=None по умолчанию
+    # пишут в боевой ENV_PATH. Если запись идёт из-под pytest без явного
+    # env_path — это почти наверняка тест, забывший tmp_path/подмену; такой
+    # вызов запрещён (затирание URL/ключей провайдеров вида
+    # https://example.test/v1 — реальный сценарий). Тесты обязаны передавать
+    # env_path (tmp_path) или подменять save_* в модуле GUI.
+    if env_path is None and os.environ.get('PYTEST_CURRENT_TEST'):
+        raise RuntimeError(
+            'Отказ записи в реальный .env из теста (save_env_values без '
+            'env_path). Передайте env_path=tmp_path или подмените save_* '
+            'функцию в модуле (см. tests/test_env_store.py).'
+        )
 
     path = Path(env_path) if env_path else ENV_PATH
     if not updates:

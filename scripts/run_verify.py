@@ -3,7 +3,7 @@
 
 Поддерживает два режима:
 1. GUI (по умолчанию): ``python scripts/run_verify.py``
-2. Пакетный режим: ``python scripts/run_verify.py --result result_izm_change.json --original original.json --change change.json [--work work.json] [--output report.md] [--backend ollama|kilo_gateway] [--model model_name]``
+2. Пакетный режим: ``python scripts/run_verify.py --result result_izm_change.json --original original.json --change change.json [--work work.json] [--output report.md] [--backend ollama|kilo_gateway|cline|openrouter|cerebras|mistral|gemini|free_deepseek|qwen2api] [--model model_name]``
 
 Работает и без ``pip install -e .``: загружает bootstrap, который регистрирует
 пакет ``npazs`` в ``sys.modules``.
