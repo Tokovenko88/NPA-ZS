@@ -1,12 +1,16 @@
 """Тесты WAF-челленджа chat.qwen.ai (``HTTP 502 upstream_waf_challenge``).
 
-``npazs.revision.ai_utils.waf_challenge_hint`` / ``retry_wait_seconds``: при
-капче Aliyun WAF NPA-ZS ждёт перед повтором дольше 5-минутного охлаждения
-аккаунта в прокси Qwen2API и объясняет причину в логе (docs/qwen2api.md).
+``npazs.revision.ai_utils``: при капче Aliyun WAF NPA-ZS больше НЕ ждёт
+слепые 330 с — он запрашивает у прокси Qwen2API статус аккаунтов
+(``GET /api/accountStats``), логирует, на каком именно аккаунте проблема,
+и повторяет запрос сразу через следующий свободный аккаунт. Пауза до
+выхода ближайшего из cooldown — только когда свободных аккаунтов нет;
+если статус получить не удалось — обычный бэк-офф (docs/qwen2api.md).
 """
 
 import importlib.util
 import json
+import time
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[1]
@@ -34,6 +38,24 @@ WAF502 = (
 )
 
 
+def _stats_response(records):
+    """Заглушка ``GET /api/accountStats``: [(email, kind, cooldownEndsAt, code)]."""
+    class _Resp:
+        status_code = 200
+        text = ''
+
+        def json(self):
+            return {
+                'accounts': [
+                    {'email': email,
+                     'status': {'kind': kind, 'cooldownEndsAt': ends,
+                                'lastErrorCode': code}}
+                    for email, kind, ends, code in records
+                ]
+            }
+    return _Resp()
+
+
 def test_hint_for_qwen2api_waf_challenge():
     """502/WAF от qwen2api → подсказка про паузу и капчу в браузере."""
     hint = waf_challenge_hint('qwen2api', WAF502)
@@ -57,18 +79,78 @@ def test_no_hint_for_other_backends_or_unrelated_errors():
     assert waf_challenge_hint('qwen2api', 'HTTP 500: {"error":"无法创建或续接 Qwen 会话"}') == ''
 
 
-def test_retry_wait_stretches_past_proxy_cooldown():
-    """WAF-челлендж → пауза ≥ 330 с; обычный бэк-офф не трогаем."""
-    # Первый бэк-офф 15 с поднимается до WAF-паузы (охлаждение прокси 300 с).
-    assert retry_wait_seconds(1, 15, 2, 'qwen2api', WAF502) == WAF_CHALLENGE_WAIT_SECONDS
-    # Не-WAF ошибки и чужие бэкенды идут по исторической формуле.
+def test_retry_wait_zero_when_free_account_exists(monkeypatch):
+    """Есть свободный аккаунт → 0 с: ротация прокси уводит запрос на следующий."""
+    from npazs.revision import ai_utils
+
+    now = time.time() * 1000
+    monkeypatch.setattr(ai_utils.requests, 'get', lambda *a, **k: _stats_response([
+        ('bad@example.com', 'cooldown', now + 300_000, 'upstream_waf_challenge'),
+        ('good@example.com', 'active', None, None),
+    ]))
+    logs = []
+    wait = ai_utils.retry_wait_seconds(
+        1, 15, 2, 'qwen2api', WAF502,
+        base_url='http://127.0.0.1:3000/v1', api_key='k',
+        log_callback=lambda *entry: logs.append(entry))
+    assert wait == 0  # никаких 330 с: свободный аккаунт есть
+    text = '\n'.join(str(entry) for entry in logs)
+    assert 'bad@example.com' in text  # какой именно аккаунт в проблеме
+    assert 'upstream_waf_challenge' in text
+    assert 'свободных аккаунтов 1 из 2' in text
+
+
+def test_retry_wait_until_earliest_cooldown_when_all_cooling(monkeypatch):
+    """Все аккаунты в cooldown → до выхода ближайшего, но не дольше лимита."""
+    from npazs.revision import ai_utils
+
+    now = time.time() * 1000
+    monkeypatch.setattr(ai_utils.requests, 'get', lambda *a, **k: _stats_response([
+        ('a@example.com', 'cooldown', now + 60_000, 'upstream_waf_challenge'),
+        ('b@example.com', 'cooldown', now + 120_000, 'upstream_waf_challenge'),
+    ]))
+    wait = ai_utils.retry_wait_seconds(
+        1, 15, 2, 'qwen2api', WAF502,
+        base_url='http://127.0.0.1:3000', api_key='k')
+    assert 60 <= wait <= 70  # 60 с до выхода ближайшего + буфер
+    assert wait <= WAF_CHALLENGE_WAIT_SECONDS
+
+
+def test_retry_wait_regular_backoff_when_status_unavailable(monkeypatch):
+    """Прокси недоступен или ключ не admin → обычный бэк-офф, а не 330 с."""
+    from npazs.revision import ai_utils
+
+    def _refused(*args, **kwargs):
+        raise OSError('connection refused')
+
+    monkeypatch.setattr(ai_utils.requests, 'get', _refused)
+    assert ai_utils.retry_wait_seconds(
+        1, 15, 2, 'qwen2api', WAF502,
+        base_url='http://127.0.0.1:3000', api_key='k') == 15
+
+    class _Resp403:
+        status_code = 403
+        text = 'Admin access required'
+
+        def json(self):
+            return {}
+
+    monkeypatch.setattr(ai_utils.requests, 'get', lambda *a, **k: _Resp403())
+    # На 3-й попытке бэк-офф по исторической формуле: 15 * 2**2 = 60.
+    assert ai_utils.retry_wait_seconds(
+        3, 15, 2, 'qwen2api', WAF502,
+        base_url='http://127.0.0.1:3000', api_key='k') == 60
+
+
+def test_retry_wait_regular_backoff_unchanged():
+    """Не-WAF ошибки и чужие бэкенды идут по исторической формуле."""
     assert retry_wait_seconds(1, 15, 2, 'qwen2api', 'HTTP 500: boom') == 15
     assert retry_wait_seconds(3, 15, 2, 'qwen2api', 'HTTP 500: boom') == 60
     assert retry_wait_seconds(1, 15, 2, 'openrouter', WAF502) == 15
 
 
-def test_ask_gateway_waits_full_waf_cooldown(monkeypatch):
-    """Первая попытка 502/WAF → суммарный sleep ровно WAF_CHALLENGE_WAIT_SECONDS."""
+def test_ask_gateway_rotates_account_after_waf(monkeypatch):
+    """502/WAF → статус прокси: свободный аккаунт есть → повтор без паузы."""
     from npazs.revision import ai_utils
 
     class _Resp502:
@@ -84,6 +166,11 @@ def test_ask_gateway_waits_full_waf_cooldown(monkeypatch):
 
     responses = [_Resp502(), _Resp200()]
     monkeypatch.setattr(ai_utils.requests, 'post', lambda *a, **k: responses.pop(0))
+    now = time.time() * 1000
+    monkeypatch.setattr(ai_utils.requests, 'get', lambda *a, **k: _stats_response([
+        ('bad@example.com', 'cooldown', now + 300_000, 'upstream_waf_challenge'),
+        ('good@example.com', 'active', None, None),
+    ]))
     sleeps = []
     monkeypatch.setattr(ai_utils.time, 'sleep', lambda s: sleeps.append(s))
     logs = []
@@ -93,8 +180,70 @@ def test_ask_gateway_waits_full_waf_cooldown(monkeypatch):
         max_retries=2, retry_delay=15,
     )
     assert answer == '{"ok": true}'
-    assert sum(sleeps) == WAF_CHALLENGE_WAIT_SECONDS
-    assert any('WAF' in str(entry) for entry in logs)
+    assert sleeps == []  # ни одного ожидания: ротация на свободный аккаунт
+    text = '\n'.join(str(entry) for entry in logs)
+    assert 'WAF' in text
+    assert 'bad@example.com' in text
+    assert 'Повтор без паузы' in text
+
+
+def test_ask_gateway_retries_invalid_json_answer(monkeypatch):
+    """Мусор вместо JSON («User Safety: safe») → повтор, а не пропуск/FAILED.
+
+    Кейс из прогона 27.09.2026: ``openrouter/free`` вернул «User Safety: safe»,
+    ``_repair_json_answer`` вернул ``None``. Такое нельзя «пропускать
+    программно» — запрос повторяется в общем цикле ретраев, и при успехе
+    второй попытки возвращается её валидный JSON.
+    """
+    from npazs.revision import ai_utils
+
+    class _Resp200:
+        def __init__(self, content):
+            self.status_code = 200
+            self.text = ''
+            self._content = content
+
+        def json(self):
+            return {'choices': [{'message': {'content': self._content}}]}
+
+    responses = [_Resp200('User Safety: safe'), _Resp200('{"ok": true}')]
+    monkeypatch.setattr(ai_utils.requests, 'post', lambda *a, **k: responses.pop(0))
+    monkeypatch.setattr(ai_utils.time, 'sleep', lambda s: None)
+    logs = []
+    answer = ai_utils.ask_kilo_gateway(
+        '{"ping": 1}', 'openrouter/free', lambda *a: logs.append(a),
+        backend='openrouter', base_url='https://openrouter.ai/api/v1', api_key='k',
+        max_retries=2, retry_delay=0,
+    )
+    assert answer == '{"ok": true}'
+    text = '\n'.join(str(entry) for entry in logs)
+    assert 'Невалидный JSON-ответ ИИ' in text
+    assert 'User Safety' in text  # превью мусорного ответа — в причине повтора
+
+
+def test_ask_gateway_invalid_json_exhausts_retries(monkeypatch):
+    """Мусор на всех попытках → исчерпание ретраев (None), а не тихий пропуск."""
+    from npazs.revision import ai_utils
+
+    class _Resp200:
+        status_code = 200
+        text = ''
+
+        def json(self):
+            return {'choices': [{'message': {'content': 'User Safety: safe'}}]}
+
+    monkeypatch.setattr(ai_utils.requests, 'post', lambda *a, **k: _Resp200())
+    monkeypatch.setattr(ai_utils.time, 'sleep', lambda s: None)
+    logs = []
+    answer = ai_utils.ask_kilo_gateway(
+        '{"ping": 1}', 'openrouter/free', lambda *a: logs.append(a),
+        backend='openrouter', base_url='https://openrouter.ai/api/v1', api_key='k',
+        max_retries=2, retry_delay=0,
+    )
+    assert answer is None
+    text = '\n'.join(str(entry) for entry in logs)
+    assert 'Все попытки (2) исчерпаны' in text
+    assert 'невалидный JSON-ответ ИИ' in text
 
 
 def test_gateway_sends_utf8_body_without_ascii_escapes(monkeypatch):

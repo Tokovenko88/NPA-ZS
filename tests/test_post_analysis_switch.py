@@ -114,18 +114,20 @@ def test_switch_after_failures_uses_registered_provider(monkeypatch):
     assert 'переключён на openrouter' in joined
 
 
-def test_switch_without_provider_stops_without_crash(monkeypatch):
-    """Без зарегистрированного провайдера — штатная остановка, без исключений.
+def test_switch_without_provider_does_not_stop_pipeline(monkeypatch):
+    """Без зарегистрированного провайдера прогон НЕ останавливается.
 
-    Именно так раньше заканчивался пост-анализ (провайдер был обнулён до
-    него): выбор «Переключить бэкенд» не должен падать, но и работать без
-    провайдера не может — по этой причине оркестратор регистрирует его на
-    время ``run_post_analysis()``.
+    Раньше выбор «Переключить бэкенд» без GUI-провайдера приводил к
+    ``stop_event.set()`` и убивал весь прогон («Обработка прервана
+    пользователем»). Теперь диалог переспрашивается
+    :data:`SWITCH_ASK_LIMIT` раз, изменение уходит в FAILED, а прогон
+    продолжается — останавливает только явное «Остановить».
     """
     calls = _install_posts(monkeypatch)
+    shown = []
     monkeypatch.setattr(
         constants, '_user_retry_callback',
-        lambda msg, action='retry': 'switch',
+        lambda msg, action='retry': shown.append(msg) or 'switch',
     )
     monkeypatch.setattr(constants, '_settings_provider', None)
     stop = threading.Event()
@@ -138,10 +140,13 @@ def test_switch_without_provider_stops_without_crash(monkeypatch):
     )
 
     assert answer is None
-    assert stop.is_set()
+    assert not stop.is_set(), 'отсутствие GUI-провайдера не должно убивать прогон'
     assert len(calls) == 1, 'повторов без провайдера быть не должно'
+    assert len(shown) == ai_utils.SWITCH_ASK_LIMIT, (
+        'диалог должен быть переспрошен, а не принят за отказ')
     joined = ' '.join(str(entry) for entry in logs)
-    assert 'Пользователь остановил процесс' in joined
+    assert 'Настройки провайдера недоступны' in joined
+    assert 'прогон продолжается' in joined
 
 
 class _Var:

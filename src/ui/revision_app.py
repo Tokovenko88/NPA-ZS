@@ -194,11 +194,13 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
             scope = getattr(_constants, '_settings_provider_scope', '') or ''
             scope_note = " (пост-анализ)" if scope == 'post' else ""
             switch_hint = (
-                "Выберите новый бэкенд и модель в блоке «Пост-анализ»\n"
-                "главного окна, затем нажмите «Готово» для продолжения."
+                "Выберите новую модель (или бэкенд) в блоке «Пост-анализ»\n"
+                "главного окна, затем нажмите «Готово» для продолжения.\n"
+                "Прогон не остановится — он продолжится с новой моделью."
                 if scope == 'post' else
-                "Выберите новый бэкенд и модель в главном окне,\n"
-                "затем нажмите «Готово» для продолжения."
+                "Выберите новую модель (или бэкенд) в главном окне,\n"
+                "затем нажмите «Готово» для продолжения.\n"
+                "Прогон не остановится — он продолжится с новой моделью."
             )
             def show_dialog():
                 dialog = tk.Toplevel(self.root)
@@ -206,7 +208,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                     ("Лимит модели исчерпан" if action == 'switch'
                      else "Ошибка запроса к модели") + scope_note
                 )
-                dialog.geometry("560x240" if action == 'switch' else "500x200")
+                dialog.geometry("600x300" if action == 'switch' else "500x200")
                 dialog.transient(self.root)
                 dialog.grab_set()
                 msg = tk.Label(dialog, text=error_message, wraplength=500, justify=tk.LEFT)
@@ -244,7 +246,7 @@ class App(GuiBuilderMixin, AiPipelineMixin, FileOpsMixin):
                     switch_dialog.wait_window()
                     event.set()
                 if action == 'switch':
-                    tk.Button(btn_frame, text="Переключить бэкенд", command=on_switch, width=18).pack(side=tk.LEFT, padx=5)
+                    tk.Button(btn_frame, text="Сменить модель/бэкенд", command=on_switch, width=22).pack(side=tk.LEFT, padx=5)
                     tk.Button(btn_frame, text="Повторить", command=on_retry, width=12).pack(side=tk.LEFT, padx=5)
                     tk.Button(btn_frame, text="Остановить", command=on_stop, width=12).pack(side=tk.LEFT, padx=5)
                 else:

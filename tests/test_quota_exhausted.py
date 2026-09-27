@@ -119,3 +119,167 @@ def test_quota_error_type_carries_backend_and_model():
     err = QuotaExhaustedError('HTTP 429: x', backend='qwen2api', model='m')
     assert err.backend == 'qwen2api'
     assert err.model == 'm'
+
+
+# ---------------------------------------------------------------------------
+# Регрессия прогона 27.09.2026: квота qwen3.8-max исчерпана, пользователь
+# выбрал ДРУГУЮ МОДЕЛЬ того же бэкенда qwen2api → «Бэкенд не изменён» →
+# stop_event.set() → «Обработка прервана пользователем», весь прогон убит.
+# ---------------------------------------------------------------------------
+
+
+def _install_quota(monkeypatch, first_models=('qwen3.8-max',)):
+    """Первый запрос — 429 по квоте, последующие отвечают валидным JSON."""
+    from npazs.revision import ai_utils
+
+    calls = []
+
+    class _Resp200:
+        status_code = 200
+        text = ''
+
+        def json(self):
+            return {'choices': [{'message': {'content': '{"ok": true}'}}]}
+
+    def fake_post(url, data=None, headers=None, timeout=None):
+        import json as _json
+        calls.append((url, _json.loads(data.decode('utf-8'))['model']))
+        if len(calls) == 1:
+            class _Resp429:
+                status_code = 429
+                text = QUOTA429
+            return _Resp429()
+        return _Resp200()
+
+    monkeypatch.setattr(ai_utils.requests, 'post', fake_post)
+    return calls
+
+
+def test_quota_switch_to_another_model_keeps_run_alive(monkeypatch):
+    """Квота исчерпана → меняем ТОЛЬКО модель (бэкенд тот же) → запрос идёт.
+
+    Раньше смена засчитывалась только при смене бэкенда, поэтому выбор другой
+    модели qwen2api отбрасывался и прогон останавливался целиком.
+    """
+    import threading
+
+    import npazs.constants as constants
+    from npazs.revision import ai_utils
+
+    calls = _install_quota(monkeypatch)
+    monkeypatch.setattr(
+        constants, '_user_retry_callback',
+        lambda msg, action='retry': 'switch',
+    )
+    monkeypatch.setattr(
+        constants, '_settings_provider',
+        lambda: {
+            'backend': 'qwen2api',
+            'model': 'qwen3.7-max',          # та же провайдерская семья
+            'base_url': 'http://127.0.0.1:3000',
+            'api_key': 'k',
+            'agent_session': None,
+        },
+    )
+    stop = threading.Event()
+    logs = []
+
+    answer = ai_utils.ask_kilo_gateway(
+        '{"a": 1}', 'qwen3.8-max', lambda *a: logs.append(str(a)),
+        backend='qwen2api', base_url='http://127.0.0.1:3000', api_key='k',
+        max_retries=3, retry_delay=0, stop_event=stop,
+    )
+
+    assert answer == '{"ok": true}'
+    assert not stop.is_set(), 'смена модели не должна останавливать прогон'
+    assert [model for _url, model in calls] == ['qwen3.8-max', 'qwen3.7-max']
+    joined = '\n'.join(logs)
+    assert 'изменено: модель' in joined
+
+
+def test_quota_switch_dialog_is_requeried_when_nothing_changed(monkeypatch):
+    """Пустой «переключатель» переспрашивается и НЕ убивает прогон."""
+    import threading
+
+    import npazs.constants as constants
+    from npazs.revision import ai_utils
+
+    calls = _install_quota(monkeypatch)
+    shown = []
+    monkeypatch.setattr(
+        constants, '_user_retry_callback',
+        lambda msg, action='retry': shown.append(msg) or 'switch',
+    )
+    monkeypatch.setattr(
+        constants, '_settings_provider',
+        lambda: {   # пользователь ничего не поменял
+            'backend': 'qwen2api',
+            'model': 'qwen3.8-max',
+            'base_url': 'http://127.0.0.1:3000',
+            'api_key': 'k',
+            'agent_session': None,
+        },
+    )
+    stop = threading.Event()
+    logs = []
+
+    answer = ai_utils.ask_kilo_gateway(
+        '{"a": 1}', 'qwen3.8-max', lambda *a: logs.append(str(a)),
+        backend='qwen2api', base_url='http://127.0.0.1:3000', api_key='k',
+        max_retries=3, retry_delay=0, stop_event=stop,
+    )
+
+    assert answer is None
+    assert not stop.is_set(), 'пустая смена не должна останавливать прогон'
+    assert len(calls) == 1, 'квота = ни одного повтора'
+    assert len(shown) == ai_utils.SWITCH_ASK_LIMIT
+    assert 'ДРУГУЮ модель' in '\n'.join(logs)
+    assert 'прогон продолжается' in '\n'.join(logs)
+
+
+def test_quota_headless_does_not_stop_pipeline(monkeypatch):
+    """Без GUI-диалога (headless) квота не ставит stop_event."""
+    import threading
+
+    import npazs.constants as constants
+    from npazs.revision import ai_utils
+
+    calls = _install_quota(monkeypatch)
+    monkeypatch.setattr(constants, '_user_retry_callback', None)
+    stop = threading.Event()
+    logs = []
+
+    answer = ai_utils.ask_kilo_gateway(
+        '{"a": 1}', 'qwen3.8-max', lambda *a: logs.append(str(a)),
+        backend='qwen2api', base_url='http://127.0.0.1:3000', api_key='k',
+        max_retries=3, retry_delay=0, stop_event=stop,
+    )
+
+    assert answer is None
+    assert not stop.is_set(), 'headless-прогон нельзя останавливать из-за квоты'
+    assert len(calls) == 1
+    assert 'Прогон продолжается' in '\n'.join(logs)
+
+
+def test_quota_explicit_stop_is_respected(monkeypatch):
+    """Только явное «Остановить» останавливает прогон."""
+    import threading
+
+    import npazs.constants as constants
+    from npazs.revision import ai_utils
+
+    _install_quota(monkeypatch)
+    monkeypatch.setattr(
+        constants, '_user_retry_callback',
+        lambda msg, action='retry': 'stop',
+    )
+    stop = threading.Event()
+
+    answer = ai_utils.ask_kilo_gateway(
+        '{"a": 1}', 'qwen3.8-max', lambda *a: None,
+        backend='qwen2api', base_url='http://127.0.0.1:3000', api_key='k',
+        max_retries=3, retry_delay=0, stop_event=stop,
+    )
+
+    assert answer is None
+    assert stop.is_set(), 'явная остановка пользователем обязана работать'
